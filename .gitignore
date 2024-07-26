@@ -61,3 +61,6 @@ target/
 ### OS ###
 .DS_Store
 Thumbs.db
+
+### Develop Application Yml ###
+/src/main/resources/application-dev.yml
