@@ -61,7 +61,7 @@ jobs:
             echo $PW | sudo -S docker pull ${{ secrets.DOCKERHUB_USERNAME }}/sejong-malsami-back-container:latest
             echo $PW | sudo -S docker stop sejong-malsami-back || true
             echo $PW | sudo -S docker rm sejong-malsami-back || true
-            echo $PW | sudo -S docker run -d -p 8085:8080 --name sejong-malsami-back \
+            echo $PW | sudo -S docker run -d -p 8086:8080 --name sejong-malsami-back \
               -e DB_HOST=${{ secrets.DB_HOST }} \
               -e DB_NAME=${{ secrets.DB_NAME }} \
               -e DB_USERNAME=${{ secrets.DB_USERNAME }} \
