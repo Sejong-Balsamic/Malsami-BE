@@ -1,4 +1,4 @@
-package com.balsamic.sejongmalsami.common.config.auth.dto.response;
+package com.balsamic.sejongmalsami.common.auth.dto.response;
 
 import lombok.Builder;
 import lombok.Getter;

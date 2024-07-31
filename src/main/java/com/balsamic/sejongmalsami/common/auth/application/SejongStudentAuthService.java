@@ -1,7 +1,7 @@
-package com.balsamic.sejongmalsami.common.config.auth.application;
+package com.balsamic.sejongmalsami.common.auth.application;
 
-import com.balsamic.sejongmalsami.common.config.auth.dto.request.SejongStudentAuthRequest;
-import com.balsamic.sejongmalsami.common.config.auth.dto.response.SejongStudentAuthResponse;
+import com.balsamic.sejongmalsami.common.auth.dto.request.SejongStudentAuthRequest;
+import com.balsamic.sejongmalsami.common.auth.dto.response.SejongStudentAuthResponse;
 import com.balsamic.sejongmalsami.member.domain.repository.MemberRepository;
 import java.io.IOException;
 import java.util.ArrayList;
@@ -26,7 +26,8 @@ public class SejongStudentAuthService {
   private final MemberRepository memberRepository;
   private static final OkHttpClient CLIENT = new OkHttpClient();
 
-  public SejongStudentAuthResponse getMemberAuthInfos(SejongStudentAuthRequest request) throws IOException {
+  public SejongStudentAuthResponse getMemberAuthInfos(
+      SejongStudentAuthRequest request) throws IOException {
     String jsessionId = obtainJSessionId();
     if (jsessionId == null) {
       throw new IllegalStateException("Cannot retrieve JSESSIONID");
