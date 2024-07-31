@@ -62,6 +62,8 @@ jobs:
             echo $PW | sudo -S docker stop sejong-malsami-back || true
             echo $PW | sudo -S docker rm sejong-malsami-back || true
             echo $PW | sudo -S docker run -d -p 8086:8080 --name sejong-malsami-back \
+              -e TZ=Asia/Seoul \
+              -v /etc/localtime:/etc/localtime:ro \
               -e DB_HOST=${{ secrets.DB_HOST }} \
               -e DB_NAME=${{ secrets.DB_NAME }} \
               -e DB_USERNAME=${{ secrets.DB_USERNAME }} \
