@@ -23,15 +23,15 @@ public class MemberController {
 
   @PostMapping("/sign-in")
   @Operation(summary = "로그인 요청", description = "로그인 요청 기능\n\n 이메일 비밀번호는 필수\n\n 기기 Id 안 보내면 db에 등록 안 되어서 간소 로그인 불가")
-  public ResponseEntity<SejongStudentAuthResponse> signIn(
+  public ResponseEntity<CreateMemberResponse> signIn(
       @RequestBody SejongStudentAuthRequest sejongStudentAuthRequest
   ) throws IOException {
     SejongStudentAuthResponse sejongStudentAuthResponse
         = sejongStudentAuthService.getMemberAuthInfos(sejongStudentAuthRequest);
-//    CreateMemberResponse response = memberService.createMember(
-//        sejongStudentAuthResponse);
+    CreateMemberResponse response = memberService.createMember(
+        sejongStudentAuthResponse);
 
-    return ResponseEntity.ok(sejongStudentAuthResponse);
+    return ResponseEntity.ok(response);
   }
 
 }
