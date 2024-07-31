@@ -28,6 +28,7 @@ public class WebSecurityConfig {
       "/api/login", // 로그인
       "/docs/**", // Swagger
       "/v3/api-docs/**", // Swagger
+      "/**",
   };
 
   private static final String[] ALLOWED_ORIGINS = {

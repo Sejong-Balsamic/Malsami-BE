@@ -45,6 +45,10 @@ dependencies {
 
     // Hibernate 호환성문제
     implementation group: 'com.fasterxml', name: 'classmate', version: '1.7.0'
+
+    // Http
+    implementation 'com.squareup.okhttp3:okhttp:4.9.3'
+    implementation 'org.jsoup:jsoup:1.15.3'
 }
 
 tasks.named('test') {
