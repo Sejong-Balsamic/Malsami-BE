@@ -4,6 +4,7 @@ import com.balsamic.sejongmalsami.common.config.auth.application.SejongStudentAu
 import com.balsamic.sejongmalsami.common.config.auth.dto.request.SejongStudentAuthRequest;
 import com.balsamic.sejongmalsami.common.config.auth.dto.response.SejongStudentAuthResponse;
 import com.balsamic.sejongmalsami.member.application.MemberService;
+import com.balsamic.sejongmalsami.member.dto.response.CreateMemberResponse;
 import io.swagger.v3.oas.annotations.Operation;
 import java.io.IOException;
 import lombok.RequiredArgsConstructor;
@@ -27,6 +28,8 @@ public class MemberController {
   ) throws IOException {
     SejongStudentAuthResponse sejongStudentAuthResponse
         = sejongStudentAuthService.getMemberAuthInfos(sejongStudentAuthRequest);
+//    CreateMemberResponse response = memberService.createMember(
+//        sejongStudentAuthResponse);
 
     return ResponseEntity.ok(sejongStudentAuthResponse);
   }
