@@ -1,8 +1,8 @@
 package com.balsamic.sejongmalsami.member.presentation;
 
-import com.balsamic.sejongmalsami.common.config.auth.application.SejongStudentAuthService;
-import com.balsamic.sejongmalsami.common.config.auth.dto.request.SejongStudentAuthRequest;
-import com.balsamic.sejongmalsami.common.config.auth.dto.response.SejongStudentAuthResponse;
+import com.balsamic.sejongmalsami.common.auth.application.SejongStudentAuthService;
+import com.balsamic.sejongmalsami.common.auth.dto.request.SejongStudentAuthRequest;
+import com.balsamic.sejongmalsami.common.auth.dto.response.SejongStudentAuthResponse;
 import com.balsamic.sejongmalsami.member.application.MemberService;
 import com.balsamic.sejongmalsami.member.dto.response.CreateMemberResponse;
 import io.swagger.v3.oas.annotations.Operation;
@@ -22,7 +22,9 @@ public class MemberController {
   private final MemberService memberService;
 
   @PostMapping("/sign-in")
-  @Operation(summary = "로그인 요청", description = "로그인 요청 기능\n\n 이메일 비밀번호는 필수\n\n 기기 Id 안 보내면 db에 등록 안 되어서 간소 로그인 불가")
+  @Operation(summary = "로그인 요청", description = ""
+      + "세종대학교 대양휴머니티 칼리지 로그인 기능\n\n"
+      + "DB에 저장하는 정보는 = '이름, 학번, 전공, 학년, 현재 재학여부' 입니다.")
   public ResponseEntity<CreateMemberResponse> signIn(
       @RequestBody SejongStudentAuthRequest sejongStudentAuthRequest
   ) throws IOException {
@@ -30,8 +32,6 @@ public class MemberController {
         = sejongStudentAuthService.getMemberAuthInfos(sejongStudentAuthRequest);
     CreateMemberResponse response = memberService.createMember(
         sejongStudentAuthResponse);
-
     return ResponseEntity.ok(response);
   }
-
 }
