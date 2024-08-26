@@ -1,6 +1,5 @@
-package com.balsamic.sejongmalsami.member.domain.entity;
+package com.balsamic.sejongmalsami.object;
 
-import com.balsamic.sejongmalsami.common.entity.BaseTimeEntity;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;

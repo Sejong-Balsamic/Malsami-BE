@@ -1,4 +1,4 @@
-package com.balsamic.sejongmalsami.common.entity;
+package com.balsamic.sejongmalsami.object;
 
 import jakarta.persistence.Column;
 import jakarta.persistence.EntityListeners;
