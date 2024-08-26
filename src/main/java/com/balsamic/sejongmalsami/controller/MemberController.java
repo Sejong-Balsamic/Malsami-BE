@@ -2,7 +2,7 @@ package com.balsamic.sejongmalsami.controller;
 
 import com.balsamic.sejongmalsami.object.MemberCommand;
 import com.balsamic.sejongmalsami.object.MemberDto;
-import com.balsamic.sejongmalsami.util.SejongAuthUtil;
+import com.balsamic.sejongmalsami.util.SejongPortalAuthenticator;
 import com.balsamic.sejongmalsami.service.MemberService;
 import io.swagger.v3.oas.annotations.Operation;
 import java.io.IOException;
@@ -17,7 +17,7 @@ import org.springframework.web.bind.annotation.RestController;
 @RequiredArgsConstructor
 @RequestMapping("/api/member")
 public class MemberController {
-  private final SejongAuthUtil sejongAuthUtil;
+  private final SejongPortalAuthenticator sejongPortalAuthenticator;
   private final MemberService memberService;
 
   @PostMapping("/sign-in")

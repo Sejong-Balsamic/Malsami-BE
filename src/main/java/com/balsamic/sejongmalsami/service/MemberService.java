@@ -4,7 +4,7 @@ import com.balsamic.sejongmalsami.object.Member;
 import com.balsamic.sejongmalsami.object.MemberCommand;
 import com.balsamic.sejongmalsami.object.MemberDto;
 import com.balsamic.sejongmalsami.repository.MemberRepository;
-import com.balsamic.sejongmalsami.util.SejongAuthUtil;
+import com.balsamic.sejongmalsami.util.SejongPortalAuthenticator;
 import java.util.UUID;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -15,10 +15,10 @@ import org.springframework.stereotype.Service;
 @Slf4j
 public class MemberService {
   private final MemberRepository memberRepository;
-  private final SejongAuthUtil sejongAuthUtil;
+  private final SejongPortalAuthenticator sejongPortalAuthenticator;
 
   public MemberDto createMember(MemberCommand command){
-    MemberDto dto = sejongAuthUtil.getMemberAuthInfos(command);
+    MemberDto dto = sejongPortalAuthenticator.getMemberAuthInfos(command);
 
     Member savedMember = memberRepository.save(
         Member.builder()

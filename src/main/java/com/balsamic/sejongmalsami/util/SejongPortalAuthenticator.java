@@ -22,7 +22,7 @@ import org.springframework.stereotype.Component;
 @Slf4j
 @Component
 @RequiredArgsConstructor
-public class SejongAuthUtil {
+public class SejongPortalAuthenticator {
   private static final OkHttpClient CLIENT = new OkHttpClient();
 
   public MemberDto getMemberAuthInfos(MemberCommand command) {
