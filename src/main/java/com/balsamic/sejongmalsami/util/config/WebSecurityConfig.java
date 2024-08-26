@@ -1,4 +1,4 @@
-package com.balsamic.sejongmalsami.common.config;
+package com.balsamic.sejongmalsami.util.config;
 
 import java.util.Arrays;
 import java.util.Collections;

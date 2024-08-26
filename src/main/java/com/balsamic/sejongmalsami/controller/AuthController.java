@@ -1,4 +1,4 @@
-package com.balsamic.sejongmalsami.common.auth.presentation;
+package com.balsamic.sejongmalsami.controller;
 
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Controller;
@@ -6,5 +6,4 @@ import org.springframework.stereotype.Controller;
 @Controller
 @RequiredArgsConstructor
 public class AuthController {
-
 }
