@@ -1,9 +1,10 @@
-name: MALSAMI BE CICD
+name: SEJOING-MALSAMI-BE-CICD
 
 on:
   push:
     branches:
       - main
+      - test
   workflow_dispatch:
 
 jobs:
@@ -40,7 +41,7 @@ jobs:
           context: .
           file: ./Dockerfile
           push: true
-          tags: ${{ secrets.DOCKERHUB_USERNAME }}/sejong-malsami-back-container:latest
+          tags: ${{ secrets.DOCKERHUB_USERNAME }}/sejong-malsami-back-container:${{ github.ref_name }}
           cache-from: type=registry,ref=${{ secrets.DOCKERHUB_USERNAME }}/sejong-malsami-back-container:cache
           cache-to: type=inline
 
@@ -58,14 +59,23 @@ jobs:
           script: |
             export PATH=$PATH:/usr/local/bin
             export PW=${{ secrets.SERVER_PASSWORD }}
-            echo $PW | sudo -S docker pull ${{ secrets.DOCKERHUB_USERNAME }}/sejong-malsami-back-container:latest
-            echo $PW | sudo -S docker stop sejong-malsami-back || true
-            echo $PW | sudo -S docker rm sejong-malsami-back || true
-            echo $PW | sudo -S docker run -d -p 8086:8080 --name sejong-malsami-back \
+            BRANCH=${{ github.ref_name }}
+            PORT=8080
+            CONTAINER_NAME="sejong-malsami-back"
+            if [ "$BRANCH" == "main" ]; then
+              PORT=8087
+            elif [ "$BRANCH" == "test" ]; then
+              CONTAINER_NAME="sejong-malsami-back-test"
+              PORT=8088
+            fi
+            echo $PW | sudo -S docker pull ${{ secrets.DOCKERHUB_USERNAME }}/sejong-malsami-back-container:${BRANCH}
+            echo $PW | sudo -S docker stop $CONTAINER_NAME || true
+            echo $PW | sudo -S docker rm $CONTAINER_NAME || true
+            echo $PW | sudo -S docker run -d -p ${PORT}:8080 --name $CONTAINER_NAME \
               -e TZ=Asia/Seoul \
               -v /etc/localtime:/etc/localtime:ro \
               -e DB_HOST=${{ secrets.DB_HOST }} \
               -e DB_NAME=${{ secrets.DB_NAME }} \
               -e DB_USERNAME=${{ secrets.DB_USERNAME }} \
               -e DB_PASSWORD=${{ secrets.DB_PASSWORD }} \
-              ${{ secrets.DOCKERHUB_USERNAME }}/sejong-malsami-back-container:latest
+              ${{ secrets.DOCKERHUB_USERNAME }}/sejong-malsami-back-container:${BRANCH}
