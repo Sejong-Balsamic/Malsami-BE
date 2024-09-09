@@ -27,3 +27,4 @@ springdoc:
 jwt:
   secret-key: ${JWT_SECRET_KEY}
   access-exp-time: ${JWT_ACCESS_EXP_TIME}
+  refresh-exp-time: ${JWT_REFRESH_EXP_TIME}

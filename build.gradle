@@ -33,12 +33,19 @@ dependencies {
     implementation 'org.springframework.boot:spring-boot-starter-security'
     testImplementation 'org.springframework.security:spring-security-test'
 
+    // jwt
+    implementation 'io.jsonwebtoken:jjwt-api:0.11.0'
+    runtimeOnly 'io.jsonwebtoken:jjwt-impl:0.11.0'
+    runtimeOnly 'io.jsonwebtoken:jjwt-jackson:0.11.0'
+
     // swagger
     implementation 'org.springdoc:springdoc-openapi-starter-webmvc-ui:2.3.0'
 
     // lombok
     compileOnly 'org.projectlombok:lombok'
     annotationProcessor 'org.projectlombok:lombok'
+    testCompileOnly 'org.projectlombok:lombok'
+    testAnnotationProcessor 'org.projectlombok:lombok'
 
     // maria DB
     runtimeOnly 'org.mariadb.jdbc:mariadb-java-client'
@@ -49,6 +56,13 @@ dependencies {
     // Http
     implementation 'com.squareup.okhttp3:okhttp:4.9.3'
     implementation 'org.jsoup:jsoup:1.15.3'
+
+    // Faker 오늘도 숭배 해야만해....
+    implementation('com.github.javafaker:javafaker:1.0.2') {
+        // Faker 의존성에서 snakeyaml 제외 (버전 충돌) snakeyaml의 2.0버전 명시적으로 추가
+        exclude module: 'snakeyaml'
+    }
+    implementation 'org.yaml:snakeyaml:2.0'
 }
 
 tasks.named('test') {
