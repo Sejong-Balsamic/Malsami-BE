@@ -25,7 +25,7 @@ public class MemberController {
   private final SejongPortalAuthenticator sejongPortalAuthenticator;
   private final MemberService memberService;
 
-  @PostMapping("/sign-in")
+  @PostMapping("/signin")
   @Operation(
       summary = "로그인 요청",
       description = """

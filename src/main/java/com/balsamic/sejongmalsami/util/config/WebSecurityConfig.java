@@ -1,17 +1,24 @@
 package com.balsamic.sejongmalsami.util.config;
 
+import com.balsamic.sejongmalsami.util.JwtUtil;
+import com.balsamic.sejongmalsami.util.filter.TokenAuthenticationFilter;
 import java.util.Arrays;
 import java.util.Collections;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.security.authentication.AuthenticationManager;
+import org.springframework.security.authentication.ProviderManager;
+import org.springframework.security.authentication.dao.DaoAuthenticationProvider;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.annotation.web.configuration.WebSecurityCustomizer;
 import org.springframework.security.config.annotation.web.configurers.AbstractHttpConfigurer;
 import org.springframework.security.config.http.SessionCreationPolicy;
+import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
+import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 import org.springframework.security.web.util.matcher.AntPathRequestMatcher;
 import org.springframework.web.cors.CorsConfiguration;
 import org.springframework.web.cors.CorsConfigurationSource;
@@ -21,6 +28,8 @@ import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
 @EnableWebSecurity
 @RequiredArgsConstructor
 public class WebSecurityConfig {
+  private final JwtUtil jwtUtil;
+
   private static final String[] AUTH_WHITELIST = {
       "/", // 기본화면
       "/api/**", //FIXME: 일시적으로 전체 API 주소 허용 (삭제해야함)
@@ -65,18 +74,20 @@ public class WebSecurityConfig {
                 .invalidateHttpSession(true)
             )
             .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
+            .addFilterBefore(new TokenAuthenticationFilter(jwtUtil, Arrays.asList(AUTH_WHITELIST)),
+                UsernamePasswordAuthenticationFilter.class)
             .build();
   }
 
-//  @Bean
-//  public AuthenticationManager authenticationManager(HttpSecurity http,
-//      BCryptPasswordEncoder bCryptPasswordEncoder,
-//      UserDetailsService UserDetailsService) throws Exception {
-//    DaoAuthenticationProvider authProvider = new DaoAuthenticationProvider();
-//    authProvider.setUserDetailsService(UserDetailsService);
-//    authProvider.setPasswordEncoder(bCryptPasswordEncoder);
-//    return new ProviderManager(authProvider);
-//  }
+  @Bean
+  public AuthenticationManager authenticationManager(HttpSecurity http,
+      BCryptPasswordEncoder bCryptPasswordEncoder,
+      UserDetailsService UserDetailsService) throws Exception {
+    DaoAuthenticationProvider authProvider = new DaoAuthenticationProvider();
+    authProvider.setUserDetailsService(UserDetailsService);
+    authProvider.setPasswordEncoder(bCryptPasswordEncoder);
+    return new ProviderManager(authProvider);
+  }
 
   @Bean
   public CorsConfigurationSource corsConfigurationSource() {
