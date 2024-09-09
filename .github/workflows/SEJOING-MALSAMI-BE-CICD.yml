@@ -26,6 +26,10 @@ jobs:
       - name: Build with Gradle
         run: ./gradlew clean build -x test
 
+      - name: Create application-prod.yml from secret
+        run: |
+          echo "${{ secrets.APPLICATION_PROD_YML }}" > ./src/main/resources/application-prod.yml
+
       - name: Docker setup
         uses: docker/setup-buildx-action@v3
 
@@ -74,8 +78,4 @@ jobs:
             echo $PW | sudo -S docker run -d -p ${PORT}:8080 --name $CONTAINER_NAME \
               -e TZ=Asia/Seoul \
               -v /etc/localtime:/etc/localtime:ro \
-              -e DB_HOST=${{ secrets.DB_HOST }} \
-              -e DB_NAME=${{ secrets.DB_NAME }} \
-              -e DB_USERNAME=${{ secrets.DB_USERNAME }} \
-              -e DB_PASSWORD=${{ secrets.DB_PASSWORD }} \
               ${{ secrets.DOCKERHUB_USERNAME }}/sejong-malsami-back-container:${BRANCH}
