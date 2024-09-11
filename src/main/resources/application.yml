@@ -11,9 +11,6 @@ spring:
           format_sql: true
           open-in-view: false
           use_sql_comments: true
-          type:
-            resolver: org.hibernate.type.BasicTypeResolverStandardImpl
-          dialect: org.hibernate.dialect.MariaDBDialect
 mvc:
   path-match:
     matching-strategy: ant_path_matcher
@@ -23,8 +20,3 @@ springdoc:
   default-produces-media-type: application/json;charset=UTF-8
   swagger-ui:
     path: /docs/swagger
-
-jwt:
-  secret-key: ${JWT_SECRET_KEY}
-  access-exp-time: ${JWT_ACCESS_EXP_TIME}
-  refresh-exp-time: ${JWT_REFRESH_EXP_TIME}
