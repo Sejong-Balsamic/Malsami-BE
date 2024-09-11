@@ -23,8 +23,3 @@ springdoc:
   default-produces-media-type: application/json;charset=UTF-8
   swagger-ui:
     path: /docs/swagger
-
-jwt:
-  secret-key: ${JWT_SECRET_KEY}
-  access-exp-time: ${JWT_ACCESS_EXP_TIME}
-  refresh-exp-time: ${JWT_REFRESH_EXP_TIME}
