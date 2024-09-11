@@ -29,8 +29,6 @@ jobs:
       - name: Create application-prod.yml from secret
         run: |
           echo "${{ secrets.APPLICATION_PROD_YML_BASE64 }}" | base64 -d > ./src/main/resources/application-prod.yml
-          echo "application-prod.yml contents:"
-          cat ./src/main/resources/application-prod.yml
 
       - name: Docker setup
         uses: docker/setup-buildx-action@v3
@@ -79,5 +77,6 @@ jobs:
             echo $PW | sudo -S docker rm $CONTAINER_NAME || true
             echo $PW | sudo -S docker run -d -p ${PORT}:8080 --name $CONTAINER_NAME \
               -e TZ=Asia/Seoul \
+              -e "SPRING_PROFILES_ACTIVE=prod" \
               -v /etc/localtime:/etc/localtime:ro \
               ${{ secrets.DOCKERHUB_USERNAME }}/sejong-malsami-back-container:${BRANCH}
