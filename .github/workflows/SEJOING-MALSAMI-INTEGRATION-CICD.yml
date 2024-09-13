@@ -1,4 +1,4 @@
-name: SEJOING-MALSAMI-BE-CICD
+name: SEJOING-MALSAMI-INTEGRATION-CICD
 
 on:
   push:
@@ -28,16 +28,7 @@ jobs:
         run: |
           echo "${{ secrets.APPLICATION_PROD_YML }}" > ./src/main/resources/application-prod.yml
 
-      - name: Build with Gradle
-        run: ./gradlew clean build -x test -Dspring.profiles.active=prod
-
-      - name: Build with Gradle
-        run: ./gradlew clean build -x test -Dspring.profiles.active=prod
-
-      - name: Build with Gradle
-        run: ./gradlew clean build -x test -Dspring.profiles.active=prod
-
-      # prod 프로파일을 활성화하여 빌드
+      # Gradle 빌드 (테스트 제외)
       - name: Build with Gradle
         run: ./gradlew clean build -x test -Dspring.profiles.active=prod
 
@@ -75,14 +66,17 @@ jobs:
             export PATH=$PATH:/usr/local/bin
             export PW=${{ secrets.SERVER_PASSWORD }}
             BRANCH=${{ github.ref_name }}
-            PORT=8080
-            CONTAINER_NAME="sejong-malsami-back"
+            
+            # 브랜치별 컨테이너 이름 및 포트 설정
             if [ "$BRANCH" == "main" ]; then
+              CONTAINER_NAME="sejong-malsami-back"
               PORT=8087
             elif [ "$BRANCH" == "test" ]; then
               CONTAINER_NAME="sejong-malsami-back-test"
               PORT=8088
             fi
+
+            # Docker 컨테이너 업데이트 및 재시작
             echo $PW | sudo -S docker pull ${{ secrets.DOCKERHUB_USERNAME }}/sejong-malsami-back-container:${BRANCH}
             echo $PW | sudo -S docker stop $CONTAINER_NAME || true
             echo $PW | sudo -S docker rm $CONTAINER_NAME || true
