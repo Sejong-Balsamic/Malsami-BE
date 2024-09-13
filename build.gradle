@@ -47,11 +47,8 @@ dependencies {
     testCompileOnly 'org.projectlombok:lombok'
     testAnnotationProcessor 'org.projectlombok:lombok'
 
-    // PostgreSQL
-    runtimeOnly 'org.postgresql:postgresql'
-
-    // MongoDB
-    implementation 'org.springframework.boot:spring-boot-starter-data-mongodb'
+    // maria DB
+    runtimeOnly 'org.mariadb.jdbc:mariadb-java-client'
 
     // mysql
 //    runtimeOnly 'com.mysql:mysql-connector-j'

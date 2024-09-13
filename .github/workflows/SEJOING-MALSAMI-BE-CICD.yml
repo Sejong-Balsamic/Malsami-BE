@@ -44,10 +44,6 @@ jobs:
       - name: Build with Gradle
         run: ./gradlew clean build -x test -Dspring.profiles.active=prod
 
-      # prod 프로파일을 활성화하여 빌드
-      - name: Build with Gradle
-        run: ./gradlew clean build -x test -Dspring.profiles.active=prod
-
       - name: Docker setup
         uses: docker/setup-buildx-action@v3
 
