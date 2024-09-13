@@ -28,23 +28,12 @@ jobs:
         run: |
           echo "${{ secrets.APPLICATION_PROD_YML }}" > ./src/main/resources/application-prod.yml
 
-      # prod 프로파일을 활성화하여 빌드
       - name: Build with Gradle
         run: ./gradlew clean build -x test -Dspring.profiles.active=prod
 
-      # prod 프로파일을 활성화하여 빌드
       - name: Build with Gradle
         run: ./gradlew clean build -x test -Dspring.profiles.active=prod
 
-      # prod 프로파일을 활성화하여 빌드
-      - name: Build with Gradle
-        run: ./gradlew clean build -x test -Dspring.profiles.active=prod
-
-      # prod 프로파일을 활성화하여 빌드
-      - name: Build with Gradle
-        run: ./gradlew clean build -x test -Dspring.profiles.active=prod
-
-      # prod 프로파일을 활성화하여 빌드
       - name: Build with Gradle
         run: ./gradlew clean build -x test -Dspring.profiles.active=prod
 
