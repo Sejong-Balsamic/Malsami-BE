@@ -1,6 +1,5 @@
-package com.balsamic.sejongmalsami.service;
+package com.balsamic.sejongmalsami.util;
 
-import com.amazonaws.services.s3.AmazonS3;
 import com.amazonaws.services.s3.AmazonS3Client;
 import com.amazonaws.services.s3.model.ObjectMetadata;
 import com.balsamic.sejongmalsami.object.constants.ExtensionType;
@@ -8,12 +7,10 @@ import com.balsamic.sejongmalsami.util.exception.CustomException;
 import com.balsamic.sejongmalsami.util.exception.ErrorCode;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.stereotype.Component;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
-import java.util.Arrays;
 import java.util.UUID;
 
 @RequiredArgsConstructor
@@ -22,7 +19,7 @@ public class S3Service {
 
     private final AmazonS3Client amazonS3Client;
 
-    @Value("${S3_BUCKET_NAME}")
+    @Value("${cloud.aws.s3.bucket}")
     private String bucketName;
 
     public String uploadFile(MultipartFile file) throws IOException {
@@ -34,13 +31,13 @@ public class S3Service {
             throw new CustomException(ErrorCode.INVALID_FILE_FORMAT);
         }
 
-        String fileName = bucketName + UUID.randomUUID() + "_" + originalFilename;
+        String fileName = bucketName + "/" + UUID.randomUUID() + "_" + originalFilename;
 
         ObjectMetadata metadata = new ObjectMetadata();
         metadata.setContentType(file.getContentType());
         metadata.setContentLength(file.getSize());
 
-        amazonS3Client.putObject(bucketName, originalFilename, file.getInputStream(), metadata);
+        amazonS3Client.putObject(bucketName, fileName, file.getInputStream(), metadata);
 
         return fileName;
     }
