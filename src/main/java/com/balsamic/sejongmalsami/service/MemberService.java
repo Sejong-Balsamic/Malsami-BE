@@ -25,26 +25,32 @@ public class MemberService implements UserDetailsService {
   @Override
   public CustomUserDetails loadUserByUsername(String stringMemberId)
       throws UsernameNotFoundException {
-    Member member = memberRepository.findById(Long.parseLong(stringMemberId))
+    UUID memberId;
+    try {
+      memberId = UUID.fromString(stringMemberId);
+    } catch (IllegalArgumentException e) {
+      throw new UsernameNotFoundException("유효하지 않은 UUID 형식입니다.");
+    }
+
+    Member member = memberRepository.findById(memberId)
         .orElseThrow(() -> new CustomException(ErrorCode.MEMBER_NOT_FOUND));
     return new CustomUserDetails(member);
   }
 
-  public MemberDto createMember(MemberCommand command){
+  public MemberDto createMember(MemberCommand command) {
     MemberDto dto = sejongPortalAuthenticator.getMemberAuthInfos(command);
 
     Member savedMember = memberRepository.save(
         Member.builder()
-        .studentId(Long.parseLong(dto.getStudentIdString()))
-        .studentName(dto.getStudentName())
-        .uuidNickname(UUID.randomUUID().toString().substring(0, 6))
-        .major(dto.getMajor())
-        .academicYear(dto.getAcademicYear())
-        .enrollmentStatus(dto.getEnrollmentStatus())
-        .build());
+            .studentId(Long.parseLong(dto.getStudentIdString()))
+            .studentName(dto.getStudentName())
+            .uuidNickname(UUID.randomUUID().toString().substring(0, 6))
+            .major(dto.getMajor())
+            .academicYear(dto.getAcademicYear())
+            .enrollmentStatus(dto.getEnrollmentStatus())
+            .build());
     return MemberDto.builder()
         .member(savedMember)
         .build();
   }
-
 }
