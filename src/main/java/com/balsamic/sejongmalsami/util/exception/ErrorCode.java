@@ -24,6 +24,9 @@ public enum ErrorCode {
   // File Uploads
   INVALID_FILE_FORMAT(HttpStatus.BAD_REQUEST, "파일 형식이 잘못되었습니다."),
 
+  // Course
+  COURSE_SAVE_ERROR(HttpStatus.BAD_REQUEST, "교과목명 파일 처리 중 오류가 발생했습니다"),
+
   // Member
   MEMBER_NOT_FOUND(HttpStatus.NOT_FOUND, "회원이 존재하지 않습니다.");
 
