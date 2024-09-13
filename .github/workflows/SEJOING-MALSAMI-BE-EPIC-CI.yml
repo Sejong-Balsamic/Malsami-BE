@@ -3,7 +3,7 @@ name: SEJOING-MALSAMI-BE-EPIC-CI
 on:
   push:
     branches:
-      - epic/*
+      - epic/**
   workflow_dispatch:
 
 jobs:
