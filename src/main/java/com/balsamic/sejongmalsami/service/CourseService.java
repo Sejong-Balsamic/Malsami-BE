@@ -58,8 +58,6 @@ public class CourseService {
       throw new CustomException(ErrorCode.DUPLICATE_COURSE_UPLOAD);
     }
 
-
-
     // MultipartFile을 InputStream으로 변환
     try (InputStream inputStream = sejongCourseFile.getInputStream()) {
       Workbook workbook = new XSSFWorkbook(inputStream);  // InputStream을 사용하여 Workbook 생성
@@ -86,7 +84,6 @@ public class CourseService {
             .build();
 
         log.info("교과목명 저장됨 : faculty: {}, department: {}, subject: {}", faculty, department, subject);
-
         // 단과대학별 교과목명 저장
         courseRepository.save(course);
       }
