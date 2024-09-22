@@ -11,6 +11,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.poi.ss.usermodel.Row;
@@ -31,8 +32,33 @@ public class CourseService {
   @Async
   public void parseAndSaveCourses(CourseCommand command){
     MultipartFile sejongCourseFile = command.getSejongCourseFile();
+    String fileName = sejongCourseFile.getOriginalFilename();
+    Integer year = null;
+    Integer semester = null;
 
-    log.info("교과목명 파싱 파일 : {}", sejongCourseFile.getOriginalFilename());
+    // 파일 포맷 체크 (예시 : course-2024-2.xlsx )
+    String[] parts = Objects.requireNonNull(fileName).split("-");
+    if(!Objects.equals(parts[0], "course")){
+      log.info("교과목명 파싱 파일 : {}", sejongCourseFile.getOriginalFilename());
+      throw new CustomException(ErrorCode.WRONG_COURSE_FILE_FORMAT);
+    }
+    try {
+      log.info("교과목명 파싱 파일 : {}", sejongCourseFile.getOriginalFilename());
+      year = Integer.parseInt(parts[1]);
+      semester = Integer.parseInt(parts[2].split("\\.")[0]);
+    } catch (Exception e){
+      e.printStackTrace();
+      log.info("교과목명 파싱 파일 : {}", sejongCourseFile.getOriginalFilename());
+      throw new CustomException(ErrorCode.WRONG_COURSE_FILE_FORMAT);
+    }
+
+    // 중복 파일 업로드 확인
+    if(courseRepository.existsByYearAndSemester(year, semester)) {
+      log.info("교과목명 중복됨 : 년도: {} , 학기: {}", command.getYear(), command.getSemester());
+      throw new CustomException(ErrorCode.DUPLICATE_COURSE_UPLOAD);
+    }
+
+
 
     // MultipartFile을 InputStream으로 변환
     try (InputStream inputStream = sejongCourseFile.getInputStream()) {
@@ -55,6 +81,8 @@ public class CourseService {
             .faculty(faculty)
             .department(department)
             .subject(subject)
+            .year(year)
+            .semester(semester)
             .build();
 
         log.info("교과목명 저장됨 : faculty: {}, department: {}, subject: {}", faculty, department, subject);
