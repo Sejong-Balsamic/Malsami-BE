@@ -66,3 +66,8 @@ Thumbs.db
 /src/main/resources/application-dev.yml
 /src/main/resources/application-prod.yml
 /src/main/resources/application-prod.yml.base64
+src/main/resources/application-prod.yml
+src/main/resources/application-prod.yml
+
+### cicd
+./.github/workflows
