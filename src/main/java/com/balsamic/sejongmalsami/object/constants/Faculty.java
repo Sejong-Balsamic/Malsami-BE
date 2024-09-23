@@ -1,10 +1,5 @@
 package com.balsamic.sejongmalsami.object.constants;
 
-import lombok.AllArgsConstructor;
-import lombok.Getter;
-
-@Getter
-@AllArgsConstructor
 public enum Faculty {
   대양휴머니티칼리지,
   인문과학대학,
@@ -17,7 +12,7 @@ public enum Faculty {
   소프트웨어융합대학,
   공과대학,
   예체능대학,
-  법학부법학전공, // 법학부 법학전공
+  대학, // 법학부 법학전공
   연계전공,
   인공지능융합대학
 }

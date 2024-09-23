@@ -8,9 +8,7 @@ import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import java.io.IOException;
 import lombok.RequiredArgsConstructor;
-import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -27,7 +25,7 @@ public class MemberController {
   private final SejongPortalAuthenticator sejongPortalAuthenticator;
   private final MemberService memberService;
 
-  @PostMapping(value = "/signin", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
+  @PostMapping("/signin")
   @Operation(
       summary = "로그인 요청",
       description = """
@@ -57,7 +55,7 @@ public class MemberController {
       """
   )
   public ResponseEntity<MemberDto> signIn(
-      @ModelAttribute MemberCommand command) throws IOException {
+      @RequestBody MemberCommand command) throws IOException {
     return ResponseEntity.ok(memberService.createMember(command));
   }
 }
