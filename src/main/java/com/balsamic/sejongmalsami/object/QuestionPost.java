@@ -57,7 +57,7 @@ public class QuestionPost extends BaseTimeEntity {
     private int commentCount = 0;
 
     // 엽전 현상금
-    private int bounty;
+    private int reward;
 
     // 내 정보 비공개 여부
     @Builder.Default
