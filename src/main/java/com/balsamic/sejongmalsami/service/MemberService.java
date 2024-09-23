@@ -52,7 +52,7 @@ public class MemberService implements UserDetailsService {
   }
 
   /**
-   * 사용자 로그인 처리
+   * 회원 로그인 처리
    */
   @Transactional
   public MemberDto signIn(MemberCommand command) {
@@ -70,22 +70,20 @@ public class MemberService implements UserDetailsService {
                   .major(dto.getMajor())
                   .academicYear(dto.getAcademicYear())
                   .enrollmentStatus(dto.getEnrollmentStatus())
+                  .lastLoginTime(LocalDateTime.now())
                   .build());
         });
 
-    if (member.getLastLoginTime() == null) {
-      log.info("신규 회원: studentId={}", studentId);
-    }
-
     member.setLastLoginTime(LocalDateTime.now());
-    log.info("회원 로그인 완료: studentId={}", studentId);
+    log.info("회원 로그인 완료: studentId = {}", studentId);
     memberRepository.save(member);
 
     CustomUserDetails userDetails = new CustomUserDetails(member);
     String accessToken = jwtUtil.createAccessToken(userDetails);
     String refreshToken = jwtUtil.createRefreshToken(userDetails);
-
-    log.info("액세스 토큰 및 리프레시 토큰 생성 완료: 사용자={}", userDetails.getUsername());
+    log.info("액세스 토큰 및 리프레시 토큰 생성 완료: 사용자 = {}", userDetails.getUsername());
+    log.info("accessToken = {}", accessToken);
+    log.info("refreshToken = {}", refreshToken);
 
     return MemberDto.builder()
         .member(member)
