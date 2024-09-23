@@ -9,7 +9,9 @@ import jakarta.persistence.Enumerated;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
+import org.hibernate.annotations.GenericGenerator;
 import java.time.LocalDateTime;
+import java.util.UUID;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
@@ -25,9 +27,11 @@ import lombok.ToString;
 @NoArgsConstructor
 @ToString
 public class Member extends BaseTimeEntity {
+
   @Id
-  @GeneratedValue(strategy = GenerationType.IDENTITY)
-  private Long memberId;
+  @GeneratedValue(strategy = GenerationType.AUTO)
+  @Column(name = "member_id", columnDefinition = "uuid DEFAULT uuid_generate_v4()", updatable = false, nullable = false)
+  private UUID memberId;
 
   @Column(unique = true)
   private Long studentId;
@@ -58,7 +62,5 @@ public class Member extends BaseTimeEntity {
   @Enumerated(EnumType.STRING)
   private AccountStatus accountStatus = AccountStatus.ACTIVE;
 
-  // 마지막 로그인 일시
-  private LocalDateTime lastLoginTime = LocalDateTime.now();
-
+  private LocalDateTime lastLoginTime;
 }
