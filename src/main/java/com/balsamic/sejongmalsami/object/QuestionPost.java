@@ -2,15 +2,16 @@ package com.balsamic.sejongmalsami.object;
 
 import jakarta.persistence.*;
 import lombok.*;
+import lombok.experimental.SuperBuilder;
 
 import java.util.UUID;
 
 @Entity
 @Getter
-@Builder
+@SuperBuilder
 @AllArgsConstructor
 @NoArgsConstructor
-@ToString
+@ToString(callSuper = true)
 public class QuestionPost extends BaseTimeEntity {
 
     @Id
@@ -43,13 +44,17 @@ public class QuestionPost extends BaseTimeEntity {
     @Builder.Default
     private int views = 0;
 
-    // 좋아요 수
+    // 좋아요 수 (추천 수)
     @Builder.Default
     private int likes = 0;
 
-    // 댓글 수
+    // 답변 수
     @Builder.Default
     private int answerCount = 0;
+
+    // 댓글 수
+    @Builder.Default
+    private int commentCount = 0;
 
     // 엽전 현상금
     private int bounty;
