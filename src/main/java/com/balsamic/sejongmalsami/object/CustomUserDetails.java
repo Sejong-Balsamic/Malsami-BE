@@ -30,12 +30,12 @@ public class CustomUserDetails implements UserDetails {
 
   @Override
   public String getPassword() {
-    return null; // OAuth2 기반의 인증이라 비밀번호가 없음
+    return null;  // OAuth2 기반의 인증이라 비밀번호가 없음
   }
 
   @Override
   public String getUsername() {
-    return member.getMemberId().toString(); // UUID를 문자열로 변환하여 반환
+    return String.valueOf(member.getMemberId());
   }
 
   @Override
@@ -52,7 +52,7 @@ public class CustomUserDetails implements UserDetails {
 
   @Override
   public boolean isCredentialsNonExpired() {
-    return true; // 인증 정보는 항상 유효함
+    return true;  // 인증 정보는 항상 유효함
   }
 
   @Override
