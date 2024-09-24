@@ -28,7 +28,7 @@ public class Course extends BaseEntity {
 
   private String department; // 학과
 
-  private int year; // 년도
+  private Integer year; // 년도
 
-  private int semester; // 학기
+  private Integer semester; // 학기
 }
