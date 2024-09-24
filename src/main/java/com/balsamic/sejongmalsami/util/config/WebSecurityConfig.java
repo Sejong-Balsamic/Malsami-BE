@@ -8,6 +8,7 @@ import java.util.Collections;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.http.HttpMethod;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.ProviderManager;
 import org.springframework.security.authentication.dao.DaoAuthenticationProvider;
@@ -33,12 +34,12 @@ import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
 @RequiredArgsConstructor
 public class WebSecurityConfig {
   private final JwtUtil jwtUtil;
-  private final MemberService memberService; // MemberService 주입
+  private final MemberService memberService;
 
   // 인증을 생략할 URL 패턴 목록
   private static final String[] AUTH_WHITELIST = {
-      "/", // 기본화면
       "/api/member/signin", // 회원가입
+      "/api/course/subjects/faculty", // 교과목명 조회
       "/api/login", // 로그인
       "/docs/**", // Swagger
       "/v3/api-docs/**", // Swagger
@@ -62,33 +63,25 @@ public class WebSecurityConfig {
   }
 
   // 보안 필터 체인 설정
+  @Bean
   public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
-    return http
-        // CORS 설정
-        .cors(cors -> cors.configurationSource(corsConfigurationSource()))
-        // CSRF 비활성화
+    return
+    http.cors(cors -> cors
+            .configurationSource(corsConfigurationSource()))
         .csrf(AbstractHttpConfigurer::disable)
-        // HTTP Basic 인증 비활성화
         .httpBasic(AbstractHttpConfigurer::disable)
-        // 폼 로그인 비활성화
         .formLogin(AbstractHttpConfigurer::disable)
-        // 요청에 대한 권한 설정
-        .authorizeHttpRequests(authorize -> authorize
+        .authorizeHttpRequests((authorize) -> authorize
             .requestMatchers(AUTH_WHITELIST).permitAll()
-            // .requestMatchers(HttpMethod.GET, "/api/my-page").hasRole("USER") //FIXME: 예시 페이지
-            .anyRequest().authenticated())
-        // 로그아웃 설정
+            .requestMatchers(HttpMethod.POST, "/api/course/upload").hasRole("USER")
+            .anyRequest().authenticated()
+        )
         .logout(logout -> logout
-            .logoutSuccessUrl("/login")
+            .logoutSuccessUrl("/")
             .invalidateHttpSession(true)
         )
-        // 세션 관리 정책 설정 (STATELESS)
-        .sessionManagement(session -> session
-            .sessionCreationPolicy(SessionCreationPolicy.STATELESS)
-        )
-        // JWT 인증 필터 추가
-        .addFilterBefore(new TokenAuthenticationFilter(jwtUtil, memberService, Arrays.asList(AUTH_WHITELIST)),
-            UsernamePasswordAuthenticationFilter.class)
+        .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
+        .addFilterBefore(new TokenAuthenticationFilter(jwtUtil, memberService, Arrays.asList(AUTH_WHITELIST)), UsernamePasswordAuthenticationFilter.class)
         .build();
   }
 
@@ -107,13 +100,13 @@ public class WebSecurityConfig {
   @Bean
   public CorsConfigurationSource corsConfigurationSource() {
     CorsConfiguration configuration = new CorsConfiguration();
-    configuration.setAllowedOriginPatterns(Arrays.asList(ALLOWED_ORIGINS)); // 허용된 Origin 패턴 설정
-    configuration.setAllowedMethods(Arrays.asList("GET", "POST", "PUT", "DELETE", "PATCH", "OPTIONS")); // 허용된 HTTP 메서드 설정
-    configuration.setAllowCredentials(true); // 자격 증명 허용
-    configuration.setAllowedHeaders(Collections.singletonList("*")); // 허용된 헤더 설정
-    configuration.setMaxAge(3600L); // 캐시 지속 시간 설정 (초 단위)
+    configuration.setAllowedOriginPatterns(Arrays.asList(ALLOWED_ORIGINS));
+    configuration.setAllowedMethods(Arrays.asList("GET", "POST", "PUT", "DELETE", "PATCH", "OPTIONS"));
+    configuration.setAllowCredentials(true);
+    configuration.setAllowedHeaders(Collections.singletonList("*"));
+    configuration.setMaxAge(3600L);
     UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
-    source.registerCorsConfiguration("/**", configuration); // 모든 경로에 대해 CORS 설정 적용
+    source.registerCorsConfiguration("/**", configuration);
     return source;
   }
 

@@ -20,9 +20,9 @@ import org.springframework.web.filter.OncePerRequestFilter;
 @Slf4j
 public class TokenAuthenticationFilter extends OncePerRequestFilter {
   private final JwtUtil jwtUtil;
-  private final MemberService memberService; // MemberService 주입
+  private final MemberService memberService;
   private final List<String> whitelist;
-  private static final AntPathMatcher ANT_PATH_MATCHER = new AntPathMatcher(); // 스레드 안전을 위해 static으로 선언
+  private static final AntPathMatcher ANT_PATH_MATCHER = new AntPathMatcher();
 
   @Override
   protected void doFilterInternal(HttpServletRequest request,
