@@ -2,6 +2,9 @@ package com.balsamic.sejongmalsami.controller;
 
 import com.balsamic.sejongmalsami.object.MemberCommand;
 import com.balsamic.sejongmalsami.object.MemberDto;
+import com.balsamic.sejongmalsami.object.constants.Author;
+import com.balsamic.sejongmalsami.util.log.ApiChangeLog;
+import com.balsamic.sejongmalsami.util.log.ApiChangeLogs;
 import io.swagger.v3.oas.annotations.Operation;
 import jakarta.servlet.http.HttpServletResponse;
 import org.springframework.http.ResponseEntity;
@@ -9,6 +12,18 @@ import org.springframework.web.bind.annotation.ModelAttribute;
 
 public interface MemberControllerDocs {
 
+  @ApiChangeLogs({
+      @ApiChangeLog(
+          date = "2024.09.25",
+          author = Author.SUHSAECHAN,
+          description = "로그인 토큰 추가 ( Access, Refresh )"
+      ),
+      @ApiChangeLog(
+          date = "2024.08.10",
+          author = Author.SUHSAECHAN,
+          description = "세종대학교 로그인 기능 구현"
+      )
+  })
   @Operation(
       summary = "로그인 요청",
       description = """
