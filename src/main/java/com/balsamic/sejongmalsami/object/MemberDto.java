@@ -18,4 +18,8 @@ public class MemberDto {
   private String studentName;
   private String academicYear;
   private String enrollmentStatus;
+
+  // token
+  private String accessToken;
+  private String refreshToken;
 }

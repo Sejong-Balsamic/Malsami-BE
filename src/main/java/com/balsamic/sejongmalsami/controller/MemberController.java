@@ -2,8 +2,8 @@ package com.balsamic.sejongmalsami.controller;
 
 import com.balsamic.sejongmalsami.object.MemberCommand;
 import com.balsamic.sejongmalsami.object.MemberDto;
-import com.balsamic.sejongmalsami.util.SejongPortalAuthenticator;
 import com.balsamic.sejongmalsami.service.MemberService;
+import com.balsamic.sejongmalsami.util.SejongPortalAuthenticator;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import java.io.IOException;
@@ -12,7 +12,6 @@ import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
@@ -58,6 +57,6 @@ public class MemberController {
   )
   public ResponseEntity<MemberDto> signIn(
       @ModelAttribute MemberCommand command) throws IOException {
-    return ResponseEntity.ok(memberService.createMember(command));
+    return ResponseEntity.ok(memberService.signIn(command));
   }
 }
