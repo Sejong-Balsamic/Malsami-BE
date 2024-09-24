@@ -127,4 +127,13 @@ public class JwtUtil {
       throw e; // 예외 재발생
     }
   }
+
+  /**
+   * 리프레시 토큰 만료 시간 반환
+   *
+   * @return 리프레시 토큰 만료 시간 (밀리초 단위)
+   */
+  public long getRefreshExpirationTime() {
+    return refreshTokenExpTime;
+  }
 }

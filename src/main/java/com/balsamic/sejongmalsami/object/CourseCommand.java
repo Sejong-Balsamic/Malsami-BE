@@ -14,6 +14,6 @@ import org.springframework.web.multipart.MultipartFile;
 public class CourseCommand {
   private MultipartFile sejongCourseFile;
   private Faculty faculty;
-  private int year;
-  private int semester;
+  private Integer year;
+  private Integer semester;
 }
