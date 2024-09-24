@@ -7,7 +7,6 @@ import lombok.NoArgsConstructor;
 import lombok.Setter;
 import lombok.ToString;
 import lombok.experimental.SuperBuilder;
-
 import java.util.UUID;
 
 @Entity
@@ -17,7 +16,6 @@ import java.util.UUID;
 @ToString(callSuper = true)
 @SuperBuilder
 public class Course extends BaseEntity {
-
   @Id
   @GeneratedValue(strategy = GenerationType.AUTO)
   @Column(name = "course_id", columnDefinition = "uuid DEFAULT uuid_generate_v4()", updatable = false, nullable = false)
