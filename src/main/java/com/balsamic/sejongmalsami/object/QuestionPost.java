@@ -12,7 +12,7 @@ import java.util.UUID;
 @AllArgsConstructor
 @NoArgsConstructor
 @ToString(callSuper = true)
-public class QuestionPost extends BaseTimeEntity {
+public class QuestionPost extends BaseEntity {
 
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
@@ -20,7 +20,6 @@ public class QuestionPost extends BaseTimeEntity {
     private UUID questionPostId;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "member_id")
     private Member member;
 
     // 제목

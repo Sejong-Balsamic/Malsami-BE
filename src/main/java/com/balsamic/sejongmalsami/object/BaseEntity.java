@@ -21,7 +21,7 @@ import java.time.LocalDateTime;
 @Getter
 @NoArgsConstructor
 @EntityListeners(AuditingEntityListener.class)
-public abstract class BaseTimeEntity {
+public abstract class BaseEntity {
 
   // 작성일
   @CreatedDate
@@ -43,10 +43,6 @@ public abstract class BaseTimeEntity {
   // 삭제여부
   @Builder.Default
   private Boolean isDeleted = false;
-
-  // 신고여부
-  @Builder.Default
-  private Boolean isReported = false;
 
   // 수정
   public void markAsEdited() {
@@ -70,10 +66,5 @@ public abstract class BaseTimeEntity {
   // 삭제 취소
   public void markAsNotDeleted() {
     isDeleted = false;
-  }
-
-  // 신고
-  public void markAsReported() {
-    isReported = true;
   }
 }
