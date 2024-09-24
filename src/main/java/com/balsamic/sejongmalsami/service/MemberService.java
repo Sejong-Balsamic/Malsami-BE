@@ -62,16 +62,14 @@ public class MemberService implements UserDetailsService {
     Member member = memberRepository.findByStudentId(studentId)
         .orElseGet(() -> {
           log.info("신규 회원 등록: studentId = {}", studentId);
-          return memberRepository.save(
-              Member.builder()
+          return Member.builder()
                   .studentId(studentId)
                   .studentName(dto.getStudentName())
                   .uuidNickname(UUID.randomUUID().toString().substring(0, 6))
                   .major(dto.getMajor())
                   .academicYear(dto.getAcademicYear())
                   .enrollmentStatus(dto.getEnrollmentStatus())
-                  .lastLoginTime(LocalDateTime.now())
-                  .build());
+                  .build();
         });
 
     member.setLastLoginTime(LocalDateTime.now());
