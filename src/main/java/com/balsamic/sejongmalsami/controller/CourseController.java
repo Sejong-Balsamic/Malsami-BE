@@ -20,7 +20,6 @@ public class CourseController implements CourseControllerDocs {
   private final CourseService courseService;
 
   @PostMapping(value = "/upload", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
-  @LogMonitoringInvocation
   public ResponseEntity<CourseDto> uploadExcel(
       @ModelAttribute CourseCommand command){
     courseService.parseAndSaveCourses(command);
