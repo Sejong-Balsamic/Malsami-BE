@@ -18,7 +18,7 @@ import java.util.UUID;
 public class Course extends BaseEntity {
   @Id
   @GeneratedValue(strategy = GenerationType.AUTO)
-  @Column(name = "course_id", columnDefinition = "uuid DEFAULT uuid_generate_v4()", updatable = false, nullable = false)
+  @Column(columnDefinition = "uuid DEFAULT uuid_generate_v4()", updatable = false, nullable = false)
   private UUID courseId;
 
   private String subject; // 교과목명
@@ -27,4 +27,8 @@ public class Course extends BaseEntity {
   private Faculty faculty; // 단과대학
 
   private String department; // 학과
+
+  private int year; // 년도
+
+  private int semester; // 학기
 }

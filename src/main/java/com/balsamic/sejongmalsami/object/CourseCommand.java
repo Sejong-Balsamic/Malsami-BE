@@ -12,6 +12,8 @@ import org.springframework.web.multipart.MultipartFile;
 @Setter
 @Builder
 public class CourseCommand {
-  MultipartFile sejongCourseFile;
-  Faculty faculty;
+  private MultipartFile sejongCourseFile;
+  private Faculty faculty;
+  private int year;
+  private int semester;
 }
