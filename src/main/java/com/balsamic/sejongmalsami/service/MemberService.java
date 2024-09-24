@@ -10,10 +10,13 @@ import com.balsamic.sejongmalsami.util.SejongPortalAuthenticator;
 import com.balsamic.sejongmalsami.util.exception.CustomException;
 import com.balsamic.sejongmalsami.util.exception.ErrorCode;
 import io.jsonwebtoken.Claims;
+import jakarta.servlet.http.Cookie;
+import jakarta.servlet.http.HttpServletResponse;
 import java.time.LocalDateTime;
 import java.util.UUID;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.userdetails.UserDetailsService;
@@ -55,7 +58,7 @@ public class MemberService implements UserDetailsService {
    * 회원 로그인 처리
    */
   @Transactional
-  public MemberDto signIn(MemberCommand command) {
+  public MemberDto signIn(MemberCommand command, HttpServletResponse response) {
     MemberDto dto = sejongPortalAuthenticator.getMemberAuthInfos(command);
     Long studentId = Long.parseLong(dto.getStudentIdString());
 
@@ -83,10 +86,18 @@ public class MemberService implements UserDetailsService {
     log.info("accessToken = {}", accessToken);
     log.info("refreshToken = {}", refreshToken);
 
+    // Refresh Token : HTTP-Only 쿠키 설정
+    Cookie refreshCookie = new Cookie("refreshToken", refreshToken);
+    refreshCookie.setHttpOnly(true);
+    refreshCookie.setSecure(false); // 개발 환경 false (HTTP에서도 허용)
+    refreshCookie.setPath("/api/auth/refresh"); // 리프레시 토큰 API
+    refreshCookie.setMaxAge((int)(jwtUtil.getRefreshExpirationTime() / 1000)); // 7일
+
+    response.addCookie(refreshCookie);
+
     return MemberDto.builder()
         .member(member)
         .accessToken(accessToken)
-        .refreshToken(refreshToken)
         .build();
   }
 
