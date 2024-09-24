@@ -17,7 +17,7 @@ public class CustomOperationCustomizer implements OperationCustomizer {
     if (apiChangeLogs != null) {
       StringBuilder tableBuilder = new StringBuilder();
 
-      tableBuilder.append("<h3>변경 이력:</h3>\n");
+      tableBuilder.append("\n\n**변경 관리 이력:**\n");
       tableBuilder.append("<table>\n");
       tableBuilder.append("<thead>\n");
       tableBuilder.append("<tr><th>날짜</th><th>작성자</th><th>변경 내용</th></tr>\n");
