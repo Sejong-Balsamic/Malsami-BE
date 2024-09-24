@@ -21,7 +21,7 @@ public interface MemberControllerDocs {
       @ApiChangeLog(
           date = "2024.08.10",
           author = Author.SUHSAECHAN,
-          description = "API 최초 작성"
+          description = "세종대학교 로그인 기능 구현"
       )
   })
   @Operation(
