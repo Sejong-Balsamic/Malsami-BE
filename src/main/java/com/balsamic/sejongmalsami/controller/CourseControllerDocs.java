@@ -5,7 +5,6 @@ import com.balsamic.sejongmalsami.object.CourseDto;
 import io.swagger.v3.oas.annotations.Operation;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.ModelAttribute;
-
 public interface CourseControllerDocs {
 
   @Operation(
