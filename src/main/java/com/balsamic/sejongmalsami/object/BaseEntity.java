@@ -1,5 +1,6 @@
 package com.balsamic.sejongmalsami.object;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.Column;
 import jakarta.persistence.EntityListeners;
 import jakarta.persistence.MappedSuperclass;
@@ -33,8 +34,9 @@ public abstract class BaseEntity {
   @Column(nullable = false)
   private LocalDateTime updatedDate;
 
+  @JsonIgnore
   @Builder.Default
-  private transient LocalDateTime previousUpdatedDate = null;
+  private LocalDateTime previousUpdatedDate = null;
 
   // 수정여부
   @Builder.Default
