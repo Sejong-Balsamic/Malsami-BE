@@ -39,7 +39,6 @@ public enum ErrorCode {
 
   WRONG_FACULTY_NAME(HttpStatus.BAD_REQUEST, "올바르지 않은 단과 대학입니다"),
   // Member
-
   MEMBER_NOT_FOUND(HttpStatus.NOT_FOUND, "회원이 존재하지 않습니다."),
 
   // QuestionPost
