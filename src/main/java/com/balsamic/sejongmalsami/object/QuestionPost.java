@@ -35,10 +35,6 @@ public class QuestionPost extends BaseEntity {
     @Column(nullable = false)
     private String subject;
 
-    // 작성자
-    @Column(nullable = false)
-    private String writer;
-
     // 조회 수
     @Builder.Default
     private Integer views = 0;

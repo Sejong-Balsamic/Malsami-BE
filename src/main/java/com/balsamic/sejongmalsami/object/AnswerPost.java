@@ -30,10 +30,6 @@ public class AnswerPost extends BaseEntity {
     @Column(nullable = false)
     private String content;
 
-    // 학과
-    @Column(nullable = false)
-    private String major;
-
     // 좋아요 수 (추천 수)
     @Builder.Default
     private Integer likes = 0;
