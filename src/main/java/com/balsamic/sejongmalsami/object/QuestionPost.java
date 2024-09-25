@@ -41,22 +41,22 @@ public class QuestionPost extends BaseEntity {
 
     // 조회 수
     @Builder.Default
-    private int views = 0;
+    private Integer views = 0;
 
     // 좋아요 수 (추천 수)
     @Builder.Default
-    private int likes = 0;
+    private Integer likes = 0;
 
     // 답변 수
     @Builder.Default
-    private int answerCount = 0;
+    private Integer answerCount = 0;
 
     // 댓글 수
     @Builder.Default
-    private int commentCount = 0;
+    private Integer commentCount = 0;
 
     // 엽전 현상금
-    private int reward;
+    private Integer reward;
 
     // 내 정보 비공개 여부
     @Builder.Default

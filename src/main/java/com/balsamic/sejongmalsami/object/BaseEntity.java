@@ -1,6 +1,5 @@
 package com.balsamic.sejongmalsami.object;
 
-import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.Column;
 import jakarta.persistence.EntityListeners;
 import jakarta.persistence.MappedSuperclass;
@@ -34,10 +33,6 @@ public abstract class BaseEntity {
   @Column(nullable = false)
   private LocalDateTime updatedDate;
 
-  @JsonIgnore
-  @Builder.Default
-  private LocalDateTime previousUpdatedDate = null;
-
   // 수정여부
   @Builder.Default
   private Boolean isEdited = false;
@@ -54,10 +49,9 @@ public abstract class BaseEntity {
   // 엔티티 업데이트 시 호출
   @PreUpdate
   public void beforeUpdate() {
-    if (previousUpdatedDate != null && !updatedDate.isEqual(previousUpdatedDate)) {
+    if (!createdDate.isEqual(updatedDate)) {
       markAsEdited();
     }
-    previousUpdatedDate = updatedDate;
   }
 
   // 삭제

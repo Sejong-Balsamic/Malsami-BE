@@ -36,11 +36,11 @@ public class AnswerPost extends BaseEntity {
 
     // 좋아요 수 (추천 수)
     @Builder.Default
-    private int likes = 0;
+    private Integer likes = 0;
 
     // 댓글 수
     @Builder.Default
-    private int commentCount = 0;
+    private Integer commentCount = 0;
 
     // 답변 채택 여부
     @Builder.Default
