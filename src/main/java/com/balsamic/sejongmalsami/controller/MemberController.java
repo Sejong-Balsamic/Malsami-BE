@@ -22,7 +22,6 @@ import org.springframework.web.bind.annotation.RestController;
 )
 public class MemberController implements MemberControllerDocs{
   private final MemberService memberService;
-
   @Override
   @PostMapping(value = "/signin", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
   public ResponseEntity<MemberDto> signIn(
