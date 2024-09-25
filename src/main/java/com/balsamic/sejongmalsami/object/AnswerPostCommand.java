@@ -7,6 +7,5 @@ import lombok.ToString;
 @Builder
 @Getter
 @ToString
-public class QuestionPostDto {
-    private QuestionPost questionPost;
+public class AnswerPostCommand {
 }
