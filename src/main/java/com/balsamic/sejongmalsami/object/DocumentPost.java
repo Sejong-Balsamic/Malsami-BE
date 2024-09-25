@@ -3,6 +3,7 @@ package com.balsamic.sejongmalsami.object;
 import com.balsamic.sejongmalsami.object.constants.Grade;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
+import jakarta.persistence.FetchType;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
@@ -29,31 +30,27 @@ public class DocumentPost extends BaseEntity {
 
   @Id
   @GeneratedValue(strategy = GenerationType.AUTO)
-  @Column(columnDefinition = "uuid DEFAULT uuid_generate_v4()", updatable = false, nullable = false)
+  @Column(columnDefinition = "uuid DEFAULT uuid_generate_v4()", updatable = false)
   private UUID documentPostId;
 
-  @ManyToOne
-  @JoinColumn(nullable = false)
-  private Member member;
+  @ManyToOne(fetch = FetchType.LAZY)
+  private Member member; // 작성자
 
-  @Column(nullable = false)
   private String title; // 제목
 
-  @Column(nullable = false)
   private String subject; // 교과목명
 
-  @Column(nullable = false)
-  private String writer;  // 작성자
-
   @Lob
-  @Column(nullable = false)
   private String content; // 내용
 
   @Builder.Default
-  private Grade grade = Grade.천민; // 게시물 등급
+  private Grade grade = Grade.COMMONER; // 게시물 등급
 
   @Builder.Default
   private int likeCount = 0; // 추천수
+
+  @Builder.Default
+  private int dislikeCount = 0; // 싫어요수
 
   @Builder.Default
   private int downloadCount = 0; // 다운로드수
@@ -65,5 +62,5 @@ public class DocumentPost extends BaseEntity {
   private int viewCount = 0; // 조회수
 
   @Builder.Default
-  private Boolean isPrivate = false; // 내 정보 비공개
+  private Boolean isDepartmentPrivate = false; // 내 학과 비공개
 }
