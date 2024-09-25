@@ -12,10 +12,9 @@ public class QuestionPostCommand {
     private String title;
     private String content;
     private String subject;
-    private String writer;
     private Integer views;
     private Integer likes;
     private Integer answerCount;
-    private Integer bounty;
+    private Integer reward;
     private Boolean isPrivate;
 }
