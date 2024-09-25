@@ -4,16 +4,13 @@ import com.balsamic.sejongmalsami.object.constants.Faculty;
 import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
-import lombok.Setter;
 import lombok.ToString;
 import lombok.experimental.SuperBuilder;
-import java.util.UUID;
 
 import java.util.UUID;
 
 @Entity
 @Getter
-@Setter
 @NoArgsConstructor
 @ToString(callSuper = true)
 @SuperBuilder
