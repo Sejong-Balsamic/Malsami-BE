@@ -21,7 +21,7 @@ public class CourseController implements CourseControllerDocs {
 
   @PostMapping(value = "/upload", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
   public ResponseEntity<CourseDto> uploadExcel(
-      @ModelAttribute CourseCommand command){
+      @ModelAttribute CourseCommand command) {
     courseService.parseAndSaveCourses(command);
     return ResponseEntity.ok().build();
   }
@@ -30,7 +30,7 @@ public class CourseController implements CourseControllerDocs {
   @PostMapping(value = "/subjects/faculty", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
   @LogMonitoringInvocation
   public ResponseEntity<CourseDto> getSubjectsByFaculty(
-      @ModelAttribute CourseCommand command){
+      @ModelAttribute CourseCommand command) {
     return ResponseEntity.ok(courseService.getSubjectsByFaculty(command));
   }
 }

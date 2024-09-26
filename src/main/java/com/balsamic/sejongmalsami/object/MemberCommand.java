@@ -8,6 +8,7 @@ import lombok.ToString;
 @Getter
 @ToString
 public class MemberCommand {
+
   private Long memberId;
   private Long studentId;
   private String studentIdString;

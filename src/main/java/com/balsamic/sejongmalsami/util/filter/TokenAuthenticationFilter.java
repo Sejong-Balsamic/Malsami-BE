@@ -19,6 +19,7 @@ import org.springframework.web.filter.OncePerRequestFilter;
 @RequiredArgsConstructor
 @Slf4j
 public class TokenAuthenticationFilter extends OncePerRequestFilter {
+
   private final JwtUtil jwtUtil;
   private final MemberService memberService;
   private final List<String> whitelist;

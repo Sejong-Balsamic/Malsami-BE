@@ -1,7 +1,13 @@
 package com.balsamic.sejongmalsami.util;
 
 import com.balsamic.sejongmalsami.object.CustomUserDetails;
-import io.jsonwebtoken.*;
+import io.jsonwebtoken.Claims;
+import io.jsonwebtoken.ExpiredJwtException;
+import io.jsonwebtoken.Jwts;
+import io.jsonwebtoken.MalformedJwtException;
+import io.jsonwebtoken.SignatureAlgorithm;
+import io.jsonwebtoken.SignatureException;
+import io.jsonwebtoken.UnsupportedJwtException;
 import io.jsonwebtoken.io.Decoders;
 import io.jsonwebtoken.security.Keys;
 import java.util.Date;
@@ -15,6 +21,7 @@ import org.springframework.stereotype.Component;
 @Component
 @Slf4j
 public class JwtUtil {
+
   @Value("${jwt.secret-key}")
   private String secretKey; // JWT 비밀 키
   @Value("${jwt.access-exp-time}")
