@@ -10,13 +10,14 @@ import lombok.ToString;
 @Setter
 @ToString
 public class QuestionPostCommand {
-    private String memberId;
-    private String title;
-    private String content;
-    private String subject;
-    private Integer views;
-    private Integer likes;
-    private Integer answerCount;
-    private Integer reward;
-    private Boolean isPrivate;
+
+  private String memberId;
+  private String title;
+  private String content;
+  private String subject;
+  private Integer views;
+  private Integer likes;
+  private Integer answerCount;
+  private Integer reward;
+  private Boolean isPrivate;
 }
