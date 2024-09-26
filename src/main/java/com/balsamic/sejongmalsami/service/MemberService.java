@@ -66,13 +66,13 @@ public class MemberService implements UserDetailsService {
         .orElseGet(() -> {
           log.info("신규 회원 등록: studentId = {}", studentId);
           return Member.builder()
-                  .studentId(studentId)
-                  .studentName(dto.getStudentName())
-                  .uuidNickname(UUID.randomUUID().toString().substring(0, 6))
-                  .major(dto.getMajor())
-                  .academicYear(dto.getAcademicYear())
-                  .enrollmentStatus(dto.getEnrollmentStatus())
-                  .build();
+              .studentId(studentId)
+              .studentName(dto.getStudentName())
+              .uuidNickname(UUID.randomUUID().toString().substring(0, 6))
+              .major(dto.getMajor())
+              .academicYear(dto.getAcademicYear())
+              .enrollmentStatus(dto.getEnrollmentStatus())
+              .build();
         });
 
     member.setLastLoginTime(LocalDateTime.now());
@@ -91,7 +91,7 @@ public class MemberService implements UserDetailsService {
     refreshCookie.setHttpOnly(true);
     refreshCookie.setSecure(false); // 개발 환경 false (HTTP에서도 허용)
     refreshCookie.setPath("/api/auth/refresh"); // 리프레시 토큰 API
-    refreshCookie.setMaxAge((int)(jwtUtil.getRefreshExpirationTime() / 1000)); // 7일
+    refreshCookie.setMaxAge((int) (jwtUtil.getRefreshExpirationTime() / 1000)); // 7일
 
     response.addCookie(refreshCookie);
 
