@@ -9,6 +9,8 @@ import lombok.experimental.SuperBuilder;
 
 import java.util.UUID;
 
+import java.util.UUID;
+
 @Entity
 @Getter
 @NoArgsConstructor
