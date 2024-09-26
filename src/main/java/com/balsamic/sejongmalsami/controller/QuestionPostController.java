@@ -22,7 +22,9 @@ public class QuestionPostController implements QuestionPostControllerDocs{
 
     @Override
     @PostMapping("/post")
-    public ResponseEntity<QuestionPostDto> savePost(@AuthenticationPrincipal CustomUserDetails customUserDetails, QuestionPostCommand questionPostCommand) {
+    public ResponseEntity<QuestionPostDto> savePost(
+            @AuthenticationPrincipal CustomUserDetails customUserDetails,
+            QuestionPostCommand questionPostCommand) {
         QuestionPostDto questionPostDto = questionPostService.savePost(customUserDetails, questionPostCommand);
 
         return ResponseEntity.ok(questionPostDto);

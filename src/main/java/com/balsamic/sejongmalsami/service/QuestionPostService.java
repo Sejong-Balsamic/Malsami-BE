@@ -20,7 +20,9 @@ public class QuestionPostService {
 
     /* 질문 게시글 등록 로직 */
     @Transactional
-    public QuestionPostDto savePost(CustomUserDetails customUserDetails, QuestionPostCommand questionPostCommand) {
+    public QuestionPostDto savePost(
+            CustomUserDetails customUserDetails,
+            QuestionPostCommand questionPostCommand) {
         String username = customUserDetails.getUsername();
         log.info("현재 사용자 username = {}", username);
         Member member = memberRepository.findByStudentId(Long.parseLong(username))

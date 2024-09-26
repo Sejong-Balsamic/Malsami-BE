@@ -65,5 +65,7 @@ public interface QuestionPostControllerDocs {
     - 성공적인 등록 후, 등록 된 질문글을 반환합니다.
     """
     )
-    ResponseEntity<QuestionPostDto> savePost(CustomUserDetails customUserDetails, QuestionPostCommand questionPostCommand);
+    ResponseEntity<QuestionPostDto> savePost(
+            CustomUserDetails customUserDetails,
+            QuestionPostCommand questionPostCommand);
 }
