@@ -10,6 +10,7 @@ import java.util.UUID;
 
 @Entity
 @Getter
+@Setter
 @Builder
 @AllArgsConstructor
 @NoArgsConstructor
@@ -51,8 +52,4 @@ public class Member extends BaseEntity {
   private AccountStatus accountStatus = AccountStatus.ACTIVE;
 
   private LocalDateTime lastLoginTime;
-
-  public void updateLastLoginTime(LocalDateTime lastLoginTime) {
-    this.lastLoginTime = lastLoginTime;
-  }
 }

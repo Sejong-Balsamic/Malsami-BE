@@ -6,6 +6,7 @@ import com.balsamic.sejongmalsami.object.QuestionPostDto;
 import com.balsamic.sejongmalsami.service.QuestionPostService;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.ModelAttribute;
@@ -22,16 +23,13 @@ public class QuestionPostController implements QuestionPostControllerDocs{
     private final QuestionPostService questionPostService;
 
     @Override
-    @PostMapping("/post")
+    @PostMapping(value = "/post", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
     public ResponseEntity<QuestionPostDto> saveQuestionPost(
             @AuthenticationPrincipal CustomUserDetails customUserDetails,
             @ModelAttribute QuestionPostCommand command) {
 
-        // 사용자 정보
-        String memberId = customUserDetails.getUsername();
+        command.setMemberId(customUserDetails.getUsername());
 
-        QuestionPostDto questionPostDto = questionPostService.saveQuestionPost(memberId, command);
-
-        return ResponseEntity.ok(questionPostDto);
+        return ResponseEntity.ok(questionPostService.saveQuestionPost(command));
     }
 }

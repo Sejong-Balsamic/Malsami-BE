@@ -25,11 +25,10 @@ public class QuestionPostService {
 
     /* 질문 게시글 등록 로직 */
     @Transactional
-    public QuestionPostDto saveQuestionPost(String memberId, QuestionPostCommand command) {
+    public QuestionPostDto saveQuestionPost(QuestionPostCommand command) {
 
-        Member member = memberRepository.findById(UUID.fromString(memberId))
+        Member member = memberRepository.findById(UUID.fromString(command.getMemberId()))
                 .orElseThrow(() -> new CustomException(ErrorCode.MEMBER_NOT_FOUND));
-        log.info("현재 사용자 학번 = {}", member.getStudentId());
 
         QuestionPost questionPost = QuestionPost.builder()
                 .member(member)
