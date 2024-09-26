@@ -1,5 +1,6 @@
 package com.balsamic.sejongmalsami.util.config;
 
+import com.balsamic.sejongmalsami.service.MemberService;
 import com.balsamic.sejongmalsami.util.JwtUtil;
 import com.balsamic.sejongmalsami.util.filter.TokenAuthenticationFilter;
 import java.util.Arrays;
@@ -7,6 +8,7 @@ import java.util.Collections;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.http.HttpMethod;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.ProviderManager;
 import org.springframework.security.authentication.dao.DaoAuthenticationProvider;
@@ -24,22 +26,27 @@ import org.springframework.web.cors.CorsConfiguration;
 import org.springframework.web.cors.CorsConfigurationSource;
 import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
 
+/**
+ * Spring Security 설정 클래스
+ */
 @Configuration
 @EnableWebSecurity
 @RequiredArgsConstructor
 public class WebSecurityConfig {
-  private final JwtUtil jwtUtil;
 
+  private final JwtUtil jwtUtil;
+  private final MemberService memberService;
+
+  // 인증을 생략할 URL 패턴 목록
   private static final String[] AUTH_WHITELIST = {
-      "/", // 기본화면
-      "/api/**", //FIXME: 일시적으로 전체 API 주소 허용 (삭제해야함)
-      "/api/signup", // 회원가입
+      "/api/member/signin", // 회원가입
+      "/api/course/subjects/faculty", // 교과목명 조회
       "/api/login", // 로그인
       "/docs/**", // Swagger
       "/v3/api-docs/**", // Swagger
-      "/**",
   };
 
+  // 허용된 CORS Origin 목록
   private static final String[] ALLOWED_ORIGINS = {
       "https://api.sejong-malsami.co.kr",
       "https://www.sejong-malsami.co.kr",
@@ -48,47 +55,50 @@ public class WebSecurityConfig {
       "http://localhost:8080",
       "http://localhost:3000"
   };
+
+  // 웹 보안 무시 설정 (정적 자원 등)
   @Bean
   public WebSecurityCustomizer configure() {
     return (web) -> web.ignoring()
         .requestMatchers(new AntPathRequestMatcher("/static/**"));
   }
 
+  // 보안 필터 체인 설정
   @Bean
   public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
     return
         http.cors(cors -> cors
                 .configurationSource(corsConfigurationSource()))
-
             .csrf(AbstractHttpConfigurer::disable)
             .httpBasic(AbstractHttpConfigurer::disable)
             .formLogin(AbstractHttpConfigurer::disable)
-
             .authorizeHttpRequests((authorize) -> authorize
                 .requestMatchers(AUTH_WHITELIST).permitAll()
-//                .requestMatchers(HttpMethod.GET, "/api/my-page").hasRole("USER") //FIXME: 예시 페이지
+                .requestMatchers(HttpMethod.POST, "/api/course/upload").hasRole("USER")
                 .anyRequest().authenticated()
             )
             .logout(logout -> logout
-                .logoutSuccessUrl("/login")
+                .logoutSuccessUrl("/")
                 .invalidateHttpSession(true)
             )
             .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
-            .addFilterBefore(new TokenAuthenticationFilter(jwtUtil, Arrays.asList(AUTH_WHITELIST)),
+            .addFilterBefore(new TokenAuthenticationFilter(jwtUtil, memberService, Arrays.asList(AUTH_WHITELIST)),
                 UsernamePasswordAuthenticationFilter.class)
             .build();
   }
 
+  // 인증 매니저 설정
   @Bean
   public AuthenticationManager authenticationManager(HttpSecurity http,
       BCryptPasswordEncoder bCryptPasswordEncoder,
-      UserDetailsService UserDetailsService) throws Exception {
+      UserDetailsService userDetailsService) throws Exception {
     DaoAuthenticationProvider authProvider = new DaoAuthenticationProvider();
-    authProvider.setUserDetailsService(UserDetailsService);
+    authProvider.setUserDetailsService(userDetailsService);
     authProvider.setPasswordEncoder(bCryptPasswordEncoder);
     return new ProviderManager(authProvider);
   }
 
+  // CORS 설정 소스 빈
   @Bean
   public CorsConfigurationSource corsConfigurationSource() {
     CorsConfiguration configuration = new CorsConfiguration();
@@ -101,8 +111,10 @@ public class WebSecurityConfig {
     source.registerCorsConfiguration("/**", configuration);
     return source;
   }
+
+  // 비밀번호 인코더 빈 (BCrypt)
   @Bean
-  public BCryptPasswordEncoder passwordEncoder(){
+  public BCryptPasswordEncoder passwordEncoder() {
     return new BCryptPasswordEncoder();
   }
 }

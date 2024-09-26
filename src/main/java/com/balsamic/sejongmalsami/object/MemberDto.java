@@ -2,14 +2,13 @@ package com.balsamic.sejongmalsami.object;
 
 import lombok.Builder;
 import lombok.Getter;
-import lombok.Setter;
 import lombok.ToString;
 
 @Builder
-@Setter
 @Getter
 @ToString
 public class MemberDto {
+
   private Member member;
 
   // auth
@@ -18,4 +17,8 @@ public class MemberDto {
   private String studentName;
   private String academicYear;
   private String enrollmentStatus;
+
+  // token
+  private String accessToken;
+  private String refreshToken;
 }
