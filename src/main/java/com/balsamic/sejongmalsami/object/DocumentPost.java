@@ -1,13 +1,14 @@
 package com.balsamic.sejongmalsami.object;
 
-import com.balsamic.sejongmalsami.object.constants.Grade;
+import com.balsamic.sejongmalsami.object.constants.PostTier;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
+import jakarta.persistence.EnumType;
+import jakarta.persistence.Enumerated;
 import jakarta.persistence.FetchType;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
-import jakarta.persistence.JoinColumn;
 import jakarta.persistence.Lob;
 import jakarta.persistence.ManyToOne;
 import java.util.UUID;
@@ -44,22 +45,23 @@ public class DocumentPost extends BaseEntity {
   private String content; // 내용
 
   @Builder.Default
-  private Grade grade = Grade.COMMONER; // 게시물 등급
+  @Enumerated(EnumType.STRING)
+  private PostTier grade = PostTier.CHEONMIN; // 게시물 등급
 
   @Builder.Default
-  private int likeCount = 0; // 추천수
+  private Integer likeCount = 0; // 추천수
 
   @Builder.Default
-  private int dislikeCount = 0; // 싫어요수
+  private Integer dislikeCount = 0; // 싫어요수
 
   @Builder.Default
-  private int downloadCount = 0; // 다운로드수
+  private Integer downloadCount = 0; // 다운로드수
 
   @Builder.Default
-  private int commentCount = 0; // 댓글수
+  private Integer commentCount = 0; // 댓글수
 
   @Builder.Default
-  private int viewCount = 0; // 조회수
+  private Integer viewCount = 0; // 조회수
 
   @Builder.Default
   private Boolean isDepartmentPrivate = false; // 내 학과 비공개
