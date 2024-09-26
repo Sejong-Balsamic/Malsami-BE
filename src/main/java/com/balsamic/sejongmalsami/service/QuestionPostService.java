@@ -8,6 +8,7 @@ import com.balsamic.sejongmalsami.repository.MemberRepository;
 import com.balsamic.sejongmalsami.repository.QuestionPostRepository;
 import com.balsamic.sejongmalsami.util.exception.CustomException;
 import com.balsamic.sejongmalsami.util.exception.ErrorCode;
+import java.util.UUID;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
