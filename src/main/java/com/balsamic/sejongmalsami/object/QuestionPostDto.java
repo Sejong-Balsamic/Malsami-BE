@@ -8,5 +8,6 @@ import lombok.ToString;
 @Getter
 @ToString
 public class QuestionPostDto {
-    private QuestionPost questionPost;
+
+  private QuestionPost questionPost;
 }
