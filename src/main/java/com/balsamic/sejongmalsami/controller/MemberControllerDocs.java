@@ -35,10 +35,10 @@ public interface MemberControllerDocs {
 
     **입력 파라미터 값:**
 
-    - **String sejongPortalId**: 세종대학교 포털 ID  
+    - **String sejongPortalId**: 세종대학교 포털 ID
       _예: "18010561"_
 
-    - **String sejongPortalPassword**: 세종대학교 포털 비밀번호  
+    - **String sejongPortalPassword**: 세종대학교 포털 비밀번호
       _예: "your_password"_
 
     **DB에 저장되는 학사 정보:**
