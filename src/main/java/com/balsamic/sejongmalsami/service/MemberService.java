@@ -75,7 +75,7 @@ public class MemberService implements UserDetailsService {
                   .build();
         });
 
-    member.changeLastLoginTime(LocalDateTime.now());
+    member.updateLastLoginTime(LocalDateTime.now());
     log.info("회원 로그인 완료: studentId = {}", studentId);
     memberRepository.save(member);
 

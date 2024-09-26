@@ -35,7 +35,7 @@ public interface QuestionPostControllerDocs {
     - **String subject**: 과목 명 (required)
       _예: "고급C프로그래밍및실습"_
       
-    - **int reward**: 엽전 현상금 (default = 0)
+    - **Integer reward**: 엽전 현상금 (default = 0)
       _예: "50"_
       
     - **Boolean isPrivate**: 내 정보 비공개 여부 (default = false)
@@ -46,12 +46,12 @@ public interface QuestionPostControllerDocs {
     - **String content**: 질문 글 본문
     - **String subject**: 과목
     - **String writer**: 작성자
-    - **int views**: 조회 수
-    - **int likes**: 추천 수
-    - **int answerCount**: 답변 수
-    - **int commentCount**: 댓글 수
-    - **int reward**: 엽전 현상금
-    - **Boolean isPrivate**: 내 정보 비공개 여부
+    - **Integer views**: 조회 수 (default = 0)
+    - **Integer likes**: 추천 수 (default = 0)
+    - **Integer answerCount**: 답변 수 (default = 0)
+    - **Integer commentCount**: 댓글 수 (default = 0)
+    - **Integer reward**: 엽전 현상금
+    - **Boolean isPrivate**: 내 정보 비공개 여부 (default = false)
 
     **반환 파라미터 값:**
 
@@ -65,7 +65,7 @@ public interface QuestionPostControllerDocs {
     - 성공적인 등록 후, 등록 된 질문글을 반환합니다.
     """
     )
-    ResponseEntity<QuestionPostDto> savePost(
+    ResponseEntity<QuestionPostDto> saveQuestionPost(
             CustomUserDetails customUserDetails,
             QuestionPostCommand questionPostCommand);
 }

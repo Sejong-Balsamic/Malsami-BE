@@ -52,7 +52,7 @@ public class Member extends BaseEntity {
 
   private LocalDateTime lastLoginTime;
 
-  public void changeLastLoginTime(LocalDateTime lastLoginTime) {
+  public void updateLastLoginTime(LocalDateTime lastLoginTime) {
     this.lastLoginTime = lastLoginTime;
   }
 }

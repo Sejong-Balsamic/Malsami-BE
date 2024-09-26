@@ -8,6 +8,7 @@ import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
+import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
@@ -22,10 +23,14 @@ public class QuestionPostController implements QuestionPostControllerDocs{
 
     @Override
     @PostMapping("/post")
-    public ResponseEntity<QuestionPostDto> savePost(
+    public ResponseEntity<QuestionPostDto> saveQuestionPost(
             @AuthenticationPrincipal CustomUserDetails customUserDetails,
-            QuestionPostCommand questionPostCommand) {
-        QuestionPostDto questionPostDto = questionPostService.savePost(customUserDetails, questionPostCommand);
+            @ModelAttribute QuestionPostCommand command) {
+
+        // 사용자 정보
+        String memberId = customUserDetails.getUsername();
+
+        QuestionPostDto questionPostDto = questionPostService.saveQuestionPost(memberId, command);
 
         return ResponseEntity.ok(questionPostDto);
     }

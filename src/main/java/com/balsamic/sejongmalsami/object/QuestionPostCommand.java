@@ -8,7 +8,7 @@ import lombok.ToString;
 @Getter
 @ToString
 public class QuestionPostCommand {
-    private Long questionPostId;
+    private String memberId;
     private String title;
     private String content;
     private String subject;
