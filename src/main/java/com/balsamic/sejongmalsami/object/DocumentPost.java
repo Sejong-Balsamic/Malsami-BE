@@ -46,7 +46,7 @@ public class DocumentPost extends BaseEntity {
 
   @Builder.Default
   @Enumerated(EnumType.STRING)
-  private PostTier grade = PostTier.CHEONMIN; // 게시물 등급
+  private PostTier postTier = PostTier.CHEONMIN; // 게시물 등급
 
   @Builder.Default
   private Integer likeCount = 0; // 추천수
