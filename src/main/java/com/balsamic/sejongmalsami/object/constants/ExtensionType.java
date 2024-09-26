@@ -4,7 +4,6 @@ import lombok.AllArgsConstructor;
 import lombok.Getter;
 
 import java.util.Arrays;
-import java.util.stream.Collectors;
 
 @AllArgsConstructor
 @Getter
@@ -26,7 +25,7 @@ public enum ExtensionType {
     public static boolean isValidExtension(String extension) {
         return Arrays.stream(ExtensionType.values())
                 .map(ExtensionType::getDescription)
-                .collect(Collectors.toList())
+                .toList()
                 .contains(extension.toLowerCase());
     }
 }
