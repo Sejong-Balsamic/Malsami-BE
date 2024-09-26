@@ -12,17 +12,17 @@ import com.balsamic.sejongmalsami.util.exception.ErrorCode;
 import io.jsonwebtoken.Claims;
 import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletResponse;
-import java.time.LocalDateTime;
-import java.util.UUID;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+
+import java.time.LocalDateTime;
+import java.util.UUID;
 
 @Service
 @RequiredArgsConstructor
@@ -66,13 +66,13 @@ public class MemberService implements UserDetailsService {
         .orElseGet(() -> {
           log.info("신규 회원 등록: studentId = {}", studentId);
           return Member.builder()
-                  .studentId(studentId)
-                  .studentName(dto.getStudentName())
-                  .uuidNickname(UUID.randomUUID().toString().substring(0, 6))
-                  .major(dto.getMajor())
-                  .academicYear(dto.getAcademicYear())
-                  .enrollmentStatus(dto.getEnrollmentStatus())
-                  .build();
+              .studentId(studentId)
+              .studentName(dto.getStudentName())
+              .uuidNickname(UUID.randomUUID().toString().substring(0, 6))
+              .major(dto.getMajor())
+              .academicYear(dto.getAcademicYear())
+              .enrollmentStatus(dto.getEnrollmentStatus())
+              .build();
         });
 
     member.setLastLoginTime(LocalDateTime.now());
@@ -91,7 +91,7 @@ public class MemberService implements UserDetailsService {
     refreshCookie.setHttpOnly(true);
     refreshCookie.setSecure(false); // 개발 환경 false (HTTP에서도 허용)
     refreshCookie.setPath("/api/auth/refresh"); // 리프레시 토큰 API
-    refreshCookie.setMaxAge((int)(jwtUtil.getRefreshExpirationTime() / 1000)); // 7일
+    refreshCookie.setMaxAge((int) (jwtUtil.getRefreshExpirationTime() / 1000)); // 7일
 
     response.addCookie(refreshCookie);
 

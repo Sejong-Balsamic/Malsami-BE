@@ -2,15 +2,25 @@ package com.balsamic.sejongmalsami.object;
 
 import com.balsamic.sejongmalsami.object.constants.AccountStatus;
 import com.balsamic.sejongmalsami.object.constants.Role;
-import jakarta.persistence.*;
-import lombok.*;
-
+import jakarta.persistence.Column;
+import jakarta.persistence.Entity;
+import jakarta.persistence.EnumType;
+import jakarta.persistence.Enumerated;
+import jakarta.persistence.GeneratedValue;
+import jakarta.persistence.GenerationType;
+import jakarta.persistence.Id;
 import java.time.LocalDateTime;
 import java.util.UUID;
+import lombok.AllArgsConstructor;
+import lombok.Builder;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.Setter;
+import lombok.ToString;
 
 @Entity
-@Setter
 @Getter
+@Setter
 @Builder
 @AllArgsConstructor
 @NoArgsConstructor
@@ -19,7 +29,7 @@ public class Member extends BaseEntity {
 
   @Id
   @GeneratedValue(strategy = GenerationType.AUTO)
-  @Column(name = "member_id", columnDefinition = "uuid DEFAULT uuid_generate_v4()", updatable = false, nullable = false)
+  @Column(columnDefinition = "uuid DEFAULT uuid_generate_v4()", updatable = false, nullable = false)
   private UUID memberId;
 
   @Column(unique = true)
