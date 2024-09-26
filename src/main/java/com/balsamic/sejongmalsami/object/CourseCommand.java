@@ -10,6 +10,7 @@ import org.springframework.web.multipart.MultipartFile;
 @Getter
 @Builder
 public class CourseCommand {
+
   private MultipartFile sejongCourseFile;
   private Faculty faculty;
   private Integer year;

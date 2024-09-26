@@ -9,8 +9,6 @@ import com.balsamic.sejongmalsami.util.exception.CustomException;
 import com.balsamic.sejongmalsami.util.exception.ErrorCode;
 import java.io.IOException;
 import java.io.InputStream;
-import java.util.ArrayList;
-import java.util.List;
 import java.util.Objects;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -20,7 +18,6 @@ import org.apache.poi.ss.usermodel.Workbook;
 import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
-
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -33,7 +30,7 @@ public class CourseService {
 
   @Async
   @Transactional
-  public void parseAndSaveCourses(CourseCommand command){
+  public void parseAndSaveCourses(CourseCommand command) {
     MultipartFile sejongCourseFile = command.getSejongCourseFile();
     String fileName = sejongCourseFile.getOriginalFilename();
     Integer year = null;
@@ -41,7 +38,7 @@ public class CourseService {
 
     // 파일 포맷 체크 (예시 : course-2024-2.xlsx )
     String[] parts = Objects.requireNonNull(fileName).split("-");
-    if(!Objects.equals(parts[0], "course")){
+    if (!Objects.equals(parts[0], "course")) {
       log.info("교과목명 파싱 파일 : {}", sejongCourseFile.getOriginalFilename());
       throw new CustomException(ErrorCode.WRONG_COURSE_FILE_FORMAT);
     }
@@ -49,14 +46,14 @@ public class CourseService {
       log.info("교과목명 파싱 파일 : {}", sejongCourseFile.getOriginalFilename());
       year = Integer.parseInt(parts[1]);
       semester = Integer.parseInt(parts[2].split("\\.")[0]);
-    } catch (Exception e){
+    } catch (Exception e) {
       e.printStackTrace();
       log.info("교과목명 파싱 파일 : {}", sejongCourseFile.getOriginalFilename());
       throw new CustomException(ErrorCode.WRONG_COURSE_FILE_FORMAT);
     }
 
     // 중복 파일 업로드 확인
-    if(courseRepository.existsByYearAndSemester(year, semester)) {
+    if (courseRepository.existsByYearAndSemester(year, semester)) {
       log.info("교과목명 중복됨 : 년도: {} , 학기: {}", command.getYear(), command.getSemester());
       throw new CustomException(ErrorCode.DUPLICATE_COURSE_UPLOAD);
     }
@@ -76,7 +73,7 @@ public class CourseService {
 
         Faculty faculty;
         // 단과대학명이 "대학"이라고 적힌 경우, "법학부 법학전공"으로 처리
-        if(facultyName.equals("대학")){
+        if (facultyName.equals("대학")) {
           faculty = Faculty.법학부법학전공;
         } else {
           try {

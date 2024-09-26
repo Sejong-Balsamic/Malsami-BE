@@ -10,6 +10,7 @@ import java.util.List;
 @Getter
 @Builder
 public class CourseDto {
+
   // 교과목명 리스트
   List<String> subjects;
 
