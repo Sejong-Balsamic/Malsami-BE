@@ -1,5 +1,6 @@
 package com.balsamic.sejongmalsami.controller;
 
+import com.balsamic.sejongmalsami.object.CustomUserDetails;
 import com.balsamic.sejongmalsami.object.QuestionPostCommand;
 import com.balsamic.sejongmalsami.object.QuestionPostDto;
 import com.balsamic.sejongmalsami.object.constants.Author;
@@ -7,7 +8,6 @@ import com.balsamic.sejongmalsami.util.log.ApiChangeLog;
 import com.balsamic.sejongmalsami.util.log.ApiChangeLogs;
 import io.swagger.v3.oas.annotations.Operation;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.ModelAttribute;
 
 public interface QuestionPostControllerDocs {
     @ApiChangeLogs({
@@ -65,5 +65,5 @@ public interface QuestionPostControllerDocs {
     - 성공적인 등록 후, 등록 된 질문글을 반환합니다.
     """
     )
-    ResponseEntity<QuestionPostDto> savePost(@ModelAttribute QuestionPostCommand questionPostCommand);
+    ResponseEntity<QuestionPostDto> savePost(CustomUserDetails customUserDetails, QuestionPostCommand questionPostCommand);
 }

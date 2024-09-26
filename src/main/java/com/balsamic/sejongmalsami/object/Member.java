@@ -18,7 +18,7 @@ public class Member extends BaseEntity {
 
   @Id
   @GeneratedValue(strategy = GenerationType.AUTO)
-  @Column(name = "member_id", columnDefinition = "uuid DEFAULT uuid_generate_v4()", updatable = false, nullable = false)
+  @Column(columnDefinition = "uuid DEFAULT uuid_generate_v4()", updatable = false, nullable = false)
   private UUID memberId;
 
   @Column(unique = true)
@@ -51,4 +51,8 @@ public class Member extends BaseEntity {
   private AccountStatus accountStatus = AccountStatus.ACTIVE;
 
   private LocalDateTime lastLoginTime;
+
+  public void changeLastLoginTime(LocalDateTime lastLoginTime) {
+    this.lastLoginTime = lastLoginTime;
+  }
 }
