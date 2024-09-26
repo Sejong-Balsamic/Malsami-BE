@@ -8,6 +8,7 @@ import lombok.ToString;
 @Getter
 @ToString
 public class MemberDto {
+
   private Member member;
 
   // auth

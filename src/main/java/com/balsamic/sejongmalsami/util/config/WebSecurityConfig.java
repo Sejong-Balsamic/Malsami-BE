@@ -27,12 +27,13 @@ import org.springframework.web.cors.CorsConfigurationSource;
 import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
 
 /**
- Spring Security 설정 클래스
+ * Spring Security 설정 클래스
  */
 @Configuration
 @EnableWebSecurity
 @RequiredArgsConstructor
 public class WebSecurityConfig {
+
   private final JwtUtil jwtUtil;
   private final MemberService memberService;
 
@@ -66,23 +67,24 @@ public class WebSecurityConfig {
   @Bean
   public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
     return
-    http.cors(cors -> cors
-            .configurationSource(corsConfigurationSource()))
-        .csrf(AbstractHttpConfigurer::disable)
-        .httpBasic(AbstractHttpConfigurer::disable)
-        .formLogin(AbstractHttpConfigurer::disable)
-        .authorizeHttpRequests((authorize) -> authorize
-            .requestMatchers(AUTH_WHITELIST).permitAll()
-            .requestMatchers(HttpMethod.POST, "/api/course/upload").hasRole("USER")
-            .anyRequest().authenticated()
-        )
-        .logout(logout -> logout
-            .logoutSuccessUrl("/")
-            .invalidateHttpSession(true)
-        )
-        .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
-        .addFilterBefore(new TokenAuthenticationFilter(jwtUtil, memberService, Arrays.asList(AUTH_WHITELIST)), UsernamePasswordAuthenticationFilter.class)
-        .build();
+        http.cors(cors -> cors
+                .configurationSource(corsConfigurationSource()))
+            .csrf(AbstractHttpConfigurer::disable)
+            .httpBasic(AbstractHttpConfigurer::disable)
+            .formLogin(AbstractHttpConfigurer::disable)
+            .authorizeHttpRequests((authorize) -> authorize
+                .requestMatchers(AUTH_WHITELIST).permitAll()
+                .requestMatchers(HttpMethod.POST, "/api/course/upload").hasRole("USER")
+                .anyRequest().authenticated()
+            )
+            .logout(logout -> logout
+                .logoutSuccessUrl("/")
+                .invalidateHttpSession(true)
+            )
+            .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
+            .addFilterBefore(new TokenAuthenticationFilter(jwtUtil, memberService, Arrays.asList(AUTH_WHITELIST)),
+                UsernamePasswordAuthenticationFilter.class)
+            .build();
   }
 
   // 인증 매니저 설정
@@ -112,7 +114,7 @@ public class WebSecurityConfig {
 
   // 비밀번호 인코더 빈 (BCrypt)
   @Bean
-  public BCryptPasswordEncoder passwordEncoder(){
+  public BCryptPasswordEncoder passwordEncoder() {
     return new BCryptPasswordEncoder();
   }
 }

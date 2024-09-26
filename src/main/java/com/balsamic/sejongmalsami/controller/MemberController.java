@@ -20,13 +20,15 @@ import org.springframework.web.bind.annotation.RestController;
     name = "회원 관리 API",
     description = "회원 관리 API 제공"
 )
-public class MemberController implements MemberControllerDocs{
+public class MemberController implements MemberControllerDocs {
+
   private final MemberService memberService;
+
   @Override
   @PostMapping(value = "/signin", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
   public ResponseEntity<MemberDto> signIn(
       @ModelAttribute MemberCommand command,
-      HttpServletResponse response){
+      HttpServletResponse response) {
     MemberDto memberDto = memberService.signIn(command, response);
     return ResponseEntity.ok(memberDto);
   }
