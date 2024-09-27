@@ -32,7 +32,7 @@ public class QuestionPostController implements QuestionPostControllerDocs {
   public ResponseEntity<QuestionPostDto> saveQuestionPost(
       @AuthenticationPrincipal CustomUserDetails customUserDetails,
       @ModelAttribute QuestionPostCommand command) {
-    command.setMemberId(customUserDetails.getUsername());
+    command.setMemberId(customUserDetails.getMemberId());
     return ResponseEntity.ok(questionPostService.saveQuestionPost(command));
   }
 }
