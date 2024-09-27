@@ -1,5 +1,8 @@
 package com.balsamic.sejongmalsami.object;
 
+import com.balsamic.sejongmalsami.object.constants.QuestionPresetTag;
+import com.balsamic.sejongmalsami.util.exception.CustomException;
+import com.balsamic.sejongmalsami.util.exception.ErrorCode;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.FetchType;
@@ -8,6 +11,8 @@ import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.Lob;
 import jakarta.persistence.ManyToOne;
+import java.util.HashSet;
+import java.util.Set;
 import java.util.UUID;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -45,6 +50,10 @@ public class QuestionPost extends BaseEntity {
   @Column(nullable = false)
   private String subject;
 
+  // 정적 태그
+  @Builder.Default
+  private Set<QuestionPresetTag> questionPresetTagSet = new HashSet<>();
+
   // 조회 수
   @Builder.Default
   private Integer views = 0;
@@ -62,9 +71,24 @@ public class QuestionPost extends BaseEntity {
   private Integer commentCount = 0;
 
   // 엽전 현상금
-  private Integer reward;
+  @Builder.Default
+  private Integer reward = 0;
 
   // 내 정보 비공개 여부
   @Builder.Default
   private Boolean isPrivate = false;
+
+
+  // 질문게시글 정적 태그 추가
+  public void setPresetTagByCode(int code) {
+    QuestionPresetTag tag = QuestionPresetTag.fromCode(code);
+
+    // 태그는 최대 2개까지 선택가능
+    if (questionPresetTagSet.size() >= 2) {
+      throw new CustomException(ErrorCode.QUESTION_PRESET_TAG_LIMIT_EXCEEDED);
+    }
+
+    // 태그 추가
+    questionPresetTagSet.add(tag);
+  }
 }

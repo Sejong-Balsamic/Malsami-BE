@@ -4,11 +4,12 @@ import com.balsamic.sejongmalsami.object.Member;
 import com.balsamic.sejongmalsami.object.QuestionPost;
 import com.balsamic.sejongmalsami.object.QuestionPostCommand;
 import com.balsamic.sejongmalsami.object.QuestionPostDto;
+import com.balsamic.sejongmalsami.object.constants.QuestionPresetTag;
 import com.balsamic.sejongmalsami.repository.MemberRepository;
 import com.balsamic.sejongmalsami.repository.QuestionPostRepository;
 import com.balsamic.sejongmalsami.util.exception.CustomException;
 import com.balsamic.sejongmalsami.util.exception.ErrorCode;
-import java.util.UUID;
+import java.util.HashSet;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
@@ -29,17 +30,30 @@ public class QuestionPostService {
     Member member = memberRepository.findById(command.getMemberId())
         .orElseThrow(() -> new CustomException(ErrorCode.MEMBER_NOT_FOUND));
 
+    // 엽전 현상금 null 또는 음수 값인 경우, 기본 0으로 설정
+    if (command.getReward() == null || command.getReward() < 0) {
+      command.setReward(0);
+    }
+
     QuestionPost questionPost = QuestionPost.builder()
         .member(member)
         .title(command.getTitle())
         .content(command.getContent())
         .subject(command.getSubject())
+        .questionPresetTagSet(new HashSet<>())
         .views(0)
         .likes(0)
         .answerCount(0)
         .reward(command.getReward())
         .isPrivate(false)
         .build();
+
+    // 정적 태그 추가 로직
+    if (command.getQuestionPresetTagSet() != null) {
+      for (QuestionPresetTag tag : command.getQuestionPresetTagSet()) {
+        questionPost.setPresetTagByCode(tag.getCode());
+      }
+    }
 
     questionPostRepository.save(questionPost);
 
