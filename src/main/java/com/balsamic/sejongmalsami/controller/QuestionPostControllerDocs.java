@@ -50,7 +50,6 @@ public interface QuestionPostControllerDocs {
           - **String content**: 질문 글 본문
           - **String subject**: 과목
           - **Enum questionPresetTagSet**: 정적 태그
-          - **String writer**: 작성자
           - **Integer views**: 조회 수 (default = 0)
           - **Integer likes**: 추천 수 (default = 0)
           - **Integer answerCount**: 답변 수 (default = 0)
@@ -66,7 +65,8 @@ public interface QuestionPostControllerDocs {
           **참고 사항:**
 
           - 이 API를 통해 사용자는 질문게시판에 질문 글을 동록할 수 있습니다.
-          - 글 제목, 본문, 과목명은 null 값이 들어갈 수 없습니다.
+          - 글 제목, 본문, 과목명은 null 값이 들어갈 수 없습니다. (required)
+          - 정적태그, 엽전 현상금, 내 정보 비공개 여부는 프론트에서 설정하지 않으면 default 값이 할당됩니다.
           - 엽전 현상금 null 또는 음수 값 입력시 자동으로 0으로 설정됩니다.
           - 성공적인 등록 후, 등록 된 질문글을 반환합니다.
           """
