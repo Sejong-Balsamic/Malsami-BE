@@ -26,7 +26,7 @@ public class QuestionPostService {
   @Transactional
   public QuestionPostDto saveQuestionPost(QuestionPostCommand command) {
 
-    Member member = memberRepository.findById(UUID.fromString(command.getMemberId()))
+    Member member = memberRepository.findById(command.getMemberId())
         .orElseThrow(() -> new CustomException(ErrorCode.MEMBER_NOT_FOUND));
 
     QuestionPost questionPost = QuestionPost.builder()

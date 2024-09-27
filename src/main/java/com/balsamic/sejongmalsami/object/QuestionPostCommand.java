@@ -1,5 +1,6 @@
 package com.balsamic.sejongmalsami.object;
 
+import java.util.UUID;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.Setter;
@@ -11,7 +12,7 @@ import lombok.ToString;
 @ToString
 public class QuestionPostCommand {
 
-  private String memberId;
+  private UUID memberId;
   private String title;
   private String content;
   private String subject;
