@@ -5,6 +5,8 @@ import com.balsamic.sejongmalsami.util.exception.CustomException;
 import com.balsamic.sejongmalsami.util.exception.ErrorCode;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
+import jakarta.persistence.EnumType;
+import jakarta.persistence.Enumerated;
 import jakarta.persistence.FetchType;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
@@ -52,6 +54,7 @@ public class QuestionPost extends BaseEntity {
 
   // 정적 태그
   @Builder.Default
+  @Enumerated(EnumType.STRING)
   private Set<QuestionPresetTag> questionPresetTagSet = new HashSet<>();
 
   // 조회 수
@@ -78,12 +81,9 @@ public class QuestionPost extends BaseEntity {
   @Builder.Default
   private Boolean isPrivate = false;
 
-
   // 질문게시글 정적 태그 추가
-  public void setPresetTagByCode(int code) {
-    QuestionPresetTag tag = QuestionPresetTag.fromCode(code);
+  public void addPresetTag(QuestionPresetTag tag) {
 
-    // 태그는 최대 2개까지 선택가능
     if (questionPresetTagSet.size() >= 2) {
       throw new CustomException(ErrorCode.QUESTION_PRESET_TAG_LIMIT_EXCEEDED);
     }

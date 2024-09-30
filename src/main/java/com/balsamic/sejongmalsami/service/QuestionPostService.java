@@ -30,9 +30,11 @@ public class QuestionPostService {
     Member member = memberRepository.findById(command.getMemberId())
         .orElseThrow(() -> new CustomException(ErrorCode.MEMBER_NOT_FOUND));
 
-    // 엽전 현상금 null 또는 음수 값인 경우, 기본 0으로 설정
-    if (command.getReward() == null || command.getReward() < 0) {
+    // 엽전 현상금 null인 경우 기본 0으로 설정
+    if (command.getReward() == null) {
       command.setReward(0);
+    } else if (command.getReward() < 0) { // 음수 값으로 설정될 경우 오류
+      throw new CustomException(ErrorCode.QUESTION_REWARD_INVALID);
     }
 
     QuestionPost questionPost = QuestionPost.builder()
@@ -51,7 +53,7 @@ public class QuestionPostService {
     // 정적 태그 추가 로직
     if (command.getQuestionPresetTagSet() != null) {
       for (QuestionPresetTag tag : command.getQuestionPresetTagSet()) {
-        questionPost.setPresetTagByCode(tag.getCode());
+        questionPost.addPresetTag(tag);
       }
     }
 

@@ -45,17 +45,18 @@ public interface QuestionPostControllerDocs {
           - **Boolean isPrivate**: 내 정보 비공개 여부 (default = false)
             _기본값은 false입니다. true로 요청할 시 질문 글에 내 정보가 비공개 처리됩니다._
 
-          **DB에 저장되는 질문 글 정보:**
-          - **String title**: 질문 글 제목
-          - **String content**: 질문 글 본문
-          - **String subject**: 과목
-          - **Enum questionPresetTagSet**: 정적 태그
-          - **Integer views**: 조회 수 (default = 0)
-          - **Integer likes**: 추천 수 (default = 0)
-          - **Integer answerCount**: 답변 수 (default = 0)
-          - **Integer commentCount**: 댓글 수 (default = 0)
-          - **Integer reward**: 엽전 현상금 (default = 0)
-          - **Boolean isPrivate**: 내 정보 비공개 여부 (default = false)
+          **정적 태그**
+          
+          총 7개의 정적태그가 존재하며 최대 2개까지의 정적태그를 설정할 수 있습니다.
+          - **OUT_OF_CLASS** (수업 외 내용)
+          - **UNKNOWN_CONCEPT** (개념 모름)
+          - **BETTER_SOLUTION** (더 나은 풀이)
+          - **EXAM_PREPARATION** (시험 대비)
+          - **DOCUMENT_REQUEST** (자료 요청)
+          - **STUDY_TIPS** (공부 팁)
+          - **ADVICE_REQUEST** (조언 구함)
+          
+            _예: "formData.append('questionPresetTagSet', 'DOCUMENT_REQUEST');_
 
           **반환 파라미터 값:**
 
