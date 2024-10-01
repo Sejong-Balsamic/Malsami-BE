@@ -31,7 +31,6 @@ public class AuthService {
   @Transactional(readOnly = true)
   public AuthDto refreshAccessToken(AuthCommand command) {
     String refreshToken = command.getRefreshToken();
-
     // 리프레시 토큰 검증 (JWT 유효성 검사)
     if (!jwtUtil.validateToken(refreshToken)) {
       log.error("리프레시 토큰이 유효하지 않습니다.");
