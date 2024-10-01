@@ -43,13 +43,13 @@ public class AuthController implements AuthControllerDocs{
    */
   private String extractRefreshTokenFromCookies(Cookie[] cookies) {
     if (cookies == null) {
-      throw new CustomException(ErrorCode.INVALID_REFRESH_TOKEN);
+      throw new CustomException(ErrorCode.MISSING_REFRESH_TOKEN);
     }
     for (Cookie cookie : cookies) {
       if ("refreshToken".equals(cookie.getName())) {
         return cookie.getValue();
       }
     }
-    throw new CustomException(ErrorCode.INVALID_REFRESH_TOKEN);
+    throw new CustomException(ErrorCode.MISSING_REFRESH_TOKEN);
   }
 }
