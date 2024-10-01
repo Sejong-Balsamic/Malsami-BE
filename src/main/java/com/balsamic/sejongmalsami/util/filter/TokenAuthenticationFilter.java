@@ -54,7 +54,7 @@ public class TokenAuthenticationFilter extends OncePerRequestFilter {
           if (authentication != null && authentication.getPrincipal() instanceof CustomUserDetails) {
             SecurityContextHolder.getContext().setAuthentication(authentication);
             String username = ((CustomUserDetails) authentication.getPrincipal()).getUsername();
-            log.info("SecurityContext에 '{}' 사용자 인증 정보 설정 완료.", username);
+            log.info("SecurityContext에 '{}' 회원 인증 정보 설정 완료.", username);
           } else {
             log.warn("Authentication 객체가 null이거나 CustomUserDetails 타입이 아닙니다.");
             response.sendError(HttpServletResponse.SC_UNAUTHORIZED, "유효하지 않은 인증 정보입니다.");
