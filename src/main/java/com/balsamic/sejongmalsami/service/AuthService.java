@@ -62,9 +62,8 @@ public class AuthService {
     String newAccessToken = jwtUtil.createAccessToken(userDetails);
 
     log.info("새로운 AccessToken 발급 완료: 회원 = {}", userDetails.getMember().getStudentId());
-
     log.info("새로운 AccessToken: {}", newAccessToken);
-
+    
     return AuthDto.builder()
         .accessToken(newAccessToken)
         .build();
