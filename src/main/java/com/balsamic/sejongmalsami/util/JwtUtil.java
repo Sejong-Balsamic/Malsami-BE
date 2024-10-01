@@ -37,29 +37,29 @@ public class JwtUtil {
   /**
    * 액세스 토큰 생성
    *
-   * @param customUserDetails 사용자 상세 정보
+   * @param customUserDetails 회원 상세 정보
    * @return 생성된 액세스 토큰
    */
   public String createAccessToken(CustomUserDetails customUserDetails) {
-    log.info("액세스 토큰 생성 중: 사용자 '{}'", customUserDetails.getUsername());
+    log.info("액세스 토큰 생성 중: 회원 '{}'", customUserDetails.getUsername());
     return createToken(customUserDetails, accessTokenExpTime);
   }
 
   /**
    * 리프레시 토큰 생성
    *
-   * @param customUserDetails 사용자 상세 정보
+   * @param customUserDetails 회원 상세 정보
    * @return 생성된 리프레시 토큰
    */
   public String createRefreshToken(CustomUserDetails customUserDetails) {
-    log.info("리프레시 토큰 생성 중: 사용자 '{}'", customUserDetails.getUsername());
+    log.info("리프레시 토큰 생성 중: 회원 '{}'", customUserDetails.getUsername());
     return createToken(customUserDetails, refreshTokenExpTime);
   }
 
   /**
    * JWT 토큰 생성 메서드
    *
-   * @param customUserDetails 사용자 상세 정보
+   * @param customUserDetails 회원 상세 정보
    * @param expiredAt         만료 시간
    * @return 생성된 JWT 토큰
    */

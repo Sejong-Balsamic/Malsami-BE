@@ -37,7 +37,7 @@ public class MemberService implements UserDetailsService {
   private final JwtUtil jwtUtil;
 
   /**
-   * Spring Security에서 사용자 정보를 로드하는 메서드
+   * Spring Security에서 회원 정보를 로드하는 메서드
    */
   @Override
   public CustomUserDetails loadUserByUsername(String stringMemberId) throws UsernameNotFoundException {
@@ -85,13 +85,13 @@ public class MemberService implements UserDetailsService {
     log.info("회원 로그인 완료: studentId = {}", studentId);
     memberRepository.save(member);
 
-    // 사용자 상세 정보 로드
+    // 회원 상세 정보 로드
     CustomUserDetails userDetails = new CustomUserDetails(member);
 
     // 액세스 토큰 및 리프레시 토큰 생성
     String accessToken = jwtUtil.createAccessToken(userDetails);
     String refreshToken = jwtUtil.createRefreshToken(userDetails);
-    log.info("액세스 토큰 및 리프레시 토큰 생성 완료: 사용자 = {}", userDetails.getUsername());
+    log.info("액세스 토큰 및 리프레시 토큰 생성 완료: 회원 = {}", member.getStudentId());
     log.info("accessToken = {}", accessToken);
     log.info("refreshToken = {}", refreshToken);
 
@@ -102,7 +102,7 @@ public class MemberService implements UserDetailsService {
         .expiryDate(jwtUtil.getRefreshExpiryDate())
         .build();
     refreshTokenRepository.save(refreshTokenEntity);
-    log.info("리프레시 토큰 저장 완료: 사용자 = {}", userDetails.getUsername());
+    log.info("리프레시 토큰 저장 완료: 회원 = {}", member.getStudentId());
 
     // Refresh Token : HTTP-Only 쿠키 설정
     Cookie refreshCookie = new Cookie("refreshToken", refreshToken);
@@ -112,7 +112,7 @@ public class MemberService implements UserDetailsService {
     refreshCookie.setMaxAge((int) (jwtUtil.getRefreshExpirationTime() / 1000)); // 7일
     refreshCookie.setAttribute("SameSite", "Strict"); // CSRF 방지를 위해 설정
     response.addCookie(refreshCookie);
-    log.info("리프레시 토큰 쿠키 설정 완료: 사용자 = {}", userDetails.getUsername());
+    log.info("리프레시 토큰 쿠키 설정 완료: 회원 = {}", member.getStudentId());
 
     // 액세스 토큰 반환
     return MemberDto.builder()
