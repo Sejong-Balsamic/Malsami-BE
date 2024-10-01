@@ -40,6 +40,7 @@ public class WebSecurityConfig {
   // 인증을 생략할 URL 패턴 목록
   private static final String[] AUTH_WHITELIST = {
       "/api/member/signin", // 회원가입
+      "/api/auth/refresh", // 리프레시 토큰
       "/api/course/subjects/faculty", // 교과목명 조회
       "/api/login", // 로그인
       "/docs/**", // Swagger

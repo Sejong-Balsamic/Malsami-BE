@@ -1,4 +1,4 @@
-package com.balsamic.sejongmalsami.repository;
+package com.balsamic.sejongmalsami.repository.postgres;
 
 import com.balsamic.sejongmalsami.object.Course;
 import com.balsamic.sejongmalsami.object.constants.Faculty;

@@ -4,7 +4,7 @@ import com.balsamic.sejongmalsami.object.Course;
 import com.balsamic.sejongmalsami.object.CourseCommand;
 import com.balsamic.sejongmalsami.object.CourseDto;
 import com.balsamic.sejongmalsami.object.constants.Faculty;
-import com.balsamic.sejongmalsami.repository.CourseRepository;
+import com.balsamic.sejongmalsami.repository.postgres.CourseRepository;
 import com.balsamic.sejongmalsami.util.exception.CustomException;
 import com.balsamic.sejongmalsami.util.exception.ErrorCode;
 import java.io.IOException;

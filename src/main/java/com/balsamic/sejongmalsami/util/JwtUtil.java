@@ -10,6 +10,7 @@ import io.jsonwebtoken.SignatureException;
 import io.jsonwebtoken.UnsupportedJwtException;
 import io.jsonwebtoken.io.Decoders;
 import io.jsonwebtoken.security.Keys;
+import java.time.LocalDateTime;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
@@ -142,5 +143,14 @@ public class JwtUtil {
    */
   public long getRefreshExpirationTime() {
     return refreshTokenExpTime;
+  }
+
+  /**
+   * 리프레시 토큰 만료 날짜 반환
+   *
+   * @return 리프레시 토큰 만료 날짜
+   */
+  public LocalDateTime getRefreshExpiryDate() {
+    return LocalDateTime.now().plusSeconds(refreshTokenExpTime / 1000);
   }
 }
