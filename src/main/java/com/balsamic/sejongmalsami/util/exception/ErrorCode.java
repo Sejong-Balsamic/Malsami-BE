@@ -25,6 +25,8 @@ public enum ErrorCode {
 
   SEJONG_AUTH_DATA_FETCH_FAILURE(HttpStatus.FORBIDDEN, "세종대학교 학생 데이터를 가져오는 데 실패했습니다."),
 
+  INVALID_REFRESH_TOKEN(HttpStatus.BAD_REQUEST,"리프레시 토큰이 유효하지 않습니다."),
+
   // File Uploads
 
   INVALID_FILE_FORMAT(HttpStatus.BAD_REQUEST, "파일 형식이 잘못되었습니다."),
