@@ -25,7 +25,9 @@ public enum ErrorCode {
 
   SEJONG_AUTH_DATA_FETCH_FAILURE(HttpStatus.FORBIDDEN, "세종대학교 학생 데이터를 가져오는 데 실패했습니다."),
 
-  INVALID_REFRESH_TOKEN(HttpStatus.BAD_REQUEST,"리프레시 토큰이 유효하지 않습니다."),
+  MISSING_REFRESH_TOKEN(HttpStatus.BAD_REQUEST, "쿠키에서 리프레시 토큰을 찾을 수 없습니다."),
+
+  INVALID_REFRESH_TOKEN(HttpStatus.UNAUTHORIZED, "리프레시 토큰이 유효하지 않거나 만료되었습니다."),
 
   // File Uploads
 
@@ -40,7 +42,9 @@ public enum ErrorCode {
   COURSE_SAVE_ERROR(HttpStatus.BAD_REQUEST, "교과목명 파일 처리 중 오류가 발생했습니다"),
 
   WRONG_FACULTY_NAME(HttpStatus.BAD_REQUEST, "올바르지 않은 단과 대학입니다"),
+  
   // Member
+  
   MEMBER_NOT_FOUND(HttpStatus.NOT_FOUND, "회원이 존재하지 않습니다."),
 
   // QuestionPost
