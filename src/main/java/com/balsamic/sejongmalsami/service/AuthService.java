@@ -31,6 +31,7 @@ public class AuthService {
   @Transactional(readOnly = true)
   public AuthDto refreshAccessToken(AuthCommand command) {
     String refreshToken = command.getRefreshToken();
+
     // 리프레시 토큰 검증 (JWT 유효성 검사)
     if (!jwtUtil.validateToken(refreshToken)) {
       log.error("리프레시 토큰이 유효하지 않습니다.");
@@ -62,8 +63,6 @@ public class AuthService {
     String newAccessToken = jwtUtil.createAccessToken(userDetails);
 
     log.info("새로운 AccessToken 발급 완료: 회원 = {}", userDetails.getMember().getStudentId());
-
-    log.info("새로운 AccessToken: {}", newAccessToken);
 
     return AuthDto.builder()
         .accessToken(newAccessToken)

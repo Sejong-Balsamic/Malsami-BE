@@ -5,6 +5,7 @@ import com.balsamic.sejongmalsami.object.AuthDto;
 import com.balsamic.sejongmalsami.service.AuthService;
 import com.balsamic.sejongmalsami.util.exception.CustomException;
 import com.balsamic.sejongmalsami.util.exception.ErrorCode;
+import com.balsamic.sejongmalsami.util.log.LogMonitoringInvocation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletRequest;
@@ -21,11 +22,13 @@ import org.springframework.web.bind.annotation.RestController;
     name = "인증 관리 API",
     description = "인증 관련 API 제공"
 )
-public class AuthController {
+public class AuthController implements AuthControllerDocs{
 
   private final AuthService authService;
 
   @PostMapping(value = "/refresh")
+  @LogMonitoringInvocation
+  @Override
   public ResponseEntity<AuthDto> refreshAccessToken(
       HttpServletRequest request) {
     AuthDto authDto = authService.refreshAccessToken(
