@@ -45,7 +45,7 @@ public interface CommentControllerDocs {
           - **QUESTION** (질문글)
           - **ANSWER** (답변글)
           - **DOCUMENT** (자료글)
-          - **DOCUMENT_REQUIRED** (자료요청글)
+          - **DOCUMENT_REQUEST** (자료요청글)
 
             _예: "formData.append('qostType', 'QUESTION');_
 

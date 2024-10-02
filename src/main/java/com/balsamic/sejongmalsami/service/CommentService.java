@@ -4,8 +4,8 @@ import com.balsamic.sejongmalsami.object.Comment;
 import com.balsamic.sejongmalsami.object.CommentCommand;
 import com.balsamic.sejongmalsami.object.CommentDto;
 import com.balsamic.sejongmalsami.object.Member;
-import com.balsamic.sejongmalsami.repository.CommentRepository;
-import com.balsamic.sejongmalsami.repository.MemberRepository;
+import com.balsamic.sejongmalsami.repository.postgres.CommentRepository;
+import com.balsamic.sejongmalsami.repository.postgres.MemberRepository;
 import com.balsamic.sejongmalsami.util.exception.CustomException;
 import com.balsamic.sejongmalsami.util.exception.ErrorCode;
 import lombok.RequiredArgsConstructor;
@@ -33,7 +33,7 @@ public class CommentService {
         .content(command.getContent())
         .postId(command.getPostId())
         .postType(command.getPostType())
-        .isPrivate(command.getIsPrivate())
+        .isPrivate(command.getIsPrivate() != null ? command.getIsPrivate() : false)
         .build();
 
     commentRepository.save(comment);

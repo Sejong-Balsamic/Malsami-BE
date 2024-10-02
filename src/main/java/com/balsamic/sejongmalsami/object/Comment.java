@@ -1,6 +1,7 @@
 package com.balsamic.sejongmalsami.object;
 
 import com.balsamic.sejongmalsami.object.constants.PostType;
+import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.FetchType;
 import jakarta.persistence.GeneratedValue;
@@ -25,6 +26,7 @@ public class Comment extends BaseEntity{
 
   @Id
   @GeneratedValue(strategy = GenerationType.AUTO)
+  @Column(columnDefinition = "uuid DEFAULT uuid_generate_v4()", updatable = false)
   private UUID commentId;
 
   @ManyToOne(fetch = FetchType.LAZY)

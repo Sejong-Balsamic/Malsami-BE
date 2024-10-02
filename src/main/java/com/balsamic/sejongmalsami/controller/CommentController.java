@@ -33,7 +33,6 @@ public class CommentController implements CommentControllerDocs{
       @AuthenticationPrincipal CustomUserDetails customUserDetails,
       @ModelAttribute CommentCommand command) {
     command.setMemberId(customUserDetails.getMemberId());
-    CommentDto commentDto = commentService.addComment(command);
-    return ResponseEntity.ok(commentDto);
+    return ResponseEntity.ok(commentService.addComment(command));
   }
 }
