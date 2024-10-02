@@ -1,4 +1,4 @@
-package com.balsamic.sejongmalsami.repository;
+package com.balsamic.sejongmalsami.repository.postgres;
 
 import com.balsamic.sejongmalsami.object.Member;
 import java.util.Optional;
