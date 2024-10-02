@@ -61,8 +61,6 @@ public enum ErrorCode {
 
   QUESTION_SUBJECT_NULL(HttpStatus.BAD_REQUEST, "과목이 설정되지 않았습니다."),
 
-  QUESTION_PRESET_TAG_CODE_INVALID(HttpStatus.BAD_REQUEST, "해당하는 코드의 질문게시글 정적 태그가 없습니다."),
-
   QUESTION_PRESET_TAG_LIMIT_EXCEEDED(HttpStatus.BAD_REQUEST, "질문게시글 정적태그는 최대 2개까지 선택가능합니다."),
 
   QUESTION_REWARD_INVALID(HttpStatus.BAD_REQUEST, "질문게시글 엽전 현상금에 잘못된 값이 할당되었습니다.");

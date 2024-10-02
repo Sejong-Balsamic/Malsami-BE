@@ -47,7 +47,7 @@ public class QuestionPostService {
         .likes(0)
         .answerCount(0)
         .reward(command.getReward())
-        .isPrivate(false)
+        .isPrivate(command.getIsPrivate() != null ? command.getIsPrivate() : false)
         .build();
 
     // 정적 태그 추가 로직

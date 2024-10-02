@@ -31,6 +31,8 @@ import lombok.experimental.SuperBuilder;
 @ToString(callSuper = true)
 public class QuestionPost extends BaseEntity {
 
+  private static final int MAX_PRESET_TAGS = 2;
+
   @Id
   @GeneratedValue(strategy = GenerationType.AUTO)
   @Column(columnDefinition = "uuid DEFAULT uuid_generate_v4()", updatable = false, nullable = false)
@@ -84,7 +86,7 @@ public class QuestionPost extends BaseEntity {
   // 질문게시글 정적 태그 추가
   public void addPresetTag(QuestionPresetTag tag) {
 
-    if (questionPresetTagSet.size() >= 2) {
+    if (questionPresetTagSet.size() >= MAX_PRESET_TAGS) {
       throw new CustomException(ErrorCode.QUESTION_PRESET_TAG_LIMIT_EXCEEDED);
     }
 
