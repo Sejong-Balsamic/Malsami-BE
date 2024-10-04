@@ -107,10 +107,10 @@ public class MemberService implements UserDetailsService {
     // Refresh Token : HTTP-Only 쿠키 설정
     Cookie refreshCookie = new Cookie("refreshToken", refreshToken);
     refreshCookie.setHttpOnly(true);
-    refreshCookie.setSecure(false); // 프로덕션 환경에서는 true로 설정
+    refreshCookie.setSecure(false); //FIXME prod 환경 -> true
     refreshCookie.setPath("/api/auth/refresh"); // 리프레시 토큰 API
     refreshCookie.setMaxAge((int) (jwtUtil.getRefreshExpirationTime() / 1000)); // 7일
-    refreshCookie.setAttribute("SameSite", "Strict"); // CSRF 방지를 위해 설정
+    refreshCookie.setAttribute("SameSite", "None"); //FIXME prod 환경 -> Strict
     response.addCookie(refreshCookie);
     log.info("리프레시 토큰 쿠키 설정 완료: 회원 = {}", member.getStudentId());
 
