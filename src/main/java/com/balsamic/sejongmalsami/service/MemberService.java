@@ -16,7 +16,6 @@ import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.http.ResponseCookie;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.userdetails.UserDetailsService;
@@ -106,24 +105,40 @@ public class MemberService implements UserDetailsService {
     log.info("리프레시 토큰 저장 완료: 회원 = {}", member.getStudentId());
 
     // Refresh Token : HTTP-Only 쿠키 설정
+    Cookie refreshCookie = new Cookie("refreshToken", refreshToken);
+    refreshCookie.setHttpOnly(false); // 개발 환경에서는 false, 프로덕션에서는 true
+    refreshCookie.setSecure(false);   // 개발 환경에서는 false, 프로덕션에서는 true
+    refreshCookie.setPath("/");
+    refreshCookie.setMaxAge((int) (jwtUtil.getRefreshExpirationTime() / 1000)); // 7일
+    // SameSite 설정은 직접 Set-Cookie 헤더에 추가
 
-//    Cookie refreshCookie = new Cookie("refreshToken", refreshToken);
-//    refreshCookie.setHttpOnly(false); //FIXME: prod 환경 -> true
-//    refreshCookie.setSecure(false); //FIXME prod 환경 -> true
-//    refreshCookie.setPath("/"); // 전체 경로에 적용
-//    refreshCookie.setMaxAge((int) (jwtUtil.getRefreshExpirationTime() / 1000)); // 7일
-//    refreshCookie.setAttribute("SameSite", "None"); //FIXME prod 환경 -> Strict
+    // 쿠키 설정 정보 로깅
+    log.info("설정할 쿠키 정보: ");
+    log.info("Name: {}", refreshCookie.getName());
+    log.info("Value: {}", refreshCookie.getValue());
+    log.info("HttpOnly: {}", refreshCookie.isHttpOnly());
+    log.info("Secure: {}", refreshCookie.getSecure());
+    log.info("Path: {}", refreshCookie.getPath());
+    log.info("Max-Age: {}", refreshCookie.getMaxAge());
 
-    // Refresh Token : HTTP-Only 쿠키 설정
-    ResponseCookie refreshCookie = ResponseCookie.from("refreshToken", refreshToken)
-        .httpOnly(false) // 개발 환경에서는 false, 프로덕션에서는 true
-        .secure(false)   // 개발 환경에서는 false, 프로덕션에서는 true
-        .path("/")
-        .maxAge(jwtUtil.getRefreshExpirationTime() / 1000) // 7일
-        .sameSite("Lax") // 개발 환경에서는 Lax, 프로덕션에서는 Strict
-        .build();
+    // 쿠키에 SameSite 속성 추가
+    StringBuilder cookieBuilder = new StringBuilder();
+    cookieBuilder.append(refreshCookie.getName()).append("=").append(refreshCookie.getValue()).append(";");
+    cookieBuilder.append(" Path=").append(refreshCookie.getPath()).append(";");
+    cookieBuilder.append(" Max-Age=").append(refreshCookie.getMaxAge()).append(";");
+    cookieBuilder.append(" SameSite=").append("Lax").append(";"); // 개발 환경에서는 Lax, 프로덕션에서는 Strict 또는 None
 
-    response.addHeader("Set-Cookie", refreshCookie.toString());
+    if (refreshCookie.getSecure()) {
+      cookieBuilder.append(" Secure;");
+    }
+    if (refreshCookie.isHttpOnly()) {
+      cookieBuilder.append(" HttpOnly;");
+    }
+
+    String setCookieHeader = cookieBuilder.toString();
+    response.addHeader("Set-Cookie", setCookieHeader);
+
+    log.info("Set-Cookie Header: {}", setCookieHeader);
 
     log.info("리프레시 토큰 쿠키 설정 완료: 회원 = {}", member.getStudentId());
 
