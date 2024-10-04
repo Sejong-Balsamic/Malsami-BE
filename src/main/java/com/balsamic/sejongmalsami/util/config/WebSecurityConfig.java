@@ -50,7 +50,9 @@ public class WebSecurityConfig {
   // 허용된 CORS Origin 목록
   private static final String[] ALLOWED_ORIGINS = {
       "https://api.sejong-malsami.co.kr",
+      "https://api.test.sejong-malsami.co.kr",
       "https://www.sejong-malsami.co.kr",
+      "https://test.sejong-malsami.co.kr",
       "http://220.85.169.165:8086",
       "http://220.85.169.165:3002",
       "http://localhost:8080",
