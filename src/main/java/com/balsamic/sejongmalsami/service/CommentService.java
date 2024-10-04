@@ -1,11 +1,11 @@
 package com.balsamic.sejongmalsami.service;
 
+import com.balsamic.sejongmalsami.object.Comment;
+import com.balsamic.sejongmalsami.object.CommentCommand;
+import com.balsamic.sejongmalsami.object.CommentDto;
 import com.balsamic.sejongmalsami.object.Member;
-import com.balsamic.sejongmalsami.object.QuestionPost;
-import com.balsamic.sejongmalsami.object.QuestionPostCommand;
-import com.balsamic.sejongmalsami.object.QuestionPostDto;
+import com.balsamic.sejongmalsami.repository.postgres.CommentRepository;
 import com.balsamic.sejongmalsami.repository.postgres.MemberRepository;
-import com.balsamic.sejongmalsami.repository.postgres.QuestionPostRepository;
 import com.balsamic.sejongmalsami.util.exception.CustomException;
 import com.balsamic.sejongmalsami.util.exception.ErrorCode;
 import lombok.RequiredArgsConstructor;
@@ -16,35 +16,31 @@ import org.springframework.transaction.annotation.Transactional;
 @Service
 @Slf4j
 @RequiredArgsConstructor
-public class QuestionPostService {
+public class CommentService {
 
-  private final QuestionPostRepository questionPostRepository;
+  private final CommentRepository commentRepository;
   private final MemberRepository memberRepository;
 
-  /* 질문 게시글 등록 로직 */
+  // 댓글 추가
   @Transactional
-  public QuestionPostDto saveQuestionPost(QuestionPostCommand command) {
+  public CommentDto addComment(CommentCommand command) {
 
     Member member = memberRepository.findById(command.getMemberId())
         .orElseThrow(() -> new CustomException(ErrorCode.MEMBER_NOT_FOUND));
 
-    QuestionPost questionPost = QuestionPost.builder()
+    Comment comment = Comment.builder()
         .member(member)
-        .title(command.getTitle())
         .content(command.getContent())
-        .subject(command.getSubject())
-        .views(0)
-        .likes(0)
-        .answerCount(0)
-        .reward(command.getReward())
+        .postId(command.getPostId())
+        .postType(command.getPostType())
         .isPrivate(command.getIsPrivate() != null ? command.getIsPrivate() : false)
         .build();
 
-    questionPostRepository.save(questionPost);
+    commentRepository.save(comment);
 
-    return QuestionPostDto
-        .builder()
-        .questionPost(questionPost)
+    return CommentDto.builder()
+        .comment(comment)
         .build();
   }
+
 }

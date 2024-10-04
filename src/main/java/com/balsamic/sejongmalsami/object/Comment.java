@@ -1,12 +1,12 @@
 package com.balsamic.sejongmalsami.object;
 
+import com.balsamic.sejongmalsami.object.constants.PostType;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.FetchType;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
-import jakarta.persistence.Lob;
 import jakarta.persistence.ManyToOne;
 import java.util.UUID;
 import lombok.AllArgsConstructor;
@@ -22,49 +22,25 @@ import lombok.experimental.SuperBuilder;
 @AllArgsConstructor
 @NoArgsConstructor
 @ToString(callSuper = true)
-public class QuestionPost extends BaseEntity {
+public class Comment extends BaseEntity{
 
   @Id
   @GeneratedValue(strategy = GenerationType.AUTO)
   @Column(columnDefinition = "uuid DEFAULT uuid_generate_v4()", updatable = false)
-  private UUID questionPostId;
+  private UUID commentId;
 
   @ManyToOne(fetch = FetchType.LAZY)
   private Member member;
 
-  // 제목
-  @Column(nullable = false)
-  private String title;
-
-  // 본문
-  @Lob
-  @Column(nullable = false)
   private String content;
 
-  // 과목 명
-  @Column(nullable = false)
-  private String subject;
+  // 댓글이 속한 게시글의 ID
+  private UUID postId;
 
-  // 조회 수
-  @Builder.Default
-  private Integer views = 0;
+  // 댓글이 속한 게시글의 유형
+  private PostType postType;
 
-  // 좋아요 수 (추천 수)
-  @Builder.Default
-  private Integer likes = 0;
-
-  // 답변 수
-  @Builder.Default
-  private Integer answerCount = 0;
-
-  // 댓글 수
-  @Builder.Default
-  private Integer commentCount = 0;
-
-  // 엽전 현상금
-  private Integer reward;
-
-  // 내 정보 비공개 여부
+  // 닉네임 비공개 여부
   @Builder.Default
   private Boolean isPrivate = false;
 }
