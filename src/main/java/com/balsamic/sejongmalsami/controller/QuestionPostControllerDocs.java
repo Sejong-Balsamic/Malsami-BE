@@ -36,23 +36,27 @@ public interface QuestionPostControllerDocs {
           - **String subject**: 과목 명 (required)
             _예: "고급C프로그래밍및실습"_
             
+          - **Enum questionPresetTagSet**: 질문 게시글 정적태그 (최대 2개까지만 선택가능)
+            _예: "STUDY_TIPS"_
+            
           - **Integer reward**: 엽전 현상금 (default = 0)
             _예: "50"_
             
           - **Boolean isPrivate**: 내 정보 비공개 여부 (default = false)
             _기본값은 false입니다. true로 요청할 시 질문 글에 내 정보가 비공개 처리됩니다._
 
-          **DB에 저장되는 질문 글 정보:**
-          - **String title**: 질문 글 제목
-          - **String content**: 질문 글 본문
-          - **String subject**: 과목
-          - **String writer**: 작성자
-          - **Integer views**: 조회 수 (default = 0)
-          - **Integer likes**: 추천 수 (default = 0)
-          - **Integer answerCount**: 답변 수 (default = 0)
-          - **Integer commentCount**: 댓글 수 (default = 0)
-          - **Integer reward**: 엽전 현상금
-          - **Boolean isPrivate**: 내 정보 비공개 여부 (default = false)
+          **정적 태그**
+          
+          총 7개의 정적태그가 존재하며 최대 2개까지의 정적태그를 설정할 수 있습니다.
+          - **OUT_OF_CLASS** (수업 외 내용)
+          - **UNKNOWN_CONCEPT** (개념 모름)
+          - **BETTER_SOLUTION** (더 나은 풀이)
+          - **EXAM_PREPARATION** (시험 대비)
+          - **DOCUMENT_REQUEST** (자료 요청)
+          - **STUDY_TIPS** (공부 팁)
+          - **ADVICE_REQUEST** (조언 구함)
+          
+            _예: "formData.append('questionPresetTagSet', 'DOCUMENT_REQUEST');_
 
           **반환 파라미터 값:**
 
@@ -61,8 +65,10 @@ public interface QuestionPostControllerDocs {
 
           **참고 사항:**
 
-          - 이 API를 통해 회원은 질문게시판에 질문 글을 동록할 수 있습니다.
-          - 글 제목, 본문, 과목명은 null 값이 들어갈 수 없습니다.
+          - 이 API를 통해 사용자는 질문게시판에 질문 글을 동록할 수 있습니다.
+          - 글 제목, 본문, 과목명은 null 값이 들어갈 수 없습니다. (required)
+          - 정적태그, 엽전 현상금, 내 정보 비공개 여부는 프론트에서 설정하지 않으면 default 값이 할당됩니다.
+          - 엽전 현상금 null 또는 음수 값 입력시 자동으로 0으로 설정됩니다.
           - 성공적인 등록 후, 등록 된 질문글을 반환합니다.
           """
   )
