@@ -36,11 +36,11 @@ public class MediaFile extends BaseEntity {
   @ManyToOne(fetch = FetchType.LAZY)
   private AnswerPost answerPost;
 
-  // 파일 이름
-  private String fileName;
-
   // 파일 경로 (파일 URL)
   private String filePath;
+
+  // 파일 크기
+  private Long fileSize;
 
   @Enumerated(EnumType.STRING)
   private ExtensionType fileType;

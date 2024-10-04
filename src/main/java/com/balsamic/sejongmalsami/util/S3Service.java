@@ -23,7 +23,7 @@ public class S3Service {
 
   public String uploadFile(MultipartFile file) throws IOException {
     String originalFilename = file.getOriginalFilename(); // 원본 파일 명
-    String extension = originalFilename.substring(originalFilename.lastIndexOf(".")); // 확장자 명
+    String extension = getExtensionType(file);
 
     // 파일 확장자 검증
     if (!ExtensionType.isValidExtension(extension)) {
@@ -38,6 +38,12 @@ public class S3Service {
 
     amazonS3Client.putObject(bucketName, fileName, file.getInputStream(), metadata);
 
-    return fileName;
+    return amazonS3Client.getUrl(bucketName, fileName).toString();
+  }
+
+  // 파일 확장자 반환
+  public String getExtensionType(MultipartFile file) {
+    String originalFilename = file.getOriginalFilename(); // 원본 파일 명
+    return originalFilename.substring(originalFilename.lastIndexOf(".")); // 확장자 명
   }
 }

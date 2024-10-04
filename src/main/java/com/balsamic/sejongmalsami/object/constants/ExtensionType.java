@@ -1,5 +1,7 @@
 package com.balsamic.sejongmalsami.object.constants;
 
+import com.balsamic.sejongmalsami.util.exception.CustomException;
+import com.balsamic.sejongmalsami.util.exception.ErrorCode;
 import java.util.Arrays;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
@@ -26,5 +28,13 @@ public enum ExtensionType {
         .map(ExtensionType::getDescription)
         .toList()
         .contains(extension.toLowerCase());
+  }
+
+  // 문자열을 ExtensionType 으로 변환하는 메서드
+  public static ExtensionType valueOfExtension(String extension) {
+    return Arrays.stream(ExtensionType.values())
+        .filter(e -> e.getDescription().equalsIgnoreCase(extension))
+        .findFirst()
+        .orElseThrow(() -> new CustomException(ErrorCode.INVALID_FILE_FORMAT));
   }
 }
