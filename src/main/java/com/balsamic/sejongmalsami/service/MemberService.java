@@ -126,11 +126,9 @@ public class MemberService implements UserDetailsService {
     cookieBuilder.append(refreshCookie.getName()).append("=").append(refreshCookie.getValue()).append(";");
     cookieBuilder.append(" Path=").append(refreshCookie.getPath()).append(";");
     cookieBuilder.append(" Max-Age=").append(refreshCookie.getMaxAge()).append(";");
-    cookieBuilder.append(" SameSite=").append("Lax").append(";"); // 개발 환경에서는 Lax, 프로덕션에서는 Strict 또는 None
+    cookieBuilder.append(" SameSite=None;"); // 모든 요청에서 쿠키 전송
+    cookieBuilder.append(" Secure;"); // Secure 속성 설정
 
-    if (refreshCookie.getSecure()) {
-      cookieBuilder.append(" Secure;");
-    }
     if (refreshCookie.isHttpOnly()) {
       cookieBuilder.append(" HttpOnly;");
     }
