@@ -47,7 +47,7 @@ public interface CommentControllerDocs {
           - **DOCUMENT** (자료글)
           - **DOCUMENT_REQUEST** (자료요청글)
 
-            _예: "formData.append('qostType', 'QUESTION');_
+            _예: "formData.append('postType', 'QUESTION');_
 
           **반환 파라미터 값:**
 
