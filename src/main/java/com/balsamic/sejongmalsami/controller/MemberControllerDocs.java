@@ -14,6 +14,11 @@ public interface MemberControllerDocs {
 
   @ApiChangeLogs({
       @ApiChangeLog(
+          date = "2024.10.04",
+          author = Author.SUHSAECHAN,
+          description = "Samesite 수정: Strict -> None 크로스사이트 요청 허용"
+      ),
+      @ApiChangeLog(
           date = "2024.09.25",
           author = Author.SUHSAECHAN,
           description = "로그인 토큰 추가 ( Access, Refresh )"
