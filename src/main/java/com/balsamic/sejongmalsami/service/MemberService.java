@@ -106,7 +106,7 @@ public class MemberService implements UserDetailsService {
 
     // Refresh Token : HTTP-Only 쿠키 설정
     Cookie refreshCookie = new Cookie("refreshToken", refreshToken);
-    refreshCookie.setHttpOnly(true);
+    refreshCookie.setHttpOnly(false); //FIXME: prod 환경 -> true
     refreshCookie.setSecure(false); //FIXME prod 환경 -> true
     refreshCookie.setPath("/"); // 전체 경로에 적용
     refreshCookie.setMaxAge((int) (jwtUtil.getRefreshExpirationTime() / 1000)); // 7일
