@@ -35,7 +35,7 @@ public class QuestionPost extends BaseEntity {
 
   @Id
   @GeneratedValue(strategy = GenerationType.AUTO)
-  @Column(columnDefinition = "uuid DEFAULT uuid_generate_v4()", updatable = false, nullable = false)
+  @Column(columnDefinition = "uuid DEFAULT uuid_generate_v4()", updatable = false)
   private UUID questionPostId;
 
   @ManyToOne(fetch = FetchType.LAZY)
