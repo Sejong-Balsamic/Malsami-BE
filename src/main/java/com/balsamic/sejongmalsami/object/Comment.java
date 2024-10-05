@@ -1,6 +1,6 @@
 package com.balsamic.sejongmalsami.object;
 
-import com.balsamic.sejongmalsami.object.constants.PostType;
+import com.balsamic.sejongmalsami.object.constants.ContentType;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.FetchType;
@@ -38,7 +38,7 @@ public class Comment extends BaseEntity{
   private UUID postId;
 
   // 댓글이 속한 게시글의 유형
-  private PostType postType;
+  private ContentType contentType;
 
   // 닉네임 비공개 여부
   @Builder.Default

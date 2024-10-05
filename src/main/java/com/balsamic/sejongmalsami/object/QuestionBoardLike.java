@@ -1,6 +1,6 @@
 package com.balsamic.sejongmalsami.object;
 
-import com.balsamic.sejongmalsami.object.constants.LikeType;
+import com.balsamic.sejongmalsami.object.constants.ContentType;
 import jakarta.validation.constraints.NotNull;
 import java.util.UUID;
 import lombok.AllArgsConstructor;
@@ -22,7 +22,7 @@ public class QuestionBoardLike extends BaseMongoEntity {
   private String questionBoardLikeId;
 
   @NotNull
-  private LikeType likeType;    // POST, ANSWER, COMMENT
+  private ContentType contentType;
 
   @Indexed
   @NotNull

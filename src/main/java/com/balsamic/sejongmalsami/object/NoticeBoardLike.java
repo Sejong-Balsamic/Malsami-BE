@@ -1,6 +1,6 @@
 package com.balsamic.sejongmalsami.object;
 
-import com.balsamic.sejongmalsami.object.constants.LikeType;
+import com.balsamic.sejongmalsami.object.constants.ContentType;
 import jakarta.validation.constraints.NotNull;
 import java.util.UUID;
 import lombok.AllArgsConstructor;
@@ -21,7 +21,7 @@ public class NoticeBoardLike extends BaseMongoEntity {
   private String noticeBoardLikeId;
 
   @NotNull
-  private LikeType likeType; // POST, COMMENT
+  private ContentType contentType;
 
   @NotNull
   @Indexed
