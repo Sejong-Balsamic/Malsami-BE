@@ -21,8 +21,8 @@ public class ExpHistory extends BaseMongoEntity {
   @Id
   private String expHistoryId;
 
-  @NotNull
   @Indexed
+  @NotNull
   private UUID memberId;
 
   @NotNull

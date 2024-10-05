@@ -1,11 +1,14 @@
 package com.balsamic.sejongmalsami.object;
 
 import com.balsamic.sejongmalsami.object.constants.LikeType;
+import jakarta.validation.constraints.NotNull;
+import java.util.UUID;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import org.springframework.data.annotation.Id;
+import org.springframework.data.mongodb.core.index.Indexed;
 import org.springframework.data.mongodb.core.mapping.Document;
 
 @Document
@@ -18,9 +21,14 @@ public class QuestionBoardLike extends BaseMongoEntity {
   @Id
   private String questionBoardLikeId;
 
-  private String questionPostId; // 질문 게시글 ID
+  @NotNull
+  private LikeType likeType;    // POST, ANSWER, COMMENT
 
-  private String memberId;      // 좋아요를 누른 사용자 ID
+  @Indexed
+  @NotNull
+  private UUID questionBoardId; // target UUID
 
-  private LikeType likeType;  // POST, ANSWER, COMMENT
+  @Indexed
+  @NotNull
+  private UUID memberId;      // 좋아요를 누른 사용자 ID
 }

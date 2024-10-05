@@ -1,6 +1,7 @@
 package com.balsamic.sejongmalsami.object;
 
 import com.balsamic.sejongmalsami.object.constants.YeopjeonAction;
+import jakarta.validation.constraints.NotNull;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
@@ -19,12 +20,15 @@ import java.util.UUID;
 public class YeopjeonHistory extends BaseMongoEntity {
 
   @Id
-  private String id;
+  private String yeopjeonHistoryId;
 
   @Indexed
+  @NotNull
   private UUID memberId;            // 사용자 ID
 
   private Integer yeopjeon;         // 거래된 엽전 수 (양수: 획득, 음수: 소모)
 
   private YeopjeonAction yeopjeonAction;    // 엽전 거래 유형
+
+  private Integer resultYeopjeon;   // 거래 이후 염전량
 }

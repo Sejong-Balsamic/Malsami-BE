@@ -26,12 +26,14 @@ public class PurchaseHistory extends BaseMongoEntity {
   @Indexed
   private UUID memberId;
 
+  @Indexed
   @NotNull
   private UUID documentPostId;
 
+  @Indexed
   @NotNull
   private UUID mediaFileId;
 
   @NotNull
-  private Integer yeopjeonQuantity;
+  private Integer yeopjeonQuantity; // 소모한 엽전양
 }

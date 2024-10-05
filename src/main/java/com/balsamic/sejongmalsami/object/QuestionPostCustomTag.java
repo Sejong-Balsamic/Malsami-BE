@@ -1,5 +1,7 @@
 package com.balsamic.sejongmalsami.object;
 
+import jakarta.validation.constraints.NotNull;
+import java.util.UUID;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
@@ -19,7 +21,9 @@ public class QuestionPostCustomTag {
   private String questionPostCustomTagId;
 
   @Indexed
-  private String questionPostId;
+  @NotNull
+  private UUID questionPostId;
 
+  @NotNull
   private String customTag;
 }

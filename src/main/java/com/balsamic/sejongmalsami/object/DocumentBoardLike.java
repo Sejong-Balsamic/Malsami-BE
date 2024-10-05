@@ -1,6 +1,7 @@
 package com.balsamic.sejongmalsami.object;
 
 import com.balsamic.sejongmalsami.object.constants.LikeType;
+import jakarta.validation.constraints.NotNull;
 import java.util.UUID;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -23,10 +24,13 @@ public class DocumentBoardLike extends BaseMongoEntity {
   private String documentBoardLikeId;
 
   @Indexed
+  @NotNull
   private UUID documentId;
 
   @Indexed
+  @NotNull
   private UUID memberId;
 
+  @NotNull
   private LikeType likeType;
 }

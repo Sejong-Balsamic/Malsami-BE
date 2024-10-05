@@ -5,5 +5,5 @@ import org.springframework.data.mongodb.repository.MongoRepository;
 import org.springframework.stereotype.Repository;
 
 @Repository
-public interface PointHistoryRepository extends MongoRepository<YeopjeonHistory, String> {
+public interface YeopjeonHistoryRepository extends MongoRepository<YeopjeonHistory, String> {
 }

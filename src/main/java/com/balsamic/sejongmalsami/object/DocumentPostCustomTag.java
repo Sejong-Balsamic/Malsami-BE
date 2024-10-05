@@ -1,5 +1,6 @@
 package com.balsamic.sejongmalsami.object;
 
+import jakarta.validation.constraints.NotNull;
 import java.util.UUID;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -20,6 +21,7 @@ public class DocumentPostCustomTag extends BaseMongoEntity {
   private String documentPostCustomTagId;
 
   @Indexed
+  @NotNull
   private UUID documentPostId;
 
   private String customTag;

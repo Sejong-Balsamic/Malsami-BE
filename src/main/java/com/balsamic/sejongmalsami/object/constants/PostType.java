@@ -8,6 +8,7 @@ import lombok.Getter;
 public enum PostType {
   QUESTION("질문글"),
   ANSWER("답변글"),
+  NOTICE("공지사항"),
   DOCUMENT("자료글"),
   DOCUMENT_REQUEST("자료요청글");
 
