@@ -1,6 +1,7 @@
 package com.balsamic.sejongmalsami.object;
 
 import com.balsamic.sejongmalsami.object.constants.ExtensionType;
+import com.balsamic.sejongmalsami.object.constants.PostType;
 import java.util.UUID;
 import lombok.Builder;
 import lombok.Getter;
@@ -14,10 +15,10 @@ import org.springframework.web.multipart.MultipartFile;
 @ToString
 public class MediaFileCommand {
 
-  private UUID questionPostId;
-  private UUID answerPostId;
+  private UUID questionId;
   private MultipartFile file;
-  private String filePath;
+  private String fileUrl;
   private Long fileSize;
-  private ExtensionType fileType;
+  private PostType postType;
+  private ExtensionType extensionType;
 }

@@ -1,15 +1,14 @@
 package com.balsamic.sejongmalsami.object;
 
 import com.balsamic.sejongmalsami.object.constants.ExtensionType;
+import com.balsamic.sejongmalsami.object.constants.PostType;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.EnumType;
 import jakarta.persistence.Enumerated;
-import jakarta.persistence.FetchType;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
-import jakarta.persistence.ManyToOne;
 import java.util.UUID;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
@@ -30,18 +29,17 @@ public class MediaFile extends BaseEntity {
   @Column(columnDefinition = "uuid DEFAULT uuid_generate_v4()", updatable = false)
   private UUID mediaFileId;
 
-  @ManyToOne(fetch = FetchType.LAZY)
-  private QuestionPost questionPost;
-
-  @ManyToOne(fetch = FetchType.LAZY)
-  private AnswerPost answerPost;
+  private UUID questionId;
 
   // 파일 경로 (파일 URL)
-  private String filePath;
+  private String fileUrl;
 
   // 파일 크기
   private Long fileSize;
 
   @Enumerated(EnumType.STRING)
-  private ExtensionType fileType;
+  private PostType postType;
+
+  @Enumerated(EnumType.STRING)
+  private ExtensionType extensionType;
 }

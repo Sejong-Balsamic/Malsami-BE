@@ -30,7 +30,7 @@ public class S3Service {
       throw new CustomException(ErrorCode.INVALID_FILE_FORMAT);
     }
 
-    String fileName = bucketName + "/" + UUID.randomUUID() + "_" + originalFilename;
+    String fileName = extension + "/" + UUID.randomUUID() + "_" + originalFilename;
 
     ObjectMetadata metadata = new ObjectMetadata();
     metadata.setContentType(file.getContentType());
