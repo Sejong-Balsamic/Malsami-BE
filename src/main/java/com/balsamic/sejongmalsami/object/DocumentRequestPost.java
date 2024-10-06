@@ -13,7 +13,9 @@ import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.Lob;
 import jakarta.persistence.ManyToOne;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 import java.util.UUID;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -44,12 +46,12 @@ public class DocumentRequestPost extends BaseEntity {
 
   // 자료 타입
   @ElementCollection
-  @CollectionTable(name = "DocumentType")
   @Enumerated(EnumType.STRING)
-  private List<DocumentType> documentType;
+  private Set<DocumentType> documentTypeSet = new HashSet<>();
 
   // 자료 요청 학과
-  private String requestDepartment;
+  @ManyToOne(fetch = FetchType.LAZY)
+  private Course requestDepartment;
 
   // 내용
   @Lob
