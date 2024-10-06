@@ -40,6 +40,7 @@ public class WebSecurityConfig {
   // 인증을 생략할 URL 패턴 목록
   private static final String[] AUTH_WHITELIST = {
       "/api/member/signin", // 회원가입
+      "/api/auth/refresh", // 리프레시 토큰
       "/api/course/subjects/faculty", // 교과목명 조회
       "/api/login", // 로그인
       "/docs/**", // Swagger
@@ -49,7 +50,9 @@ public class WebSecurityConfig {
   // 허용된 CORS Origin 목록
   private static final String[] ALLOWED_ORIGINS = {
       "https://api.sejong-malsami.co.kr",
+      "https://api.test.sejong-malsami.co.kr",
       "https://www.sejong-malsami.co.kr",
+      "https://test.sejong-malsami.co.kr",
       "http://220.85.169.165:8086",
       "http://220.85.169.165:3002",
       "http://localhost:8080",

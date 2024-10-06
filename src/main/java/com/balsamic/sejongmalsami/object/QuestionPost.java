@@ -1,13 +1,20 @@
 package com.balsamic.sejongmalsami.object;
 
+import com.balsamic.sejongmalsami.object.constants.QuestionPresetTag;
+import com.balsamic.sejongmalsami.util.exception.CustomException;
+import com.balsamic.sejongmalsami.util.exception.ErrorCode;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
+import jakarta.persistence.EnumType;
+import jakarta.persistence.Enumerated;
 import jakarta.persistence.FetchType;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.Lob;
 import jakarta.persistence.ManyToOne;
+import java.util.HashSet;
+import java.util.Set;
 import java.util.UUID;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -24,9 +31,11 @@ import lombok.experimental.SuperBuilder;
 @ToString(callSuper = true)
 public class QuestionPost extends BaseEntity {
 
+  private static final int MAX_PRESET_TAGS = 2;
+
   @Id
   @GeneratedValue(strategy = GenerationType.AUTO)
-  @Column(columnDefinition = "uuid DEFAULT uuid_generate_v4()", updatable = false, nullable = false)
+  @Column(columnDefinition = "uuid DEFAULT uuid_generate_v4()", updatable = false)
   private UUID questionPostId;
 
   @ManyToOne(fetch = FetchType.LAZY)
@@ -45,6 +54,11 @@ public class QuestionPost extends BaseEntity {
   @Column(nullable = false)
   private String subject;
 
+  // 정적 태그
+  @Builder.Default
+  @Enumerated(EnumType.STRING)
+  private Set<QuestionPresetTag> questionPresetTagSet = new HashSet<>();
+
   // 조회 수
   @Builder.Default
   private Integer views = 0;
@@ -62,9 +76,21 @@ public class QuestionPost extends BaseEntity {
   private Integer commentCount = 0;
 
   // 엽전 현상금
-  private Integer reward;
+  @Builder.Default
+  private Integer reward = 0;
 
   // 내 정보 비공개 여부
   @Builder.Default
   private Boolean isPrivate = false;
+
+  // 질문게시글 정적 태그 추가
+  public void addPresetTag(QuestionPresetTag tag) {
+
+    if (questionPresetTagSet.size() >= MAX_PRESET_TAGS) {
+      throw new CustomException(ErrorCode.QUESTION_PRESET_TAG_LIMIT_EXCEEDED);
+    }
+
+    // 태그 추가
+    questionPresetTagSet.add(tag);
+  }
 }

@@ -25,6 +25,16 @@ public enum ErrorCode {
 
   SEJONG_AUTH_DATA_FETCH_FAILURE(HttpStatus.FORBIDDEN, "세종대학교 학생 데이터를 가져오는 데 실패했습니다."),
 
+  MISSING_REFRESH_TOKEN(HttpStatus.BAD_REQUEST, "쿠키에서 리프레시 토큰을 찾을 수 없습니다."),
+
+  INVALID_REFRESH_TOKEN(HttpStatus.UNAUTHORIZED, "리프레시 토큰이 유효하지 않거나 만료되었습니다."),
+
+  EXPIRED_ACCESS_TOKEN(HttpStatus.UNAUTHORIZED, "액세스 토큰이 만료되었습니다."),
+
+  INVALID_ACCESS_TOKEN(HttpStatus.UNAUTHORIZED, "유효하지 않은 액세스 토큰입니다."),
+
+  MISSING_AUTH_TOKEN(HttpStatus.UNAUTHORIZED, "인증 토큰이 필요합니다."),
+
   // File Uploads
 
   INVALID_FILE_FORMAT(HttpStatus.BAD_REQUEST, "파일 형식이 잘못되었습니다."),
@@ -38,7 +48,9 @@ public enum ErrorCode {
   COURSE_SAVE_ERROR(HttpStatus.BAD_REQUEST, "교과목명 파일 처리 중 오류가 발생했습니다"),
 
   WRONG_FACULTY_NAME(HttpStatus.BAD_REQUEST, "올바르지 않은 단과 대학입니다"),
+
   // Member
+
   MEMBER_NOT_FOUND(HttpStatus.NOT_FOUND, "회원이 존재하지 않습니다."),
 
   // QuestionPost
@@ -47,7 +59,11 @@ public enum ErrorCode {
 
   QUESTION_CONTENT_NULL(HttpStatus.BAD_REQUEST, "질문 게시글의 본문이 비어 있습니다."),
 
-  QUESTION_SUBJECT_NULL(HttpStatus.BAD_REQUEST, "과목이 설정되지 않았습니다.");
+  QUESTION_SUBJECT_NULL(HttpStatus.BAD_REQUEST, "과목이 설정되지 않았습니다."),
+
+  QUESTION_PRESET_TAG_LIMIT_EXCEEDED(HttpStatus.BAD_REQUEST, "질문게시글 정적태그는 최대 2개까지 선택가능합니다."),
+
+  QUESTION_REWARD_INVALID(HttpStatus.BAD_REQUEST, "질문게시글 엽전 현상금에 잘못된 값이 할당되었습니다.");
 
   private final HttpStatus status;
   private final String message;

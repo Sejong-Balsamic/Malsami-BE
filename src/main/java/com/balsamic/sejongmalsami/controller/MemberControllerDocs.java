@@ -14,6 +14,11 @@ public interface MemberControllerDocs {
 
   @ApiChangeLogs({
       @ApiChangeLog(
+          date = "2024.10.04",
+          author = Author.SUHSAECHAN,
+          description = "Samesite 수정: Strict -> None 크로스사이트 요청 허용"
+      ),
+      @ApiChangeLog(
           date = "2024.09.25",
           author = Author.SUHSAECHAN,
           description = "로그인 토큰 추가 ( Access, Refresh )"
@@ -52,7 +57,7 @@ public interface MemberControllerDocs {
 
           - **MemberDto**: 로그인 및 인증이 완료된 회원의 정보와 액세스 토큰
             - **Member member**: 회원 정보
-            - **String accessToken**: JWT 액세스 토큰 (인증된 사용자를 위한 토큰)
+            - **String accessToken**: JWT 액세스 토큰 (인증된 회원를 위한 토큰)
 
           **추가로, 리프레시 토큰은 HTTP-Only 쿠키로 설정되어 반환됩니다:**
 
@@ -71,7 +76,7 @@ public interface MemberControllerDocs {
 
           **참고 사항:**
 
-          - 이 API를 통해 사용자는 세종대학교 포털 인증 정보를 이용하여 로그인할 수 있습니다.
+          - 이 API를 통해 회원은 세종대학교 포털 인증 정보를 이용하여 로그인할 수 있습니다.
           - 성공적인 인증 후, 시스템은 액세스 토큰과 리프레시 토큰을 발급하여 반환합니다.
           - 액세스 토큰은 클라이언트에서 인증이 필요한 API 요청 시 사용되며, 리프레시 토큰은 새로운 액세스 토큰을 발급받기 위해 서버에 저장됩니다.
           - 리프레시 토큰은 클라이언트에서 직접 접근할 수 없도록 HTTP-Only 쿠키로 설정되어 보안이 강화됩니다.

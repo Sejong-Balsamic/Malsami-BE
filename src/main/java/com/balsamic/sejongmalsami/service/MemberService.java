@@ -4,7 +4,9 @@ import com.balsamic.sejongmalsami.object.CustomUserDetails;
 import com.balsamic.sejongmalsami.object.Member;
 import com.balsamic.sejongmalsami.object.MemberCommand;
 import com.balsamic.sejongmalsami.object.MemberDto;
-import com.balsamic.sejongmalsami.repository.MemberRepository;
+import com.balsamic.sejongmalsami.object.RefreshToken;
+import com.balsamic.sejongmalsami.repository.postgres.MemberRepository;
+import com.balsamic.sejongmalsami.repository.mongo.RefreshTokenRepository;
 import com.balsamic.sejongmalsami.util.JwtUtil;
 import com.balsamic.sejongmalsami.util.SejongPortalAuthenticator;
 import com.balsamic.sejongmalsami.util.exception.CustomException;
@@ -30,11 +32,12 @@ import java.util.UUID;
 public class MemberService implements UserDetailsService {
 
   private final MemberRepository memberRepository;
+  private final RefreshTokenRepository refreshTokenRepository;
   private final SejongPortalAuthenticator sejongPortalAuthenticator;
   private final JwtUtil jwtUtil;
 
   /**
-   * Spring Security에서 사용자 정보를 로드하는 메서드
+   * Spring Security에서 회원 정보를 로드하는 메서드
    */
   @Override
   public CustomUserDetails loadUserByUsername(String stringMemberId) throws UsernameNotFoundException {
@@ -59,9 +62,11 @@ public class MemberService implements UserDetailsService {
    */
   @Transactional
   public MemberDto signIn(MemberCommand command, HttpServletResponse response) {
+    // 인증 정보 조회
     MemberDto dto = sejongPortalAuthenticator.getMemberAuthInfos(command);
     Long studentId = Long.parseLong(dto.getStudentIdString());
 
+    // 회원 조회 또는 신규 등록
     Member member = memberRepository.findByStudentId(studentId)
         .orElseGet(() -> {
           log.info("신규 회원 등록: studentId = {}", studentId);
@@ -75,26 +80,67 @@ public class MemberService implements UserDetailsService {
               .build();
         });
 
+    // 마지막 로그인 시간 업데이트
     member.updateLastLoginTime(LocalDateTime.now());
     log.info("회원 로그인 완료: studentId = {}", studentId);
     memberRepository.save(member);
 
+    // 회원 상세 정보 로드
     CustomUserDetails userDetails = new CustomUserDetails(member);
+
+    // 액세스 토큰 및 리프레시 토큰 생성
     String accessToken = jwtUtil.createAccessToken(userDetails);
     String refreshToken = jwtUtil.createRefreshToken(userDetails);
-    log.info("액세스 토큰 및 리프레시 토큰 생성 완료: 사용자 = {}", userDetails.getUsername());
+    log.info("액세스 토큰 및 리프레시 토큰 생성 완료: 회원 = {}", member.getStudentId());
     log.info("accessToken = {}", accessToken);
     log.info("refreshToken = {}", refreshToken);
+
+    // Refresh Token 저장
+    RefreshToken refreshTokenEntity = RefreshToken.builder()
+        .token(refreshToken)
+        .memberId(member.getMemberId())
+        .expiryDate(jwtUtil.getRefreshExpiryDate())
+        .build();
+    refreshTokenRepository.save(refreshTokenEntity);
+    log.info("리프레시 토큰 저장 완료: 회원 = {}", member.getStudentId());
 
     // Refresh Token : HTTP-Only 쿠키 설정
     Cookie refreshCookie = new Cookie("refreshToken", refreshToken);
     refreshCookie.setHttpOnly(true);
-    refreshCookie.setSecure(false); // 개발 환경 false (HTTP에서도 허용)
-    refreshCookie.setPath("/api/auth/refresh"); // 리프레시 토큰 API
+    refreshCookie.setSecure(false);   //FIXME: 개발 환경에서는 false, 프로덕션에서는 true
+    refreshCookie.setPath("/");
     refreshCookie.setMaxAge((int) (jwtUtil.getRefreshExpirationTime() / 1000)); // 7일
+    // SameSite 설정은 직접 Set-Cookie 헤더에 추가
 
-    response.addCookie(refreshCookie);
+    // 쿠키 설정 정보 로깅
+    log.info("설정할 쿠키 정보: ");
+    log.info("Name: {}", refreshCookie.getName());
+    log.info("Value: {}", refreshCookie.getValue());
+    log.info("HttpOnly: {}", refreshCookie.isHttpOnly());
+    log.info("Secure: {}", refreshCookie.getSecure());
+    log.info("Path: {}", refreshCookie.getPath());
+    log.info("Max-Age: {}", refreshCookie.getMaxAge());
 
+    // 쿠키에 SameSite 속성 추가
+    StringBuilder cookieBuilder = new StringBuilder();
+    cookieBuilder.append(refreshCookie.getName()).append("=").append(refreshCookie.getValue()).append(";");
+    cookieBuilder.append(" Path=").append(refreshCookie.getPath()).append(";");
+    cookieBuilder.append(" Max-Age=").append(refreshCookie.getMaxAge()).append(";");
+    cookieBuilder.append(" SameSite=None;"); //FIXME: 모든 요청에서 쿠키 전송
+    cookieBuilder.append(" Secure;"); //FIXME: Secure 속성 설정
+
+    if (refreshCookie.isHttpOnly()) {
+      cookieBuilder.append(" HttpOnly;");
+    }
+
+    String setCookieHeader = cookieBuilder.toString();
+    response.addHeader("Set-Cookie", setCookieHeader);
+
+    log.info("Set-Cookie Header: {}", setCookieHeader);
+
+    log.info("리프레시 토큰 쿠키 설정 완료: 회원 = {}", member.getStudentId());
+
+    // 액세스 토큰 반환
     return MemberDto.builder()
         .member(member)
         .accessToken(accessToken)
