@@ -2,7 +2,7 @@ package com.balsamic.sejongmalsami.util;
 
 import com.amazonaws.services.s3.AmazonS3Client;
 import com.amazonaws.services.s3.model.ObjectMetadata;
-import com.balsamic.sejongmalsami.object.constants.ExtensionType;
+import com.balsamic.sejongmalsami.object.constants.MimeType;
 import com.balsamic.sejongmalsami.util.exception.CustomException;
 import com.balsamic.sejongmalsami.util.exception.ErrorCode;
 import java.io.IOException;
@@ -23,14 +23,14 @@ public class S3Service {
 
   public String uploadFile(MultipartFile file) throws IOException {
     String originalFilename = file.getOriginalFilename(); // 원본 파일 명
-    String extension = getExtensionType(file);
+    String contentType = file.getContentType();
 
     // MIME Type 검증
-    if (!ExtensionType.isValidMimeType(file.getContentType())) {
+    if (contentType == null || !MimeType.isValidMimeType(contentType)) {
       throw new CustomException(ErrorCode.INVALID_FILE_FORMAT);
     }
 
-    String fileName = extension + "/" + UUID.randomUUID() + "_" + originalFilename;
+    String fileName = UUID.randomUUID() + "_" + originalFilename;
 
     ObjectMetadata metadata = new ObjectMetadata();
     metadata.setContentType(file.getContentType());
@@ -39,11 +39,5 @@ public class S3Service {
     amazonS3Client.putObject(bucketName, fileName, file.getInputStream(), metadata);
 
     return amazonS3Client.getUrl(bucketName, fileName).toString();
-  }
-
-  // 파일 확장자 반환
-  public String getExtensionType(MultipartFile file) {
-    String originalFilename = file.getOriginalFilename(); // 원본 파일 명
-    return originalFilename.substring(originalFilename.lastIndexOf(".")); // 확장자 명
   }
 }

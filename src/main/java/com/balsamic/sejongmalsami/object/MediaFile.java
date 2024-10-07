@@ -1,6 +1,6 @@
 package com.balsamic.sejongmalsami.object;
 
-import com.balsamic.sejongmalsami.object.constants.ExtensionType;
+import com.balsamic.sejongmalsami.object.constants.MimeType;
 import com.balsamic.sejongmalsami.object.constants.PostType;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
@@ -41,5 +41,5 @@ public class MediaFile extends BaseEntity {
   private PostType postType;
 
   @Enumerated(EnumType.STRING)
-  private ExtensionType extensionType;
+  private MimeType mimeType;
 }

@@ -1,6 +1,6 @@
 package com.balsamic.sejongmalsami.object;
 
-import com.balsamic.sejongmalsami.object.constants.ExtensionType;
+import com.balsamic.sejongmalsami.object.constants.MimeType;
 import com.balsamic.sejongmalsami.object.constants.PostType;
 import java.util.UUID;
 import lombok.Builder;
@@ -20,5 +20,5 @@ public class MediaFileCommand {
   private String fileUrl;
   private Long fileSize;
   private PostType postType;
-  private ExtensionType extensionType;
+  private MimeType mimeType;
 }

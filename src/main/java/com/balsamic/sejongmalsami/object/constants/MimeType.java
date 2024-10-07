@@ -1,12 +1,14 @@
 package com.balsamic.sejongmalsami.object.constants;
 
 import java.util.Arrays;
+import java.util.Set;
+import java.util.stream.Collectors;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 
 @AllArgsConstructor
 @Getter
-public enum ExtensionType {
+public enum MimeType {
   JPEG("image/jpeg"),
   JPG("image/jpeg"),
   PNG("image/png"),
@@ -19,12 +21,13 @@ public enum ExtensionType {
   AAC("audio/aac");
 
   private final String mimeType;
+  private static final Set<String> MIME_TYPES = Arrays
+      .stream(MimeType.values())
+      .map(MimeType::getMimeType)
+      .collect(Collectors.toSet());
 
   // 유효한 MIME 타입인지 검증
   public static Boolean isValidMimeType(String mimeType) {
-    return Arrays.stream(ExtensionType.values())
-        .map(ExtensionType::getMimeType)
-        .toList()
-        .contains(mimeType.toLowerCase());
+    return MIME_TYPES.contains(mimeType.toLowerCase());
   }
 }
