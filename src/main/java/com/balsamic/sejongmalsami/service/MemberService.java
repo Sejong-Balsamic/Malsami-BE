@@ -107,11 +107,37 @@ public class MemberService implements UserDetailsService {
     // Refresh Token : HTTP-Only 쿠키 설정
     Cookie refreshCookie = new Cookie("refreshToken", refreshToken);
     refreshCookie.setHttpOnly(true);
-    refreshCookie.setSecure(false); // 프로덕션 환경에서는 true로 설정
-    refreshCookie.setPath("/api/auth/refresh"); // 리프레시 토큰 API
+    refreshCookie.setSecure(false);   //FIXME: 개발 환경에서는 false, 프로덕션에서는 true
+    refreshCookie.setPath("/");
     refreshCookie.setMaxAge((int) (jwtUtil.getRefreshExpirationTime() / 1000)); // 7일
-    refreshCookie.setAttribute("SameSite", "Strict"); // CSRF 방지를 위해 설정
-    response.addCookie(refreshCookie);
+    // SameSite 설정은 직접 Set-Cookie 헤더에 추가
+
+    // 쿠키 설정 정보 로깅
+    log.info("설정할 쿠키 정보: ");
+    log.info("Name: {}", refreshCookie.getName());
+    log.info("Value: {}", refreshCookie.getValue());
+    log.info("HttpOnly: {}", refreshCookie.isHttpOnly());
+    log.info("Secure: {}", refreshCookie.getSecure());
+    log.info("Path: {}", refreshCookie.getPath());
+    log.info("Max-Age: {}", refreshCookie.getMaxAge());
+
+    // 쿠키에 SameSite 속성 추가
+    StringBuilder cookieBuilder = new StringBuilder();
+    cookieBuilder.append(refreshCookie.getName()).append("=").append(refreshCookie.getValue()).append(";");
+    cookieBuilder.append(" Path=").append(refreshCookie.getPath()).append(";");
+    cookieBuilder.append(" Max-Age=").append(refreshCookie.getMaxAge()).append(";");
+    cookieBuilder.append(" SameSite=None;"); //FIXME: 모든 요청에서 쿠키 전송
+    cookieBuilder.append(" Secure;"); //FIXME: Secure 속성 설정
+
+    if (refreshCookie.isHttpOnly()) {
+      cookieBuilder.append(" HttpOnly;");
+    }
+
+    String setCookieHeader = cookieBuilder.toString();
+    response.addHeader("Set-Cookie", setCookieHeader);
+
+    log.info("Set-Cookie Header: {}", setCookieHeader);
+
     log.info("리프레시 토큰 쿠키 설정 완료: 회원 = {}", member.getStudentId());
 
     // 액세스 토큰 반환

@@ -37,6 +37,8 @@ public enum ErrorCode {
 
   // File Uploads
 
+  FILE_UPLOAD_ERROR(HttpStatus.BAD_REQUEST, "파일 업로드 시 오류가 발생했습니다."),
+
   INVALID_FILE_FORMAT(HttpStatus.BAD_REQUEST, "파일 형식이 잘못되었습니다."),
 
   DUPLICATE_COURSE_UPLOAD(HttpStatus.BAD_REQUEST, "중복된 교과목명 파일입니다."),
@@ -55,6 +57,8 @@ public enum ErrorCode {
 
   // QuestionPost
 
+  QUESTION_POST_NOT_FOUND(HttpStatus.BAD_REQUEST, "질문 글을 찾을 수 없습니다."),
+
   QUESTION_TITLE_NULL(HttpStatus.BAD_REQUEST, "질문 게시글의 제목이 비어 있습니다."),
 
   QUESTION_CONTENT_NULL(HttpStatus.BAD_REQUEST, "질문 게시글의 본문이 비어 있습니다."),
@@ -63,7 +67,15 @@ public enum ErrorCode {
 
   QUESTION_PRESET_TAG_LIMIT_EXCEEDED(HttpStatus.BAD_REQUEST, "질문게시글 정적태그는 최대 2개까지 선택가능합니다."),
 
-  QUESTION_REWARD_INVALID(HttpStatus.BAD_REQUEST, "질문게시글 엽전 현상금에 잘못된 값이 할당되었습니다.");
+  QUESTION_REWARD_INVALID(HttpStatus.BAD_REQUEST, "질문게시글 엽전 현상금에 잘못된 값이 할당되었습니다."),
+
+  // AnswerPost
+
+  ANSWER_POST_NOT_FOUND(HttpStatus.BAD_REQUEST, "답변 글을 찾을 수 없습니다."),
+
+  // MediaFile
+
+  MEDIA_FILE_LIMIT_EXCEEDED(HttpStatus.BAD_REQUEST, "첨부할 수 있는 미디어 파일 개수를 초과했습니다.");
 
   private final HttpStatus status;
   private final String message;
