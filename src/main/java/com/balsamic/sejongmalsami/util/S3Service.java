@@ -25,8 +25,8 @@ public class S3Service {
     String originalFilename = file.getOriginalFilename(); // 원본 파일 명
     String extension = getExtensionType(file);
 
-    // 파일 확장자 검증
-    if (!ExtensionType.isValidExtension(extension)) {
+    // MIME Type 검증
+    if (!ExtensionType.isValidMimeType(file.getContentType())) {
       throw new CustomException(ErrorCode.INVALID_FILE_FORMAT);
     }
 

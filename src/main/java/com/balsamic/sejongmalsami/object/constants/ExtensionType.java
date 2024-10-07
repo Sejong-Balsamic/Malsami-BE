@@ -1,7 +1,5 @@
 package com.balsamic.sejongmalsami.object.constants;
 
-import com.balsamic.sejongmalsami.util.exception.CustomException;
-import com.balsamic.sejongmalsami.util.exception.ErrorCode;
 import java.util.Arrays;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
@@ -9,32 +7,24 @@ import lombok.Getter;
 @AllArgsConstructor
 @Getter
 public enum ExtensionType {
-  JPEG(".jpeg"),
-  JPG(".jpg"),
-  PNG(".png"),
-  MP4(".mp4"),
-  ZIP(".zip"),
-  AVI(".avi"),
-  MOV(".mov"),
-  MP3(".mp3"),
-  WAV(".wav"),
-  AAC(".aac");
+  JPEG("image/jpeg"),
+  JPG("image/jpeg"),
+  PNG("image/png"),
+  MP4("video/mp4"),
+  ZIP("application/zip"),
+  AVI("video/x-msvideo"),
+  MOV("video/quicktime"),
+  MP3("audio/mpeg"),
+  WAV("audio/wav"),
+  AAC("audio/aac");
 
-  private final String description;
+  private final String mimeType;
 
-  // 유효한 확장자인지 확인하는 메서드
-  public static boolean isValidExtension(String extension) {
+  // 유효한 MIME 타입인지 검증
+  public static Boolean isValidMimeType(String mimeType) {
     return Arrays.stream(ExtensionType.values())
-        .map(ExtensionType::getDescription)
+        .map(ExtensionType::getMimeType)
         .toList()
-        .contains(extension.toLowerCase());
-  }
-
-  // 문자열을 ExtensionType 으로 변환하는 메서드
-  public static ExtensionType valueOfExtension(String extension) {
-    return Arrays.stream(ExtensionType.values())
-        .filter(e -> e.getDescription().equalsIgnoreCase(extension))
-        .findFirst()
-        .orElseThrow(() -> new CustomException(ErrorCode.INVALID_FILE_FORMAT));
+        .contains(mimeType.toLowerCase());
   }
 }

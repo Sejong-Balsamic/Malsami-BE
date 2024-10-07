@@ -29,7 +29,7 @@ public class MediaFile extends BaseEntity {
   @Column(columnDefinition = "uuid DEFAULT uuid_generate_v4()", updatable = false)
   private UUID mediaFileId;
 
-  private UUID questionId;
+  private UUID postId;
 
   // 파일 경로 (파일 URL)
   private String fileUrl;
