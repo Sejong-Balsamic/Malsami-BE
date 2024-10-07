@@ -78,6 +78,9 @@ dependencies {
 
     // Apache
     implementation 'org.apache.poi:poi-ooxml:5.2.3'
+
+    // hypersistence-utils
+    implementation 'io.hypersistence:hypersistence-utils-hibernate-62:3.6.0'
 }
 
 tasks.named('test') {
