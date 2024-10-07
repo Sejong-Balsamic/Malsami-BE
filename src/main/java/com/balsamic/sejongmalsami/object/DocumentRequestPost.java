@@ -1,7 +1,7 @@
 package com.balsamic.sejongmalsami.object;
 
 import com.balsamic.sejongmalsami.object.constants.DocumentType;
-import jakarta.persistence.CollectionTable;
+import io.hypersistence.utils.hibernate.type.array.StringArrayType;
 import jakarta.persistence.Column;
 import jakarta.persistence.ElementCollection;
 import jakarta.persistence.Entity;
@@ -14,7 +14,6 @@ import jakarta.persistence.Id;
 import jakarta.persistence.Lob;
 import jakarta.persistence.ManyToOne;
 import java.util.HashSet;
-import java.util.List;
 import java.util.Set;
 import java.util.UUID;
 import lombok.AllArgsConstructor;
@@ -23,6 +22,7 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.ToString;
 import lombok.experimental.SuperBuilder;
+import org.hibernate.annotations.Type;
 
 @Entity
 @Getter
@@ -45,13 +45,11 @@ public class DocumentRequestPost extends BaseEntity {
   private String title;
 
   // 자료 타입
-  @ElementCollection
-  @Enumerated(EnumType.STRING)
-  private Set<DocumentType> documentTypeSet = new HashSet<>();
+  @Type(value = StringArrayType.class)
+  private DocumentType[] documentType;
 
-  // 자료 요청 학과
   @ManyToOne(fetch = FetchType.LAZY)
-  private Course requestDepartment;
+  private Course course;
 
   // 내용
   @Lob
