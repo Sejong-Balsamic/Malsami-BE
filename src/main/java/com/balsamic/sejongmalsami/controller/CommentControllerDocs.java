@@ -33,7 +33,7 @@ public interface CommentControllerDocs {
           - **String postId**: 댓글이 속한 게시글의 ID (required)
             _예: "9b1deb4d-3b7d-4bad-9bdd-2b0d7b3dcb6d"_
             
-          - **Enum postType**: 댓글이 속한 게시글의 유형 (required)
+          - **Enum ContentType**: 댓글이 속한 게시글의 유형 (required)
             _예: "QUESTION"_
             
           - **Boolean isPrivate**: 내 정보 비공개 여부 (default = false)
@@ -47,7 +47,7 @@ public interface CommentControllerDocs {
           - **DOCUMENT** (자료글)
           - **DOCUMENT_REQUEST** (자료요청글)
 
-            _예: "formData.append('postType', 'QUESTION');_
+            _예: "formData.append('contentType', 'QUESTION');_
 
           **반환 파라미터 값:**
 

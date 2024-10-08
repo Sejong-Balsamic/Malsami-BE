@@ -10,8 +10,6 @@ import org.springframework.data.annotation.Id;
 import org.springframework.data.mongodb.core.index.Indexed;
 import org.springframework.data.mongodb.core.mapping.Document;
 
-import java.math.BigDecimal;
-
 @Document
 @Getter
 @Builder
@@ -35,7 +33,7 @@ public class PurchaseHistory extends BaseMongoEntity {
   private UUID DocumentFileId;
 
   @NotNull
-  private Integer yeopjeonQuantity; // 소모한 엽전양
+  private Integer yeopjeonSpent; // 소모한 엽전양
 
   @NotNull
   private Integer resultYeopjeon;   // 남은 엽전양
