@@ -32,7 +32,7 @@ public class CommentService {
         .member(member)
         .content(command.getContent())
         .postId(command.getPostId())
-        .postType(command.getPostType())
+        .contentType(command.getContentType())
         .isPrivate(command.getIsPrivate() != null ? command.getIsPrivate() : false)
         .build();
 
