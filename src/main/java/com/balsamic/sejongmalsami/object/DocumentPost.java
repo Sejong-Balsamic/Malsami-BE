@@ -50,9 +50,6 @@ public class DocumentPost extends BasePost {
   private Integer likeCount = 0; // 추천수
 
   @Builder.Default
-  private Integer dislikeCount = 0; // 싫어요수
-
-  @Builder.Default
   private Integer downloadCount = 0; // 다운로드수
 
   @Builder.Default

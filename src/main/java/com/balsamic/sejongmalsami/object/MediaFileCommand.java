@@ -1,6 +1,6 @@
 package com.balsamic.sejongmalsami.object;
 
-import com.balsamic.sejongmalsami.object.constants.PostType;
+import com.balsamic.sejongmalsami.object.constants.ContentType;
 import java.util.UUID;
 import lombok.Builder;
 import lombok.Getter;
@@ -16,5 +16,7 @@ public class MediaFileCommand {
 
   private UUID questionId;
   private MultipartFile file;
-  private PostType postType;
+  private String fileUrl;
+  private Long fileSize;
+  private ContentType contentType;
 }

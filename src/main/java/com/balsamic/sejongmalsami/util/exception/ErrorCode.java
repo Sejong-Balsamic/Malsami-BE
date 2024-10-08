@@ -73,6 +73,10 @@ public enum ErrorCode {
 
   ANSWER_POST_NOT_FOUND(HttpStatus.BAD_REQUEST, "답변 글을 찾을 수 없습니다."),
 
+  // DocumentPost
+
+  DOCUMENT_TYPE_LIMIT_EXCEEDED(HttpStatus.BAD_REQUEST, "자료게시글 자료 종류는 최대 2개까지 선택가능합니다."),
+
   // MediaFile
 
   MEDIA_FILE_LIMIT_EXCEEDED(HttpStatus.BAD_REQUEST, "첨부할 수 있는 미디어 파일 개수를 초과했습니다.");
