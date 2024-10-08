@@ -1,16 +1,16 @@
 package com.balsamic.sejongmalsami.object;
 
-import com.balsamic.sejongmalsami.object.constants.ContentType;
+import com.balsamic.sejongmalsami.object.constants.MimeType;
+import com.balsamic.sejongmalsami.object.constants.PostType;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
-import jakarta.persistence.FetchType;
+import jakarta.persistence.EnumType;
+import jakarta.persistence.Enumerated;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
-import jakarta.persistence.ManyToOne;
 import java.util.UUID;
 import lombok.AllArgsConstructor;
-import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.ToString;
@@ -22,25 +22,24 @@ import lombok.experimental.SuperBuilder;
 @AllArgsConstructor
 @NoArgsConstructor
 @ToString(callSuper = true)
-public class Comment extends BaseEntity{
+public class MediaFile extends BaseEntity {
 
   @Id
   @GeneratedValue(strategy = GenerationType.AUTO)
   @Column(columnDefinition = "uuid DEFAULT uuid_generate_v4()", updatable = false)
-  private UUID commentId;
+  private UUID mediaFileId;
 
-  @ManyToOne(fetch = FetchType.LAZY)
-  private Member member;
-
-  private String content;
-
-  // 댓글이 속한 게시글의 ID
   private UUID postId;
 
-  // 댓글이 속한 게시글의 유형
-  private ContentType contentType;
+  // 파일 경로 (파일 URL)
+  private String fileUrl;
 
-  // 닉네임 비공개 여부
-  @Builder.Default
-  private Boolean isPrivate = false;
+  // 파일 크기
+  private Long fileSize;
+
+  @Enumerated(EnumType.STRING)
+  private PostType postType;
+
+  @Enumerated(EnumType.STRING)
+  private MimeType mimeType;
 }

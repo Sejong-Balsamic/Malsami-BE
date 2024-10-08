@@ -17,17 +17,13 @@ public enum ErrorCode {
 
   // Auth
 
-  SEJONG_AUTH_SESSION_FAILURE(HttpStatus.FORBIDDEN,
-      "세종대학교 로그인 세션 ID를 가져오는 데 실패했습니다."),
+  SEJONG_AUTH_SESSION_FAILURE(HttpStatus.FORBIDDEN, "세종대학교 로그인 세션 ID를 가져오는 데 실패했습니다."),
 
-  SEJONG_AUTH_CREDENTIALS_INVALID(HttpStatus.FORBIDDEN,
-      "세종대학교 로그인에 실패했습니다: 잘못된 자격 증명입니다."),
+  SEJONG_AUTH_CREDENTIALS_INVALID(HttpStatus.FORBIDDEN, "세종대학교 로그인에 실패했습니다: 잘못된 자격 증명입니다."),
 
-  SEJONG_AUTH_CONNECTION_FAILURE(HttpStatus.FORBIDDEN,
-      "세종대학교 로그인 페이지에 연결할 수 없습니다."),
+  SEJONG_AUTH_CONNECTION_FAILURE(HttpStatus.FORBIDDEN, "세종대학교 로그인 페이지에 연결할 수 없습니다."),
 
-  SEJONG_AUTH_DATA_FETCH_FAILURE(HttpStatus.FORBIDDEN,
-      "세종대학교 학생 데이터를 가져오는 데 실패했습니다."),
+  SEJONG_AUTH_DATA_FETCH_FAILURE(HttpStatus.FORBIDDEN, "세종대학교 학생 데이터를 가져오는 데 실패했습니다."),
 
   MISSING_REFRESH_TOKEN(HttpStatus.BAD_REQUEST, "쿠키에서 리프레시 토큰을 찾을 수 없습니다."),
 
@@ -40,6 +36,8 @@ public enum ErrorCode {
   MISSING_AUTH_TOKEN(HttpStatus.UNAUTHORIZED, "인증 토큰이 필요합니다."),
 
   // File Uploads
+
+  FILE_UPLOAD_ERROR(HttpStatus.BAD_REQUEST, "파일 업로드 시 오류가 발생했습니다."),
 
   INVALID_FILE_FORMAT(HttpStatus.BAD_REQUEST, "파일 형식이 잘못되었습니다."),
 
@@ -59,22 +57,25 @@ public enum ErrorCode {
 
   // QuestionPost
 
+  QUESTION_POST_NOT_FOUND(HttpStatus.BAD_REQUEST, "질문 글을 찾을 수 없습니다."),
+
   QUESTION_TITLE_NULL(HttpStatus.BAD_REQUEST, "질문 게시글의 제목이 비어 있습니다."),
 
   QUESTION_CONTENT_NULL(HttpStatus.BAD_REQUEST, "질문 게시글의 본문이 비어 있습니다."),
 
   QUESTION_SUBJECT_NULL(HttpStatus.BAD_REQUEST, "과목이 설정되지 않았습니다."),
 
-  QUESTION_PRESET_TAG_LIMIT_EXCEEDED(HttpStatus.BAD_REQUEST,
-      "질문게시글 정적태그는 최대 2개까지 선택가능합니다."),
+  QUESTION_PRESET_TAG_LIMIT_EXCEEDED(HttpStatus.BAD_REQUEST, "질문게시글 정적태그는 최대 2개까지 선택가능합니다."),
 
-  QUESTION_REWARD_INVALID(HttpStatus.BAD_REQUEST,
-      "질문게시글 엽전 현상금에 잘못된 값이 할당되었습니다."),
+  QUESTION_REWARD_INVALID(HttpStatus.BAD_REQUEST, "질문게시글 엽전 현상금에 잘못된 값이 할당되었습니다."),
 
-  // DocumentPost
+  // AnswerPost
 
-  DOCUMENT_TYPE_LIMIT_EXCEEDED(HttpStatus.BAD_REQUEST,
-      "자료게시글 자료 종류는 최대 2개까지 선택가능합니다.");
+  ANSWER_POST_NOT_FOUND(HttpStatus.BAD_REQUEST, "답변 글을 찾을 수 없습니다."),
+
+  // MediaFile
+
+  MEDIA_FILE_LIMIT_EXCEEDED(HttpStatus.BAD_REQUEST, "첨부할 수 있는 미디어 파일 개수를 초과했습니다.");
 
   private final HttpStatus status;
   private final String message;
