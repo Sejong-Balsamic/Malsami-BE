@@ -25,7 +25,7 @@ import lombok.experimental.SuperBuilder;
 @AllArgsConstructor
 @NoArgsConstructor
 @ToString(callSuper = true)
-public class DocumentPost extends BaseEntity {
+public class DocumentPost extends BasePost {
 
   @Id
   @GeneratedValue(strategy = GenerationType.AUTO)
