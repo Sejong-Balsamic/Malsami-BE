@@ -1,10 +1,12 @@
 package com.balsamic.sejongmalsami.object;
 
+import com.balsamic.sejongmalsami.object.constants.ContentType;
 import jakarta.validation.constraints.NotNull;
-import java.time.LocalDateTime;
 import java.util.UUID;
+import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
+import lombok.NoArgsConstructor;
 import org.springframework.data.annotation.Id;
 import org.springframework.data.mongodb.core.index.Indexed;
 import org.springframework.data.mongodb.core.mapping.Document;
@@ -12,18 +14,20 @@ import org.springframework.data.mongodb.core.mapping.Document;
 @Document
 @Getter
 @Builder
-public class RefreshToken {
+@NoArgsConstructor
+@AllArgsConstructor
+public class NoticeBoardLike extends BaseMongoEntity {
   @Id
-  private String refreshTokenId;
+  private String noticeBoardLikeId;
 
   @NotNull
-  private String token;
+  private ContentType contentType;
 
+  @NotNull
   @Indexed
+  private UUID noticeBoardId; // target UUID
+
   @NotNull
+  @Indexed
   private UUID memberId;
-
-  @NotNull
-  private LocalDateTime expiryDate;
 }
-
