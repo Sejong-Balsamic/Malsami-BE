@@ -83,7 +83,7 @@ public class QuestionPost extends BasePost {
   @Builder.Default
   private Boolean isPrivate = false;
 
-  // 질문게시글 정적 태그 추가
+  // 질문게시글 정적 태그 추가 (최대 2개)
   public void addPresetTag(QuestionPresetTag tag) {
 
     if (questionPresetTagSet.size() >= MAX_PRESET_TAGS) {
