@@ -34,9 +34,9 @@ public class QuestionPostService {
         .orElseThrow(() -> new CustomException(ErrorCode.MEMBER_NOT_FOUND));
 
     // 엽전 현상금 null인 경우 기본 0으로 설정
-    if (command.getReward() == null) {
-      command.setReward(0);
-    } else if (command.getReward() < 0) { // 음수 값으로 설정될 경우 오류
+    if (command.getRewardYeopjeon() == null) {
+      command.setRewardYeopjeon(0);
+    } else if (command.getRewardYeopjeon() < 0) { // 음수 값으로 설정될 경우 오류
       throw new CustomException(ErrorCode.QUESTION_REWARD_INVALID);
     }
 
@@ -46,10 +46,10 @@ public class QuestionPostService {
         .content(command.getContent())
         .subject(command.getSubject())
         .questionPresetTagSet(new HashSet<>())
-        .views(0)
-        .likes(0)
+        .viewCount(0)
+        .likeCount(0)
         .answerCount(0)
-        .reward(command.getReward())
+        .rewardYeopjeon(command.getRewardYeopjeon())
         .dailyScore(0)
         .weeklyScore(0)
         .isPrivate(command.getIsPrivate() != null ? command.getIsPrivate() : false)
@@ -96,6 +96,6 @@ public class QuestionPostService {
 
   // 점수 계산 (답변수 * 3 + 좋아요수 * 2 + 조회수)
   private Integer calculateScore(QuestionPost post) {
-    return post.getAnswerCount() * 3 + post.getLikes() * 2 + post.getViews();
+    return post.getAnswerCount() * 3 + post.getLikeCount() * 2 + post.getViewCount();
   }
 }

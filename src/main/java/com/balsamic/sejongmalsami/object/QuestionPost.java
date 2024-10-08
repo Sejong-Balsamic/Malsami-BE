@@ -61,11 +61,11 @@ public class QuestionPost extends BasePost {
 
   // 조회 수
   @Builder.Default
-  private Integer views = 0;
+  private Integer viewCount = 0;
 
   // 좋아요 수 (추천 수)
   @Builder.Default
-  private Integer likes = 0;
+  private Integer likeCount = 0;
 
   // 답변 수
   @Builder.Default
@@ -77,7 +77,7 @@ public class QuestionPost extends BasePost {
 
   // 엽전 현상금
   @Builder.Default
-  private Integer reward = 0;
+  private Integer rewardYeopjeon = 0;
 
   // 내 정보 비공개 여부
   @Builder.Default

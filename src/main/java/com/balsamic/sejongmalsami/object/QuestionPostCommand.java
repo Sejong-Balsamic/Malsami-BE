@@ -19,9 +19,9 @@ public class QuestionPostCommand {
   private String content;
   private String subject;
   private Set<QuestionPresetTag> questionPresetTagSet;
-  private Integer views;
-  private Integer likes;
+  private Integer viewCount;
+  private Integer likeCount;
   private Integer answerCount;
-  private Integer reward;
+  private Integer rewardYeopjeon;
   private Boolean isPrivate;
 }
