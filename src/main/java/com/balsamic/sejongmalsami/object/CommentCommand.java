@@ -1,6 +1,6 @@
 package com.balsamic.sejongmalsami.object;
 
-import com.balsamic.sejongmalsami.object.constants.ContentType;
+import com.balsamic.sejongmalsami.object.constants.PostType;
 import java.util.UUID;
 import lombok.Builder;
 import lombok.Getter;
@@ -16,6 +16,6 @@ public class CommentCommand {
   private UUID memberId;
   private String content;
   private UUID postId;
-  private ContentType contentType;
+  private PostType postType;
   private Boolean isPrivate;
 }
