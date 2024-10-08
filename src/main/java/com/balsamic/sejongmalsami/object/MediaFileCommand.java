@@ -20,5 +20,4 @@ public class MediaFileCommand {
   private String fileUrl;
   private Long fileSize;
   private ContentType contentType;
-  private MimeType mimeType;
 }
