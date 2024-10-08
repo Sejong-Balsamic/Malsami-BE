@@ -26,7 +26,7 @@ public class ExpHistory extends BaseMongoEntity {
   private UUID memberId;
 
   @NotNull
-  private Integer exp; // TODO: 변동되는 경험치 changedExp처럼 명확한거 어때요?
+  private Integer expChange;
 
   @NotNull
   private ActionType actionType;
