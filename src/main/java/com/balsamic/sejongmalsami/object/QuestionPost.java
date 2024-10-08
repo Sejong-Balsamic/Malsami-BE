@@ -29,7 +29,7 @@ import lombok.experimental.SuperBuilder;
 @AllArgsConstructor
 @NoArgsConstructor
 @ToString(callSuper = true)
-public class QuestionPost extends BaseEntity {
+public class QuestionPost extends BasePost {
 
   private static final int MAX_PRESET_TAGS = 2;
 
