@@ -29,5 +29,6 @@ public class Report extends BaseMongoEntity {
 
   private ContentType contentType;
 
+  // TODO: Enum클래스로 변경
   private String reason;          // 신고 사유
 }
