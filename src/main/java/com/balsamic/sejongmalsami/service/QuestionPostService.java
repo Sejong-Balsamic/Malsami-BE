@@ -64,8 +64,7 @@ public class QuestionPostService {
 
     questionPostRepository.save(questionPost);
 
-    return QuestionPostDto
-        .builder()
+    return QuestionPostDto.builder()
         .questionPost(questionPost)
         .build();
   }
