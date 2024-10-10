@@ -46,6 +46,7 @@ public class QuestionPostService {
         .viewCount(0)
         .likeCount(0)
         .answerCount(0)
+        .commentCount(0)
         .rewardYeopjeon(command.getRewardYeopjeon())
         .dailyScore(0)
         .weeklyScore(0)
@@ -59,10 +60,8 @@ public class QuestionPostService {
       }
     }
 
-    questionPostRepository.save(questionPost);
-
     return QuestionPostDto.builder()
-        .questionPost(questionPost)
+        .questionPost(questionPostRepository.save(questionPost))
         .build();
   }
 }

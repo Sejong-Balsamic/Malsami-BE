@@ -1,5 +1,7 @@
 package com.balsamic.sejongmalsami.object;
 
+import com.balsamic.sejongmalsami.object.constants.DocumentType;
+import java.util.Set;
 import java.util.UUID;
 import lombok.Builder;
 import lombok.Getter;
@@ -16,5 +18,6 @@ public class DocumentPostCommand {
   private String title;
   private String content;
   private String subject;
+  private Set<DocumentType> documentTypeSet;
   private Boolean isDepartmentPrivate;
 }

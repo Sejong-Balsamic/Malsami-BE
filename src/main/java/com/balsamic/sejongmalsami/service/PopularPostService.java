@@ -17,6 +17,7 @@ import org.springframework.cache.annotation.CacheEvict;
 import org.springframework.cache.annotation.Cacheable;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 @Service
 @Slf4j
@@ -32,6 +33,7 @@ public class PopularPostService {
   public static final String WEEKLY_DOCUMENT_POSTS_KEY = "'weeklyPopularDocumentPosts'";
 
   // 30분마다 일간 인기글 점수 계산
+  @Transactional
   @Scheduled(fixedRate = 30 * 60 * 1000) // 30분마다 실행
   public void calculateDailyScore() {
     LocalDateTime yesterday = LocalDateTime.now().minusDays(1);
@@ -58,6 +60,7 @@ public class PopularPostService {
   }
 
   // 6시간마다 주간 인기글 점수 계산
+  @Transactional
   @Scheduled(fixedRate = 6 * 60 * 60 * 1000) // 6시간마다 실행
   public void calculateWeeklyScore() {
     LocalDateTime lastWeek = LocalDateTime.now().minusWeeks(1);
@@ -142,11 +145,13 @@ public class PopularPostService {
   }
 
   // 캐시 갱신
+  @Transactional
   @CacheEvict(value = "popularQuestionPosts", allEntries = true)
   public void updatePopularQuestionPostsCache() {
     log.info("질문 인기글 캐시 갱신");
   }
 
+  @Transactional
   @CacheEvict(value = "popularDocumentPosts", allEntries = true)
   public void updatePopularDocumentPostsCache() {
     log.info("자료 인기글 캐시 갱신");

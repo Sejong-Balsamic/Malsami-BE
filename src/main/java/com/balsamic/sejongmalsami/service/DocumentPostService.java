@@ -4,14 +4,17 @@ import com.balsamic.sejongmalsami.object.DocumentPost;
 import com.balsamic.sejongmalsami.object.DocumentPostCommand;
 import com.balsamic.sejongmalsami.object.DocumentPostDto;
 import com.balsamic.sejongmalsami.object.Member;
+import com.balsamic.sejongmalsami.object.constants.DocumentType;
 import com.balsamic.sejongmalsami.object.constants.PostTier;
 import com.balsamic.sejongmalsami.repository.postgres.DocumentPostRepository;
 import com.balsamic.sejongmalsami.repository.postgres.MemberRepository;
 import com.balsamic.sejongmalsami.util.exception.CustomException;
 import com.balsamic.sejongmalsami.util.exception.ErrorCode;
+import java.util.HashSet;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 @Service
 @Slf4j
@@ -22,6 +25,7 @@ public class DocumentPostService {
   private final MemberRepository memberRepository;
 
   // 질문 게시글 등록
+  @Transactional
   public DocumentPostDto saveDocumentPost(DocumentPostCommand command) {
 
     Member member = memberRepository.findById(command.getMemberId())
@@ -32,15 +36,23 @@ public class DocumentPostService {
         .title(command.getTitle())
         .content(command.getContent())
         .subject(command.getSubject())
+        .documentTypeSet(new HashSet<>())
         .postTier(PostTier.CHEONMIN)
         .likeCount(0)
         .downloadCount(0)
         .commentCount(0)
         .viewCount(0)
-        .isDepartmentPrivate(false)
+        .isDepartmentPrivate(command.getIsDepartmentPrivate() != null ? command.getIsDepartmentPrivate() : false)
         .dailyScore(0)
         .weeklyScore(0)
         .build();
+
+    // 자료 카테고리 추가 로직
+    if (command.getDocumentTypeSet() != null) {
+      for (DocumentType documentType : command.getDocumentTypeSet()) {
+        documentPost.addDocumentType(documentType);
+      }
+    }
 
     return DocumentPostDto.builder()
         .documentPost(documentPostRepository.save(documentPost))
