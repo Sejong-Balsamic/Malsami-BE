@@ -4,7 +4,6 @@ import com.balsamic.sejongmalsami.object.QuestionPostCustomTag;
 import com.balsamic.sejongmalsami.repository.mongo.QuestionPostCustomTagRepository;
 import com.balsamic.sejongmalsami.util.exception.CustomException;
 import com.balsamic.sejongmalsami.util.exception.ErrorCode;
-import java.util.List;
 import java.util.Set;
 import java.util.UUID;
 import java.util.stream.Collectors;
@@ -22,7 +21,7 @@ public class QuestionPostCustomTagService {
 
   // 커스텀 태그 저장
   @Transactional
-  public List<String> saveCustomTags(Set<String> customTags, UUID postId) {
+  public Set<String> saveCustomTags(Set<String> customTags, UUID postId) {
 
     // 커스텀 태그는 4개까지만 추가가능
     if (customTags.size() > 4) {
@@ -36,6 +35,6 @@ public class QuestionPostCustomTagService {
           .build();
       questionPostCustomTagRepository.save(questionPostCustomTag);
       return tag; // 저장된 태그 반환
-    }).collect(Collectors.toList());
+    }).collect(Collectors.toSet());
   }
 }
