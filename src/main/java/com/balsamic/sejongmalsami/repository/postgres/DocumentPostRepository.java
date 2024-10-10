@@ -6,6 +6,7 @@ import java.util.List;
 import java.util.UUID;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
+import org.springframework.data.repository.query.Param;
 
 public interface DocumentPostRepository extends JpaRepository<DocumentPost, UUID> {
 
@@ -14,8 +15,10 @@ public interface DocumentPostRepository extends JpaRepository<DocumentPost, UUID
   List<DocumentPost> findDocumentPostsAfter(LocalDateTime startDate);
 
   // 일간 인기글 상위 30개 조회
-  List<DocumentPost> findTop30ByOrderByDailyScoreDesc();
+  @Query("SELECT d FROM DocumentPost d WHERE d.createdDate > :yesterday ORDER BY d.dailyScore DESC")
+  List<DocumentPost> findTop30ByOrderByDailyScoreDescAndCreatedDateAfter(@Param("yesterday") LocalDateTime yesterday);
 
   // 주간 인기글 상위 30개 조회
-  List<DocumentPost> findTop30ByOrderByWeeklyScoreDesc();
+  @Query("SELECT d FROM DocumentPost d WHERE d.createdDate > :lastWeek ORDER BY d.weeklyScore DESC")
+  List<DocumentPost> findTop30ByOrderByWeeklyScoreDescAndCreatedDateAfter(@Param("lastWeek") LocalDateTime lastWeek);
 }

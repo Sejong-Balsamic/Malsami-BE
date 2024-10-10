@@ -91,25 +91,29 @@ public class PopularPostService {
   // 캐시된 일간 질문 인기글 가져오기
   @Cacheable(value = "popularQuestionPosts", key = DAILY_QUESTION_POSTS_KEY)
   public List<QuestionPost> getDailyPopularQuestionPosts() {
-    return questionPostRepository.findTop30ByOrderByDailyScoreDesc();
+    LocalDateTime yesterday = LocalDateTime.now().minusDays(1);
+    return questionPostRepository.findTop30ByOrderByDailyScoreDescAndCreatedDateAfter(yesterday);
   }
 
   // 캐시된 주간 질문 인기글 가져오기
   @Cacheable(value = "popularQuestionPosts", key = WEEKLY_QUESTION_POSTS_KEY)
   public List<QuestionPost> getWeeklyPopularQuestionPosts() {
-    return questionPostRepository.findTop30ByOrderByWeeklyScoreDesc();
+    LocalDateTime lastWeek = LocalDateTime.now().minusWeeks(1);
+    return questionPostRepository.findTop30ByOrderByWeeklyScoreDescAndCreatedDateAfter(lastWeek);
   }
 
   // 캐시된 일간 자료 인기글 가져오기
   @Cacheable(value = "popularDocumentPosts", key = DAILY_DOCUMENT_POSTS_KEY)
   public List<DocumentPost> getDailyPopularDocumentPosts() {
-    return documentPostRepository.findTop30ByOrderByDailyScoreDesc();
+    LocalDateTime yesterday = LocalDateTime.now().minusDays(1);
+    return documentPostRepository.findTop30ByOrderByDailyScoreDescAndCreatedDateAfter(yesterday);
   }
 
   // 캐시된 주간 자료 인기글 가져오기
   @Cacheable(value = "popularDocumentPosts", key = WEEKLY_DOCUMENT_POSTS_KEY)
   public List<DocumentPost> getWeeklyPopularDocumentPosts() {
-    return documentPostRepository.findTop30ByOrderByWeeklyScoreDesc();
+    LocalDateTime lastWeek = LocalDateTime.now().minusWeeks(1);
+    return documentPostRepository.findTop30ByOrderByWeeklyScoreDescAndCreatedDateAfter(lastWeek);
   }
 
   // 캐시 갱신
