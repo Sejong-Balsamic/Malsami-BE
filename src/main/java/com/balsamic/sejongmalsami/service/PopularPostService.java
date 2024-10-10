@@ -1,13 +1,18 @@
 package com.balsamic.sejongmalsami.service;
 
 import com.balsamic.sejongmalsami.object.DocumentPost;
+import com.balsamic.sejongmalsami.object.DocumentPostDto;
 import com.balsamic.sejongmalsami.object.QuestionPost;
+import com.balsamic.sejongmalsami.object.QuestionPostDto;
 import com.balsamic.sejongmalsami.repository.postgres.DocumentPostRepository;
 import com.balsamic.sejongmalsami.repository.postgres.QuestionPostRepository;
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.function.Function;
+import java.util.stream.Collectors;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.jetbrains.annotations.NotNull;
 import org.springframework.cache.annotation.CacheEvict;
 import org.springframework.cache.annotation.Cacheable;
 import org.springframework.scheduling.annotation.Scheduled;
@@ -90,30 +95,50 @@ public class PopularPostService {
 
   // 캐시된 일간 질문 인기글 가져오기
   @Cacheable(value = "popularQuestionPosts", key = DAILY_QUESTION_POSTS_KEY)
-  public List<QuestionPost> getDailyPopularQuestionPosts() {
+  public List<QuestionPostDto> getDailyPopularQuestionPosts() {
     LocalDateTime yesterday = LocalDateTime.now().minusDays(1);
-    return questionPostRepository.findTop30ByOrderByDailyScoreDescAndCreatedDateAfter(yesterday);
+    List<QuestionPost> questionPostList = questionPostRepository
+        .findTop30ByOrderByDailyScoreDescAndCreatedDateAfter(yesterday);
+    return convertToDtoList(questionPostList, questionPost ->
+        QuestionPostDto.builder()
+            .questionPost(questionPost)
+            .build());
   }
 
   // 캐시된 주간 질문 인기글 가져오기
   @Cacheable(value = "popularQuestionPosts", key = WEEKLY_QUESTION_POSTS_KEY)
-  public List<QuestionPost> getWeeklyPopularQuestionPosts() {
+  public List<QuestionPostDto> getWeeklyPopularQuestionPosts() {
     LocalDateTime lastWeek = LocalDateTime.now().minusWeeks(1);
-    return questionPostRepository.findTop30ByOrderByWeeklyScoreDescAndCreatedDateAfter(lastWeek);
+    List<QuestionPost> questionPostList = questionPostRepository
+        .findTop30ByOrderByWeeklyScoreDescAndCreatedDateAfter(lastWeek);
+    return convertToDtoList(questionPostList, questionPost ->
+        QuestionPostDto.builder()
+            .questionPost(questionPost)
+            .build());
   }
 
   // 캐시된 일간 자료 인기글 가져오기
   @Cacheable(value = "popularDocumentPosts", key = DAILY_DOCUMENT_POSTS_KEY)
-  public List<DocumentPost> getDailyPopularDocumentPosts() {
+  public List<DocumentPostDto> getDailyPopularDocumentPosts() {
     LocalDateTime yesterday = LocalDateTime.now().minusDays(1);
-    return documentPostRepository.findTop30ByOrderByDailyScoreDescAndCreatedDateAfter(yesterday);
+    List<DocumentPost> documentPostList = documentPostRepository.
+        findTop30ByOrderByDailyScoreDescAndCreatedDateAfter(yesterday);
+    return convertToDtoList(documentPostList, documentPost ->
+        DocumentPostDto.builder()
+            .documentPost(documentPost)
+            .build());
   }
 
   // 캐시된 주간 자료 인기글 가져오기
   @Cacheable(value = "popularDocumentPosts", key = WEEKLY_DOCUMENT_POSTS_KEY)
-  public List<DocumentPost> getWeeklyPopularDocumentPosts() {
+  public List<DocumentPostDto> getWeeklyPopularDocumentPosts() {
     LocalDateTime lastWeek = LocalDateTime.now().minusWeeks(1);
-    return documentPostRepository.findTop30ByOrderByWeeklyScoreDescAndCreatedDateAfter(lastWeek);
+    List<DocumentPost> documentPostList = documentPostRepository.
+        findTop30ByOrderByWeeklyScoreDescAndCreatedDateAfter(lastWeek);
+    return convertToDtoList(documentPostList, documentPost ->
+        DocumentPostDto.builder()
+            .documentPost(documentPost)
+            .build());
   }
 
   // 캐시 갱신
@@ -121,8 +146,17 @@ public class PopularPostService {
   public void updatePopularQuestionPostsCache() {
     log.info("질문 인기글 캐시 갱신");
   }
+
   @CacheEvict(value = "popularDocumentPosts", allEntries = true)
   public void updatePopularDocumentPostsCache() {
     log.info("자료 인기글 캐시 갱신");
+  }
+
+  // 변환 메서드
+  @NotNull
+  private <T, D> List<D> convertToDtoList(List<T> entities, Function<T, D> converter) {
+    return entities.stream()
+        .map(converter)
+        .collect(Collectors.toList());
   }
 }
