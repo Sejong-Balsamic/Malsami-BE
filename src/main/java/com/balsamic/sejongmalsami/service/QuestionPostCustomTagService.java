@@ -25,7 +25,14 @@ public class QuestionPostCustomTagService {
 
     // 커스텀 태그는 4개까지만 추가가능
     if (customTags.size() > 4) {
-      throw new CustomException(ErrorCode.QUESTION_CUSTOM_TAG_LIMIT_EXCEEDED);
+      throw new CustomException(ErrorCode.CUSTOM_TAG_LIMIT_EXCEEDED);
+    }
+
+    // 커스텀 태그 10자 제한
+    for (String tag : customTags) {
+      if (tag.length() > 10) {
+        throw new CustomException(ErrorCode.CUSTOM_TAG_LENGTH_EXCEEDED);
+      }
     }
 
     return customTags.stream().map(tag -> {
