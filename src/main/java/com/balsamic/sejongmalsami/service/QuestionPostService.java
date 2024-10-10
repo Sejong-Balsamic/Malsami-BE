@@ -9,12 +9,9 @@ import com.balsamic.sejongmalsami.repository.postgres.MemberRepository;
 import com.balsamic.sejongmalsami.repository.postgres.QuestionPostRepository;
 import com.balsamic.sejongmalsami.util.exception.CustomException;
 import com.balsamic.sejongmalsami.util.exception.ErrorCode;
-import java.time.LocalDateTime;
 import java.util.HashSet;
-import java.util.List;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -67,34 +64,5 @@ public class QuestionPostService {
     return QuestionPostDto.builder()
         .questionPost(questionPost)
         .build();
-  }
-
-  // 매일 자정마다 일간 인기글 점수 계산
-  @Scheduled(cron = "0 0 0 * * ?")
-  public void calculateDailyScore() {
-    LocalDateTime yesterday = LocalDateTime.now().minusDays(1);
-    List<QuestionPost> posts = questionPostRepository.findQuestionPostsAfter(yesterday);
-
-    for (QuestionPost post : posts) {
-      post.updateDailyScore(calculateScore(post));
-      questionPostRepository.save(post);
-    }
-  }
-
-  // 매주 월요일 자정마다 주간 인기글 점수 계산
-  @Scheduled(cron = "0 0 0 * * MON")
-  public void calculateWeeklyScore() {
-    LocalDateTime lastWeek = LocalDateTime.now().minusWeeks(1);
-    List<QuestionPost> posts = questionPostRepository.findQuestionPostsAfter(lastWeek);
-
-    for (QuestionPost post : posts) {
-      post.updateWeeklyScore(calculateScore(post));
-      questionPostRepository.save(post);
-    }
-  }
-
-  // 점수 계산 (답변수 * 3 + 좋아요수 * 2 + 조회수)
-  private Integer calculateScore(QuestionPost post) {
-    return post.getAnswerCount() * 3 + post.getLikeCount() * 2 + post.getViewCount();
   }
 }
