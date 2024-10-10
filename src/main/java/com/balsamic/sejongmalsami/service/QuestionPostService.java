@@ -10,6 +10,7 @@ import com.balsamic.sejongmalsami.repository.postgres.QuestionPostRepository;
 import com.balsamic.sejongmalsami.util.exception.CustomException;
 import com.balsamic.sejongmalsami.util.exception.ErrorCode;
 import java.util.HashSet;
+import java.util.List;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
@@ -22,6 +23,7 @@ public class QuestionPostService {
 
   private final QuestionPostRepository questionPostRepository;
   private final MemberRepository memberRepository;
+  private final QuestionPostCustomTagService questionPostCustomTagService;
 
   /* 질문 게시글 등록 로직 */
   @Transactional
@@ -31,9 +33,9 @@ public class QuestionPostService {
         .orElseThrow(() -> new CustomException(ErrorCode.MEMBER_NOT_FOUND));
 
     // 엽전 현상금 null인 경우 기본 0으로 설정
-    if (command.getReward() == null) {
-      command.setReward(0);
-    } else if (command.getReward() < 0) { // 음수 값으로 설정될 경우 오류
+    if (command.getRewardYeopjeon() == null) {
+      command.setRewardYeopjeon(0);
+    } else if (command.getRewardYeopjeon() < 0) { // 음수 값으로 설정될 경우 오류
       throw new CustomException(ErrorCode.QUESTION_REWARD_INVALID);
     }
 
@@ -43,10 +45,13 @@ public class QuestionPostService {
         .content(command.getContent())
         .subject(command.getSubject())
         .questionPresetTagSet(new HashSet<>())
-        .views(0)
-        .likes(0)
+        .viewCount(0)
+        .likeCount(0)
         .answerCount(0)
-        .reward(command.getReward())
+        .commentCount(0)
+        .rewardYeopjeon(command.getRewardYeopjeon())
+        .dailyScore(0)
+        .weeklyScore(0)
         .isPrivate(command.getIsPrivate() != null ? command.getIsPrivate() : false)
         .build();
 
@@ -57,11 +62,19 @@ public class QuestionPostService {
       }
     }
 
-    questionPostRepository.save(questionPost);
+    QuestionPost savedPost = questionPostRepository.save(questionPost);
 
-    return QuestionPostDto
-        .builder()
-        .questionPost(questionPost)
+    // 커스텀 태그 추가 로직
+    List<String> customTags = null;
+    if (command.getCustomTagSet() != null) {
+      customTags = questionPostCustomTagService
+          .saveCustomTags(command.getCustomTagSet(), savedPost.getQuestionPostId());
+    }
+
+
+    return QuestionPostDto.builder()
+        .questionPost(savedPost)
+        .customTags(customTags)
         .build();
   }
 }

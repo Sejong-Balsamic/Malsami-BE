@@ -6,16 +6,17 @@ import lombok.Builder;
 import lombok.Getter;
 import lombok.Setter;
 import lombok.ToString;
+import org.springframework.web.multipart.MultipartFile;
 
 @Builder
 @Getter
 @Setter
 @ToString
-public class CommentCommand {
+public class MediaFileCommand {
 
-  private UUID memberId;
-  private String content;
-  private UUID postId;
+  private UUID questionId;
+  private MultipartFile file;
+  private String fileUrl;
+  private Long fileSize;
   private ContentType contentType;
-  private Boolean isPrivate;
 }

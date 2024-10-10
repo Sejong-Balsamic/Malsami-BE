@@ -7,6 +7,7 @@ import com.balsamic.sejongmalsami.object.constants.Author;
 import com.balsamic.sejongmalsami.util.log.ApiChangeLog;
 import com.balsamic.sejongmalsami.util.log.ApiChangeLogs;
 import io.swagger.v3.oas.annotations.Operation;
+import java.util.List;
 import org.springframework.http.ResponseEntity;
 
 public interface QuestionPostControllerDocs {
@@ -36,8 +37,11 @@ public interface QuestionPostControllerDocs {
           - **String subject**: 과목 명 (required)
             _예: "고급C프로그래밍및실습"_
             
-          - **Enum questionPresetTagSet**: 질문 게시글 정적태그 (최대 2개까지만 선택가능)
+          - **Set<QuestionPresetTag> questionPresetTagSet**: 질문 게시글 정적태그 (최대 2개까지만 선택가능)
             _예: "STUDY_TIPS"_
+            
+          - **Set<String> customTagSet**: 질문 게시글 커스텀태그 (최대 4개까지만 추가가능)
+            _예: "코딩질문"_
             
           - **Integer reward**: 엽전 현상금 (default = 0)
             _예: "50"_
@@ -46,7 +50,7 @@ public interface QuestionPostControllerDocs {
             _기본값은 false입니다. true로 요청할 시 질문 글에 내 정보가 비공개 처리됩니다._
 
           **정적 태그**
-          
+                    
           총 7개의 정적태그가 존재하며 최대 2개까지의 정적태그를 설정할 수 있습니다.
           - **OUT_OF_CLASS** (수업 외 내용)
           - **UNKNOWN_CONCEPT** (개념 모름)
@@ -55,7 +59,7 @@ public interface QuestionPostControllerDocs {
           - **DOCUMENT_REQUEST** (자료 요청)
           - **STUDY_TIPS** (공부 팁)
           - **ADVICE_REQUEST** (조언 구함)
-          
+                    
             _예: "formData.append('questionPresetTagSet', 'DOCUMENT_REQUEST');_
 
           **반환 파라미터 값:**
@@ -75,4 +79,68 @@ public interface QuestionPostControllerDocs {
   ResponseEntity<QuestionPostDto> saveQuestionPost(
       CustomUserDetails customUserDetails,
       QuestionPostCommand questionPostCommand);
+
+  @ApiChangeLogs({
+      @ApiChangeLog(
+          date = "2024.10.10",
+          author = Author.BAEKJIHOON,
+          description = "질문게시판 일간 인기글 init"
+      )
+  })
+  @Operation(
+      summary = "질문 일간 인기글",
+      description = """
+          **질문 일간 인기글 요청**
+
+          **이 API는 인증이 필요하며, JWT 토큰이 존재해야합니다.**
+
+          **입력 파라미터 값:**
+
+          없음
+
+          **반환 파라미터 값:**
+
+          - **List<QuestionPostDto>**: 일간 인기 질문글 List 반환
+            - **QuestionPost questionPost**: 질문 글 정보
+
+          **참고 사항:**
+
+          - 이 API를 통해 사용자는 일간 인기 질문글을 조회할 수 있습니다.
+          - 요청 시각으로부터 24시간 이내에 작성된 상위 30개의 일간 인기글을 조회합니다.
+          """
+  )
+  ResponseEntity<List<QuestionPostDto>> getDailyPopularQuestionPost(
+      QuestionPostCommand command);
+
+  @ApiChangeLogs({
+      @ApiChangeLog(
+          date = "2024.10.10",
+          author = Author.BAEKJIHOON,
+          description = "질문게시판 주간 인기글 init"
+      )
+  })
+  @Operation(
+      summary = "질문 주간 인기글",
+      description = """
+          **질문 주간 인기글 요청**
+
+          **이 API는 인증이 필요하며, JWT 토큰이 존재해야합니다.**
+
+          **입력 파라미터 값:**
+
+          없음
+
+          **반환 파라미터 값:**
+
+          - **List<QuestionPostDto>**: 주간 인기 질문글 List 반환
+            - **QuestionPost questionPost**: 질문 글 정보
+
+          **참고 사항:**
+
+          - 이 API를 통해 사용자는 주간 인기 질문글을 조회할 수 있습니다.
+          - 요청 시각으로부터 7일 이내에 작성된 상위 30개의 주간 인기글을 조회합니다.
+          """
+  )
+  ResponseEntity<List<QuestionPostDto>> getWeeklyPopularQuestionPost(
+      QuestionPostCommand command);
 }

@@ -7,8 +7,7 @@ import lombok.ToString;
 @Builder
 @Getter
 @ToString
-public class DocumentPostDto {
+public class MediaFileDto {
 
-  private DocumentPost documentPost;
-
+  private MediaFile mediaFile;
 }
