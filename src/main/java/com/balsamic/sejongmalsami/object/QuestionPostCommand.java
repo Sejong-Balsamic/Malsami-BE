@@ -19,6 +19,7 @@ public class QuestionPostCommand {
   private String content;
   private String subject;
   private Set<QuestionPresetTag> questionPresetTagSet;
+  private Set<String> customTagSet;
   private Integer rewardYeopjeon;
   private Boolean isPrivate;
 }

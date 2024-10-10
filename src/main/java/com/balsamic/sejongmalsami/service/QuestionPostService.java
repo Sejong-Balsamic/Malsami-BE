@@ -22,6 +22,7 @@ public class QuestionPostService {
 
   private final QuestionPostRepository questionPostRepository;
   private final MemberRepository memberRepository;
+  private final QuestionPostCustomTagService questionPostCustomTagService;
 
   /* 질문 게시글 등록 로직 */
   @Transactional
@@ -60,8 +61,17 @@ public class QuestionPostService {
       }
     }
 
+    QuestionPost savedPost = questionPostRepository.save(questionPost);
+
+    // 커스텀 태그 추가 로직
+    if (command.getCustomTagSet() != null) {
+      questionPostCustomTagService
+          .saveCustomTags(command.getCustomTagSet(), savedPost.getQuestionPostId());
+    }
+
+
     return QuestionPostDto.builder()
-        .questionPost(questionPostRepository.save(questionPost))
+        .questionPost(savedPost)
         .build();
   }
 }

@@ -37,8 +37,11 @@ public interface QuestionPostControllerDocs {
           - **String subject**: 과목 명 (required)
             _예: "고급C프로그래밍및실습"_
             
-          - **Enum questionPresetTagSet**: 질문 게시글 정적태그 (최대 2개까지만 선택가능)
+          - **Set<QuestionPresetTag> questionPresetTagSet**: 질문 게시글 정적태그 (최대 2개까지만 선택가능)
             _예: "STUDY_TIPS"_
+            
+          - **Set<String> customTagSet**: 질문 게시글 커스텀태그 (최대 4개까지만 추가가능)
+            _예: "코딩질문"_
             
           - **Integer reward**: 엽전 현상금 (default = 0)
             _예: "50"_
