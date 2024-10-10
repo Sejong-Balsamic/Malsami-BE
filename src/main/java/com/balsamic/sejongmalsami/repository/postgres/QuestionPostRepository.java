@@ -9,7 +9,7 @@ import org.springframework.data.jpa.repository.Query;
 
 public interface QuestionPostRepository extends JpaRepository<QuestionPost, UUID> {
 
-  // 일간 인기글 계산 (글 작성일이 startDate 보다 나중인 질문 게시글)
+  // 글 작성일이 startDate 보다 나중인 질문 게시글
   @Query("SELECT p FROM QuestionPost p WHERE p.createdDate >= :startDate")
   List<QuestionPost> findQuestionPostsAfter(LocalDateTime startDate);
 }

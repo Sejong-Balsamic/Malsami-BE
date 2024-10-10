@@ -3,6 +3,7 @@ package com.balsamic.sejongmalsami.service;
 import com.balsamic.sejongmalsami.object.MediaFile;
 import com.balsamic.sejongmalsami.object.MediaFileCommand;
 import com.balsamic.sejongmalsami.object.MediaFileDto;
+import com.balsamic.sejongmalsami.object.constants.ContentType;
 import com.balsamic.sejongmalsami.object.constants.MimeType;
 import com.balsamic.sejongmalsami.repository.postgres.AnswerPostRepository;
 import com.balsamic.sejongmalsami.repository.postgres.MediaFileRepository;
@@ -35,12 +36,12 @@ public class MediaFileService {
     // 질문글 답변글 확인
     if (questionPostRepository.existsById(command.getQuestionId())) {
       // 해당 질문글에 첨부파일이 3개를 초과했는지 체크
-      if (mediaFileRepository.countByQuestionPost(command.getQuestionId()) >= MAX_MEDIA_FILE_COUNT) {
+      if (mediaFileRepository.countByPost(command.getQuestionId(), ContentType.QUESTION) >= MAX_MEDIA_FILE_COUNT) {
         throw new CustomException(ErrorCode.MEDIA_FILE_LIMIT_EXCEEDED);
       }
     } else if (answerPostRepository.existsById(command.getQuestionId())) {
       // 해당 답변에 첨부파일이 3개를 초과했는지 체크
-      if (mediaFileRepository.countByAnswerPost(command.getQuestionId()) >= MAX_MEDIA_FILE_COUNT) {
+      if (mediaFileRepository.countByPost(command.getQuestionId(), ContentType.ANSWER) >= MAX_MEDIA_FILE_COUNT) {
         throw new CustomException(ErrorCode.MEDIA_FILE_LIMIT_EXCEEDED);
       }
     } else {
@@ -64,7 +65,7 @@ public class MediaFileService {
         .postId(command.getQuestionId())
         .fileUrl(fileUrl)
         .fileSize(command.getFile().getSize())
-        .postType(command.getPostType())
+        .contentType(command.getContentType())
         .mimeType(MimeType.valueOf(mimeType))
         .build();
 

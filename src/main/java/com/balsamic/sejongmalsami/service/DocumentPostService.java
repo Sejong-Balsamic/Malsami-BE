@@ -37,7 +37,6 @@ public class DocumentPostService {
         .subject(command.getSubject())
         .postTier(PostTier.CHEONMIN)
         .likeCount(0)
-        .dislikeCount(0)
         .downloadCount(0)
         .commentCount(0)
         .viewCount(0)
