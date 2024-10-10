@@ -8,6 +8,8 @@ import java.time.LocalDateTime;
 import java.util.List;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.cache.annotation.CacheEvict;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 
@@ -19,9 +21,13 @@ public class PopularPostService {
   private final QuestionPostRepository questionPostRepository;
   private final DocumentPostRepository documentPostRepository;
 
+  public static final String DAILY_QUESTION_POSTS_KEY = "'dailyPopularQuestionPosts'";
+  public static final String WEEKLY_QUESTION_POSTS_KEY = "'weeklyPopularQuestionPosts'";
+  public static final String DAILY_DOCUMENT_POSTS_KEY = "'dailyPopularDocumentPosts'";
+  public static final String WEEKLY_DOCUMENT_POSTS_KEY = "'weeklyPopularDocumentPosts'";
 
-  // 매일 자정마다 일간 인기글 점수 계산
-  @Scheduled(cron = "0 0 0 * * ?")
+  // 30분마다 일간 인기글 점수 계산
+  @Scheduled(fixedRate = 30 * 60 * 1000) // 30분마다 실행
   public void calculateDailyScore() {
     LocalDateTime yesterday = LocalDateTime.now().minusDays(1);
 
@@ -40,10 +46,14 @@ public class PopularPostService {
       documentPost.updateDailyScore(calculateDocumentPostScore(documentPost));
       documentPostRepository.save(documentPost);
     }
+
+    // 캐시 갱신
+    updatePopularQuestionPostsCache();
+    updatePopularDocumentPostsCache();
   }
 
-  // 매주 월요일 자정마다 주간 인기글 점수 계산
-  @Scheduled(cron = "0 0 0 * * MON")
+  // 6시간마다 주간 인기글 점수 계산
+  @Scheduled(fixedRate = 6 * 60 * 60 * 1000) // 6시간마다 실행
   public void calculateWeeklyScore() {
     LocalDateTime lastWeek = LocalDateTime.now().minusWeeks(1);
 
@@ -62,6 +72,10 @@ public class PopularPostService {
       documentPost.updateDailyScore(calculateDocumentPostScore(documentPost));
       documentPostRepository.save(documentPost);
     }
+
+    // 캐시 갱신
+    updatePopularQuestionPostsCache();
+    updatePopularDocumentPostsCache();
   }
 
   // 점수 계산 (답변수 * 3 + 좋아요수 * 2 + 조회수)
@@ -74,4 +88,37 @@ public class PopularPostService {
     return post.getDownloadCount() * 3 + post.getLikeCount() * 2 + post.getViewCount();
   }
 
+  // 캐시된 일간 질문 인기글 가져오기
+  @Cacheable(value = "popularQuestionPosts", key = DAILY_QUESTION_POSTS_KEY)
+  public List<QuestionPost> getDailyPopularQuestionPosts() {
+    return questionPostRepository.findTop30ByOrderByDailyScoreDesc();
+  }
+
+  // 캐시된 주간 질문 인기글 가져오기
+  @Cacheable(value = "popularQuestionPosts", key = WEEKLY_QUESTION_POSTS_KEY)
+  public List<QuestionPost> getWeeklyPopularQuestionPosts() {
+    return questionPostRepository.findTop30ByOrderByWeeklyScoreDesc();
+  }
+
+  // 캐시된 일간 자료 인기글 가져오기
+  @Cacheable(value = "popularDocumentPosts", key = DAILY_DOCUMENT_POSTS_KEY)
+  public List<DocumentPost> getDailyPopularDocumentPosts() {
+    return documentPostRepository.findTop30ByOrderByDailyScoreDesc();
+  }
+
+  // 캐시된 주간 자료 인기글 가져오기
+  @Cacheable(value = "popularDocumentPosts", key = WEEKLY_DOCUMENT_POSTS_KEY)
+  public List<DocumentPost> getWeeklyPopularDocumentPosts() {
+    return documentPostRepository.findTop30ByOrderByWeeklyScoreDesc();
+  }
+
+  // 캐시 갱신
+  @CacheEvict(value = "popularQuestionPosts", allEntries = true)
+  public void updatePopularQuestionPostsCache() {
+    log.info("질문 인기글 캐시 갱신");
+  }
+  @CacheEvict(value = "popularDocumentPosts", allEntries = true)
+  public void updatePopularDocumentPostsCache() {
+    log.info("자료 인기글 캐시 갱신");
+  }
 }

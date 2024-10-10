@@ -12,4 +12,10 @@ public interface QuestionPostRepository extends JpaRepository<QuestionPost, UUID
   // 글 작성일이 startDate 보다 나중인 질문 게시글
   @Query("SELECT p FROM QuestionPost p WHERE p.createdDate >= :startDate")
   List<QuestionPost> findQuestionPostsAfter(LocalDateTime startDate);
+
+  // 일간 인기글 상위 30개 조회
+  List<QuestionPost> findTop30ByOrderByDailyScoreDesc();
+
+  // 주간 인기글 상위 30개 조회
+  List<QuestionPost> findTop30ByOrderByWeeklyScoreDesc();
 }
