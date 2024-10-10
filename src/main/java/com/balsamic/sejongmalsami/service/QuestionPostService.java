@@ -10,6 +10,7 @@ import com.balsamic.sejongmalsami.repository.postgres.QuestionPostRepository;
 import com.balsamic.sejongmalsami.util.exception.CustomException;
 import com.balsamic.sejongmalsami.util.exception.ErrorCode;
 import java.util.HashSet;
+import java.util.List;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
@@ -64,14 +65,16 @@ public class QuestionPostService {
     QuestionPost savedPost = questionPostRepository.save(questionPost);
 
     // 커스텀 태그 추가 로직
+    List<String> customTags = null;
     if (command.getCustomTagSet() != null) {
-      questionPostCustomTagService
+      customTags = questionPostCustomTagService
           .saveCustomTags(command.getCustomTagSet(), savedPost.getQuestionPostId());
     }
 
 
     return QuestionPostDto.builder()
         .questionPost(savedPost)
+        .customTags(customTags)
         .build();
   }
 }
