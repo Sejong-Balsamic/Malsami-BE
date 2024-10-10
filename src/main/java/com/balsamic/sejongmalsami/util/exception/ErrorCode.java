@@ -67,6 +67,8 @@ public enum ErrorCode {
 
   QUESTION_PRESET_TAG_LIMIT_EXCEEDED(HttpStatus.BAD_REQUEST, "질문게시글 정적태그는 최대 2개까지 선택가능합니다."),
 
+  QUESTION_CUSTOM_TAG_LIMIT_EXCEEDED(HttpStatus.BAD_REQUEST, "질문게시글 커스텀태그는 최대 4개까지 추가할 수 있습니다."),
+
   QUESTION_REWARD_INVALID(HttpStatus.BAD_REQUEST, "질문게시글 엽전 현상금에 잘못된 값이 할당되었습니다."),
 
   // AnswerPost
