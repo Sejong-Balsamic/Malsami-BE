@@ -16,7 +16,5 @@ public class MediaFileCommand {
 
   private UUID questionId;
   private MultipartFile file;
-  private String fileUrl;
-  private Long fileSize;
   private ContentType contentType;
 }

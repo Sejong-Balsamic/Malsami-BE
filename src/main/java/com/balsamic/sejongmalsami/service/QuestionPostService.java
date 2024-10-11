@@ -1,15 +1,20 @@
 package com.balsamic.sejongmalsami.service;
 
+import com.balsamic.sejongmalsami.object.MediaFileCommand;
+import com.balsamic.sejongmalsami.object.MediaFileDto;
 import com.balsamic.sejongmalsami.object.Member;
 import com.balsamic.sejongmalsami.object.QuestionPost;
 import com.balsamic.sejongmalsami.object.QuestionPostCommand;
 import com.balsamic.sejongmalsami.object.QuestionPostDto;
+import com.balsamic.sejongmalsami.object.constants.ContentType;
 import com.balsamic.sejongmalsami.object.constants.QuestionPresetTag;
 import com.balsamic.sejongmalsami.repository.postgres.MemberRepository;
 import com.balsamic.sejongmalsami.repository.postgres.QuestionPostRepository;
 import com.balsamic.sejongmalsami.util.exception.CustomException;
 import com.balsamic.sejongmalsami.util.exception.ErrorCode;
+import java.util.ArrayList;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Set;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -24,6 +29,7 @@ public class QuestionPostService {
   private final QuestionPostRepository questionPostRepository;
   private final MemberRepository memberRepository;
   private final QuestionPostCustomTagService questionPostCustomTagService;
+  private final MediaFileService mediaFileService;
 
   /* 질문 게시글 등록 로직 */
   @Transactional
@@ -71,9 +77,24 @@ public class QuestionPostService {
           .saveCustomTags(command.getCustomTagSet(), savedPost.getQuestionPostId());
     }
 
+    List<MediaFileDto> mediaFileDtos = new ArrayList<>();
+    // 첨부파일 추가 로직
+    if (command.getMediaFile() != null && !command.getMediaFile().isEmpty()) {
+      List<MediaFileCommand> mediaFileCommands = command.getMediaFile().stream()
+          .map(file -> MediaFileCommand.builder()
+              .questionId(savedPost.getQuestionPostId())
+              .file(file)
+              .contentType(ContentType.QUESTION)
+              .build())
+          .toList();
+      mediaFileCommands.forEach(mediaFileCommand -> {
+        mediaFileDtos.add(mediaFileService.uploadMediaFile(mediaFileCommand));
+      });
+    }
 
     return QuestionPostDto.builder()
         .questionPost(savedPost)
+        .mediaFiles(mediaFileDtos)
         .customTags(customTags)
         .build();
   }

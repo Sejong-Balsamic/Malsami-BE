@@ -1,5 +1,7 @@
 package com.balsamic.sejongmalsami.object.constants;
 
+import com.balsamic.sejongmalsami.util.exception.CustomException;
+import com.balsamic.sejongmalsami.util.exception.ErrorCode;
 import java.util.Arrays;
 import java.util.Set;
 import java.util.stream.Collectors;
@@ -21,6 +23,7 @@ public enum MimeType {
   AAC("audio/aac");
 
   private final String mimeType;
+
   private static final Set<String> MIME_TYPES = Arrays
       .stream(MimeType.values())
       .map(MimeType::getMimeType)
@@ -29,5 +32,13 @@ public enum MimeType {
   // 유효한 MIME 타입인지 검증
   public static Boolean isValidMimeType(String mimeType) {
     return MIME_TYPES.contains(mimeType.toLowerCase());
+  }
+
+  // MIME 타입을 Enum으로 변환
+  public static MimeType fromString(String mimeType) {
+    return Arrays.stream(MimeType.values())
+        .filter(type -> type.getMimeType().equalsIgnoreCase(mimeType))
+        .findFirst()
+        .orElseThrow(() -> new CustomException(ErrorCode.INVALID_FILE_FORMAT));
   }
 }

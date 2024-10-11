@@ -66,7 +66,7 @@ public class MediaFileService {
         .fileUrl(fileUrl)
         .fileSize(command.getFile().getSize())
         .contentType(command.getContentType())
-        .mimeType(MimeType.valueOf(mimeType))
+        .mimeType(MimeType.fromString(mimeType))
         .build();
 
     log.info("MediaFile: {}", mediaFile);
