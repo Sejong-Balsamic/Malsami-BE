@@ -37,6 +37,8 @@ public interface QuestionPostControllerDocs {
           - **String subject**: 과목 명 (required)
             _예: "고급C프로그래밍및실습"_
             
+          - **List<MultipartFile> mediaFile**: 첨부파일 (최대 3개까지만 추가가능, 이미지파일만 업로드가능)
+            
           - **Set<QuestionPresetTag> questionPresetTagSet**: 질문 게시글 정적태그 (최대 2개까지만 선택가능)
             _예: "STUDY_TIPS"_
             
@@ -71,6 +73,7 @@ public interface QuestionPostControllerDocs {
 
           - 이 API를 통해 사용자는 질문게시판에 질문 글을 동록할 수 있습니다.
           - 글 제목, 본문, 과목명은 null 값이 들어갈 수 없습니다. (required)
+          - 질문글 첨부파일은 이미지 파일만 지원합니다.
           - 정적태그, 엽전 현상금, 내 정보 비공개 여부는 프론트에서 설정하지 않으면 default 값이 할당됩니다.
           - 엽전 현상금 null 또는 음수 값 입력시 자동으로 0으로 설정됩니다.
           - 성공적인 등록 후, 등록 된 질문글을 반환합니다.
