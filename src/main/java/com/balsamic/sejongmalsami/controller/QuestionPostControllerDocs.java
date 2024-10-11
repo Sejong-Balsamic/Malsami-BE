@@ -47,7 +47,7 @@ public interface QuestionPostControllerDocs {
           - **String subject**: 과목 명 (required)
             _예: "고급C프로그래밍및실습"_
             
-          - **List\\<MultipartFile\\> mediaFile**: 첨부파일 (최대 3개까지만 추가가능, 이미지파일만 업로드가능)
+          - **List\\<MultipartFile\\> mediaFiles**: 첨부파일 (최대 3개까지만 추가가능, 이미지파일만 업로드가능)
             
           - **Set\\<QuestionPresetTag\\> questionPresetTagSet**: 질문 게시글 정적태그 (최대 2개까지만 선택가능)
             _예: "STUDY_TIPS"_

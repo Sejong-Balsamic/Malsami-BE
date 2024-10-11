@@ -21,7 +21,7 @@ import org.springframework.web.bind.annotation.RestController;
 @RequiredArgsConstructor
 @RequestMapping("/api/question")
 @Tag(
-    name = "질문 게시판 API",
+    name = "질문 게시글 API",
     description = "질문 게시글 관련 API 제공"
 )
 public class QuestionPostController implements QuestionPostControllerDocs {
