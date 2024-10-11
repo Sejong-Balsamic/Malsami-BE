@@ -87,6 +87,7 @@ public interface QuestionPostControllerDocs {
           - 정적태그, 엽전 현상금, 내 정보 비공개 여부는 프론트에서 설정하지 않으면 default 값이 할당됩니다.
           - 엽전 현상금 null 또는 음수 값 입력시 자동으로 0으로 설정됩니다.
           - 성공적인 등록 후, 등록 된 질문글을 반환합니다.
+          - Swagger에서 테스트 시 mediaFiles에 있는 "Send empty value" 체크박스 해제해야합니다.
           """
   )
   ResponseEntity<QuestionPostDto> saveQuestionPost(
