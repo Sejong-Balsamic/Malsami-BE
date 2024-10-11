@@ -51,7 +51,7 @@ public class AnswerPostService {
 
     List<MediaFileDto> mediaFileDtos = new ArrayList<>();
     // 첨부파일 추가 로직
-    if (command.getMediaFiles() != null && !command.getMediaFiles().isEmpty()) {
+    if (command.getMediaFiles() != null) {
       List<MediaFileCommand> mediaFileCommands = command.getMediaFiles().stream()
           .map(file -> MediaFileCommand.builder()
               .file(file)
