@@ -16,7 +16,7 @@ public interface DocumentPostControllerDocs {
       @ApiChangeLog(
           date = "2024.10.10",
           author = Author.BAEKJIHOON,
-          description = "자료게시판 init"
+          description = "자료게시판 글 등록 & 인기글"
       )
   })
   @Operation(

@@ -21,12 +21,12 @@ public interface QuestionPostControllerDocs {
       @ApiChangeLog(
           date = "2024.10.10",
           author = Author.BAEKJIHOON,
-          description = "질문게시판 커스텀태그 작성"
+          description = "질문게시판 커스텀태그 작성 & 인기글"
       ),
       @ApiChangeLog(
           date = "2024.09.25",
           author = Author.BAEKJIHOON,
-          description = "질문게시판 init"
+          description = "질문게시판 글 등록"
       )
   })
   @Operation(
