@@ -12,7 +12,7 @@ import org.springframework.web.multipart.MultipartFile;
 @Getter
 @Setter
 @ToString
-public class AnswerCommand {
+public class AnswerPostCommand {
 
   private UUID memberId;
   private UUID questionPostId;
