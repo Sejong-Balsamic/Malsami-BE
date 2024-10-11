@@ -79,8 +79,8 @@ public class QuestionPostService {
 
     List<MediaFileDto> mediaFileDtos = new ArrayList<>();
     // 첨부파일 추가 로직
-    if (command.getMediaFile() != null && !command.getMediaFile().isEmpty()) {
-      List<MediaFileCommand> mediaFileCommands = command.getMediaFile().stream()
+    if (command.getMediaFiles() != null && !command.getMediaFiles().isEmpty()) {
+      List<MediaFileCommand> mediaFileCommands = command.getMediaFiles().stream()
           .map(file -> MediaFileCommand.builder()
               .questionId(savedPost.getQuestionPostId())
               .file(file)
