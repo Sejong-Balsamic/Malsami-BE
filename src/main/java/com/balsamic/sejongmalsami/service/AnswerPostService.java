@@ -43,6 +43,7 @@ public class AnswerPostService {
         .content(command.getContent())
         .likeCount(0)
         .commentCount(0)
+        .isPrivate(command.getIsPrivate() != null ? command.getIsPrivate() : false)
         .isChaetaek(command.getIsChaetaek() != null ? command.getIsChaetaek() : false)
         .build();
 
@@ -67,5 +68,4 @@ public class AnswerPostService {
         .mediaFiles(mediaFileDtos)
         .build();
   }
-
 }
