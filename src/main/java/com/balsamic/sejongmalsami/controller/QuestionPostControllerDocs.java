@@ -101,7 +101,7 @@ public interface QuestionPostControllerDocs {
       )
   })
   @Operation(
-      summary = "질문 일간 인기글",
+      summary = "일간 인기 질문글",
       description = """
           **질문 일간 인기글 요청**
 
@@ -133,7 +133,7 @@ public interface QuestionPostControllerDocs {
       )
   })
   @Operation(
-      summary = "질문 주간 인기글",
+      summary = "주간 인기 질문글",
       description = """
           **질문 주간 인기글 요청**
 
