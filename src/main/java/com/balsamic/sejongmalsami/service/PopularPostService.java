@@ -27,10 +27,10 @@ public class PopularPostService {
   private final QuestionPostRepository questionPostRepository;
   private final DocumentPostRepository documentPostRepository;
 
-  public static final String DAILY_QUESTION_POSTS_KEY = "'dailyPopularQuestionPosts'";
-  public static final String WEEKLY_QUESTION_POSTS_KEY = "'weeklyPopularQuestionPosts'";
-  public static final String DAILY_DOCUMENT_POSTS_KEY = "'dailyPopularDocumentPosts'";
-  public static final String WEEKLY_DOCUMENT_POSTS_KEY = "'weeklyPopularDocumentPosts'";
+  public static final String DAILY_QUESTION_POSTS_KEY = "dailyPopularQuestionPosts";
+  public static final String WEEKLY_QUESTION_POSTS_KEY = "weeklyPopularQuestionPosts";
+  public static final String DAILY_DOCUMENT_POSTS_KEY = "dailyPopularDocumentPosts";
+  public static final String WEEKLY_DOCUMENT_POSTS_KEY = "weeklyPopularDocumentPosts";
 
   // 30분마다 일간 인기글 점수 계산
   @Transactional
