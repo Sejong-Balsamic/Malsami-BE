@@ -49,6 +49,7 @@ public class QuestionPostController implements QuestionPostControllerDocs {
 
   @Override
   @PostMapping(value = "/weekly/popular", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
+  @LogMonitoringInvocation
   public ResponseEntity<List<QuestionPostDto>> getWeeklyPopularQuestionPost(
       @ModelAttribute QuestionPostCommand command) {
     return ResponseEntity.ok(popularPostService.getWeeklyPopularQuestionPosts());

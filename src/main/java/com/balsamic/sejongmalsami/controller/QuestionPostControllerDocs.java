@@ -16,7 +16,7 @@ public interface QuestionPostControllerDocs {
       @ApiChangeLog(
           date = "2024.10.11",
           author = Author.BAEKJIHOON,
-          description = "질문게시판 첨부파일 추"
+          description = "질문게시판 첨부파일 추가"
       ),
       @ApiChangeLog(
           date = "2024.10.10",
