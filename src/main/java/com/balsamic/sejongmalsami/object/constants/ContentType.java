@@ -12,5 +12,6 @@ public enum ContentType {
   NOTICE("공지사항"),
   DOCUMENT("자료글"),
   DOCUMENT_REQUEST("자료요청글");
+
   private final String description;
 }
