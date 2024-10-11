@@ -79,7 +79,7 @@ public interface DocumentPostControllerDocs {
       )
   })
   @Operation(
-      summary = "자료 일간 인기글",
+      summary = "일간 인기 자료글",
       description = """
           **자료 일간 인기글 요청**
 
@@ -111,7 +111,7 @@ public interface DocumentPostControllerDocs {
       )
   })
   @Operation(
-      summary = "자료 주간 인기글",
+      summary = "주간 인기 자료글",
       description = """
           **자료 주간 인기글 요청**
 
