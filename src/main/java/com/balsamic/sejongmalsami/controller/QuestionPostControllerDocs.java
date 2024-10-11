@@ -14,6 +14,16 @@ public interface QuestionPostControllerDocs {
 
   @ApiChangeLogs({
       @ApiChangeLog(
+          date = "2024.10.11",
+          author = Author.BAEKJIHOON,
+          description = "질문게시판 첨부파일 추"
+      ),
+      @ApiChangeLog(
+          date = "2024.10.10",
+          author = Author.BAEKJIHOON,
+          description = "질문게시판 커스텀태그 작성"
+      ),
+      @ApiChangeLog(
           date = "2024.09.25",
           author = Author.BAEKJIHOON,
           description = "질문게시판 init"
@@ -37,12 +47,12 @@ public interface QuestionPostControllerDocs {
           - **String subject**: 과목 명 (required)
             _예: "고급C프로그래밍및실습"_
             
-          - **List<MultipartFile> mediaFile**: 첨부파일 (최대 3개까지만 추가가능, 이미지파일만 업로드가능)
+          - **List\\<MultipartFile\\> mediaFile**: 첨부파일 (최대 3개까지만 추가가능, 이미지파일만 업로드가능)
             
-          - **Set<QuestionPresetTag> questionPresetTagSet**: 질문 게시글 정적태그 (최대 2개까지만 선택가능)
+          - **Set\\<QuestionPresetTag\\> questionPresetTagSet**: 질문 게시글 정적태그 (최대 2개까지만 선택가능)
             _예: "STUDY_TIPS"_
             
-          - **Set<String> customTagSet**: 질문 게시글 커스텀태그 (최대 4개까지만 추가가능)
+          - **Set\\<String\\> customTagSet**: 질문 게시글 커스텀태그 (최대 4개까지만 추가가능)
             _예: "코딩질문"_
             
           - **Integer reward**: 엽전 현상금 (default = 0)
