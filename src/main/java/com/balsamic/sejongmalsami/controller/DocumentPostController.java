@@ -41,6 +41,7 @@ public class DocumentPostController implements DocumentPostControllerDocs {
 
   @Override
   @PostMapping(value = "/daily/popular", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
+  @LogMonitoringInvocation
   public ResponseEntity<List<DocumentPostDto>> getDailyPopularDocumentPost(
       @ModelAttribute DocumentPostCommand command) {
     return ResponseEntity.ok(popularPostService.getDailyPopularDocumentPosts());
@@ -48,8 +49,9 @@ public class DocumentPostController implements DocumentPostControllerDocs {
 
   @Override
   @PostMapping(value = "/weekly/popular", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
+  @LogMonitoringInvocation
   public ResponseEntity<List<DocumentPostDto>> getWeeklyPopularDocumentPost(DocumentPostCommand command) {
-    return ResponseEntity.ok(popularPostService.getDailyPopularDocumentPosts());
+    return ResponseEntity.ok(popularPostService.getWeeklyPopularDocumentPosts());
   }
 
 }
