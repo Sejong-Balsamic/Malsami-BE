@@ -19,4 +19,5 @@ public class AnswerPostCommand {
   private String content;
   private List<MultipartFile> mediaFiles;
   private Boolean isChaetaek;
+  private Boolean isPrivate;
 }

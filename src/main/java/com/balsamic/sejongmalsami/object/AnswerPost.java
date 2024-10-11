@@ -51,4 +51,8 @@ public class AnswerPost extends BaseEntity {
   // 답변 채택 여부
   @Builder.Default
   private Boolean isChaetaek = false;
+
+  // 닉네임 비공개 여부
+  @Builder.Default
+  private Boolean isPrivate = false;
 }
