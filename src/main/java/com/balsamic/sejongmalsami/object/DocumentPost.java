@@ -46,14 +46,14 @@ public class DocumentPost extends BaseEntity {
   @Enumerated(EnumType.STRING)
   private PostTier postTier = PostTier.CHEONMIN; // 게시물 등급
 
+  // 파일 미리보기 이미지 URL
+  private String previewUrl;
+
   @Builder.Default
   private Integer likeCount = 0; // 좋아요수
 
   @Builder.Default
   private Integer dislikeCount = 0; // 싫어요수
-
-  @Builder.Default
-  private Integer downloadCount = 0; // 다운로드수
 
   @Builder.Default
   private Integer commentCount = 0; // 댓글수
