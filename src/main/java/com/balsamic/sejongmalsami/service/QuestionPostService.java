@@ -44,7 +44,7 @@ public class QuestionPostService {
         .subject(command.getSubject())
         .questionPresetTagSet(new HashSet<>())
         .views(0)
-        .likes(0)
+        .likeCount(0)
         .answerCount(0)
         .reward(command.getReward())
         .isPrivate(command.getIsPrivate() != null ? command.getIsPrivate() : false)

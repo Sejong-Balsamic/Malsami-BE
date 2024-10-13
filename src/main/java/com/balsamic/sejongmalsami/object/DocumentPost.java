@@ -47,7 +47,10 @@ public class DocumentPost extends BaseEntity {
   private PostTier postTier = PostTier.CHEONMIN; // 게시물 등급
 
   @Builder.Default
-  private Integer likeCount = 0; // 추천수
+  private Integer likeCount = 0; // 좋아요수
+
+  @Builder.Default
+  private Integer dislikeCount = 0; // 싫어요수
 
   @Builder.Default
   private Integer downloadCount = 0; // 다운로드수
