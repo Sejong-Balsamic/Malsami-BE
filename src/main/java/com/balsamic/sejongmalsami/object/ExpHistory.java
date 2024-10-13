@@ -26,7 +26,7 @@ public class ExpHistory extends BaseMongoEntity {
   private UUID memberId;
 
   @NotNull
-  private Integer exp;
+  private Integer expChange;
 
   @NotNull
   private ActionType actionType;

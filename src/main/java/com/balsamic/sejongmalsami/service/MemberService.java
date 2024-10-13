@@ -106,8 +106,8 @@ public class MemberService implements UserDetailsService {
 
     // Refresh Token : HTTP-Only 쿠키 설정
     Cookie refreshCookie = new Cookie("refreshToken", refreshToken);
-    refreshCookie.setHttpOnly(false); // 개발 환경에서는 false, 프로덕션에서는 true
-    refreshCookie.setSecure(false);   // 개발 환경에서는 false, 프로덕션에서는 true
+    refreshCookie.setHttpOnly(true);
+    refreshCookie.setSecure(false);   //FIXME: 개발 환경에서는 false, 프로덕션에서는 true
     refreshCookie.setPath("/");
     refreshCookie.setMaxAge((int) (jwtUtil.getRefreshExpirationTime() / 1000)); // 7일
     // SameSite 설정은 직접 Set-Cookie 헤더에 추가
@@ -126,8 +126,8 @@ public class MemberService implements UserDetailsService {
     cookieBuilder.append(refreshCookie.getName()).append("=").append(refreshCookie.getValue()).append(";");
     cookieBuilder.append(" Path=").append(refreshCookie.getPath()).append(";");
     cookieBuilder.append(" Max-Age=").append(refreshCookie.getMaxAge()).append(";");
-    cookieBuilder.append(" SameSite=None;"); // 모든 요청에서 쿠키 전송
-    cookieBuilder.append(" Secure;"); // Secure 속성 설정
+    cookieBuilder.append(" SameSite=None;"); //FIXME: 모든 요청에서 쿠키 전송
+    cookieBuilder.append(" Secure;"); //FIXME: Secure 속성 설정
 
     if (refreshCookie.isHttpOnly()) {
       cookieBuilder.append(" HttpOnly;");
