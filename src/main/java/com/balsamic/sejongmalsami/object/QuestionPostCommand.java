@@ -1,12 +1,14 @@
 package com.balsamic.sejongmalsami.object;
 
 import com.balsamic.sejongmalsami.object.constants.QuestionPresetTag;
+import java.util.List;
 import java.util.Set;
 import java.util.UUID;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.Setter;
 import lombok.ToString;
+import org.springframework.web.multipart.MultipartFile;
 
 @Builder
 @Getter
@@ -18,10 +20,9 @@ public class QuestionPostCommand {
   private String title;
   private String content;
   private String subject;
+  private List<MultipartFile> mediaFiles;
   private Set<QuestionPresetTag> questionPresetTagSet;
-  private Integer views;
-  private Integer likes;
-  private Integer answerCount;
-  private Integer reward;
+  private Set<String> customTagSet;
+  private Integer rewardYeopjeon;
   private Boolean isPrivate;
 }

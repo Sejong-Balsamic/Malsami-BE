@@ -5,11 +5,9 @@ import lombok.Getter;
 
 @AllArgsConstructor
 @Getter
-public enum PostType {
-  QUESTION("질문글"),
-  ANSWER("답변글"),
-  DOCUMENT("자료글"),
-  DOCUMENT_REQUEST("자료요청글");
+public enum ReactionType {
+  LIKE("좋아요"),
+  DISLIKE("싫어요");
 
   private final String description;
 }

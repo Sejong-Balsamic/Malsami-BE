@@ -15,6 +15,6 @@ public class NoticePostCommand {
   private UUID noticePostID;
   private String title;
   private String content;
-  private Integer views;
-  private Integer likes;
+  private Integer viewCount;
+  private Integer likeCount;
 }
