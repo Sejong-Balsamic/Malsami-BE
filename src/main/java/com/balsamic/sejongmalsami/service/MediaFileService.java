@@ -9,7 +9,6 @@ import com.balsamic.sejongmalsami.repository.postgres.QuestionPostRepository;
 import com.balsamic.sejongmalsami.util.S3Service;
 import com.balsamic.sejongmalsami.util.exception.CustomException;
 import com.balsamic.sejongmalsami.util.exception.ErrorCode;
-import java.io.IOException;
 import java.util.UUID;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -30,7 +29,7 @@ public class MediaFileService {
 
   // 질문게시글 파일 저장
   @Transactional
-  public MediaFile uploadMediaFile(UUID postId, MultipartFile file) throws IOException {
+  public MediaFile uploadMediaFile(UUID postId, MultipartFile file) {
 
     // 질문글 답변글 확인
     ContentType contentType = null;

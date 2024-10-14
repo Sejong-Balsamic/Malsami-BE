@@ -11,7 +11,6 @@ import com.balsamic.sejongmalsami.repository.postgres.MemberRepository;
 import com.balsamic.sejongmalsami.repository.postgres.QuestionPostRepository;
 import com.balsamic.sejongmalsami.util.exception.CustomException;
 import com.balsamic.sejongmalsami.util.exception.ErrorCode;
-import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 import lombok.RequiredArgsConstructor;
@@ -52,13 +51,8 @@ public class AnswerPostService {
     // 첨부파일 추가 로직
     if (command.getMediaFiles() != null && !command.getMediaFiles().isEmpty()) {
       command.getMediaFiles().forEach(file -> {
-        try {
-          MediaFile mediaFile = mediaFileService.uploadMediaFile(savedPost.getAnswerPostId(), file);
-          mediaFiles.add(mediaFile);
-        } catch (IOException e) {
-          log.error("업로드 파일 리스트 = {}", mediaFiles);
-          throw new CustomException(ErrorCode.FILE_UPLOAD_ERROR);
-        }
+        MediaFile mediaFile = mediaFileService.uploadMediaFile(savedPost.getAnswerPostId(), file);
+        mediaFiles.add(mediaFile);
       });
     }
 

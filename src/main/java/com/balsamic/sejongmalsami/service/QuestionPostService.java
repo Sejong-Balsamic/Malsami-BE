@@ -10,7 +10,6 @@ import com.balsamic.sejongmalsami.repository.postgres.MemberRepository;
 import com.balsamic.sejongmalsami.repository.postgres.QuestionPostRepository;
 import com.balsamic.sejongmalsami.util.exception.CustomException;
 import com.balsamic.sejongmalsami.util.exception.ErrorCode;
-import java.io.IOException;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
@@ -80,13 +79,8 @@ public class QuestionPostService {
     // 첨부파일 추가
     if (command.getMediaFiles() != null && !command.getMediaFiles().isEmpty()) {
       command.getMediaFiles().forEach(file -> {
-        try {
-          MediaFile mediaFile = mediaFileService.uploadMediaFile(savedPost.getQuestionPostId(), file);
-          mediaFiles.add(mediaFile);
-        } catch (IOException e) {
-          log.error("업로드 파일 리스트 = {}", mediaFiles);
-          throw new CustomException(ErrorCode.FILE_UPLOAD_ERROR);
-        }
+        MediaFile mediaFile = mediaFileService.uploadMediaFile(savedPost.getQuestionPostId(), file);
+        mediaFiles.add(mediaFile);
       });
     }
 

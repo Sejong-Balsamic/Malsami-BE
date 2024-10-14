@@ -8,12 +8,14 @@ import com.balsamic.sejongmalsami.util.exception.ErrorCode;
 import java.io.IOException;
 import java.util.UUID;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
-@RequiredArgsConstructor
 @Service
+@Slf4j
+@RequiredArgsConstructor
 public class S3Service {
 
   private final AmazonS3Client amazonS3Client;
@@ -21,7 +23,7 @@ public class S3Service {
   @Value("${cloud.aws.s3.bucket}")
   private String bucketName;
 
-  public String uploadFile(MultipartFile file) throws IOException {
+  public String uploadFile(MultipartFile file) {
     String originalFilename = file.getOriginalFilename(); // 원본 파일 명
     String contentType = file.getContentType();
 
@@ -36,8 +38,12 @@ public class S3Service {
     metadata.setContentType(file.getContentType());
     metadata.setContentLength(file.getSize());
 
-    amazonS3Client.putObject(bucketName, fileName, file.getInputStream(), metadata);
-
+    try {
+      amazonS3Client.putObject(bucketName, fileName, file.getInputStream(), metadata);
+    } catch (IOException e) {
+      log.error("업로드 파일명 = {}", originalFilename);
+      throw new CustomException(ErrorCode.FILE_UPLOAD_ERROR);
+    }
     return amazonS3Client.getUrl(bucketName, fileName).toString();
   }
 }
