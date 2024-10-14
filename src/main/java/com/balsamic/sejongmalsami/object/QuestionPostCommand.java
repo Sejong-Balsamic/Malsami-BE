@@ -20,7 +20,7 @@ public class QuestionPostCommand {
   private String subject;
   private Set<QuestionPresetTag> questionPresetTagSet;
   private Integer views;
-  private Integer likes;
+  private Integer likeCount;
   private Integer answerCount;
   private Integer reward;
   private Boolean isPrivate;

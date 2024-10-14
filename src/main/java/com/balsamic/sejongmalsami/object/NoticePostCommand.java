@@ -16,5 +16,5 @@ public class NoticePostCommand {
   private String title;
   private String content;
   private Integer views;
-  private Integer likes;
+  private Integer likeCount;
 }
