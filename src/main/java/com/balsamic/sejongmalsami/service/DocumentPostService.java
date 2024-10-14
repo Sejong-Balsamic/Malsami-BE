@@ -39,7 +39,6 @@ public class DocumentPostService {
         .documentTypeSet(new HashSet<>())
         .postTier(PostTier.CHEONMIN)
         .likeCount(0)
-        .downloadCount(0)
         .commentCount(0)
         .viewCount(0)
         .isDepartmentPrivate(command.getIsDepartmentPrivate() != null ? command.getIsDepartmentPrivate() : false)
