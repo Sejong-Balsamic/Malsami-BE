@@ -92,8 +92,9 @@ public class PopularPostService {
   }
 
   // 점수 계산 (다운수 * 3 + 좋아요수 * 2 + 조회수)
+  // TODO : 점수 계산 로직 작성
   private Integer calculateDocumentPostScore(DocumentPost post) {
-    return post.getDownloadCount() * 3 + post.getLikeCount() * 2 + post.getViewCount();
+    return post.getLikeCount() * 2 + post.getViewCount();
   }
 
   // 캐시된 일간 질문 인기글 가져오기
