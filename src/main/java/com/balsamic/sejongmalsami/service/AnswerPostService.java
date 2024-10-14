@@ -44,7 +44,7 @@ public class AnswerPostService {
         .likeCount(0)
         .commentCount(0)
         .isPrivate(command.getIsPrivate() != null ? command.getIsPrivate() : false)
-        .isChaetaek(command.getIsChaetaek() != null ? command.getIsChaetaek() : false)
+        .isChaetaek(false)
         .build();
 
     AnswerPost savedPost = answerPostRepository.save(answerPost);

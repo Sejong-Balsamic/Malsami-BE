@@ -61,7 +61,7 @@ public class QuestionPostService {
         .isPrivate(command.getIsPrivate() != null ? command.getIsPrivate() : false)
         .build();
 
-    // 정적 태그 추가 로직
+    // 정적 태그 추가
     if (command.getQuestionPresetTagSet() != null) {
       for (QuestionPresetTag tag : command.getQuestionPresetTagSet()) {
         questionPost.addPresetTag(tag);
@@ -70,7 +70,7 @@ public class QuestionPostService {
 
     QuestionPost savedPost = questionPostRepository.save(questionPost);
 
-    // 커스텀 태그 추가 로직
+    // 커스텀 태그 추가
     Set<String> customTags = null;
     if (command.getCustomTagSet() != null) {
       customTags = questionPostCustomTagService
@@ -78,7 +78,7 @@ public class QuestionPostService {
     }
 
     List<MediaFileDto> mediaFileDtos = new ArrayList<>();
-    // 첨부파일 추가 로직
+    // 첨부파일 추가
     if (command.getMediaFiles() != null) {
       List<MediaFileCommand> mediaFileCommands = command.getMediaFiles().stream()
           .map(file -> MediaFileCommand.builder()

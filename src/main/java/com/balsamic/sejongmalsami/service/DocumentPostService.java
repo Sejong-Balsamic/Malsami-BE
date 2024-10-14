@@ -47,7 +47,7 @@ public class DocumentPostService {
         .weeklyScore(0)
         .build();
 
-    // 자료 카테고리 추가 로직
+    // 자료 카테고리 추가
     if (command.getDocumentTypeSet() != null) {
       for (DocumentType documentType : command.getDocumentTypeSet()) {
         documentPost.addDocumentType(documentType);
