@@ -29,14 +29,18 @@ public class PopularPostService {
   private final DocumentPostRepository documentPostRepository;
   private final ScoreConfig scoreConfig;
 
-  public static final String DAILY_QUESTION_POSTS_KEY = "dailyPopularQuestionPosts";
-  public static final String WEEKLY_QUESTION_POSTS_KEY = "weeklyPopularQuestionPosts";
-  public static final String DAILY_DOCUMENT_POSTS_KEY = "dailyPopularDocumentPosts";
-  public static final String WEEKLY_DOCUMENT_POSTS_KEY = "weeklyPopularDocumentPosts";
+  private static final Long DAILY_SCHEDULED_RATE = 30 * 60 * 1000L;
+  private static final Long WEEKLY_SCHEDULED_RATE = 6 * 60 * 60 * 1000L;
+  private static final String QUESTION_POST_CACHE_VALUE = "popularQuestionPosts";
+  private static final String DOCUMENT_POST_CACHE_VALUE = "popularDocumentPosts";
+  private static final String DAILY_QUESTION_POSTS_KEY = "dailyPopularQuestionPosts";
+  private static final String WEEKLY_QUESTION_POSTS_KEY = "weeklyPopularQuestionPosts";
+  private static final String DAILY_DOCUMENT_POSTS_KEY = "dailyPopularDocumentPosts";
+  private static final String WEEKLY_DOCUMENT_POSTS_KEY = "weeklyPopularDocumentPosts";
 
   // 30분마다 일간 인기글 점수 계산
   @Transactional
-  @Scheduled(fixedRate = 30 * 60 * 1000) // 30분마다 실행
+  @Scheduled(fixedRate = DAILY_SCHEDULED_RATE) // 30분마다 실행
   public void calculateDailyScore() {
     LocalDateTime yesterday = LocalDateTime.now().minusDays(1);
 
@@ -63,7 +67,7 @@ public class PopularPostService {
 
   // 6시간마다 주간 인기글 점수 계산
   @Transactional
-  @Scheduled(fixedRate = 6 * 60 * 60 * 1000) // 6시간마다 실행
+  @Scheduled(fixedRate = WEEKLY_SCHEDULED_RATE) // 6시간마다 실행
   public void calculateWeeklyScore() {
     LocalDateTime lastWeek = LocalDateTime.now().minusWeeks(1);
 
@@ -89,7 +93,7 @@ public class PopularPostService {
   }
 
   // 캐시된 일간 질문 인기글 가져오기
-  @Cacheable(value = "popularQuestionPosts", key = DAILY_QUESTION_POSTS_KEY)
+  @Cacheable(value = QUESTION_POST_CACHE_VALUE, key = DAILY_QUESTION_POSTS_KEY)
   public List<QuestionDto> getDailyPopularQuestionPosts() {
     LocalDateTime yesterday = LocalDateTime.now().minusDays(1);
     List<QuestionPost> questionPostList = questionPostRepository
@@ -101,7 +105,7 @@ public class PopularPostService {
   }
 
   // 캐시된 주간 질문 인기글 가져오기
-  @Cacheable(value = "popularQuestionPosts", key = WEEKLY_QUESTION_POSTS_KEY)
+  @Cacheable(value = QUESTION_POST_CACHE_VALUE, key = WEEKLY_QUESTION_POSTS_KEY)
   public List<QuestionDto> getWeeklyPopularQuestionPosts() {
     LocalDateTime lastWeek = LocalDateTime.now().minusWeeks(1);
     List<QuestionPost> questionPostList = questionPostRepository
@@ -113,7 +117,7 @@ public class PopularPostService {
   }
 
   // 캐시된 일간 자료 인기글 가져오기
-  @Cacheable(value = "popularDocumentPosts", key = DAILY_DOCUMENT_POSTS_KEY)
+  @Cacheable(value = DOCUMENT_POST_CACHE_VALUE, key = DAILY_DOCUMENT_POSTS_KEY)
   public List<DocumentDto> getDailyPopularDocumentPosts() {
     LocalDateTime yesterday = LocalDateTime.now().minusDays(1);
     List<DocumentPost> documentPostList = documentPostRepository.
@@ -125,7 +129,7 @@ public class PopularPostService {
   }
 
   // 캐시된 주간 자료 인기글 가져오기
-  @Cacheable(value = "popularDocumentPosts", key = WEEKLY_DOCUMENT_POSTS_KEY)
+  @Cacheable(value = DOCUMENT_POST_CACHE_VALUE, key = WEEKLY_DOCUMENT_POSTS_KEY)
   public List<DocumentDto> getWeeklyPopularDocumentPosts() {
     LocalDateTime lastWeek = LocalDateTime.now().minusWeeks(1);
     List<DocumentPost> documentPostList = documentPostRepository.
@@ -138,13 +142,13 @@ public class PopularPostService {
 
   // 캐시 갱신
   @Transactional
-  @CacheEvict(value = "popularQuestionPosts", allEntries = true)
+  @CacheEvict(value = QUESTION_POST_CACHE_VALUE, allEntries = true)
   public void updatePopularQuestionPostsCache() {
     log.info("질문 인기글 캐시 갱신");
   }
 
   @Transactional
-  @CacheEvict(value = "popularDocumentPosts", allEntries = true)
+  @CacheEvict(value = DOCUMENT_POST_CACHE_VALUE, allEntries = true)
   public void updatePopularDocumentPostsCache() {
     log.info("자료 인기글 캐시 갱신");
   }
