@@ -5,7 +5,7 @@ import com.balsamic.sejongmalsami.object.QuestionPost;
 import org.springframework.context.annotation.Configuration;
 
 @Configuration
-public class PostScoreConfig {
+public class ScoreConfig {
 
   // 질문글 일간 점수 계산 로직
   public Integer calculateQuestionPostDailyScore(QuestionPost post) {
