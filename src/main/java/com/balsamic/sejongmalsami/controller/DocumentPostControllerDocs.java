@@ -14,6 +14,11 @@ public interface DocumentPostControllerDocs {
 
   @ApiChangeLogs({
       @ApiChangeLog(
+          date = "2024.10.14",
+          author = Author.BAEKJIHOON,
+          description = "자료게시판 command, dto 통합"
+      ),
+      @ApiChangeLog(
           date = "2024.10.10",
           author = Author.BAEKJIHOON,
           description = "자료게시판 글 등록 & 인기글"
@@ -54,8 +59,9 @@ public interface DocumentPostControllerDocs {
 
           **반환 파라미터 값:**
 
-          - **DocumentPostDto**: 작성 된 자료 글 반환
+          - **DocumentDto**: 자료 게시판 정보 반환
             - **DocumentPost documentPost**: 자료 글 정보
+            - **DocumentRequestPost documentRequestPost**: null
 
           **참고 사항:**
 
@@ -91,8 +97,9 @@ public interface DocumentPostControllerDocs {
 
           **반환 파라미터 값:**
 
-          - **List<DocumentPostDto>**: 일간 인기 자료글 List 반환
+          - **List<DocumentDto>**: 일간 인기 자료글 List 반환
             - **DocumentPost documentPost**: 자료 글 정보
+            - **DocumentRequestPost documentRequestPost**: null
 
           **참고 사항:**
 
@@ -125,6 +132,7 @@ public interface DocumentPostControllerDocs {
 
           - **List<DocumentPostDto>**: 주간 인기 자료글 List 반환
             - **DocumentPost documentPost**: 자료 글 정보
+            - **DocumentRequestPost documentRequestPost**: null
 
           **참고 사항:**
 
