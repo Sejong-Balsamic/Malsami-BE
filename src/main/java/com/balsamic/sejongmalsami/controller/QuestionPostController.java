@@ -19,7 +19,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 @RestController
 @RequiredArgsConstructor
-@RequestMapping("/api/question")
+@RequestMapping("/api/questions")
 @Tag(
     name = "질문 게시글 API",
     description = "질문 게시글 관련 API 제공"
@@ -30,7 +30,7 @@ public class QuestionPostController implements QuestionPostControllerDocs {
   private final PopularPostService popularPostService;
 
   @Override
-  @PostMapping(value = "/post", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
+  @PostMapping(value = "", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
   @LogMonitoringInvocation
   public ResponseEntity<QuestionPostDto> saveQuestionPost(
       @AuthenticationPrincipal CustomUserDetails customUserDetails,
@@ -40,7 +40,7 @@ public class QuestionPostController implements QuestionPostControllerDocs {
   }
 
   @Override
-  @PostMapping(value = "/daily/popular", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
+  @PostMapping(value = "/popular/daily", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
   @LogMonitoringInvocation
   public ResponseEntity<List<QuestionPostDto>> getDailyPopularQuestionPost(
       @ModelAttribute QuestionPostCommand command) {
@@ -48,7 +48,7 @@ public class QuestionPostController implements QuestionPostControllerDocs {
   }
 
   @Override
-  @PostMapping(value = "/weekly/popular", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
+  @PostMapping(value = "/popular/weekly", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
   @LogMonitoringInvocation
   public ResponseEntity<List<QuestionPostDto>> getWeeklyPopularQuestionPost(
       @ModelAttribute QuestionPostCommand command) {
