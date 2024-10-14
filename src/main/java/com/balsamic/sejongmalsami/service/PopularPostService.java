@@ -31,10 +31,10 @@ public class PopularPostService {
   private static final long WEEKLY_SCHEDULED_RATE = 6 * 60 * 60 * 1000L;
   private static final String QUESTION_POST_CACHE_VALUE = "popularQuestionPosts";
   private static final String DOCUMENT_POST_CACHE_VALUE = "popularDocumentPosts";
-  private static final String DAILY_QUESTION_POSTS_KEY = "dailyPopularQuestionPosts";
-  private static final String WEEKLY_QUESTION_POSTS_KEY = "weeklyPopularQuestionPosts";
-  private static final String DAILY_DOCUMENT_POSTS_KEY = "dailyPopularDocumentPosts";
-  private static final String WEEKLY_DOCUMENT_POSTS_KEY = "weeklyPopularDocumentPosts";
+  private static final String DAILY_QUESTION_POSTS_KEY = "'dailyPopularQuestionPosts'";
+  private static final String WEEKLY_QUESTION_POSTS_KEY = "'weeklyPopularQuestionPosts'";
+  private static final String DAILY_DOCUMENT_POSTS_KEY = "'dailyPopularDocumentPosts'";
+  private static final String WEEKLY_DOCUMENT_POSTS_KEY = "'weeklyPopularDocumentPosts'";
 
   // 30분마다 일간 인기글 점수 계산
   @Transactional
