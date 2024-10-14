@@ -56,13 +56,13 @@ public class MediaFileService {
     }
 
     // S3에 파일 업로드
-    return MediaFile.builder()
+    return mediaFileRepository.save(MediaFile.builder()
         .postId(postId)
         .fileUrl(s3Service.uploadFile(file))
         .fileSize(file.getSize())
         .contentType(contentType)
         .mimeType(MimeType.fromString(mimeType))
-        .build();
+        .build());
   }
 
   // 업로드 파일이 이미지 타입인지 검증
