@@ -27,8 +27,8 @@ public class PopularPostService {
   private final DocumentPostRepository documentPostRepository;
   private final ScoreConfig scoreConfig;
 
-  private static final Long DAILY_SCHEDULED_RATE = 30 * 60 * 1000L;
-  private static final Long WEEKLY_SCHEDULED_RATE = 6 * 60 * 60 * 1000L;
+  private static final long DAILY_SCHEDULED_RATE = 30 * 60 * 1000L;
+  private static final long WEEKLY_SCHEDULED_RATE = 6 * 60 * 60 * 1000L;
   private static final String QUESTION_POST_CACHE_VALUE = "popularQuestionPosts";
   private static final String DOCUMENT_POST_CACHE_VALUE = "popularDocumentPosts";
   private static final String DAILY_QUESTION_POSTS_KEY = "dailyPopularQuestionPosts";
