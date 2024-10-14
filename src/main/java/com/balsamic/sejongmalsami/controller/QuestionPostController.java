@@ -30,7 +30,7 @@ public class QuestionPostController implements QuestionPostControllerDocs {
   private final PopularPostService popularPostService;
 
   @Override
-  @PostMapping(value = "", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
+  @PostMapping(value = "/post", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
   @LogMonitoringInvocation
   public ResponseEntity<QuestionPostDto> saveQuestionPost(
       @AuthenticationPrincipal CustomUserDetails customUserDetails,

@@ -27,7 +27,7 @@ public class AnswerPostController implements AnswerPostControllerDocs {
   private final AnswerPostService answerPostService;
 
   @Override
-  @PostMapping(value = "", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
+  @PostMapping(value = "/post", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
   @LogMonitoringInvocation
   public ResponseEntity<AnswerPostDto> saveAnswerPost(
       @AuthenticationPrincipal CustomUserDetails customUserDetails,
