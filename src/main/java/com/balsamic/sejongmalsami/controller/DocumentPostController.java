@@ -1,8 +1,8 @@
 package com.balsamic.sejongmalsami.controller;
 
 import com.balsamic.sejongmalsami.object.CustomUserDetails;
-import com.balsamic.sejongmalsami.object.DocumentPostCommand;
-import com.balsamic.sejongmalsami.object.DocumentPostDto;
+import com.balsamic.sejongmalsami.object.DocumentCommand;
+import com.balsamic.sejongmalsami.object.DocumentDto;
 import com.balsamic.sejongmalsami.service.DocumentPostService;
 import com.balsamic.sejongmalsami.service.PopularPostService;
 import com.balsamic.sejongmalsami.util.log.LogMonitoringInvocation;
@@ -33,24 +33,24 @@ public class DocumentPostController implements DocumentPostControllerDocs {
   @Override
   @PostMapping(value = "/post", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
   @LogMonitoringInvocation
-  public ResponseEntity<DocumentPostDto> saveDocumentPost(
+  public ResponseEntity<DocumentDto> saveDocumentPost(
       @AuthenticationPrincipal CustomUserDetails customUserDetails,
-      @ModelAttribute DocumentPostCommand command) {
+      @ModelAttribute DocumentCommand command) {
     return ResponseEntity.ok(documentPostService.saveDocumentPost(command));
   }
 
   @Override
   @PostMapping(value = "/daily/popular", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
   @LogMonitoringInvocation
-  public ResponseEntity<List<DocumentPostDto>> getDailyPopularDocumentPost(
-      @ModelAttribute DocumentPostCommand command) {
+  public ResponseEntity<List<DocumentDto>> getDailyPopularDocumentPost(
+      @ModelAttribute DocumentCommand command) {
     return ResponseEntity.ok(popularPostService.getDailyPopularDocumentPosts());
   }
 
   @Override
   @PostMapping(value = "/weekly/popular", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
   @LogMonitoringInvocation
-  public ResponseEntity<List<DocumentPostDto>> getWeeklyPopularDocumentPost(DocumentPostCommand command) {
+  public ResponseEntity<List<DocumentDto>> getWeeklyPopularDocumentPost(DocumentCommand command) {
     return ResponseEntity.ok(popularPostService.getWeeklyPopularDocumentPosts());
   }
 

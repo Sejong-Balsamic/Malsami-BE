@@ -1,7 +1,7 @@
 package com.balsamic.sejongmalsami.service;
 
 import com.balsamic.sejongmalsami.object.DocumentPost;
-import com.balsamic.sejongmalsami.object.DocumentPostDto;
+import com.balsamic.sejongmalsami.object.DocumentDto;
 import com.balsamic.sejongmalsami.object.QuestionPost;
 import com.balsamic.sejongmalsami.object.QuestionDto;
 import com.balsamic.sejongmalsami.repository.postgres.DocumentPostRepository;
@@ -123,24 +123,24 @@ public class PopularPostService {
 
   // 캐시된 일간 자료 인기글 가져오기
   @Cacheable(value = "popularDocumentPosts", key = DAILY_DOCUMENT_POSTS_KEY)
-  public List<DocumentPostDto> getDailyPopularDocumentPosts() {
+  public List<DocumentDto> getDailyPopularDocumentPosts() {
     LocalDateTime yesterday = LocalDateTime.now().minusDays(1);
     List<DocumentPost> documentPostList = documentPostRepository.
         findTop30ByOrderByDailyScoreDescAndCreatedDateAfter(yesterday);
     return convertToDtoList(documentPostList, documentPost ->
-        DocumentPostDto.builder()
+        DocumentDto.builder()
             .documentPost(documentPost)
             .build());
   }
 
   // 캐시된 주간 자료 인기글 가져오기
   @Cacheable(value = "popularDocumentPosts", key = WEEKLY_DOCUMENT_POSTS_KEY)
-  public List<DocumentPostDto> getWeeklyPopularDocumentPosts() {
+  public List<DocumentDto> getWeeklyPopularDocumentPosts() {
     LocalDateTime lastWeek = LocalDateTime.now().minusWeeks(1);
     List<DocumentPost> documentPostList = documentPostRepository.
         findTop30ByOrderByWeeklyScoreDescAndCreatedDateAfter(lastWeek);
     return convertToDtoList(documentPostList, documentPost ->
-        DocumentPostDto.builder()
+        DocumentDto.builder()
             .documentPost(documentPost)
             .build());
   }

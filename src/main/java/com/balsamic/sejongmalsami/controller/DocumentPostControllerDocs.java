@@ -1,8 +1,8 @@
 package com.balsamic.sejongmalsami.controller;
 
 import com.balsamic.sejongmalsami.object.CustomUserDetails;
-import com.balsamic.sejongmalsami.object.DocumentPostCommand;
-import com.balsamic.sejongmalsami.object.DocumentPostDto;
+import com.balsamic.sejongmalsami.object.DocumentCommand;
+import com.balsamic.sejongmalsami.object.DocumentDto;
 import com.balsamic.sejongmalsami.object.constants.Author;
 import com.balsamic.sejongmalsami.util.log.ApiChangeLog;
 import com.balsamic.sejongmalsami.util.log.ApiChangeLogs;
@@ -67,9 +67,9 @@ public interface DocumentPostControllerDocs {
           - 성공적인 등록 후, 등록 된 자료글을 반환합니다.
           """
   )
-  ResponseEntity<DocumentPostDto> saveDocumentPost(
+  ResponseEntity<DocumentDto> saveDocumentPost(
       CustomUserDetails customUserDetails,
-      DocumentPostCommand command);
+      DocumentCommand command);
 
   @ApiChangeLogs({
       @ApiChangeLog(
@@ -100,8 +100,8 @@ public interface DocumentPostControllerDocs {
           - 요청 시각으로부터 24시간 이내에 작성된 상위 30개의 일간 인기글을 조회합니다.
           """
   )
-  ResponseEntity<List<DocumentPostDto>> getDailyPopularDocumentPost(
-      DocumentPostCommand command);
+  ResponseEntity<List<DocumentDto>> getDailyPopularDocumentPost(
+      DocumentCommand command);
 
   @ApiChangeLogs({
       @ApiChangeLog(
@@ -132,6 +132,6 @@ public interface DocumentPostControllerDocs {
           - 요청 시각으로부터 7일 이내에 작성된 상위 30개의 주간 인기글을 조회합니다.
           """
   )
-  ResponseEntity<List<DocumentPostDto>> getWeeklyPopularDocumentPost(
-      DocumentPostCommand command);
+  ResponseEntity<List<DocumentDto>> getWeeklyPopularDocumentPost(
+      DocumentCommand command);
 }

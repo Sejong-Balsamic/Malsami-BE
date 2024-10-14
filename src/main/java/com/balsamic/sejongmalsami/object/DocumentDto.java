@@ -7,8 +7,10 @@ import lombok.ToString;
 @Builder
 @Getter
 @ToString
-public class DocumentPostDto {
+public class DocumentDto {
 
-  private DocumentPost documentPost;
+  private DocumentPost documentPost; // 자료
+
+  private DocumentRequestPost documentRequestPost; // 자료요청
 
 }
