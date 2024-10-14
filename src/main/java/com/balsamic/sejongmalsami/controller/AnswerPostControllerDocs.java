@@ -13,6 +13,11 @@ public interface AnswerPostControllerDocs {
 
   @ApiChangeLogs({
       @ApiChangeLog(
+          date = "2024.10.14",
+          author = Author.BAEKJIHOON,
+          description = "질문게시판 dto, command 통합"
+      ),
+      @ApiChangeLog(
           date = "2024.10.11",
           author = Author.BAEKJIHOON,
           description = "답변 글 등록"
@@ -43,8 +48,11 @@ public interface AnswerPostControllerDocs {
 
           **반환 파라미터 값:**
 
-          - **AnswerPostDto**: 작성 된 답변 반환
-            - **AnswerPost answerPost**: 답변 정보
+          - **QuestionDto**: 질문 게시판 정보 반환
+            - **QuestionPost questionPost**: null
+            - **AnswerPost answerPost**: 답변 글 정보
+            - **List\\<MediaFile\\>: 답변 글 첨부파일
+            - **Set\\<String\\>: null
 
           **참고 사항:**
 

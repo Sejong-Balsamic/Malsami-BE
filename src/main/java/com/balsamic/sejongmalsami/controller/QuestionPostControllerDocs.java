@@ -14,19 +14,24 @@ public interface QuestionPostControllerDocs {
 
   @ApiChangeLogs({
       @ApiChangeLog(
+          date = "2024.10.14",
+          author = Author.BAEKJIHOON,
+          description = "질문게시판 command, dto 통합"
+      ),
+      @ApiChangeLog(
           date = "2024.10.11",
           author = Author.BAEKJIHOON,
-          description = "질문게시판 첨부파일 추가"
+          description = "질문 글 첨부파일 추가"
       ),
       @ApiChangeLog(
           date = "2024.10.10",
           author = Author.BAEKJIHOON,
-          description = "질문게시판 커스텀태그 작성 & 인기글"
+          description = "질문 글 커스텀태그 작성 & 인기글"
       ),
       @ApiChangeLog(
           date = "2024.09.25",
           author = Author.BAEKJIHOON,
-          description = "질문게시판 글 등록"
+          description = "질문 글 등록"
       )
   })
   @Operation(
@@ -76,8 +81,11 @@ public interface QuestionPostControllerDocs {
 
           **반환 파라미터 값:**
 
-          - **QuestionPostDto**: 작성 된 질문 글 반환
+          - **QuestionDto**: 질문 게시판 정보 반환
             - **QuestionPost questionPost**: 질문 글 정보
+            - **AnswerPost answerPost**: null
+            - **List\\<MediaFile\\>: 질문 글 첨부파일
+            - **Set\\<String\\>: 질문 글 커스텀태그
 
           **참고 사항:**
 
