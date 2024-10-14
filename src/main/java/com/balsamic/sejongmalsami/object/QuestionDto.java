@@ -16,7 +16,7 @@ public class QuestionDto {
   private AnswerPost answerPost; // 답변
 
   // 첨부파일
-  private List<MediaFileDto> mediaFiles; // 질문, 답변
+  private List<MediaFile> mediaFiles; // 질문, 답변
 
   // 커스텀 태그
   private Set<String> customTags; // 질문

@@ -1,17 +1,16 @@
 package com.balsamic.sejongmalsami.service;
 
-import com.balsamic.sejongmalsami.object.MediaFileCommand;
-import com.balsamic.sejongmalsami.object.MediaFileDto;
+import com.balsamic.sejongmalsami.object.MediaFile;
 import com.balsamic.sejongmalsami.object.Member;
-import com.balsamic.sejongmalsami.object.QuestionPost;
 import com.balsamic.sejongmalsami.object.QuestionCommand;
 import com.balsamic.sejongmalsami.object.QuestionDto;
-import com.balsamic.sejongmalsami.object.constants.ContentType;
+import com.balsamic.sejongmalsami.object.QuestionPost;
 import com.balsamic.sejongmalsami.object.constants.QuestionPresetTag;
 import com.balsamic.sejongmalsami.repository.postgres.MemberRepository;
 import com.balsamic.sejongmalsami.repository.postgres.QuestionPostRepository;
 import com.balsamic.sejongmalsami.util.exception.CustomException;
 import com.balsamic.sejongmalsami.util.exception.ErrorCode;
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
@@ -77,24 +76,23 @@ public class QuestionPostService {
           .saveCustomTags(command.getCustomTagSet(), savedPost.getQuestionPostId());
     }
 
-    List<MediaFileDto> mediaFileDtos = new ArrayList<>();
+    List<MediaFile> mediaFiles = new ArrayList<>();
     // 첨부파일 추가
-    if (command.getMediaFiles() != null) {
-      List<MediaFileCommand> mediaFileCommands = command.getMediaFiles().stream()
-          .map(file -> MediaFileCommand.builder()
-              .questionId(savedPost.getQuestionPostId())
-              .file(file)
-              .contentType(ContentType.QUESTION)
-              .build())
-          .toList();
-      mediaFileCommands.forEach(mediaFileCommand -> {
-        mediaFileDtos.add(mediaFileService.uploadMediaFile(mediaFileCommand));
+    if (command.getMediaFiles() != null && !command.getMediaFiles().isEmpty()) {
+      command.getMediaFiles().forEach(file -> {
+        try {
+          MediaFile mediaFile = mediaFileService.uploadMediaFile(savedPost.getQuestionPostId(), file);
+          mediaFiles.add(mediaFile);
+        } catch (IOException e) {
+          log.error("업로드 파일 리스트 = {}", mediaFiles);
+          throw new CustomException(ErrorCode.FILE_UPLOAD_ERROR);
+        }
       });
     }
 
     return QuestionDto.builder()
         .questionPost(savedPost)
-        .mediaFiles(mediaFileDtos)
+        .mediaFiles(mediaFiles)
         .customTags(customTags)
         .build();
   }

@@ -13,11 +13,13 @@ import java.util.UUID;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
+import lombok.Setter;
 import lombok.ToString;
 import lombok.experimental.SuperBuilder;
 
 @Entity
 @Getter
+@Setter
 @SuperBuilder
 @AllArgsConstructor
 @NoArgsConstructor
@@ -29,10 +31,11 @@ public class MediaFile extends BaseEntity {
   @Column(columnDefinition = "uuid DEFAULT uuid_generate_v4()", updatable = false)
   private UUID mediaFileId;
 
+  // 질문 or 답변 PK
+  private UUID postId;
+
   //TODO: 로직 추가하기
   private String originalFileName;
-
-  private UUID postId;
 
   // 파일 경로 (파일 URL)
   @Column(length = 1024)
