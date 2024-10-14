@@ -52,7 +52,7 @@ public class DocumentPost extends BasePost {
   @Builder.Default
   @Enumerated(EnumType.STRING)
   private Set<DocumentType> documentTypeSet = new HashSet<>();
-
+  
   @Builder.Default
   @Enumerated(EnumType.STRING)
   private PostTier postTier = PostTier.CHEONMIN; // 게시물 등급
