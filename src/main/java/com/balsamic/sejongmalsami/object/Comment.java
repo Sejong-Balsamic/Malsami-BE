@@ -37,6 +37,9 @@ public class Comment extends BaseEntity{
   // 댓글이 속한 게시글의 ID
   private UUID postId;
 
+  // 좋아요
+  private Integer likeCount = 0;
+
   // 댓글이 속한 게시글의 유형
   private ContentType contentType;
 

@@ -18,15 +18,14 @@ import org.springframework.data.mongodb.core.mapping.Document;
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
-@CompoundIndex(name = "member_document_idx", def = "{'memberId': 1, 'documentId': 1}")
-public class DocumentBoardLike extends BaseMongoEntity {
-
+@CompoundIndex(name = "member_comment_idx", def = "{'memberId': 1, 'commentId': 1}")
+public class CommentLike extends BaseMongoEntity {
   @Id
-  private String documentBoardLikeId;
+  private String commentLikeId;
 
   @Indexed
   @NotNull
-  private UUID documentId;
+  private UUID commentId;
 
   @Indexed
   @NotNull
@@ -34,7 +33,4 @@ public class DocumentBoardLike extends BaseMongoEntity {
 
   @NotNull
   private ContentType contentType;
-
-  @NotNull
-  private ReactionType reactionType;
 }

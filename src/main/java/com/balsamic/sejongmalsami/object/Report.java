@@ -1,6 +1,7 @@
 package com.balsamic.sejongmalsami.object;
 
 import com.balsamic.sejongmalsami.object.constants.ContentType;
+import com.balsamic.sejongmalsami.object.constants.ReportReason;
 import jakarta.validation.constraints.NotNull;
 import java.util.UUID;
 import lombok.AllArgsConstructor;
@@ -23,12 +24,15 @@ public class Report extends BaseMongoEntity {
 
   @Indexed
   @NotNull
-  private UUID reporterId;      // 신고자 member ID
+  private UUID reporterId;
 
-  private UUID reportedPostId;  // 신고 대상 게시글 ID
+  // 신고 대상 게시글 ID
+  private UUID reportedPostId;
 
   private ContentType contentType;
 
-  // TODO: Enum클래스로 변경
-  private String reason;          // 신고 사유
+  // 신고사유
+  private ReportReason reportReason;
+
+  private String description; // ReportReason 이 Other 인 경우
 }
