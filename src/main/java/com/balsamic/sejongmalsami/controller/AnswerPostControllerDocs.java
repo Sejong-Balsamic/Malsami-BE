@@ -34,10 +34,10 @@ public interface AnswerPostControllerDocs {
             _예: "이 문제 포인터 활용해야하는 문제에요. 포인터 먼저 공부해보세요~"_
             
           - **List\\<MultipartFile\\> mediaFiles**: 첨부파일 (최대 3개까지만 추가가능, 이미지파일만 업로드가능)
-          
+                    
           - **Boolean isChaetaek**: 채택 여부 (default = false)
             -기본값은 false입니다.
-          
+                    
           - **Boolean isPrivate**: 내 정보 비공개 여부 (default = false)
             _기본값은 false입니다. true로 요청할 시 질문 글에 내 정보가 비공개 처리됩니다._
 

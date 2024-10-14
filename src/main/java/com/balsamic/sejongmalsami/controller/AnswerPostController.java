@@ -22,7 +22,7 @@ import org.springframework.web.bind.annotation.RestController;
     name = "질문게시판 답변글 API",
     description = "답변글 관련 API 제공"
 )
-public class AnswerPostController implements AnswerPostControllerDocs{
+public class AnswerPostController implements AnswerPostControllerDocs {
 
   private final AnswerPostService answerPostService;
 
