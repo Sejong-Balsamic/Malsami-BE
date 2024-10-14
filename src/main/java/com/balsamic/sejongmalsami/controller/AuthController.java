@@ -9,7 +9,6 @@ import com.balsamic.sejongmalsami.util.log.LogMonitoringInvocation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletRequest;
-import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -23,7 +22,7 @@ import org.springframework.web.bind.annotation.RestController;
     name = "인증 관리 API",
     description = "인증 관련 API 제공"
 )
-public class AuthController implements AuthControllerDocs{
+public class AuthController implements AuthControllerDocs {
 
   private final AuthService authService;
 
@@ -34,8 +33,8 @@ public class AuthController implements AuthControllerDocs{
       HttpServletRequest request) {
     AuthDto authDto = authService.refreshAccessToken(
         AuthCommand.builder()
-        .refreshToken(extractRefreshTokenFromCookies(request.getCookies()))
-        .build());
+            .refreshToken(extractRefreshTokenFromCookies(request.getCookies()))
+            .build());
     return ResponseEntity.ok(authDto);
   }
 

@@ -21,14 +21,14 @@ public class QuestionBoardLike extends BaseMongoEntity {
   @Id
   private String questionBoardLikeId;
 
+  @Indexed
   @NotNull
-  private ContentType contentType;
+  private UUID memberId; // 좋아요를 누른 사용자 ID
 
   @Indexed
   @NotNull
-  private UUID questionBoardId; // target UUID
+  private UUID questionBoardId; // 질문글 or 답변 or 댓글 UUID
 
-  @Indexed
   @NotNull
-  private UUID memberId;      // 좋아요를 누른 사용자 ID
+  private ContentType contentType; // Question, Answer, Comment
 }

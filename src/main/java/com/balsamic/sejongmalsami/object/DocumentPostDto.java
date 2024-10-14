@@ -4,9 +4,11 @@ import lombok.Builder;
 import lombok.Getter;
 import lombok.ToString;
 
-@ToString
-@Getter
 @Builder
+@Getter
+@ToString
 public class DocumentPostDto {
+
+  private DocumentPost documentPost;
 
 }
