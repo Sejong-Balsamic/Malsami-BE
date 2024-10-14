@@ -6,6 +6,7 @@ import com.balsamic.sejongmalsami.object.QuestionPost;
 import com.balsamic.sejongmalsami.object.QuestionDto;
 import com.balsamic.sejongmalsami.repository.postgres.DocumentPostRepository;
 import com.balsamic.sejongmalsami.repository.postgres.QuestionPostRepository;
+import com.balsamic.sejongmalsami.util.config.PostScoreConfig;
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.function.Function;
@@ -26,6 +27,7 @@ public class PopularPostService {
 
   private final QuestionPostRepository questionPostRepository;
   private final DocumentPostRepository documentPostRepository;
+  private final PostScoreConfig postScoreConfig;
 
   public static final String DAILY_QUESTION_POSTS_KEY = "dailyPopularQuestionPosts";
   public static final String WEEKLY_QUESTION_POSTS_KEY = "weeklyPopularQuestionPosts";
@@ -42,7 +44,7 @@ public class PopularPostService {
     List<QuestionPost> questionPosts = questionPostRepository.findQuestionPostsAfter(yesterday);
 
     for (QuestionPost questionPost : questionPosts) {
-      questionPost.updateDailyScore(calculateQuestionPostScore(questionPost));
+      questionPost.updateDailyScore(postScoreConfig.calculateQuestionPostDailyScore(questionPost));
       questionPostRepository.save(questionPost);
     }
 
@@ -50,7 +52,7 @@ public class PopularPostService {
     List<DocumentPost> documentPosts = documentPostRepository.findDocumentPostsAfter(yesterday);
 
     for (DocumentPost documentPost : documentPosts) {
-      documentPost.updateDailyScore(calculateDocumentPostScore(documentPost));
+      documentPost.updateDailyScore(postScoreConfig.calculateDocumentPostDailyScore(documentPost));
       documentPostRepository.save(documentPost);
     }
 
@@ -69,7 +71,7 @@ public class PopularPostService {
     List<QuestionPost> posts = questionPostRepository.findQuestionPostsAfter(lastWeek);
 
     for (QuestionPost post : posts) {
-      post.updateWeeklyScore(calculateQuestionPostScore(post));
+      post.updateWeeklyScore(postScoreConfig.calculateQuestionPostWeeklyScore(post));
       questionPostRepository.save(post);
     }
 
@@ -77,24 +79,13 @@ public class PopularPostService {
     List<DocumentPost> documentPosts = documentPostRepository.findDocumentPostsAfter(lastWeek);
 
     for (DocumentPost documentPost : documentPosts) {
-      documentPost.updateDailyScore(calculateDocumentPostScore(documentPost));
+      documentPost.updateDailyScore(postScoreConfig.calculateDocumentPostWeeklyScore(documentPost));
       documentPostRepository.save(documentPost);
     }
 
     // 캐시 갱신
     updatePopularQuestionPostsCache();
     updatePopularDocumentPostsCache();
-  }
-
-  // 점수 계산 (답변수 * 3 + 좋아요수 * 2 + 조회수)
-  private Integer calculateQuestionPostScore(QuestionPost post) {
-    return post.getAnswerCount() * 3 + post.getLikeCount() * 2 + post.getViewCount();
-  }
-
-  // 점수 계산 (다운수 * 3 + 좋아요수 * 2 + 조회수)
-  // TODO : 점수 계산 로직 작성
-  private Integer calculateDocumentPostScore(DocumentPost post) {
-    return post.getLikeCount() * 2 + post.getViewCount();
   }
 
   // 캐시된 일간 질문 인기글 가져오기
