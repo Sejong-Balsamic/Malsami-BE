@@ -38,13 +38,13 @@ public interface QuestionPostControllerDocs {
 
           **입력 파라미터 값:**
 
-          - **String title**: 질문게시글 제목 (required)
+          - **String title**: 질문게시글 제목 (필수)
             _예: "vs에서는 돌아가는데 oj에서는 왜 80점인가요?"_
 
-          - **String content**: 질문게시글 본문 (required)
+          - **String content**: 질문게시글 본문 (필수)
             _예: "고c 003분반인데 이번 실습문제 4번 맞게 푼 것 같은데 왜 oj에서 돌리면 80점일까요...? 도와주세요"_
             
-          - **String subject**: 과목 명 (required)
+          - **String subject**: 교과목 명 (필수)
             _예: "고급C프로그래밍및실습"_
             
           - **List\\<MultipartFile\\> mediaFiles**: 첨부파일 (최대 3개까지만 추가가능, 이미지파일만 업로드가능)

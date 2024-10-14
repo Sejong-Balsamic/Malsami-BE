@@ -27,10 +27,10 @@ public interface AnswerPostControllerDocs {
 
           **입력 파라미터 값:**
 
-          - **UUID questionPostId**: 질문글 PK (required)
+          - **UUID questionPostId**: 질문글 PK (필수)
             _예: "9b1deb4d-3b7d-4bad-9bdd-2b0d7b3dcb6d"_
 
-          - **String content**: 답변 본문 (required)
+          - **String content**: 답변 본문 (필수)
             _예: "이 문제 포인터 활용해야하는 문제에요. 포인터 먼저 공부해보세요~"_
             
           - **List\\<MultipartFile\\> mediaFiles**: 첨부파일 (최대 3개까지만 추가가능, 이미지파일만 업로드가능)

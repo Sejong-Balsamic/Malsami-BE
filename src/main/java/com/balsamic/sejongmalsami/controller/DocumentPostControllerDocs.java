@@ -28,13 +28,13 @@ public interface DocumentPostControllerDocs {
 
           **입력 파라미터 값:**
 
-          - **String title**: 자료게시글 제목 (required)
+          - **String title**: 자료게시글 제목 (필수)
             _예: "컴퓨터구조 과제5 로지심파일"_
 
-          - **String content**: 자료게시글 본문 (required)
+          - **String content**: 자료게시글 본문 (필수)
             _예: "컴구 과제5 로지심파일 입니다."_
             
-          - **String subject**: 과목 명 (required)
+          - **String subject**: 교과목 명 (필수)
             _예: "컴퓨터구조"_
             
           - **Enum documentTypeSet**: 자료 카테고리 (최대 2개까지만 선택가능)
