@@ -16,6 +16,7 @@ import java.util.List;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 @Service
 @Slf4j
@@ -28,6 +29,7 @@ public class AnswerPostService {
   private final MediaFileService mediaFileService;
 
   // 답변 작성 로직
+  @Transactional
   public QuestionDto saveAnswer(QuestionCommand command) {
 
     Member member = memberRepository.findById(command.getMemberId())
