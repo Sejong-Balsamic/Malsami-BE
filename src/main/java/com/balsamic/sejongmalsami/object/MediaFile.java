@@ -32,7 +32,7 @@ public class MediaFile extends BaseEntity {
   // 질문 or 답변 PK
   private UUID postId;
 
-  //TODO: 로직 추가하기
+  // 파일 원본명
   private String originalFileName;
 
   // 파일 경로 (파일 URL)

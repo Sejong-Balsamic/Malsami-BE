@@ -58,6 +58,7 @@ public class MediaFileService {
     // S3에 파일 업로드
     return mediaFileRepository.save(MediaFile.builder()
         .postId(postId)
+        .originalFileName(file.getOriginalFilename())
         .fileUrl(s3Service.uploadFile(file))
         .fileSize(file.getSize())
         .contentType(contentType)
