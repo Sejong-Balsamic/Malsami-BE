@@ -1,7 +1,5 @@
 package com.balsamic.sejongmalsami.object;
 
-import com.balsamic.sejongmalsami.object.constants.ContentType;
-import com.balsamic.sejongmalsami.object.constants.ReactionType;
 import jakarta.validation.constraints.NotNull;
 import java.util.UUID;
 import lombok.AllArgsConstructor;
@@ -18,23 +16,17 @@ import org.springframework.data.mongodb.core.mapping.Document;
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
-@CompoundIndex(name = "member_document_idx", def = "{'memberId': 1, 'documentId': 1}")
-public class DocumentBoardLike extends BaseMongoEntity {
+@CompoundIndex(name = "member_post_bookmark_idx", def = "{'memberId': 1, 'documentPostId': 1}", unique = true)
+public class DocumentPostBookmark extends BaseMongoEntity {
 
   @Id
-  private String documentBoardLikeId;
+  private String documentPostBookmarkId;
 
   @Indexed
   @NotNull
-  private UUID documentId;
+  private UUID documentPostId;
 
   @Indexed
   @NotNull
   private UUID memberId;
-
-  @NotNull
-  private ContentType contentType;
-
-  @NotNull
-  private ReactionType reactionType;
 }

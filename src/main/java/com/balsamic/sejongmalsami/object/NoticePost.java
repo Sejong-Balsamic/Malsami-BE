@@ -45,7 +45,7 @@ public class NoticePost extends BaseEntity {
   @Builder.Default
   private Integer viewCount = 0;
 
-  // 좋아요 수 (추천 수)
+  // 좋아요 수
   @Builder.Default
   private Integer likeCount = 0;
 }
