@@ -9,13 +9,15 @@ import lombok.ToString;
 @Builder
 @Getter
 @ToString
-public class QuestionPostDto {
+public class QuestionDto {
 
-  private QuestionPost questionPost;
+  private QuestionPost questionPost; // 질문
+
+  private AnswerPost answerPost; // 답변
 
   // 첨부파일
-  private List<MediaFileDto> mediaFiles;
+  private List<MediaFileDto> mediaFiles; // 질문, 답변
 
   // 커스텀 태그
-  private Set<String> customTags;
+  private Set<String> customTags; // 질문
 }

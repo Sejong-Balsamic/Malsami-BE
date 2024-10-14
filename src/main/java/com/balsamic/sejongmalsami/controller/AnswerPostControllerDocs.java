@@ -1,8 +1,8 @@
 package com.balsamic.sejongmalsami.controller;
 
-import com.balsamic.sejongmalsami.object.AnswerPostCommand;
-import com.balsamic.sejongmalsami.object.AnswerPostDto;
 import com.balsamic.sejongmalsami.object.CustomUserDetails;
+import com.balsamic.sejongmalsami.object.QuestionCommand;
+import com.balsamic.sejongmalsami.object.QuestionDto;
 import com.balsamic.sejongmalsami.object.constants.Author;
 import com.balsamic.sejongmalsami.util.log.ApiChangeLog;
 import com.balsamic.sejongmalsami.util.log.ApiChangeLogs;
@@ -56,7 +56,7 @@ public interface AnswerPostControllerDocs {
           - Swagger에서 테스트 시 mediaFiles에 있는 "Send empty value" 체크박스 해제해야합니다.
           """
   )
-  ResponseEntity<AnswerPostDto> saveAnswerPost(
+  ResponseEntity<QuestionDto> saveAnswerPost(
       CustomUserDetails customUserDetails,
-      AnswerPostCommand command);
+      QuestionCommand command);
 }

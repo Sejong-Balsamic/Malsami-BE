@@ -1,11 +1,11 @@
 package com.balsamic.sejongmalsami.service;
 
 import com.balsamic.sejongmalsami.object.AnswerPost;
-import com.balsamic.sejongmalsami.object.AnswerPostCommand;
-import com.balsamic.sejongmalsami.object.AnswerPostDto;
 import com.balsamic.sejongmalsami.object.MediaFileCommand;
 import com.balsamic.sejongmalsami.object.MediaFileDto;
 import com.balsamic.sejongmalsami.object.Member;
+import com.balsamic.sejongmalsami.object.QuestionCommand;
+import com.balsamic.sejongmalsami.object.QuestionDto;
 import com.balsamic.sejongmalsami.object.QuestionPost;
 import com.balsamic.sejongmalsami.object.constants.ContentType;
 import com.balsamic.sejongmalsami.repository.postgres.AnswerPostRepository;
@@ -30,7 +30,7 @@ public class AnswerPostService {
   private final MediaFileService mediaFileService;
 
   // 답변 작성 로직
-  public AnswerPostDto saveAnswer(AnswerPostCommand command) {
+  public QuestionDto saveAnswer(QuestionCommand command) {
 
     Member member = memberRepository.findById(command.getMemberId())
         .orElseThrow(() -> new CustomException(ErrorCode.MEMBER_NOT_FOUND));
@@ -63,7 +63,7 @@ public class AnswerPostService {
       });
     }
 
-    return AnswerPostDto.builder()
+    return QuestionDto.builder()
         .answerPost(savedPost)
         .mediaFiles(mediaFileDtos)
         .build();

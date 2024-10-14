@@ -3,7 +3,7 @@ package com.balsamic.sejongmalsami.service;
 import com.balsamic.sejongmalsami.object.DocumentPost;
 import com.balsamic.sejongmalsami.object.DocumentPostDto;
 import com.balsamic.sejongmalsami.object.QuestionPost;
-import com.balsamic.sejongmalsami.object.QuestionPostDto;
+import com.balsamic.sejongmalsami.object.QuestionDto;
 import com.balsamic.sejongmalsami.repository.postgres.DocumentPostRepository;
 import com.balsamic.sejongmalsami.repository.postgres.QuestionPostRepository;
 import java.time.LocalDateTime;
@@ -99,24 +99,24 @@ public class PopularPostService {
 
   // 캐시된 일간 질문 인기글 가져오기
   @Cacheable(value = "popularQuestionPosts", key = DAILY_QUESTION_POSTS_KEY)
-  public List<QuestionPostDto> getDailyPopularQuestionPosts() {
+  public List<QuestionDto> getDailyPopularQuestionPosts() {
     LocalDateTime yesterday = LocalDateTime.now().minusDays(1);
     List<QuestionPost> questionPostList = questionPostRepository
         .findTop30ByOrderByDailyScoreDescAndCreatedDateAfter(yesterday);
     return convertToDtoList(questionPostList, questionPost ->
-        QuestionPostDto.builder()
+        QuestionDto.builder()
             .questionPost(questionPost)
             .build());
   }
 
   // 캐시된 주간 질문 인기글 가져오기
   @Cacheable(value = "popularQuestionPosts", key = WEEKLY_QUESTION_POSTS_KEY)
-  public List<QuestionPostDto> getWeeklyPopularQuestionPosts() {
+  public List<QuestionDto> getWeeklyPopularQuestionPosts() {
     LocalDateTime lastWeek = LocalDateTime.now().minusWeeks(1);
     List<QuestionPost> questionPostList = questionPostRepository
         .findTop30ByOrderByWeeklyScoreDescAndCreatedDateAfter(lastWeek);
     return convertToDtoList(questionPostList, questionPost ->
-        QuestionPostDto.builder()
+        QuestionDto.builder()
             .questionPost(questionPost)
             .build());
   }

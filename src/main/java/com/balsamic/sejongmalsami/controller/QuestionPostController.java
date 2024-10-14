@@ -1,8 +1,8 @@
 package com.balsamic.sejongmalsami.controller;
 
 import com.balsamic.sejongmalsami.object.CustomUserDetails;
-import com.balsamic.sejongmalsami.object.QuestionPostCommand;
-import com.balsamic.sejongmalsami.object.QuestionPostDto;
+import com.balsamic.sejongmalsami.object.QuestionCommand;
+import com.balsamic.sejongmalsami.object.QuestionDto;
 import com.balsamic.sejongmalsami.service.PopularPostService;
 import com.balsamic.sejongmalsami.service.QuestionPostService;
 import com.balsamic.sejongmalsami.util.log.LogMonitoringInvocation;
@@ -32,9 +32,9 @@ public class QuestionPostController implements QuestionPostControllerDocs {
   @Override
   @PostMapping(value = "/post", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
   @LogMonitoringInvocation
-  public ResponseEntity<QuestionPostDto> saveQuestionPost(
+  public ResponseEntity<QuestionDto> saveQuestionPost(
       @AuthenticationPrincipal CustomUserDetails customUserDetails,
-      @ModelAttribute QuestionPostCommand command) {
+      @ModelAttribute QuestionCommand command) {
     command.setMemberId(customUserDetails.getMemberId());
     return ResponseEntity.ok(questionPostService.saveQuestionPost(command));
   }
@@ -42,16 +42,16 @@ public class QuestionPostController implements QuestionPostControllerDocs {
   @Override
   @PostMapping(value = "/popular/daily", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
   @LogMonitoringInvocation
-  public ResponseEntity<List<QuestionPostDto>> getDailyPopularQuestionPost(
-      @ModelAttribute QuestionPostCommand command) {
+  public ResponseEntity<List<QuestionDto>> getDailyPopularQuestionPost(
+      @ModelAttribute QuestionCommand command) {
     return ResponseEntity.ok(popularPostService.getDailyPopularQuestionPosts());
   }
 
   @Override
   @PostMapping(value = "/popular/weekly", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
   @LogMonitoringInvocation
-  public ResponseEntity<List<QuestionPostDto>> getWeeklyPopularQuestionPost(
-      @ModelAttribute QuestionPostCommand command) {
+  public ResponseEntity<List<QuestionDto>> getWeeklyPopularQuestionPost(
+      @ModelAttribute QuestionCommand command) {
     return ResponseEntity.ok(popularPostService.getWeeklyPopularQuestionPosts());
   }
 }

@@ -4,8 +4,8 @@ import com.balsamic.sejongmalsami.object.MediaFileCommand;
 import com.balsamic.sejongmalsami.object.MediaFileDto;
 import com.balsamic.sejongmalsami.object.Member;
 import com.balsamic.sejongmalsami.object.QuestionPost;
-import com.balsamic.sejongmalsami.object.QuestionPostCommand;
-import com.balsamic.sejongmalsami.object.QuestionPostDto;
+import com.balsamic.sejongmalsami.object.QuestionCommand;
+import com.balsamic.sejongmalsami.object.QuestionDto;
 import com.balsamic.sejongmalsami.object.constants.ContentType;
 import com.balsamic.sejongmalsami.object.constants.QuestionPresetTag;
 import com.balsamic.sejongmalsami.repository.postgres.MemberRepository;
@@ -33,7 +33,7 @@ public class QuestionPostService {
 
   /* 질문 게시글 등록 로직 */
   @Transactional
-  public QuestionPostDto saveQuestionPost(QuestionPostCommand command) {
+  public QuestionDto saveQuestionPost(QuestionCommand command) {
 
     Member member = memberRepository.findById(command.getMemberId())
         .orElseThrow(() -> new CustomException(ErrorCode.MEMBER_NOT_FOUND));
@@ -92,7 +92,7 @@ public class QuestionPostService {
       });
     }
 
-    return QuestionPostDto.builder()
+    return QuestionDto.builder()
         .questionPost(savedPost)
         .mediaFiles(mediaFileDtos)
         .customTags(customTags)
