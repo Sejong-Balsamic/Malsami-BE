@@ -32,10 +32,10 @@ public class Comment extends BaseEntity{
   @ManyToOne(fetch = FetchType.LAZY)
   private Member member;
 
-  private String content;
-
   // 댓글이 속한 게시글의 ID
   private UUID postId;
+
+  private String content;
 
   // 좋아요
   private Integer likeCount = 0;

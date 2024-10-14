@@ -1,9 +1,9 @@
 package com.balsamic.sejongmalsami.controller;
 
-import com.balsamic.sejongmalsami.object.CommentCommand;
-import com.balsamic.sejongmalsami.object.CommentDto;
+import com.balsamic.sejongmalsami.object.AnswerPostCommand;
+import com.balsamic.sejongmalsami.object.AnswerPostDto;
 import com.balsamic.sejongmalsami.object.CustomUserDetails;
-import com.balsamic.sejongmalsami.service.CommentService;
+import com.balsamic.sejongmalsami.service.AnswerPostService;
 import com.balsamic.sejongmalsami.util.log.LogMonitoringInvocation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
@@ -17,22 +17,22 @@ import org.springframework.web.bind.annotation.RestController;
 
 @RestController
 @RequiredArgsConstructor
-@RequestMapping("/api/comment")
+@RequestMapping("/api/answers")
 @Tag(
-    name = "댓글 API",
-    description = "댓글 관련 API 제공"
+    name = "질문게시판 답변글 API",
+    description = "답변글 관련 API 제공"
 )
-public class CommentController implements CommentControllerDocs {
+public class AnswerPostController implements AnswerPostControllerDocs {
 
-  private final CommentService commentService;
+  private final AnswerPostService answerPostService;
 
   @Override
   @PostMapping(value = "/post", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
   @LogMonitoringInvocation
-  public ResponseEntity<CommentDto> saveComment(
+  public ResponseEntity<AnswerPostDto> saveAnswerPost(
       @AuthenticationPrincipal CustomUserDetails customUserDetails,
-      @ModelAttribute CommentCommand command) {
+      @ModelAttribute AnswerPostCommand command) {
     command.setMemberId(customUserDetails.getMemberId());
-    return ResponseEntity.ok(commentService.addComment(command));
+    return ResponseEntity.ok(answerPostService.saveAnswer(command));
   }
 }

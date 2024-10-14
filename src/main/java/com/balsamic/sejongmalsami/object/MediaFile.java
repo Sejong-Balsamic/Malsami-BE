@@ -35,6 +35,7 @@ public class MediaFile extends BaseEntity {
   private UUID postId;
 
   // 파일 경로 (파일 URL)
+  @Column(length = 1024)
   private String fileUrl;
 
   // 파일 크기

@@ -14,8 +14,8 @@ import lombok.ToString;
 public class CommentCommand {
 
   private UUID memberId;
-  private String content;
   private UUID postId;
+  private String content;
   private ContentType contentType;
   private Boolean isPrivate;
 }

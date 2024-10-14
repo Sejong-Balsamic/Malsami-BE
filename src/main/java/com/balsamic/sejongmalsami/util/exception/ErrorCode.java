@@ -39,7 +39,7 @@ public enum ErrorCode {
 
   FILE_UPLOAD_ERROR(HttpStatus.BAD_REQUEST, "파일 업로드 시 오류가 발생했습니다."),
 
-  INVALID_FILE_FORMAT(HttpStatus.BAD_REQUEST, "파일 형식이 잘못되었습니다."),
+  INVALID_FILE_FORMAT(HttpStatus.BAD_REQUEST, "지원하지 않는 파일 형식입니다."),
 
   DUPLICATE_COURSE_UPLOAD(HttpStatus.BAD_REQUEST, "중복된 교과목명 파일입니다."),
 
@@ -79,7 +79,13 @@ public enum ErrorCode {
 
   // MediaFile
 
-  MEDIA_FILE_LIMIT_EXCEEDED(HttpStatus.BAD_REQUEST, "첨부할 수 있는 미디어 파일 개수를 초과했습니다.");
+  MEDIA_FILE_LIMIT_EXCEEDED(HttpStatus.BAD_REQUEST, "첨부할 수 있는 미디어 파일 개수를 초과했습니다."),
+
+  // CustomTag
+
+  CUSTOM_TAG_LIMIT_EXCEEDED(HttpStatus.BAD_REQUEST, "커스텀태그는 최대 4개까지 추가할 수 있습니다."),
+
+  CUSTOM_TAG_LENGTH_EXCEEDED(HttpStatus.BAD_REQUEST, "커스텀태그 길이는 최대 10자 입니다.");
 
   private final HttpStatus status;
   private final String message;

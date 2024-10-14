@@ -1,6 +1,9 @@
 package com.balsamic.sejongmalsami.object;
 
+import com.balsamic.sejongmalsami.object.constants.DocumentType;
 import com.balsamic.sejongmalsami.object.constants.PostTier;
+import com.balsamic.sejongmalsami.util.exception.CustomException;
+import com.balsamic.sejongmalsami.util.exception.ErrorCode;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.EnumType;
@@ -11,6 +14,8 @@ import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.Lob;
 import jakarta.persistence.ManyToOne;
+import java.util.HashSet;
+import java.util.Set;
 import java.util.UUID;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -25,7 +30,9 @@ import lombok.experimental.SuperBuilder;
 @AllArgsConstructor
 @NoArgsConstructor
 @ToString(callSuper = true)
-public class DocumentPost extends BaseEntity {
+public class DocumentPost extends BasePost {
+
+  private static final int MAX_DOCUMENT_TYPES = 2;
 
   @Id
   @GeneratedValue(strategy = GenerationType.AUTO)
@@ -41,6 +48,10 @@ public class DocumentPost extends BaseEntity {
 
   @Lob
   private String content; // 내용
+
+  @Builder.Default
+  @Enumerated(EnumType.STRING)
+  private Set<DocumentType> documentTypeSet = new HashSet<>();
 
   @Builder.Default
   @Enumerated(EnumType.STRING)
@@ -63,4 +74,15 @@ public class DocumentPost extends BaseEntity {
 
   @Builder.Default
   private Boolean isDepartmentPrivate = false; // 내 학과 비공개
+
+  // 자료글 카테고리 추가(최대 2개)
+  public void addDocumentType(DocumentType documentType) {
+
+    if (documentTypeSet.size() >= MAX_DOCUMENT_TYPES) {
+      throw new CustomException(ErrorCode.DOCUMENT_TYPE_LIMIT_EXCEEDED);
+    }
+
+    // 카테고리 추가
+    documentTypeSet.add(documentType);
+  }
 }
