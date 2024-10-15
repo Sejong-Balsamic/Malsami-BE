@@ -28,15 +28,13 @@ public class CommentService {
     Member member = memberRepository.findById(command.getMemberId())
         .orElseThrow(() -> new CustomException(ErrorCode.MEMBER_NOT_FOUND));
 
-    Comment comment = Comment.builder()
+    Comment comment = commentRepository.save(Comment.builder()
         .member(member)
         .content(command.getContent())
         .postId(command.getPostId())
         .contentType(command.getContentType())
         .isPrivate(command.getIsPrivate() != null ? command.getIsPrivate() : false)
-        .build();
-
-    commentRepository.save(comment);
+        .build());
 
     return CommentDto.builder()
         .comment(comment)

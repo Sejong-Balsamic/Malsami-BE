@@ -37,7 +37,7 @@ public class AnswerPostService {
     QuestionPost questionPost = questionPostRepository.findById(command.getQuestionPostId())
         .orElseThrow(() -> new CustomException(ErrorCode.QUESTION_POST_NOT_FOUND));
 
-    AnswerPost answerPost = AnswerPost.builder()
+    AnswerPost answerPost = answerPostRepository.save(AnswerPost.builder()
         .member(member)
         .questionPost(questionPost)
         .content(command.getContent())
@@ -45,21 +45,19 @@ public class AnswerPostService {
         .commentCount(0)
         .isPrivate(command.getIsPrivate() != null ? command.getIsPrivate() : false)
         .isChaetaek(false)
-        .build();
-
-    AnswerPost savedPost = answerPostRepository.save(answerPost);
+        .build());
 
     List<MediaFile> mediaFiles = new ArrayList<>();
     // 첨부파일 추가 로직
     if (command.getMediaFiles() != null && !command.getMediaFiles().isEmpty()) {
       command.getMediaFiles().forEach(file -> {
-        MediaFile mediaFile = mediaFileService.uploadMediaFile(savedPost.getAnswerPostId(), file);
+        MediaFile mediaFile = mediaFileService.uploadMediaFile(answerPost.getAnswerPostId(), file);
         mediaFiles.add(mediaFile);
       });
     }
 
     return QuestionDto.builder()
-        .answerPost(savedPost)
+        .answerPost(answerPost)
         .mediaFiles(mediaFiles)
         .build();
   }

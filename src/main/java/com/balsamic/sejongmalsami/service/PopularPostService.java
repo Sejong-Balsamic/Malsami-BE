@@ -6,7 +6,6 @@ import com.balsamic.sejongmalsami.object.QuestionDto;
 import com.balsamic.sejongmalsami.object.QuestionPost;
 import com.balsamic.sejongmalsami.repository.postgres.DocumentPostRepository;
 import com.balsamic.sejongmalsami.repository.postgres.QuestionPostRepository;
-import com.balsamic.sejongmalsami.util.MethodUtil;
 import com.balsamic.sejongmalsami.util.config.ScoreConfig;
 import java.time.LocalDateTime;
 import java.util.List;
@@ -93,53 +92,45 @@ public class PopularPostService {
   // 캐시된 일간 질문 인기글 가져오기
   @Transactional(readOnly = true)
   @Cacheable(value = QUESTION_POST_CACHE_VALUE, key = DAILY_QUESTION_POSTS_KEY)
-  public List<QuestionDto> getDailyPopularQuestionPosts() {
+  public QuestionDto getDailyPopularQuestionPosts() {
     LocalDateTime yesterday = LocalDateTime.now().minusDays(1);
-    List<QuestionPost> questionPostList = questionPostRepository
-        .findTop30ByOrderByDailyScoreDescAndCreatedDateAfter(yesterday);
-    return MethodUtil.convertToDtoList(questionPostList, questionPost ->
-        QuestionDto.builder()
-            .questionPost(questionPost)
-            .build());
+    return QuestionDto.builder()
+        .questionPosts(questionPostRepository
+            .findTop30ByOrderByWeeklyScoreDescAndCreatedDateAfter(yesterday))
+        .build();
   }
 
   // 캐시된 주간 질문 인기글 가져오기
   @Transactional(readOnly = true)
   @Cacheable(value = QUESTION_POST_CACHE_VALUE, key = WEEKLY_QUESTION_POSTS_KEY)
-  public List<QuestionDto> getWeeklyPopularQuestionPosts() {
+  public QuestionDto getWeeklyPopularQuestionPosts() {
     LocalDateTime lastWeek = LocalDateTime.now().minusWeeks(1);
-    List<QuestionPost> questionPostList = questionPostRepository
-        .findTop30ByOrderByWeeklyScoreDescAndCreatedDateAfter(lastWeek);
-    return MethodUtil.convertToDtoList(questionPostList, questionPost ->
-        QuestionDto.builder()
-            .questionPost(questionPost)
-            .build());
+    return QuestionDto.builder()
+        .questionPosts(questionPostRepository
+            .findTop30ByOrderByWeeklyScoreDescAndCreatedDateAfter(lastWeek))
+        .build();
   }
 
   // 캐시된 일간 자료 인기글 가져오기
   @Transactional(readOnly = true)
   @Cacheable(value = DOCUMENT_POST_CACHE_VALUE, key = DAILY_DOCUMENT_POSTS_KEY)
-  public List<DocumentDto> getDailyPopularDocumentPosts() {
+  public DocumentDto getDailyPopularDocumentPosts() {
     LocalDateTime yesterday = LocalDateTime.now().minusDays(1);
-    List<DocumentPost> documentPostList = documentPostRepository.
-        findTop30ByOrderByDailyScoreDescAndCreatedDateAfter(yesterday);
-    return MethodUtil.convertToDtoList(documentPostList, documentPost ->
-        DocumentDto.builder()
-            .documentPost(documentPost)
-            .build());
+    return DocumentDto.builder()
+        .documentPosts(documentPostRepository
+            .findTop30ByOrderByDailyScoreDescAndCreatedDateAfter(yesterday))
+        .build();
   }
 
   // 캐시된 주간 자료 인기글 가져오기
   @Transactional(readOnly = true)
   @Cacheable(value = DOCUMENT_POST_CACHE_VALUE, key = WEEKLY_DOCUMENT_POSTS_KEY)
-  public List<DocumentDto> getWeeklyPopularDocumentPosts() {
+  public DocumentDto getWeeklyPopularDocumentPosts() {
     LocalDateTime lastWeek = LocalDateTime.now().minusWeeks(1);
-    List<DocumentPost> documentPostList = documentPostRepository.
-        findTop30ByOrderByWeeklyScoreDescAndCreatedDateAfter(lastWeek);
-    return MethodUtil.convertToDtoList(documentPostList, documentPost ->
-        DocumentDto.builder()
-            .documentPost(documentPost)
-            .build());
+    return DocumentDto.builder()
+        .documentPosts(documentPostRepository
+            .findTop30ByOrderByWeeklyScoreDescAndCreatedDateAfter(lastWeek))
+        .build();
   }
 
   // 캐시 갱신
