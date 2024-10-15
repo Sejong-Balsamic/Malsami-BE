@@ -1,23 +1,21 @@
 package com.balsamic.sejongmalsami.service;
 
 import com.balsamic.sejongmalsami.object.AnswerPost;
-import com.balsamic.sejongmalsami.object.AnswerPostCommand;
-import com.balsamic.sejongmalsami.object.AnswerPostDto;
-import com.balsamic.sejongmalsami.object.MediaFileCommand;
-import com.balsamic.sejongmalsami.object.MediaFileDto;
+import com.balsamic.sejongmalsami.object.MediaFile;
 import com.balsamic.sejongmalsami.object.Member;
+import com.balsamic.sejongmalsami.object.QuestionCommand;
+import com.balsamic.sejongmalsami.object.QuestionDto;
 import com.balsamic.sejongmalsami.object.QuestionPost;
-import com.balsamic.sejongmalsami.object.constants.ContentType;
 import com.balsamic.sejongmalsami.repository.postgres.AnswerPostRepository;
 import com.balsamic.sejongmalsami.repository.postgres.MemberRepository;
 import com.balsamic.sejongmalsami.repository.postgres.QuestionPostRepository;
 import com.balsamic.sejongmalsami.util.exception.CustomException;
 import com.balsamic.sejongmalsami.util.exception.ErrorCode;
-import java.util.ArrayList;
 import java.util.List;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 @Service
 @Slf4j
@@ -30,14 +28,15 @@ public class AnswerPostService {
   private final MediaFileService mediaFileService;
 
   // 답변 작성 로직
-  public AnswerPostDto saveAnswer(AnswerPostCommand command) {
+  @Transactional
+  public QuestionDto saveAnswer(QuestionCommand command) {
 
     Member member = memberRepository.findById(command.getMemberId())
         .orElseThrow(() -> new CustomException(ErrorCode.MEMBER_NOT_FOUND));
     QuestionPost questionPost = questionPostRepository.findById(command.getQuestionPostId())
         .orElseThrow(() -> new CustomException(ErrorCode.QUESTION_POST_NOT_FOUND));
 
-    AnswerPost answerPost = AnswerPost.builder()
+    AnswerPost answerPost = answerPostRepository.save(AnswerPost.builder()
         .member(member)
         .questionPost(questionPost)
         .content(command.getContent())
@@ -45,27 +44,18 @@ public class AnswerPostService {
         .commentCount(0)
         .isPrivate(command.getIsPrivate() != null ? command.getIsPrivate() : false)
         .isChaetaek(false)
-        .build();
+        .build());
 
-    AnswerPost savedPost = answerPostRepository.save(answerPost);
-
-    List<MediaFileDto> mediaFileDtos = new ArrayList<>();
-    // 첨부파일 추가 로직
+    // 첨부파일 추가
+    List<MediaFile> mediaFiles = null;
     if (command.getMediaFiles() != null) {
-      List<MediaFileCommand> mediaFileCommands = command.getMediaFiles().stream()
-          .map(file -> MediaFileCommand.builder()
-              .file(file)
-              .contentType(ContentType.ANSWER)
-              .build())
-          .toList();
-      mediaFileCommands.forEach(mediaFileCommand -> {
-        mediaFileDtos.add(mediaFileService.uploadMediaFile(mediaFileCommand));
-      });
+      mediaFiles = mediaFileService
+          .uploadMediaFiles(answerPost.getAnswerPostId(), command.getMediaFiles());
     }
 
-    return AnswerPostDto.builder()
-        .answerPost(savedPost)
-        .mediaFiles(mediaFileDtos)
+    return QuestionDto.builder()
+        .answerPost(answerPost)
+        .mediaFiles(mediaFiles)
         .build();
   }
 }
