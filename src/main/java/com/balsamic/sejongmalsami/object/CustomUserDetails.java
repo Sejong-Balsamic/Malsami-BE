@@ -4,6 +4,7 @@ import com.balsamic.sejongmalsami.object.constants.AccountStatus;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.Map;
+import java.util.UUID;
 import lombok.Getter;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
@@ -59,5 +60,10 @@ public class CustomUserDetails implements UserDetails {
   public boolean isEnabled() {
     // AccountStatus가 ACTIVE인 경우에만 계정이 활성화됨
     return member.getAccountStatus() != AccountStatus.DELETED;
+  }
+
+  // 사용자 PK 반환
+  public UUID getMemberId() {
+    return member.getMemberId();
   }
 }

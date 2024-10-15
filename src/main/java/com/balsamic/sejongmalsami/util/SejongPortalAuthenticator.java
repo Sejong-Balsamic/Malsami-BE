@@ -23,6 +23,7 @@ import org.springframework.stereotype.Component;
 @Component
 @RequiredArgsConstructor
 public class SejongPortalAuthenticator {
+
   private static final OkHttpClient CLIENT = new OkHttpClient();
 
   public MemberDto getMemberAuthInfos(MemberCommand command) {

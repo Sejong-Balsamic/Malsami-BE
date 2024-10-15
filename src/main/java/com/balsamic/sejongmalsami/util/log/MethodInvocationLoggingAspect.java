@@ -20,7 +20,9 @@ import org.springframework.web.context.request.ServletRequestAttributes;
 @RequiredArgsConstructor
 @Slf4j
 public class MethodInvocationLoggingAspect {
+
   private final Logger LOGGER = LoggerFactory.getLogger(MethodInvocationLoggingAspect.class);
+
   @Around("@annotation(LogMethodInvocation) || @annotation(LogMonitoringInvocation)")
   public Object logMethod(ProceedingJoinPoint joinPoint) throws Throwable {
     MethodSignature signature = (MethodSignature) joinPoint.getSignature();
@@ -29,7 +31,8 @@ public class MethodInvocationLoggingAspect {
     HttpServletRequest request = attributes.getRequest();
     String requestId = (String) request.getAttribute("RequestID");
 
-    LOGGER.info("[{}] RequestID: {}, Parameter: {}", signature.getMethod().getName(), requestId, Arrays.toString(joinPoint.getArgs()));
+    LOGGER.info("[{}] RequestID: {}, Parameter: {}", signature.getMethod().getName(), requestId,
+        Arrays.toString(joinPoint.getArgs()));
 
     Object result = ErrorCode.INTERNAL_SERVER_ERROR;
     try {

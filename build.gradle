@@ -76,7 +76,8 @@ dependencies {
     // Mockito
     testImplementation 'org.mockito:mockito-core:4.0.0'
 
-
+    // Apache
+    implementation 'org.apache.poi:poi-ooxml:5.2.3'
 }
 
 tasks.named('test') {

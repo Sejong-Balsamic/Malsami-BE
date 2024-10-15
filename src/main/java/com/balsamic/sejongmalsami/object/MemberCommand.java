@@ -1,16 +1,16 @@
 package com.balsamic.sejongmalsami.object;
 
-import jakarta.persistence.Column;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.Setter;
 import lombok.ToString;
 
 @Builder
-@Setter
 @Getter
+@Setter
 @ToString
 public class MemberCommand {
+
   private Long memberId;
   private Long studentId;
   private String studentIdString;
