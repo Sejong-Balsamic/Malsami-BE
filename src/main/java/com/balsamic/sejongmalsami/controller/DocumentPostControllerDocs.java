@@ -1,18 +1,27 @@
 package com.balsamic.sejongmalsami.controller;
 
 import com.balsamic.sejongmalsami.object.CustomUserDetails;
-import com.balsamic.sejongmalsami.object.DocumentPostCommand;
-import com.balsamic.sejongmalsami.object.DocumentPostDto;
+import com.balsamic.sejongmalsami.object.DocumentCommand;
+import com.balsamic.sejongmalsami.object.DocumentDto;
 import com.balsamic.sejongmalsami.object.constants.Author;
 import com.balsamic.sejongmalsami.util.log.ApiChangeLog;
 import com.balsamic.sejongmalsami.util.log.ApiChangeLogs;
 import io.swagger.v3.oas.annotations.Operation;
-import java.util.List;
 import org.springframework.http.ResponseEntity;
 
 public interface DocumentPostControllerDocs {
 
   @ApiChangeLogs({
+      @ApiChangeLog(
+          date = "2024.10.15",
+          author = Author.BAEKJIHOON,
+          description = "dto 필드 변경에 따른 반환값 수정"
+      ),
+      @ApiChangeLog(
+          date = "2024.10.14",
+          author = Author.BAEKJIHOON,
+          description = "자료게시판 command, dto 통합"
+      ),
       @ApiChangeLog(
           date = "2024.10.10",
           author = Author.BAEKJIHOON,
@@ -54,8 +63,11 @@ public interface DocumentPostControllerDocs {
 
           **반환 파라미터 값:**
 
-          - **DocumentPostDto**: 작성 된 자료 글 반환
+          - **DocumentDto**: 자료 게시판 정보 반환
             - **DocumentPost documentPost**: 자료 글 정보
+            - **List\\<DocumentPost\\> documentPosts**: null
+            - **DocumentRequestPost documentRequestPost**: null
+            - **List\\<DocumentRequestPost\\> documentRequestPosts**: null
 
           **참고 사항:**
 
@@ -67,11 +79,16 @@ public interface DocumentPostControllerDocs {
           - 성공적인 등록 후, 등록 된 자료글을 반환합니다.
           """
   )
-  ResponseEntity<DocumentPostDto> saveDocumentPost(
+  ResponseEntity<DocumentDto> saveDocumentPost(
       CustomUserDetails customUserDetails,
-      DocumentPostCommand command);
+      DocumentCommand command);
 
   @ApiChangeLogs({
+      @ApiChangeLog(
+          date = "2024.10.15",
+          author = Author.BAEKJIHOON,
+          description = "dto 필드 변경에 따른 반환값 수정"
+      ),
       @ApiChangeLog(
           date = "2024.10.10",
           author = Author.BAEKJIHOON,
@@ -91,8 +108,11 @@ public interface DocumentPostControllerDocs {
 
           **반환 파라미터 값:**
 
-          - **List<DocumentPostDto>**: 일간 인기 자료글 List 반환
-            - **DocumentPost documentPost**: 자료 글 정보
+          - **DocumentDto**: 자료 게시판 정보 반환
+            - **DocumentPost documentPost**: null
+            - **List\\<DocumentPost\\> documentPosts**: 일간 자료 인기글 리스트
+            - **DocumentRequestPost documentRequestPost**: null
+            - **List\\<DocumentRequestPost\\> documentRequestPosts**: null
 
           **참고 사항:**
 
@@ -100,10 +120,15 @@ public interface DocumentPostControllerDocs {
           - 요청 시각으로부터 24시간 이내에 작성된 상위 30개의 일간 인기글을 조회합니다.
           """
   )
-  ResponseEntity<List<DocumentPostDto>> getDailyPopularDocumentPost(
-      DocumentPostCommand command);
+  ResponseEntity<DocumentDto> getDailyPopularDocumentPost(
+      DocumentCommand command);
 
   @ApiChangeLogs({
+      @ApiChangeLog(
+          date = "2024.10.15",
+          author = Author.BAEKJIHOON,
+          description = "dto 필드 변경에 따른 반환값 수정"
+      ),
       @ApiChangeLog(
           date = "2024.10.10",
           author = Author.BAEKJIHOON,
@@ -123,8 +148,11 @@ public interface DocumentPostControllerDocs {
 
           **반환 파라미터 값:**
 
-          - **List<DocumentPostDto>**: 주간 인기 자료글 List 반환
-            - **DocumentPost documentPost**: 자료 글 정보
+          - **DocumentDto**: 자료 게시판 정보 반환
+            - **DocumentPost documentPost**: null
+            - **List\\<DocumentPost\\> documentPosts**: 주간 자료 인기글 리스트
+            - **DocumentRequestPost documentRequestPost**: null
+            - **List\\<DocumentRequestPost\\> documentRequestPosts**: null
 
           **참고 사항:**
 
@@ -132,6 +160,6 @@ public interface DocumentPostControllerDocs {
           - 요청 시각으로부터 7일 이내에 작성된 상위 30개의 주간 인기글을 조회합니다.
           """
   )
-  ResponseEntity<List<DocumentPostDto>> getWeeklyPopularDocumentPost(
-      DocumentPostCommand command);
+  ResponseEntity<DocumentDto> getWeeklyPopularDocumentPost(
+      DocumentCommand command);
 }

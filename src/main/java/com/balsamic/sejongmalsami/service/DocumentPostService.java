@@ -1,8 +1,8 @@
 package com.balsamic.sejongmalsami.service;
 
 import com.balsamic.sejongmalsami.object.DocumentPost;
-import com.balsamic.sejongmalsami.object.DocumentPostCommand;
-import com.balsamic.sejongmalsami.object.DocumentPostDto;
+import com.balsamic.sejongmalsami.object.DocumentCommand;
+import com.balsamic.sejongmalsami.object.DocumentDto;
 import com.balsamic.sejongmalsami.object.Member;
 import com.balsamic.sejongmalsami.object.constants.DocumentType;
 import com.balsamic.sejongmalsami.object.constants.PostTier;
@@ -26,7 +26,7 @@ public class DocumentPostService {
 
   // 질문 게시글 등록
   @Transactional
-  public DocumentPostDto saveDocumentPost(DocumentPostCommand command) {
+  public DocumentDto saveDocumentPost(DocumentCommand command) {
 
     Member member = memberRepository.findById(command.getMemberId())
         .orElseThrow(() -> new CustomException(ErrorCode.MEMBER_NOT_FOUND));
@@ -53,7 +53,7 @@ public class DocumentPostService {
       }
     }
 
-    return DocumentPostDto.builder()
+    return DocumentDto.builder()
         .documentPost(documentPostRepository.save(documentPost))
         .build();
   }

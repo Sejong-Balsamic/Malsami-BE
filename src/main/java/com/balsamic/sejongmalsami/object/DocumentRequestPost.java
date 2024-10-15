@@ -1,7 +1,6 @@
 package com.balsamic.sejongmalsami.object;
 
 import com.balsamic.sejongmalsami.object.constants.DocumentType;
-import com.balsamic.sejongmalsami.object.constants.QuestionPresetTag;
 import com.balsamic.sejongmalsami.util.exception.CustomException;
 import com.balsamic.sejongmalsami.util.exception.ErrorCode;
 import jakarta.persistence.Column;
@@ -46,6 +45,10 @@ public class DocumentRequestPost extends BaseEntity {
   // 제목
   private String title;
 
+  // 내용
+  @Lob
+  private String content;
+
   // 자료 타입
   @Builder.Default
   @Enumerated(EnumType.STRING)
@@ -53,10 +56,6 @@ public class DocumentRequestPost extends BaseEntity {
 
   @ManyToOne(fetch = FetchType.LAZY)
   private Course course;
-
-  // 내용
-  @Lob
-  private String content;
 
   // 닉네임 비공개
   @Builder.Default
