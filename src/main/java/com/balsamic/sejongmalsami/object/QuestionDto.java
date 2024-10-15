@@ -13,7 +13,11 @@ public class QuestionDto {
 
   private QuestionPost questionPost; // 질문
 
+  private List<QuestionPost> questionPosts; // 질문
+
   private AnswerPost answerPost; // 답변
+
+  private List<AnswerPost> answerPosts; // 답변
 
   // 첨부파일
   private List<MediaFile> mediaFiles; // 질문, 답변
