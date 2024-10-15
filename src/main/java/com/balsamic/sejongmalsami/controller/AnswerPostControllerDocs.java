@@ -13,6 +13,11 @@ public interface AnswerPostControllerDocs {
 
   @ApiChangeLogs({
       @ApiChangeLog(
+          date = "2024.10.15",
+          author = Author.BAEKJIHOON,
+          description = "dto 필드 변경에 따른 반환값 수정"
+      ),
+      @ApiChangeLog(
           date = "2024.10.14",
           author = Author.BAEKJIHOON,
           description = "질문게시판 dto, command 통합"
@@ -50,9 +55,11 @@ public interface AnswerPostControllerDocs {
 
           - **QuestionDto**: 질문 게시판 정보 반환
             - **QuestionPost questionPost**: null
+            - **List<QuestionPost> questionPosts**: null
             - **AnswerPost answerPost**: 답변 글 정보
-            - **List\\<MediaFile\\>: 답변 글 첨부파일
-            - **Set\\<String\\>: null
+            - **List<AnswerPost> answerPosts**: null
+            - **List\\<MediaFile\\> mediaFiles**: 답변 글 첨부파일
+            - **Set\\<String\\> customTags**: null
 
           **참고 사항:**
 

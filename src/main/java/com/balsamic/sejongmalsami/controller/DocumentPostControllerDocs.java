@@ -13,6 +13,11 @@ public interface DocumentPostControllerDocs {
 
   @ApiChangeLogs({
       @ApiChangeLog(
+          date = "2024.10.15",
+          author = Author.BAEKJIHOON,
+          description = "dto 필드 변경에 따른 반환값 수정"
+      ),
+      @ApiChangeLog(
           date = "2024.10.14",
           author = Author.BAEKJIHOON,
           description = "자료게시판 command, dto 통합"
@@ -60,7 +65,9 @@ public interface DocumentPostControllerDocs {
 
           - **DocumentDto**: 자료 게시판 정보 반환
             - **DocumentPost documentPost**: 자료 글 정보
+            - **List<DocumentPost> documentPosts**: null
             - **DocumentRequestPost documentRequestPost**: null
+            - **List<DocumentRequestPost> documentRequestPosts**: null
 
           **참고 사항:**
 
@@ -77,6 +84,11 @@ public interface DocumentPostControllerDocs {
       DocumentCommand command);
 
   @ApiChangeLogs({
+      @ApiChangeLog(
+          date = "2024.10.15",
+          author = Author.BAEKJIHOON,
+          description = "dto 필드 변경에 따른 반환값 수정"
+      ),
       @ApiChangeLog(
           date = "2024.10.10",
           author = Author.BAEKJIHOON,
@@ -96,8 +108,11 @@ public interface DocumentPostControllerDocs {
 
           **반환 파라미터 값:**
 
-          - **DocumentDto**: 일간 인기 자료글
-            - **DocumentPosts documentPosts**: 자료 글 정보 리스트
+          - **DocumentDto**: 자료 게시판 정보 반환
+            - **DocumentPost documentPost**: null
+            - **List<DocumentPost> documentPosts**: 일간 자료 인기글 리스트
+            - **DocumentRequestPost documentRequestPost**: null
+            - **List<DocumentRequestPost> documentRequestPosts**: null
 
           **참고 사항:**
 
@@ -109,6 +124,11 @@ public interface DocumentPostControllerDocs {
       DocumentCommand command);
 
   @ApiChangeLogs({
+      @ApiChangeLog(
+          date = "2024.10.15",
+          author = Author.BAEKJIHOON,
+          description = "dto 필드 변경에 따른 반환값 수정"
+      ),
       @ApiChangeLog(
           date = "2024.10.10",
           author = Author.BAEKJIHOON,
@@ -128,8 +148,11 @@ public interface DocumentPostControllerDocs {
 
           **반환 파라미터 값:**
 
-          - **DocumentPostDto**: 주간 인기 자료글
-            - **DocumentPosts documentPosts**: 자료 글 정보 리스트
+          - **DocumentDto**: 자료 게시판 정보 반환
+            - **DocumentPost documentPost**: null
+            - **List<DocumentPost> documentPosts**: 주간 자료 인기글 리스트
+            - **DocumentRequestPost documentRequestPost**: null
+            - **List<DocumentRequestPost> documentRequestPosts**: null
 
           **참고 사항:**
 

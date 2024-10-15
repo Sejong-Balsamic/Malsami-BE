@@ -52,7 +52,8 @@ public interface CommentControllerDocs {
           **반환 파라미터 값:**
 
           - **CommentDto**: 작성 된 댓글 반환
-            - **CommentDto commentDto**: 댓글 정보
+            - **Comment comment**: 댓글 정보
+            - **List<Comment> comments**: null
 
           **참고 사항:**
 

@@ -13,6 +13,11 @@ public interface QuestionPostControllerDocs {
 
   @ApiChangeLogs({
       @ApiChangeLog(
+          date = "2024.10.15",
+          author = Author.BAEKJIHOON,
+          description = "dto 필드 변경에 따른 반환값 수정"
+      ),
+      @ApiChangeLog(
           date = "2024.10.14",
           author = Author.BAEKJIHOON,
           description = "질문게시판 command, dto 통합"
@@ -82,7 +87,9 @@ public interface QuestionPostControllerDocs {
 
           - **QuestionDto**: 질문 게시판 정보 반환
             - **QuestionPost questionPost**: 질문 글 정보
+            - **List<QuestionPost> questionPosts**: null
             - **AnswerPost answerPost**: null
+            - **List<AnswerPost> answerPosts**: null
             - **List\\<MediaFile\\>: 질문 글 첨부파일
             - **Set\\<String\\>: 질문 글 커스텀태그
 
@@ -103,6 +110,11 @@ public interface QuestionPostControllerDocs {
 
   @ApiChangeLogs({
       @ApiChangeLog(
+          date = "2024.10.15",
+          author = Author.BAEKJIHOON,
+          description = "dto 필드 변경에 따른 반환값 수정"
+      ),
+      @ApiChangeLog(
           date = "2024.10.10",
           author = Author.BAEKJIHOON,
           description = "질문게시판 일간 인기글 init"
@@ -121,8 +133,13 @@ public interface QuestionPostControllerDocs {
 
           **반환 파라미터 값:**
 
-          - **QuestionPostDto**: 일간 인기 질문글 반환
-            - **List<QuestionPost> questionPosts**: 질문 글 정보 리스트
+          - **QuestionDto**: 질문 게시판 정보 반환
+            - **QuestionPost questionPost**: null
+            - **List<QuestionPost> questionPosts**: 일간 인기 질문 글 리스트
+            - **AnswerPost answerPost**: null
+            - **List<AnswerPost> answerPosts**: null
+            - **List\\<MediaFile\\>: null
+            - **Set\\<String\\>: null
 
           **참고 사항:**
 
@@ -134,6 +151,11 @@ public interface QuestionPostControllerDocs {
       QuestionCommand command);
 
   @ApiChangeLogs({
+      @ApiChangeLog(
+          date = "2024.10.15",
+          author = Author.BAEKJIHOON,
+          description = "dto 필드 변경에 따른 반환값 수정"
+      ),
       @ApiChangeLog(
           date = "2024.10.10",
           author = Author.BAEKJIHOON,
@@ -153,8 +175,13 @@ public interface QuestionPostControllerDocs {
 
           **반환 파라미터 값:**
 
-          - **QuestionPostDto**: 주간 인기 질문글 반환
-            - **QuestionPosts questionPosts**: 질문 글 정보 리스트
+          - **QuestionDto**: 질문 게시판 정보 반환
+            - **QuestionPost questionPost**: null
+            - **List<QuestionPost> questionPosts**: 주간 인기 질문 글 리스트
+            - **AnswerPost answerPost**: null
+            - **List<AnswerPost> answerPosts**: null
+            - **List\\<MediaFile\\>: null
+            - **Set\\<String\\>: null
 
           **참고 사항:**
 
