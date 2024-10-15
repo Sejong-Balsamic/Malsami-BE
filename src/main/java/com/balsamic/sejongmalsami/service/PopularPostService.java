@@ -6,7 +6,7 @@ import com.balsamic.sejongmalsami.object.QuestionDto;
 import com.balsamic.sejongmalsami.object.QuestionPost;
 import com.balsamic.sejongmalsami.repository.postgres.DocumentPostRepository;
 import com.balsamic.sejongmalsami.repository.postgres.QuestionPostRepository;
-import com.balsamic.sejongmalsami.util.config.ScoreConfig;
+import com.balsamic.sejongmalsami.util.ScoreCalculator;
 import java.time.LocalDateTime;
 import java.util.List;
 import lombok.RequiredArgsConstructor;
@@ -24,7 +24,7 @@ public class PopularPostService {
 
   private final QuestionPostRepository questionPostRepository;
   private final DocumentPostRepository documentPostRepository;
-  private final ScoreConfig scoreConfig;
+  private final ScoreCalculator scoreCalculator;
 
   private static final long DAILY_SCHEDULED_RATE = 30 * 60 * 1000L;
   private static final long WEEKLY_SCHEDULED_RATE = 6 * 60 * 60 * 1000L;
@@ -44,16 +44,16 @@ public class PopularPostService {
     // 질문글
     List<QuestionPost> questionPosts = questionPostRepository.findQuestionPostsAfter(yesterday);
 
-    for (QuestionPost questionPost : questionPosts) {
-      questionPost.updateDailyScore(scoreConfig.calculateQuestionPostDailyScore(questionPost));
-      questionPostRepository.save(questionPost);
+    for (QuestionPost post : questionPosts) {
+      post.updateDailyScore(scoreCalculator.calculateQuestionPostDailyScore(post));
+      questionPostRepository.save(post);
     }
 
     // 자료글
     List<DocumentPost> documentPosts = documentPostRepository.findDocumentPostsAfter(yesterday);
 
     for (DocumentPost documentPost : documentPosts) {
-      documentPost.updateDailyScore(scoreConfig.calculateDocumentPostDailyScore(documentPost));
+      documentPost.updateDailyScore(scoreCalculator.calculateDocumentPostDailyScore(documentPost));
       documentPostRepository.save(documentPost);
     }
 
@@ -72,7 +72,7 @@ public class PopularPostService {
     List<QuestionPost> posts = questionPostRepository.findQuestionPostsAfter(lastWeek);
 
     for (QuestionPost post : posts) {
-      post.updateWeeklyScore(scoreConfig.calculateQuestionPostWeeklyScore(post));
+      post.updateWeeklyScore(scoreCalculator.calculateQuestionPostWeeklyScore(post));
       questionPostRepository.save(post);
     }
 
@@ -80,7 +80,7 @@ public class PopularPostService {
     List<DocumentPost> documentPosts = documentPostRepository.findDocumentPostsAfter(lastWeek);
 
     for (DocumentPost documentPost : documentPosts) {
-      documentPost.updateDailyScore(scoreConfig.calculateDocumentPostWeeklyScore(documentPost));
+      documentPost.updateDailyScore(scoreCalculator.calculateDocumentPostWeeklyScore(documentPost));
       documentPostRepository.save(documentPost);
     }
 
