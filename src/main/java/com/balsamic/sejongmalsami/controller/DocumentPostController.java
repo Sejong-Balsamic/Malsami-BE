@@ -7,7 +7,6 @@ import com.balsamic.sejongmalsami.service.DocumentPostService;
 import com.balsamic.sejongmalsami.service.PopularPostService;
 import com.balsamic.sejongmalsami.util.log.LogMonitoringInvocation;
 import io.swagger.v3.oas.annotations.tags.Tag;
-import java.util.List;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
@@ -42,7 +41,7 @@ public class DocumentPostController implements DocumentPostControllerDocs {
   @Override
   @PostMapping(value = "/daily/popular", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
   @LogMonitoringInvocation
-  public ResponseEntity<List<DocumentDto>> getDailyPopularDocumentPost(
+  public ResponseEntity<DocumentDto> getDailyPopularDocumentPost(
       @ModelAttribute DocumentCommand command) {
     return ResponseEntity.ok(popularPostService.getDailyPopularDocumentPosts());
   }
@@ -50,7 +49,7 @@ public class DocumentPostController implements DocumentPostControllerDocs {
   @Override
   @PostMapping(value = "/weekly/popular", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
   @LogMonitoringInvocation
-  public ResponseEntity<List<DocumentDto>> getWeeklyPopularDocumentPost(DocumentCommand command) {
+  public ResponseEntity<DocumentDto> getWeeklyPopularDocumentPost(DocumentCommand command) {
     return ResponseEntity.ok(popularPostService.getWeeklyPopularDocumentPosts());
   }
 
