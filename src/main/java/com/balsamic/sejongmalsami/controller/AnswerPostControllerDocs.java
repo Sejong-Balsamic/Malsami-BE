@@ -55,9 +55,9 @@ public interface AnswerPostControllerDocs {
 
           - **QuestionDto**: 질문 게시판 정보 반환
             - **QuestionPost questionPost**: null
-            - **List<QuestionPost> questionPosts**: null
+            - **List\\<QuestionPost\\> questionPosts**: null
             - **AnswerPost answerPost**: 답변 글 정보
-            - **List<AnswerPost> answerPosts**: null
+            - **List\\<AnswerPost\\> answerPosts**: null
             - **List\\<MediaFile\\> mediaFiles**: 답변 글 첨부파일
             - **Set\\<String\\> customTags**: null
 

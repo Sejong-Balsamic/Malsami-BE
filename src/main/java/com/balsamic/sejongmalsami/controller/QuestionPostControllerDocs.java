@@ -87,11 +87,11 @@ public interface QuestionPostControllerDocs {
 
           - **QuestionDto**: 질문 게시판 정보 반환
             - **QuestionPost questionPost**: 질문 글 정보
-            - **List<QuestionPost> questionPosts**: null
+            - **List\\<QuestionPost\\> questionPosts**: null
             - **AnswerPost answerPost**: null
-            - **List<AnswerPost> answerPosts**: null
-            - **List\\<MediaFile\\>: 질문 글 첨부파일
-            - **Set\\<String\\>: 질문 글 커스텀태그
+            - **List\\<AnswerPost\\> answerPosts**: null
+            - **List\\<MediaFile\\> mediaFiles**: 질문 글 첨부파일
+            - **Set\\<String\\> customTags**: 질문 글 커스텀태그
 
           **참고 사항:**
 
@@ -135,11 +135,11 @@ public interface QuestionPostControllerDocs {
 
           - **QuestionDto**: 질문 게시판 정보 반환
             - **QuestionPost questionPost**: null
-            - **List<QuestionPost> questionPosts**: 일간 인기 질문 글 리스트
+            - **List\\<QuestionPost\\> questionPosts**: 일간 인기 질문 글 리스트
             - **AnswerPost answerPost**: null
-            - **List<AnswerPost> answerPosts**: null
-            - **List\\<MediaFile\\>: null
-            - **Set\\<String\\>: null
+            - **List\\<AnswerPost\\> answerPosts**: null
+            - **List\\<MediaFile\\> mediaFiles: null
+            - **Set\\<String\\> customTags: null
 
           **참고 사항:**
 
@@ -177,11 +177,11 @@ public interface QuestionPostControllerDocs {
 
           - **QuestionDto**: 질문 게시판 정보 반환
             - **QuestionPost questionPost**: null
-            - **List<QuestionPost> questionPosts**: 주간 인기 질문 글 리스트
+            - **List\\<QuestionPost\\> questionPosts**: 주간 인기 질문 글 리스트
             - **AnswerPost answerPost**: null
-            - **List<AnswerPost> answerPosts**: null
-            - **List\\<MediaFile\\>: null
-            - **Set\\<String\\>: null
+            - **List\\<AnswerPost\\> answerPosts**: null
+            - **List\\<MediaFile\\> mediaFiles: null
+            - **Set\\<String\\> customTags: null
 
           **참고 사항:**
 
