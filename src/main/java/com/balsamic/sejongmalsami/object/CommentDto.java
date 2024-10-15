@@ -1,5 +1,6 @@
 package com.balsamic.sejongmalsami.object;
 
+import java.util.List;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.ToString;
@@ -10,4 +11,6 @@ import lombok.ToString;
 public class CommentDto {
 
   private Comment comment;
+
+  private List<Comment> comments;
 }

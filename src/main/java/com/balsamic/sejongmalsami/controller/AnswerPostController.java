@@ -1,8 +1,8 @@
 package com.balsamic.sejongmalsami.controller;
 
-import com.balsamic.sejongmalsami.object.AnswerPostCommand;
-import com.balsamic.sejongmalsami.object.AnswerPostDto;
 import com.balsamic.sejongmalsami.object.CustomUserDetails;
+import com.balsamic.sejongmalsami.object.QuestionCommand;
+import com.balsamic.sejongmalsami.object.QuestionDto;
 import com.balsamic.sejongmalsami.service.AnswerPostService;
 import com.balsamic.sejongmalsami.util.log.LogMonitoringInvocation;
 import io.swagger.v3.oas.annotations.tags.Tag;
@@ -29,9 +29,9 @@ public class AnswerPostController implements AnswerPostControllerDocs {
   @Override
   @PostMapping(value = "/post", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
   @LogMonitoringInvocation
-  public ResponseEntity<AnswerPostDto> saveAnswerPost(
+  public ResponseEntity<QuestionDto> saveAnswerPost(
       @AuthenticationPrincipal CustomUserDetails customUserDetails,
-      @ModelAttribute AnswerPostCommand command) {
+      @ModelAttribute QuestionCommand command) {
     command.setMemberId(customUserDetails.getMemberId());
     return ResponseEntity.ok(answerPostService.saveAnswer(command));
   }

@@ -1,8 +1,8 @@
 package com.balsamic.sejongmalsami.controller;
 
-import com.balsamic.sejongmalsami.object.AnswerPostCommand;
-import com.balsamic.sejongmalsami.object.AnswerPostDto;
 import com.balsamic.sejongmalsami.object.CustomUserDetails;
+import com.balsamic.sejongmalsami.object.QuestionCommand;
+import com.balsamic.sejongmalsami.object.QuestionDto;
 import com.balsamic.sejongmalsami.object.constants.Author;
 import com.balsamic.sejongmalsami.util.log.ApiChangeLog;
 import com.balsamic.sejongmalsami.util.log.ApiChangeLogs;
@@ -12,6 +12,16 @@ import org.springframework.http.ResponseEntity;
 public interface AnswerPostControllerDocs {
 
   @ApiChangeLogs({
+      @ApiChangeLog(
+          date = "2024.10.15",
+          author = Author.BAEKJIHOON,
+          description = "dto 필드 변경에 따른 반환값 수정"
+      ),
+      @ApiChangeLog(
+          date = "2024.10.14",
+          author = Author.BAEKJIHOON,
+          description = "질문게시판 dto, command 통합"
+      ),
       @ApiChangeLog(
           date = "2024.10.11",
           author = Author.BAEKJIHOON,
@@ -43,8 +53,13 @@ public interface AnswerPostControllerDocs {
 
           **반환 파라미터 값:**
 
-          - **AnswerPostDto**: 작성 된 답변 반환
-            - **AnswerPost answerPost**: 답변 정보
+          - **QuestionDto**: 질문 게시판 정보 반환
+            - **QuestionPost questionPost**: null
+            - **List\\<QuestionPost\\> questionPosts**: null
+            - **AnswerPost answerPost**: 답변 글 정보
+            - **List\\<AnswerPost\\> answerPosts**: null
+            - **List\\<MediaFile\\> mediaFiles**: 답변 글 첨부파일
+            - **Set\\<String\\> customTags**: null
 
           **참고 사항:**
 
@@ -56,7 +71,7 @@ public interface AnswerPostControllerDocs {
           - Swagger에서 테스트 시 mediaFiles에 있는 "Send empty value" 체크박스 해제해야합니다.
           """
   )
-  ResponseEntity<AnswerPostDto> saveAnswerPost(
+  ResponseEntity<QuestionDto> saveAnswerPost(
       CustomUserDetails customUserDetails,
-      AnswerPostCommand command);
+      QuestionCommand command);
 }
