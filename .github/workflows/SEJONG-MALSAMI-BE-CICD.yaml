@@ -28,6 +28,16 @@ jobs:
         run: |
           echo "${{ secrets.APPLICATION_PROD_YML }}" > ./src/main/resources/application-prod.yml
 
+      # yeopjeon.yml 파일을 빌드 전에 생성
+      - name: Create yeopjeon.yml from secret
+        run: |
+          echo "${{ secrets.YEOPJEON_YML }}" > ./src/main/resources/yeopjeon.yml
+
+      # score.yml 파일을 빌드 전에 생성
+      - name: Create score.yml from secret
+        run: |
+          echo "${{ secrets.SCORE_YML }}" > ./src/main/resources/score.yml
+
       # prod 프로파일을 활성화하여 빌드
       - name: Build with Gradle
         run: ./gradlew clean build -x test -Dspring.profiles.active=prod
