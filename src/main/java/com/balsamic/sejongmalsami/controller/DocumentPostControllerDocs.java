@@ -7,7 +7,6 @@ import com.balsamic.sejongmalsami.object.constants.Author;
 import com.balsamic.sejongmalsami.util.log.ApiChangeLog;
 import com.balsamic.sejongmalsami.util.log.ApiChangeLogs;
 import io.swagger.v3.oas.annotations.Operation;
-import java.util.List;
 import org.springframework.http.ResponseEntity;
 
 public interface DocumentPostControllerDocs {
@@ -97,9 +96,8 @@ public interface DocumentPostControllerDocs {
 
           **반환 파라미터 값:**
 
-          - **List<DocumentDto>**: 일간 인기 자료글 List 반환
-            - **DocumentPost documentPost**: 자료 글 정보
-            - **DocumentRequestPost documentRequestPost**: null
+          - **DocumentDto**: 일간 인기 자료글
+            - **DocumentPosts documentPosts**: 자료 글 정보 리스트
 
           **참고 사항:**
 
@@ -107,7 +105,7 @@ public interface DocumentPostControllerDocs {
           - 요청 시각으로부터 24시간 이내에 작성된 상위 30개의 일간 인기글을 조회합니다.
           """
   )
-  ResponseEntity<List<DocumentDto>> getDailyPopularDocumentPost(
+  ResponseEntity<DocumentDto> getDailyPopularDocumentPost(
       DocumentCommand command);
 
   @ApiChangeLogs({
@@ -130,9 +128,8 @@ public interface DocumentPostControllerDocs {
 
           **반환 파라미터 값:**
 
-          - **List<DocumentPostDto>**: 주간 인기 자료글 List 반환
-            - **DocumentPost documentPost**: 자료 글 정보
-            - **DocumentRequestPost documentRequestPost**: null
+          - **DocumentPostDto**: 주간 인기 자료글
+            - **DocumentPosts documentPosts**: 자료 글 정보 리스트
 
           **참고 사항:**
 
@@ -140,6 +137,6 @@ public interface DocumentPostControllerDocs {
           - 요청 시각으로부터 7일 이내에 작성된 상위 30개의 주간 인기글을 조회합니다.
           """
   )
-  ResponseEntity<List<DocumentDto>> getWeeklyPopularDocumentPost(
+  ResponseEntity<DocumentDto> getWeeklyPopularDocumentPost(
       DocumentCommand command);
 }

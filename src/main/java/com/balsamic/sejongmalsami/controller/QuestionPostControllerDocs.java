@@ -7,7 +7,6 @@ import com.balsamic.sejongmalsami.object.constants.Author;
 import com.balsamic.sejongmalsami.util.log.ApiChangeLog;
 import com.balsamic.sejongmalsami.util.log.ApiChangeLogs;
 import io.swagger.v3.oas.annotations.Operation;
-import java.util.List;
 import org.springframework.http.ResponseEntity;
 
 public interface QuestionPostControllerDocs {
@@ -122,8 +121,8 @@ public interface QuestionPostControllerDocs {
 
           **반환 파라미터 값:**
 
-          - **List<QuestionPostDto>**: 일간 인기 질문글 List 반환
-            - **QuestionPost questionPost**: 질문 글 정보
+          - **QuestionPostDto**: 일간 인기 질문글 반환
+            - **List<QuestionPost> questionPosts**: 질문 글 정보 리스트
 
           **참고 사항:**
 
@@ -131,7 +130,7 @@ public interface QuestionPostControllerDocs {
           - 요청 시각으로부터 24시간 이내에 작성된 상위 30개의 일간 인기글을 조회합니다.
           """
   )
-  ResponseEntity<List<QuestionDto>> getDailyPopularQuestionPost(
+  ResponseEntity<QuestionDto> getDailyPopularQuestionPost(
       QuestionCommand command);
 
   @ApiChangeLogs({
@@ -154,8 +153,8 @@ public interface QuestionPostControllerDocs {
 
           **반환 파라미터 값:**
 
-          - **List<QuestionPostDto>**: 주간 인기 질문글 List 반환
-            - **QuestionPost questionPost**: 질문 글 정보
+          - **QuestionPostDto**: 주간 인기 질문글 반환
+            - **QuestionPosts questionPosts**: 질문 글 정보 리스트
 
           **참고 사항:**
 
@@ -163,6 +162,6 @@ public interface QuestionPostControllerDocs {
           - 요청 시각으로부터 7일 이내에 작성된 상위 30개의 주간 인기글을 조회합니다.
           """
   )
-  ResponseEntity<List<QuestionDto>> getWeeklyPopularQuestionPost(
+  ResponseEntity<QuestionDto> getWeeklyPopularQuestionPost(
       QuestionCommand command);
 }
