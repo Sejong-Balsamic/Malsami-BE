@@ -10,7 +10,6 @@ import com.balsamic.sejongmalsami.repository.postgres.MemberRepository;
 import com.balsamic.sejongmalsami.repository.postgres.QuestionPostRepository;
 import com.balsamic.sejongmalsami.util.exception.CustomException;
 import com.balsamic.sejongmalsami.util.exception.ErrorCode;
-import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
@@ -75,14 +74,9 @@ public class QuestionPostService {
           .saveCustomTags(command.getCustomTagSet(), savedPost.getQuestionPostId());
     }
 
-    List<MediaFile> mediaFiles = new ArrayList<>();
     // 첨부파일 추가
-    if (command.getMediaFiles() != null && !command.getMediaFiles().isEmpty()) {
-      command.getMediaFiles().forEach(file -> {
-        MediaFile mediaFile = mediaFileService.uploadMediaFile(savedPost.getQuestionPostId(), file);
-        mediaFiles.add(mediaFile);
-      });
-    }
+    List<MediaFile> mediaFiles = mediaFileService
+        .uploadMediaFiles(savedPost.getQuestionPostId(), command.getMediaFiles());
 
     return QuestionDto.builder()
         .questionPost(savedPost)

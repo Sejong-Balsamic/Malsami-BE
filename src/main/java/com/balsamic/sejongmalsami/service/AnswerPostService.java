@@ -11,7 +11,6 @@ import com.balsamic.sejongmalsami.repository.postgres.MemberRepository;
 import com.balsamic.sejongmalsami.repository.postgres.QuestionPostRepository;
 import com.balsamic.sejongmalsami.util.exception.CustomException;
 import com.balsamic.sejongmalsami.util.exception.ErrorCode;
-import java.util.ArrayList;
 import java.util.List;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -47,14 +46,9 @@ public class AnswerPostService {
         .isChaetaek(false)
         .build());
 
-    List<MediaFile> mediaFiles = new ArrayList<>();
-    // 첨부파일 추가 로직
-    if (command.getMediaFiles() != null && !command.getMediaFiles().isEmpty()) {
-      command.getMediaFiles().forEach(file -> {
-        MediaFile mediaFile = mediaFileService.uploadMediaFile(answerPost.getAnswerPostId(), file);
-        mediaFiles.add(mediaFile);
-      });
-    }
+    // 첨부파일 추가
+    List<MediaFile> mediaFiles = mediaFileService
+        .uploadMediaFiles(answerPost.getAnswerPostId(), command.getMediaFiles());
 
     return QuestionDto.builder()
         .answerPost(answerPost)
