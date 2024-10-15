@@ -75,8 +75,11 @@ public class QuestionPostService {
     }
 
     // 첨부파일 추가
-    List<MediaFile> mediaFiles = mediaFileService
-        .uploadMediaFiles(savedPost.getQuestionPostId(), command.getMediaFiles());
+    List<MediaFile> mediaFiles = null;
+    if (command.getMediaFiles() != null) {
+      mediaFiles = mediaFileService
+          .uploadMediaFiles(savedPost.getQuestionPostId(), command.getMediaFiles());
+    }
 
     return QuestionDto.builder()
         .questionPost(savedPost)

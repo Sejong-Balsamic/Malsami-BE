@@ -47,8 +47,11 @@ public class AnswerPostService {
         .build());
 
     // 첨부파일 추가
-    List<MediaFile> mediaFiles = mediaFileService
-        .uploadMediaFiles(answerPost.getAnswerPostId(), command.getMediaFiles());
+    List<MediaFile> mediaFiles = null;
+    if (command.getMediaFiles() != null) {
+      mediaFiles = mediaFileService
+          .uploadMediaFiles(answerPost.getAnswerPostId(), command.getMediaFiles());
+    }
 
     return QuestionDto.builder()
         .answerPost(answerPost)
