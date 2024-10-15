@@ -137,9 +137,9 @@ public interface QuestionPostControllerDocs {
             - **QuestionPost questionPost**: null
             - **List\\<QuestionPost\\> questionPosts**: 일간 인기 질문 글 리스트
             - **AnswerPost answerPost**: null
-            - **List\\<AnswerPost\\> answerPosts**: null
-            - **List\\<MediaFile\\> mediaFiles: null
-            - **Set\\<String\\> customTags: null
+            - **List\\<AnswerPost\\>** answerPosts**: null
+            - **List\\<MediaFile\\>** mediaFiles: null
+            - **Set\\<String\\>** customTags: null
 
           **참고 사항:**
 
@@ -179,9 +179,9 @@ public interface QuestionPostControllerDocs {
             - **QuestionPost questionPost**: null
             - **List\\<QuestionPost\\> questionPosts**: 주간 인기 질문 글 리스트
             - **AnswerPost answerPost**: null
-            - **List\\<AnswerPost\\> answerPosts**: null
-            - **List\\<MediaFile\\> mediaFiles: null
-            - **Set\\<String\\> customTags: null
+            - **List\\<AnswerPost\\>** answerPosts**: null
+            - **List\\<MediaFile\\>** mediaFiles: null
+            - **Set\\<String\\>** customTags: null
 
           **참고 사항:**
 
