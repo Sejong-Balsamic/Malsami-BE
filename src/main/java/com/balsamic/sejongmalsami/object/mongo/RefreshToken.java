@@ -1,4 +1,4 @@
-package com.balsamic.sejongmalsami.object;
+package com.balsamic.sejongmalsami.object.mongo;
 
 import jakarta.validation.constraints.NotNull;
 import java.time.LocalDateTime;

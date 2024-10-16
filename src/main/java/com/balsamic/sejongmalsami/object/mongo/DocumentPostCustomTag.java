@@ -1,4 +1,4 @@
-package com.balsamic.sejongmalsami.object;
+package com.balsamic.sejongmalsami.object.mongo;
 
 import jakarta.persistence.Id;
 import jakarta.validation.constraints.NotNull;

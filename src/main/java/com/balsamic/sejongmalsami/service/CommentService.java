@@ -1,9 +1,9 @@
 package com.balsamic.sejongmalsami.service;
 
-import com.balsamic.sejongmalsami.object.Comment;
+import com.balsamic.sejongmalsami.object.postgres.Comment;
 import com.balsamic.sejongmalsami.object.CommentCommand;
 import com.balsamic.sejongmalsami.object.CommentDto;
-import com.balsamic.sejongmalsami.object.Member;
+import com.balsamic.sejongmalsami.object.postgres.Member;
 import com.balsamic.sejongmalsami.repository.postgres.CommentRepository;
 import com.balsamic.sejongmalsami.repository.postgres.MemberRepository;
 import com.balsamic.sejongmalsami.util.exception.CustomException;
