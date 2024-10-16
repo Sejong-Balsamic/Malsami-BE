@@ -13,6 +13,7 @@ import com.balsamic.sejongmalsami.repository.postgres.MemberRepository;
 import com.balsamic.sejongmalsami.repository.postgres.YeopjeonRepository;
 import com.balsamic.sejongmalsami.util.JwtUtil;
 import com.balsamic.sejongmalsami.util.SejongPortalAuthenticator;
+import com.balsamic.sejongmalsami.util.config.YeopjeonConfig;
 import com.balsamic.sejongmalsami.util.exception.CustomException;
 import com.balsamic.sejongmalsami.util.exception.ErrorCode;
 import io.jsonwebtoken.Claims;
@@ -39,6 +40,7 @@ public class MemberService implements UserDetailsService {
   private final YeopjeonRepository yeopjeonRepository;
   private final SejongPortalAuthenticator sejongPortalAuthenticator;
   private final JwtUtil jwtUtil;
+  private final YeopjeonConfig yeopjeonConfig;
 
   /**
    * Spring Security에서 회원 정보를 로드하는 메서드
@@ -88,10 +90,23 @@ public class MemberService implements UserDetailsService {
               .build();
         });
 
+    // 첫 로그인 여부 확인
+    if (memberRepository.existsByStudentId(studentId)) {
+      member.disableFirstLogin();
+    }
+
     // 마지막 로그인 시간 업데이트
     member.updateLastLoginTime(LocalDateTime.now());
     log.info("회원 로그인 완료: studentId = {}", studentId);
     memberRepository.save(member);
+
+    // 첫 로그인 시 엽전 테이블 생성
+    if (member.getIsFirstLogin()) {
+      yeopjeonRepository.save(Yeopjeon.builder()
+          .member(member)
+          .resultYeopjeon(yeopjeonConfig.getCreateAccount()) // 첫 로그인 보상
+          .build());
+    }
 
     // 회원 상세 정보 로드
     CustomUserDetails userDetails = new CustomUserDetails(member);
@@ -147,15 +162,6 @@ public class MemberService implements UserDetailsService {
     log.info("Set-Cookie Header: {}", setCookieHeader);
 
     log.info("리프레시 토큰 쿠키 설정 완료: 회원 = {}", member.getStudentId());
-    
-    // 첫 로그인 시 엽전 테이블 생성
-    if (member.getIsFirstLogin()) {
-      yeopjeonRepository.save(Yeopjeon.builder()
-          .member(member)
-          .resultYeopjeon(0)
-          .build());
-      member.disableFirstLogin(); // 첫 로그인 보상 획득 여부와는 별개
-    }
 
     // 액세스 토큰 반환
     return MemberDto.builder()
