@@ -11,4 +11,6 @@ import lombok.ToString;
 public class NoticePostDto {
 
   private NoticePost noticePost;
+
+  private List<NoticePost> noticePosts;
 }

@@ -11,11 +11,14 @@ import com.balsamic.sejongmalsami.repository.postgres.QuestionPostRepository;
 import com.balsamic.sejongmalsami.util.S3Service;
 import com.balsamic.sejongmalsami.util.exception.CustomException;
 import com.balsamic.sejongmalsami.util.exception.ErrorCode;
-import java.io.IOException;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.UUID;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.multipart.MultipartFile;
 
 @Service
 @RequiredArgsConstructor
@@ -27,53 +30,49 @@ public class MediaFileService {
   private final QuestionPostRepository questionPostRepository;
   private final AnswerPostRepository answerPostRepository;
   private static final Integer MAX_MEDIA_FILE_COUNT = 3;
-  private String fileUrl = null;
 
   // 질문게시글 파일 저장
   @Transactional
-  public MediaFileDto uploadMediaFile(MediaFileCommand command) {
+  public List<MediaFile> uploadMediaFiles(UUID postId, List<MultipartFile> files) {
 
     // 질문글 답변글 확인
-    if (questionPostRepository.existsById(command.getQuestionId())) {
-      // 해당 질문글에 첨부파일이 3개를 초과했는지 체크
-      if (mediaFileRepository.countByPost(command.getQuestionId(), ContentType.QUESTION) >= MAX_MEDIA_FILE_COUNT) {
+    ContentType contentType = null;
+    if (questionPostRepository.existsById(postId)) {
+      contentType = ContentType.QUESTION;
+      // 해당 질문글 첨부파일이 3개를 초과했는지 체크
+      if (mediaFileRepository.countByPost(postId, ContentType.QUESTION) + files.size() > MAX_MEDIA_FILE_COUNT) {
         throw new CustomException(ErrorCode.MEDIA_FILE_LIMIT_EXCEEDED);
       }
-    } else if (answerPostRepository.existsById(command.getQuestionId())) {
-      // 해당 답변에 첨부파일이 3개를 초과했는지 체크
-      if (mediaFileRepository.countByPost(command.getQuestionId(), ContentType.ANSWER) >= MAX_MEDIA_FILE_COUNT) {
+    } else if (answerPostRepository.existsById(postId)) {
+      contentType = ContentType.ANSWER;
+      // 해당 답변 첨부파일이 3개를 초과했는지 체크
+      if (mediaFileRepository.countByPost(postId, ContentType.ANSWER) + files.size() > MAX_MEDIA_FILE_COUNT) {
         throw new CustomException(ErrorCode.MEDIA_FILE_LIMIT_EXCEEDED);
       }
     } else {
       throw new CustomException(ErrorCode.INVALID_REQUEST);
     }
 
-    String mimeType = command.getFile().getContentType();
-    // 첨부파일이 이미지 파일이 아닌경우
-    if (mimeType == null || !isInvalidImageFile(mimeType)) {
-      throw new CustomException(ErrorCode.INVALID_FILE_FORMAT);
+    List<MediaFile> mediaFiles = new ArrayList<>();
+
+    for (MultipartFile file : files) {
+      String mimeType = file.getContentType();
+      // 첨부파일이 이미지 파일이 아닌 경우
+      if (mimeType == null || !isInvalidImageFile(mimeType)) {
+        throw new CustomException(ErrorCode.INVALID_FILE_FORMAT);
+      }
+
+      // S3에 파일 업로드
+      mediaFiles.add(mediaFileRepository.save(MediaFile.builder()
+          .postId(postId)
+          .originalFileName(file.getOriginalFilename())
+          .fileUrl(s3Service.uploadFile(file))
+          .fileSize(file.getSize())
+          .contentType(contentType)
+          .mimeType(MimeType.fromString(mimeType))
+          .build()));
     }
-
-    // S3에 파일 업로드
-    try {
-      fileUrl = s3Service.uploadFile(command.getFile());
-    } catch (IOException e) {
-      throw new CustomException(ErrorCode.FILE_UPLOAD_ERROR);
-    }
-
-    MediaFile mediaFile = MediaFile.builder()
-        .postId(command.getQuestionId())
-        .fileUrl(fileUrl)
-        .fileSize(command.getFile().getSize())
-        .contentType(command.getContentType())
-        .mimeType(MimeType.fromString(mimeType))
-        .build();
-
-    log.info("MediaFile: {}", mediaFile);
-
-    return MediaFileDto.builder()
-        .mediaFile(mediaFileRepository.save(mediaFile))
-        .build();
+    return mediaFiles;
   }
 
   // 업로드 파일이 이미지 타입인지 검증

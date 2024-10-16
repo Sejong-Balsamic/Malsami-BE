@@ -12,7 +12,6 @@ import com.balsamic.sejongmalsami.repository.postgres.MemberRepository;
 import com.balsamic.sejongmalsami.repository.postgres.QuestionPostRepository;
 import com.balsamic.sejongmalsami.util.exception.CustomException;
 import com.balsamic.sejongmalsami.util.exception.ErrorCode;
-import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
@@ -33,7 +32,7 @@ public class QuestionPostService {
 
   /* 질문 게시글 등록 로직 */
   @Transactional
-  public QuestionPostDto saveQuestionPost(QuestionPostCommand command) {
+  public QuestionDto saveQuestionPost(QuestionCommand command) {
 
     Member member = memberRepository.findById(command.getMemberId())
         .orElseThrow(() -> new CustomException(ErrorCode.MEMBER_NOT_FOUND));
@@ -77,24 +76,16 @@ public class QuestionPostService {
           .saveCustomTags(command.getCustomTagSet(), savedPost.getQuestionPostId());
     }
 
-    List<MediaFileDto> mediaFileDtos = new ArrayList<>();
     // 첨부파일 추가
+    List<MediaFile> mediaFiles = null;
     if (command.getMediaFiles() != null) {
-      List<MediaFileCommand> mediaFileCommands = command.getMediaFiles().stream()
-          .map(file -> MediaFileCommand.builder()
-              .questionId(savedPost.getQuestionPostId())
-              .file(file)
-              .contentType(ContentType.QUESTION)
-              .build())
-          .toList();
-      mediaFileCommands.forEach(mediaFileCommand -> {
-        mediaFileDtos.add(mediaFileService.uploadMediaFile(mediaFileCommand));
-      });
+      mediaFiles = mediaFileService
+          .uploadMediaFiles(savedPost.getQuestionPostId(), command.getMediaFiles());
     }
 
-    return QuestionPostDto.builder()
+    return QuestionDto.builder()
         .questionPost(savedPost)
-        .mediaFiles(mediaFileDtos)
+        .mediaFiles(mediaFiles)
         .customTags(customTags)
         .build();
   }

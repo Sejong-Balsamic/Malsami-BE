@@ -26,7 +26,7 @@ public class DocumentPostService {
 
   // 질문 게시글 등록
   @Transactional
-  public DocumentPostDto saveDocumentPost(DocumentPostCommand command) {
+  public DocumentDto saveDocumentPost(DocumentCommand command) {
 
     Member member = memberRepository.findById(command.getMemberId())
         .orElseThrow(() -> new CustomException(ErrorCode.MEMBER_NOT_FOUND));
@@ -53,7 +53,7 @@ public class DocumentPostService {
       }
     }
 
-    return DocumentPostDto.builder()
+    return DocumentDto.builder()
         .documentPost(documentPostRepository.save(documentPost))
         .build();
   }

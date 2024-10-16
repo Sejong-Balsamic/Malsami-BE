@@ -11,4 +11,6 @@ import lombok.ToString;
 public class CommentDto {
 
   private Comment comment;
+
+  private List<Comment> comments;
 }
