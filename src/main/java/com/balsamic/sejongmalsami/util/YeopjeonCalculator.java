@@ -12,7 +12,6 @@ public class YeopjeonCalculator {
   private final YeopjeonConfig yeopjeonConfig;
 
   // YeopjeonAction 따른 엽전 변동량 계산
-  // YeopjeonAction 따른 엽전 변동량 계산
   public int calculateYeopjeon(YeopjeonAction action) {
     return switch (action) {
       case VIEW_DOCUMENT_JUNGIN_POST -> yeopjeonConfig.getViewJunginCost();
