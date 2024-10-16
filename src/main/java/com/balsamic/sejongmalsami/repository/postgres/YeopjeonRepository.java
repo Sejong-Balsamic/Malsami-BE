@@ -6,4 +6,5 @@ import org.springframework.data.jpa.repository.JpaRepository;
 
 public interface YeopjeonRepository extends JpaRepository<Yeopjeon, UUID> {
 
+  Optional<Yeopjeon> findByMember(Member member);
 }
