@@ -1,4 +1,4 @@
-package com.balsamic.sejongmalsami.object;
+package com.balsamic.sejongmalsami.object.mongo;
 
 import lombok.Builder;
 import lombok.Getter;

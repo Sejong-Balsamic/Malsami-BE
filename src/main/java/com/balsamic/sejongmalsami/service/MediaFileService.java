@@ -1,6 +1,7 @@
 package com.balsamic.sejongmalsami.service;
 
-import com.balsamic.sejongmalsami.object.MediaFile;
+import com.balsamic.sejongmalsami.object.postgres.MediaFile;
+import com.balsamic.sejongmalsami.object.MediaFileDto;
 import com.balsamic.sejongmalsami.object.constants.ContentType;
 import com.balsamic.sejongmalsami.object.constants.MimeType;
 import com.balsamic.sejongmalsami.repository.postgres.AnswerPostRepository;

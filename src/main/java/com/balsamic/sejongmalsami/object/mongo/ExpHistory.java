@@ -1,5 +1,6 @@
-package com.balsamic.sejongmalsami.object;
+package com.balsamic.sejongmalsami.object.mongo;
 
+import com.balsamic.sejongmalsami.object.constants.ActionType;
 import jakarta.validation.constraints.NotNull;
 import java.util.UUID;
 import lombok.AllArgsConstructor;
@@ -15,26 +16,18 @@ import org.springframework.data.mongodb.core.mapping.Document;
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
-public class PurchaseHistory extends BaseMongoEntity {
+public class ExpHistory extends BaseMongoEntity {
 
   @Id
-  private String purchaseHistoryId;
+  private String expHistoryId;
 
   @Indexed
   @NotNull
   private UUID memberId;
 
-  @Indexed
   @NotNull
-  private UUID documentPostId;
-
-  @Indexed
-  @NotNull
-  private UUID DocumentFileId;
+  private Integer expChange;
 
   @NotNull
-  private Integer yeopjeonSpent; // 소모한 엽전양
-
-  @NotNull
-  private Integer resultYeopjeon;   // 남은 엽전양
+  private ActionType actionType;
 }

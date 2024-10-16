@@ -1,6 +1,6 @@
 package com.balsamic.sejongmalsami.repository.postgres;
 
-import com.balsamic.sejongmalsami.object.Comment;
+import com.balsamic.sejongmalsami.object.postgres.Comment;
 import java.util.UUID;
 import org.springframework.data.jpa.repository.JpaRepository;
 

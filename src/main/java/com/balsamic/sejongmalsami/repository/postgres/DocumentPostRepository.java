@@ -1,6 +1,6 @@
 package com.balsamic.sejongmalsami.repository.postgres;
 
-import com.balsamic.sejongmalsami.object.DocumentPost;
+import com.balsamic.sejongmalsami.object.postgres.DocumentPost;
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.UUID;

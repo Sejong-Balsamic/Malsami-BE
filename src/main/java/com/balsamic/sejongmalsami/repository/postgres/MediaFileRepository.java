@@ -1,6 +1,6 @@
 package com.balsamic.sejongmalsami.repository.postgres;
 
-import com.balsamic.sejongmalsami.object.MediaFile;
+import com.balsamic.sejongmalsami.object.postgres.MediaFile;
 import com.balsamic.sejongmalsami.object.constants.ContentType;
 import java.util.UUID;
 import org.springframework.data.jpa.repository.JpaRepository;

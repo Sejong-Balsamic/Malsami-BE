@@ -1,8 +1,6 @@
 package com.balsamic.sejongmalsami.repository.postgres;
 
-import com.balsamic.sejongmalsami.object.Member;
-import com.balsamic.sejongmalsami.object.Yeopjeon;
-import java.util.Optional;
+import com.balsamic.sejongmalsami.object.postgres.Yeopjeon;
 import java.util.UUID;
 import org.springframework.data.jpa.repository.JpaRepository;
 

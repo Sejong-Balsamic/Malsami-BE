@@ -1,6 +1,7 @@
 package com.balsamic.sejongmalsami.object;
 
 import com.balsamic.sejongmalsami.object.constants.AccountStatus;
+import com.balsamic.sejongmalsami.object.postgres.Member;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.Map;

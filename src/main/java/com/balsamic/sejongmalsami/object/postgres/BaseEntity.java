@@ -1,4 +1,4 @@
-package com.balsamic.sejongmalsami.object;
+package com.balsamic.sejongmalsami.object.postgres;
 
 import jakarta.persistence.Column;
 import jakarta.persistence.EntityListeners;

@@ -1,6 +1,5 @@
-package com.balsamic.sejongmalsami.object;
+package com.balsamic.sejongmalsami.object.mongo;
 
-import com.balsamic.sejongmalsami.object.constants.ContentType;
 import jakarta.validation.constraints.NotNull;
 import java.util.UUID;
 import lombok.AllArgsConstructor;
@@ -16,18 +15,15 @@ import org.springframework.data.mongodb.core.mapping.Document;
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
-public class NoticeBoardLike extends BaseMongoEntity {
+public class QuestionPostCustomTag {
+
   @Id
-  private String noticeBoardLikeId;
+  private String questionPostCustomTagId;
 
-  @NotNull
-  private ContentType contentType;
-
-  @NotNull
   @Indexed
-  private UUID noticeBoardId; // target UUID
+  @NotNull
+  private UUID questionPostId;
 
   @NotNull
-  @Indexed
-  private UUID memberId;
+  private String customTag;
 }

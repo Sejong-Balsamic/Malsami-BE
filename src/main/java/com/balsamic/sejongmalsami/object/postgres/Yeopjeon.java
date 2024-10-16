@@ -1,4 +1,4 @@
-package com.balsamic.sejongmalsami.object;
+package com.balsamic.sejongmalsami.object.postgres;
 
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
@@ -19,16 +19,17 @@ import lombok.ToString;
 @AllArgsConstructor
 @NoArgsConstructor
 @ToString
-public class Exp {
+public class Yeopjeon {
 
   @Id
   @GeneratedValue(strategy = GenerationType.AUTO)
   @Column(columnDefinition = "uuid DEFAULT uuid_generate_v4()", updatable = false)
-  private UUID ExpId;
+  private UUID YeopjeonId;
 
   @OneToOne
   private Member member;
 
-  // 총 경험치량
-  private Integer resultExp;
+  // 총 엽전량
+  private Integer resultYeopjeon;
+
 }

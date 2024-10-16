@@ -1,6 +1,6 @@
 package com.balsamic.sejongmalsami.repository.mongo;
 
-import com.balsamic.sejongmalsami.object.RefreshToken;
+import com.balsamic.sejongmalsami.object.mongo.RefreshToken;
 import java.util.Optional;
 import java.util.UUID;
 import org.springframework.data.mongodb.repository.MongoRepository;
