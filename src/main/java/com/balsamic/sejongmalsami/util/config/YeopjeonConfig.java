@@ -21,8 +21,26 @@ public class YeopjeonConfig {
   @Value("${yeopjeon.report-penalty}")
   private int reportPenalty;
 
-  @Value("${yeopjeon.chaetaek}")
-  private int chaetaek;
+  @Value("${yeopjeon.chaetaek-chosen}")
+  private int chaetaekChosen;
+
+  @Value("${yeopjeon.chaetaek-accept}")
+  private int chaetaekAccept;
+
+  @Value("${yeopjeon.create-question-post}")
+  private int createQuestionPost;
+
+  @Value("${yeopjeon.purchase-document}")
+  private int purchaseDocument;
+
+  @Value("${yeopjeon.copyright-violation}")
+  private int copyrightViolation;
+
+  @Value("${yeopjeon.report-reward}")
+  private int reportReward;
+
+  @Value("${yeopjeon.create-account}")
+  private int createAccount;
 
   // 게시글 등급 접근 조건 (필요 엽전)
   @Value("${yeopjeon.jungin-requirement}")
