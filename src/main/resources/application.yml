@@ -21,8 +21,6 @@ spring:
       max-request-size: 30MB  # 요청 전체의 최대 크기
       file-size-threshold: 2MB
       location: /temp
-  config:
-    import: "classpath:yeopjeon.yml, classpath:score.yml"
 mvc:
   path-match:
     matching-strategy: ant_path_matcher

@@ -1,8 +1,8 @@
 package com.balsamic.sejongmalsami.service;
 
+import com.balsamic.sejongmalsami.object.DocumentCommand;
+import com.balsamic.sejongmalsami.object.DocumentDto;
 import com.balsamic.sejongmalsami.object.postgres.DocumentPost;
-import com.balsamic.sejongmalsami.object.DocumentPostCommand;
-import com.balsamic.sejongmalsami.object.DocumentPostDto;
 import com.balsamic.sejongmalsami.object.postgres.Member;
 import com.balsamic.sejongmalsami.object.constants.DocumentType;
 import com.balsamic.sejongmalsami.object.constants.PostTier;
