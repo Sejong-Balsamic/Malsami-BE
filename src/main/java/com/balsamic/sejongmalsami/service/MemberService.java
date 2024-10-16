@@ -1,12 +1,16 @@
 package com.balsamic.sejongmalsami.service;
 
 import com.balsamic.sejongmalsami.object.CustomUserDetails;
-import com.balsamic.sejongmalsami.object.postgres.Member;
 import com.balsamic.sejongmalsami.object.MemberCommand;
 import com.balsamic.sejongmalsami.object.MemberDto;
+import com.balsamic.sejongmalsami.object.constants.AccountStatus;
+import com.balsamic.sejongmalsami.object.constants.Role;
 import com.balsamic.sejongmalsami.object.mongo.RefreshToken;
-import com.balsamic.sejongmalsami.repository.postgres.MemberRepository;
+import com.balsamic.sejongmalsami.object.postgres.Member;
+import com.balsamic.sejongmalsami.object.postgres.Yeopjeon;
 import com.balsamic.sejongmalsami.repository.mongo.RefreshTokenRepository;
+import com.balsamic.sejongmalsami.repository.postgres.MemberRepository;
+import com.balsamic.sejongmalsami.repository.postgres.YeopjeonRepository;
 import com.balsamic.sejongmalsami.util.JwtUtil;
 import com.balsamic.sejongmalsami.util.SejongPortalAuthenticator;
 import com.balsamic.sejongmalsami.util.exception.CustomException;
@@ -14,6 +18,8 @@ import com.balsamic.sejongmalsami.util.exception.ErrorCode;
 import io.jsonwebtoken.Claims;
 import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletResponse;
+import java.time.LocalDateTime;
+import java.util.UUID;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
@@ -23,9 +29,6 @@ import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.time.LocalDateTime;
-import java.util.UUID;
-
 @Service
 @RequiredArgsConstructor
 @Slf4j
@@ -33,6 +36,7 @@ public class MemberService implements UserDetailsService {
 
   private final MemberRepository memberRepository;
   private final RefreshTokenRepository refreshTokenRepository;
+  private final YeopjeonRepository yeopjeonRepository;
   private final SejongPortalAuthenticator sejongPortalAuthenticator;
   private final JwtUtil jwtUtil;
 
@@ -77,6 +81,10 @@ public class MemberService implements UserDetailsService {
               .major(dto.getMajor())
               .academicYear(dto.getAcademicYear())
               .enrollmentStatus(dto.getEnrollmentStatus())
+              .isNotificationEnabled(true)
+              .role(Role.ROLE_USER)
+              .accountStatus(AccountStatus.ACTIVE)
+              .isFirstLogin(true)
               .build();
         });
 
@@ -139,6 +147,15 @@ public class MemberService implements UserDetailsService {
     log.info("Set-Cookie Header: {}", setCookieHeader);
 
     log.info("리프레시 토큰 쿠키 설정 완료: 회원 = {}", member.getStudentId());
+    
+    // 첫 로그인 시 엽전 테이블 생성
+    if (member.getIsFirstLogin()) {
+      yeopjeonRepository.save(Yeopjeon.builder()
+          .member(member)
+          .resultYeopjeon(0)
+          .build());
+      member.disableFirstLogin(); // 첫 로그인 보상 획득 여부와는 별개
+    }
 
     // 액세스 토큰 반환
     return MemberDto.builder()
