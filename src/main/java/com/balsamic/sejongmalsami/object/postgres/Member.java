@@ -1,7 +1,8 @@
-package com.balsamic.sejongmalsami.object;
+package com.balsamic.sejongmalsami.object.postgres;
 
 import com.balsamic.sejongmalsami.object.constants.AccountStatus;
 import com.balsamic.sejongmalsami.object.constants.Role;
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.EnumType;
@@ -23,6 +24,7 @@ import lombok.ToString;
 @AllArgsConstructor
 @NoArgsConstructor
 @ToString
+@JsonIgnoreProperties({"hibernateLazyInitializer", "handler"})
 public class Member extends BaseEntity {
 
   @Id

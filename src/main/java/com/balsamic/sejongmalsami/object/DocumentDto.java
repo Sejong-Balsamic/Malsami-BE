@@ -1,5 +1,7 @@
 package com.balsamic.sejongmalsami.object;
 
+import com.balsamic.sejongmalsami.object.postgres.DocumentPost;
+import com.balsamic.sejongmalsami.object.postgres.DocumentRequestPost;
 import java.util.List;
 import lombok.Builder;
 import lombok.Getter;

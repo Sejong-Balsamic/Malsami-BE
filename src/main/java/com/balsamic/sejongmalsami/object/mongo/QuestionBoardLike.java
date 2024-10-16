@@ -1,5 +1,6 @@
-package com.balsamic.sejongmalsami.object;
+package com.balsamic.sejongmalsami.object.mongo;
 
+import com.balsamic.sejongmalsami.object.constants.ContentType;
 import jakarta.validation.constraints.NotNull;
 import java.util.UUID;
 import lombok.AllArgsConstructor;
@@ -7,7 +8,6 @@ import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import org.springframework.data.annotation.Id;
-import org.springframework.data.mongodb.core.index.CompoundIndex;
 import org.springframework.data.mongodb.core.index.Indexed;
 import org.springframework.data.mongodb.core.mapping.Document;
 
@@ -16,17 +16,19 @@ import org.springframework.data.mongodb.core.mapping.Document;
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
-@CompoundIndex(name = "member_post_bookmark_idx", def = "{'memberId': 1, 'documentPostId': 1}", unique = true)
-public class DocumentPostBookmark extends BaseMongoEntity {
+public class QuestionBoardLike extends BaseMongoEntity {
 
   @Id
-  private String documentPostBookmarkId;
+  private String questionBoardLikeId;
 
   @Indexed
   @NotNull
-  private UUID documentPostId;
+  private UUID memberId; // 좋아요를 누른 사용자 ID
 
   @Indexed
   @NotNull
-  private UUID memberId;
+  private UUID questionBoardId; // 질문글 or 답변 or 댓글 UUID
+
+  @NotNull
+  private ContentType contentType; // Question, Answer, Comment
 }

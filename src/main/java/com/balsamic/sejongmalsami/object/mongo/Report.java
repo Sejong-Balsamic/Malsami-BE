@@ -1,6 +1,7 @@
-package com.balsamic.sejongmalsami.object;
+package com.balsamic.sejongmalsami.object.mongo;
 
 import com.balsamic.sejongmalsami.object.constants.ContentType;
+import com.balsamic.sejongmalsami.object.constants.ReportReason;
 import jakarta.validation.constraints.NotNull;
 import java.util.UUID;
 import lombok.AllArgsConstructor;
@@ -16,19 +17,22 @@ import org.springframework.data.mongodb.core.mapping.Document;
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
-public class QuestionBoardLike extends BaseMongoEntity {
+public class Report extends BaseMongoEntity {
 
   @Id
-  private String questionBoardLikeId;
+  private String reportId;
 
   @Indexed
   @NotNull
-  private UUID memberId; // 좋아요를 누른 사용자 ID
+  private UUID reporterId;
 
-  @Indexed
-  @NotNull
-  private UUID questionBoardId; // 질문글 or 답변 or 댓글 UUID
+  // 신고 대상 게시글 ID
+  private UUID reportedPostId;
 
-  @NotNull
-  private ContentType contentType; // Question, Answer, Comment
+  private ContentType contentType;
+
+  // 신고사유
+  private ReportReason reportReason;
+
+  private String description; // ReportReason 이 Other 인 경우
 }

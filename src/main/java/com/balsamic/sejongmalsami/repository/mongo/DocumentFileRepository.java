@@ -1,6 +1,6 @@
 package com.balsamic.sejongmalsami.repository.mongo;
 
-import com.balsamic.sejongmalsami.object.DocumentFile;
+import com.balsamic.sejongmalsami.object.postgres.DocumentFile;
 import java.util.List;
 import java.util.UUID;
 import org.springframework.data.jpa.repository.JpaRepository;

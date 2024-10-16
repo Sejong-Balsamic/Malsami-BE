@@ -1,7 +1,7 @@
 package com.balsamic.sejongmalsami.util;
 
-import com.balsamic.sejongmalsami.object.DocumentPost;
-import com.balsamic.sejongmalsami.object.QuestionPost;
+import com.balsamic.sejongmalsami.object.postgres.DocumentPost;
+import com.balsamic.sejongmalsami.object.postgres.QuestionPost;
 import com.balsamic.sejongmalsami.util.config.ScoreConfig;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;

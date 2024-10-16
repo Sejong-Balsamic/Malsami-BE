@@ -1,9 +1,9 @@
 package com.balsamic.sejongmalsami.service;
 
 import com.balsamic.sejongmalsami.object.DocumentDto;
-import com.balsamic.sejongmalsami.object.DocumentPost;
 import com.balsamic.sejongmalsami.object.QuestionDto;
-import com.balsamic.sejongmalsami.object.QuestionPost;
+import com.balsamic.sejongmalsami.object.postgres.DocumentPost;
+import com.balsamic.sejongmalsami.object.postgres.QuestionPost;
 import com.balsamic.sejongmalsami.repository.postgres.DocumentPostRepository;
 import com.balsamic.sejongmalsami.repository.postgres.QuestionPostRepository;
 import com.balsamic.sejongmalsami.util.ScoreCalculator;
