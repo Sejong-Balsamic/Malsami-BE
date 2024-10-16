@@ -1,4 +1,4 @@
-package com.balsamic.sejongmalsami.object;
+package com.balsamic.sejongmalsami.object.mongo;
 
 import com.balsamic.sejongmalsami.object.constants.ContentType;
 import com.balsamic.sejongmalsami.object.constants.ReactionType;
@@ -18,14 +18,15 @@ import org.springframework.data.mongodb.core.mapping.Document;
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
-@CompoundIndex(name = "member_comment_idx", def = "{'memberId': 1, 'commentId': 1}")
-public class CommentLike extends BaseMongoEntity {
+@CompoundIndex(name = "member_document_idx", def = "{'memberId': 1, 'documentId': 1}")
+public class DocumentBoardLike extends BaseMongoEntity {
+
   @Id
-  private String commentLikeId;
+  private String documentBoardLikeId;
 
   @Indexed
   @NotNull
-  private UUID commentId;
+  private UUID documentId;
 
   @Indexed
   @NotNull
@@ -33,4 +34,7 @@ public class CommentLike extends BaseMongoEntity {
 
   @NotNull
   private ContentType contentType;
+
+  @NotNull
+  private ReactionType reactionType;
 }

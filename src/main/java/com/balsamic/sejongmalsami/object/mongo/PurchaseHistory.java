@@ -1,4 +1,4 @@
-package com.balsamic.sejongmalsami.object;
+package com.balsamic.sejongmalsami.object.mongo;
 
 import jakarta.validation.constraints.NotNull;
 import java.util.UUID;
@@ -15,15 +15,26 @@ import org.springframework.data.mongodb.core.mapping.Document;
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
-public class QuestionPostCustomTag {
+public class PurchaseHistory extends BaseMongoEntity {
 
   @Id
-  private String questionPostCustomTagId;
+  private String purchaseHistoryId;
 
   @Indexed
   @NotNull
-  private UUID questionPostId;
+  private UUID memberId;
+
+  @Indexed
+  @NotNull
+  private UUID documentPostId;
+
+  @Indexed
+  @NotNull
+  private UUID DocumentFileId;
 
   @NotNull
-  private String customTag;
+  private Integer yeopjeonSpent; // 소모한 엽전양
+
+  @NotNull
+  private Integer resultYeopjeon;   // 남은 엽전양
 }

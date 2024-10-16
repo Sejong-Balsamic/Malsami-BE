@@ -1,12 +1,12 @@
 package com.balsamic.sejongmalsami.service;
 
-import com.balsamic.sejongmalsami.object.AnswerPost;
+import com.balsamic.sejongmalsami.object.postgres.AnswerPost;
 import com.balsamic.sejongmalsami.object.AnswerPostCommand;
 import com.balsamic.sejongmalsami.object.AnswerPostDto;
 import com.balsamic.sejongmalsami.object.MediaFileCommand;
 import com.balsamic.sejongmalsami.object.MediaFileDto;
-import com.balsamic.sejongmalsami.object.Member;
-import com.balsamic.sejongmalsami.object.QuestionPost;
+import com.balsamic.sejongmalsami.object.postgres.Member;
+import com.balsamic.sejongmalsami.object.postgres.QuestionPost;
 import com.balsamic.sejongmalsami.object.constants.ContentType;
 import com.balsamic.sejongmalsami.repository.postgres.AnswerPostRepository;
 import com.balsamic.sejongmalsami.repository.postgres.MemberRepository;

@@ -1,7 +1,6 @@
-package com.balsamic.sejongmalsami.object;
+package com.balsamic.sejongmalsami.object.postgres;
 
 import com.balsamic.sejongmalsami.object.constants.DocumentType;
-import com.balsamic.sejongmalsami.object.constants.PostTier;
 import com.balsamic.sejongmalsami.util.exception.CustomException;
 import com.balsamic.sejongmalsami.util.exception.ErrorCode;
 import jakarta.persistence.Column;
@@ -30,59 +29,46 @@ import lombok.experimental.SuperBuilder;
 @AllArgsConstructor
 @NoArgsConstructor
 @ToString(callSuper = true)
-public class DocumentPost extends BasePost {
+public class DocumentRequestPost extends BaseEntity {
 
   private static final int MAX_DOCUMENT_TYPES = 2;
 
   @Id
   @GeneratedValue(strategy = GenerationType.AUTO)
   @Column(columnDefinition = "uuid DEFAULT uuid_generate_v4()", updatable = false)
-  private UUID documentPostId;
+  private UUID documentRequestPostId;
 
+  // 작성자
   @ManyToOne(fetch = FetchType.LAZY)
-  private Member member; // 작성자
+  private Member member;
 
-  private String title; // 제목
+  // 제목
+  private String title;
 
-  private String subject; // 교과목명
-
-  @Lob
-  private String content; // 내용
-
+  // 자료 타입
   @Builder.Default
   @Enumerated(EnumType.STRING)
   private Set<DocumentType> documentTypeSet = new HashSet<>();
 
+  @ManyToOne(fetch = FetchType.LAZY)
+  private Course course;
+
+  // 내용
+  @Lob
+  private String content;
+
+  // 닉네임 비공개
   @Builder.Default
-  @Enumerated(EnumType.STRING)
-  private PostTier postTier = PostTier.CHEONMIN; // 게시물 등급
+  private boolean isPrivate = false;
 
-  // 파일 미리보기 이미지 URL
-  private String previewUrl;
-
-  @Builder.Default
-  private Integer likeCount = 0; // 좋아요수
-
-  @Builder.Default
-  private Integer dislikeCount = 0; // 싫어요수
-
-  @Builder.Default
-  private Integer commentCount = 0; // 댓글수
-
-  @Builder.Default
-  private Integer viewCount = 0; // 조회수
-
-  @Builder.Default
-  private Boolean isDepartmentPrivate = false; // 내 학과 비공개
-
-  // 자료글 카테고리 추가(최대 2개)
-  public void addDocumentType(DocumentType documentType) {
+  // 자료게시글 자료 종류 추가(최대 2개)
+  public void addDocumnetType(DocumentType type) {
 
     if (documentTypeSet.size() >= MAX_DOCUMENT_TYPES) {
       throw new CustomException(ErrorCode.DOCUMENT_TYPE_LIMIT_EXCEEDED);
     }
 
-    // 카테고리 추가
-    documentTypeSet.add(documentType);
+    // 종류 추가
+    documentTypeSet.add(type);
   }
 }

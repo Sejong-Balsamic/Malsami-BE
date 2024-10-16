@@ -3,7 +3,7 @@ package com.balsamic.sejongmalsami.service;
 import com.balsamic.sejongmalsami.object.AuthCommand;
 import com.balsamic.sejongmalsami.object.AuthDto;
 import com.balsamic.sejongmalsami.object.CustomUserDetails;
-import com.balsamic.sejongmalsami.object.RefreshToken;
+import com.balsamic.sejongmalsami.object.mongo.RefreshToken;
 import com.balsamic.sejongmalsami.repository.mongo.RefreshTokenRepository;
 import com.balsamic.sejongmalsami.util.JwtUtil;
 import com.balsamic.sejongmalsami.util.exception.CustomException;

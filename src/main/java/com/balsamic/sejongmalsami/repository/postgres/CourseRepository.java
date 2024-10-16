@@ -1,6 +1,6 @@
 package com.balsamic.sejongmalsami.repository.postgres;
 
-import com.balsamic.sejongmalsami.object.Course;
+import com.balsamic.sejongmalsami.object.postgres.Course;
 import com.balsamic.sejongmalsami.object.constants.Faculty;
 import java.util.List;
 import java.util.UUID;

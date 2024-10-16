@@ -1,6 +1,6 @@
 package com.balsamic.sejongmalsami.service;
 
-import com.balsamic.sejongmalsami.object.Course;
+import com.balsamic.sejongmalsami.object.postgres.Course;
 import com.balsamic.sejongmalsami.object.CourseCommand;
 import com.balsamic.sejongmalsami.object.CourseDto;
 import com.balsamic.sejongmalsami.object.constants.Faculty;
