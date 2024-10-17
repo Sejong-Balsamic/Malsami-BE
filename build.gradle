@@ -53,9 +53,6 @@ dependencies {
     // MongoDB
     implementation 'org.springframework.boot:spring-boot-starter-data-mongodb'
 
-    // mysql
-//    runtimeOnly 'com.mysql:mysql-connector-j'
-
     // Hibernate 호환성문제
     implementation group: 'com.fasterxml', name: 'classmate', version: '1.7.0'
 
@@ -76,8 +73,14 @@ dependencies {
     // Mockito
     testImplementation 'org.mockito:mockito-core:4.0.0'
 
-    // Apache
+    // Apache POI : MS file
     implementation 'org.apache.poi:poi-ooxml:5.2.3'
+
+    // ftp
+    implementation 'commons-net:commons-net:3.8.0'
+
+    // Apache Commons Pool2
+    implementation 'org.apache.commons:commons-pool2:2.11.1'
 }
 
 tasks.named('test') {

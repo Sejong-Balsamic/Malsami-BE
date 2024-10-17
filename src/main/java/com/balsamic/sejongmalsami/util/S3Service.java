@@ -42,7 +42,7 @@ public class S3Service {
       amazonS3Client.putObject(bucketName, fileName, file.getInputStream(), metadata);
     } catch (IOException e) {
       log.error("업로드 파일명 = {}", originalFilename);
-      throw new CustomException(ErrorCode.FILE_UPLOAD_ERROR);
+      throw new CustomException(ErrorCode.S3_FILE_UPLOAD_ERROR);
     }
     return amazonS3Client.getUrl(bucketName, fileName).toString();
   }

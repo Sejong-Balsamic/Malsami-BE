@@ -38,6 +38,7 @@ public class Comment extends BaseEntity{
   private String content;
 
   // 좋아요
+  @Builder.Default
   private Integer likeCount = 0;
 
   // 댓글이 속한 게시글의 유형
