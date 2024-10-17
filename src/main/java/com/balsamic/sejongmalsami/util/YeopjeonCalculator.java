@@ -20,6 +20,7 @@ public class YeopjeonCalculator {
       case PURCHASE_DOCUMENT -> yeopjeonConfig.getPurchaseDocument();
       case RECEIVE_LIKE -> yeopjeonConfig.getLikeReward();
       case RECEIVE_DISLIKE -> yeopjeonConfig.getDislikePenalty();
+      case SEND_LIKE -> yeopjeonConfig.getSendLike();
       case ATTENDANCE_BONUS -> yeopjeonConfig.getAttendanceBonus();
       case RECEIVE_REPORT_PENALTY -> yeopjeonConfig.getReportPenalty();
       case CREATE_QUESTION_POST -> yeopjeonConfig.getCreateQuestionPost();

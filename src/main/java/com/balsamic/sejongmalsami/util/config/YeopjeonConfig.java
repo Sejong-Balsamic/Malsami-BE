@@ -9,11 +9,14 @@ import org.springframework.context.annotation.Configuration;
 public class YeopjeonConfig {
 
   // 엽전 보상 및 패널티
-  @Value("${yeopjeon.like-reward}")
+  @Value("${yeopjeon.receive-like-reward}")
   private int likeReward;
 
-  @Value("${yeopjeon.dislike-penalty}")
+  @Value("${yeopjeon.receive-dislike-penalty}")
   private int dislikePenalty;
+
+  @Value("${yeopjeon.send-like}")
+  private int sendLike;
 
   @Value("${yeopjeon.attendance-bonus}")
   private int attendanceBonus;
