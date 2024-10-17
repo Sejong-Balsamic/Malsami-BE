@@ -1,5 +1,7 @@
 package com.balsamic.sejongmalsami.util;
 
+import com.balsamic.sejongmalsami.util.exception.CustomException;
+import com.balsamic.sejongmalsami.util.exception.ErrorCode;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.net.ftp.FTP;
 import org.apache.commons.net.ftp.FTPClient;
@@ -13,7 +15,7 @@ import java.io.IOException;
 
 @Service
 @Slf4j
-public class FtpService {
+public class FtpUtil { // 이름 변경: FtpService -> FtpUtil
 
   @Value("${ftp.server}")
   private String ftpServer;
@@ -27,14 +29,15 @@ public class FtpService {
   @Value("${ftp.pass}")
   private String ftpPass;
 
+  @Value("${ftp.path.document}")
+  private String ftpDocumentPath;
+
   /**
    * FTP를 통해 파일 업로드
    *
-   * @param remotePath 원격 서버의 업로드 경로
-   * @param localFile  로컬 파일 객체
-   * @throws IOException 파일 업로드 중 예외 발생 시
+   * @param localFile 로컬 파일 객체
    */
-  public void uploadFile(String remotePath, File localFile) throws IOException {
+  public void uploadFile(File localFile) {
     FTPClient ftpClient = new FTPClient();
     ftpClient.setControlEncoding("UTF-8");
     ftpClient.setAutodetectUTF8(true); // UTF-8 자동 감지 활성화
@@ -44,39 +47,42 @@ public class FtpService {
 
       int replyCode = ftpClient.getReplyCode();
       if (!FTPReply.isPositiveCompletion(replyCode)) {
-        throw new IOException("FTP 서버에 연결할 수 없습니다. 응답 코드: " + replyCode);
+        log.error("FTP 서버에 연결할 수 없습니다. 응답 코드: {}", replyCode);
+        throw new CustomException(ErrorCode.FTP_CONNECTION_ERROR);
       }
 
       boolean login = ftpClient.login(ftpUser, ftpPass);
       if (!login) {
-        throw new IOException("FTP 로그인 실패");
+        log.error("FTP 로그인 실패: 사용자명={}, 비밀번호=***", ftpUser);
+        throw new CustomException(ErrorCode.FTP_LOGIN_ERROR);
       }
 
       // 패시브 모드 설정
       ftpClient.enterLocalPassiveMode();
       ftpClient.setFileType(FTP.BINARY_FILE_TYPE);
-
-      // UTF-8 지원 활성화
+      // UTF-8
       ftpClient.sendCommand("OPTS UTF8", "ON");
 
       // 파일 업로드 경로 설정
-      String remoteFile = remotePath + "/" + localFile.getName();
+      String remoteFile = ftpDocumentPath + "/" + localFile.getName();
       log.info("FTP 파일 업로드 시작: {} -> {}", localFile.getAbsolutePath(), remoteFile);
 
       boolean success = ftpClient.storeFile(remoteFile, fis);
       if (success) {
         log.info("FTP 파일 업로드 성공: {}", remoteFile);
       } else {
-        throw new IOException("FTP 파일 업로드 실패: " + remoteFile);
+        log.error("FTP 파일 업로드 실패: {}", remoteFile);
+        throw new CustomException(ErrorCode.FTP_FILE_UPLOAD_ERROR);
       }
     } catch (IOException e) {
-      log.error("FTP 파일 업로드 중 오류 발생: {}", e.getMessage());
-      throw e;
+      log.error("FTP 파일 업로드 중 IOException 발생: {}", e.getMessage());
+      throw new CustomException(ErrorCode.FTP_FILE_UPLOAD_ERROR);
     } finally {
       if (ftpClient.isConnected()) {
         try {
           ftpClient.logout();
           ftpClient.disconnect();
+          log.info("FTP 연결 종료");
         } catch (IOException ex) {
           log.error("FTP 연결 종료 중 오류 발생: {}", ex.getMessage());
         }
@@ -87,29 +93,51 @@ public class FtpService {
   /**
    * 원격 서버에서 파일 삭제
    *
-   * @param remoteFilePath 삭제할 파일의 원격 경로
-   * @throws IOException 파일 삭제 중 예외 발생 시
+   * @param filename 삭제할 파일의 이름
    */
-  public void deleteFile(String remoteFilePath) throws IOException {
+  public void deleteFile(String filename) {
     FTPClient ftpClient = new FTPClient();
     try {
       ftpClient.connect(ftpServer, ftpPort);
-      ftpClient.login(ftpUser, ftpPass);
+
+      int replyCode = ftpClient.getReplyCode();
+      if (!FTPReply.isPositiveCompletion(replyCode)) {
+        log.error("FTP 서버에 연결할 수 없습니다. 응답 코드: {}", replyCode);
+        throw new CustomException(ErrorCode.FTP_CONNECTION_ERROR);
+      }
+
+      boolean login = ftpClient.login(ftpUser, ftpPass);
+      if (!login) {
+        log.error("FTP 로그인 실패: 사용자명={}, 비밀번호=***", ftpUser);
+        throw new CustomException(ErrorCode.FTP_LOGIN_ERROR);
+      }
+
       ftpClient.enterLocalPassiveMode();
+
+      // 파일 이름을 documentPath와 결합하여 전체 경로 생성
+      String remoteFilePath = ftpDocumentPath + "/" + filename;
+      log.info("FTP 파일 삭제 시작: {}", remoteFilePath);
 
       boolean deleted = ftpClient.deleteFile(remoteFilePath);
       if (deleted) {
         log.info("FTP 파일 삭제 성공: {}", remoteFilePath);
       } else {
         log.warn("FTP 파일 삭제 실패: {}", remoteFilePath);
+        throw new CustomException(ErrorCode.FTP_FILE_DELETE_ERROR);
       }
     } catch (IOException e) {
-      log.error("FTP 파일 삭제 중 오류 발생: {}", e.getMessage());
-      throw e;
+      log.error("FTP 파일 삭제 중 IOException 발생: {}", e.getMessage());
+      throw new CustomException(ErrorCode.FTP_FILE_DELETE_ERROR);
     } finally {
-      ftpClient.logout();
-      ftpClient.disconnect();
+      if (ftpClient.isConnected()) {
+        try {
+          ftpClient.logout();
+          ftpClient.disconnect();
+          log.info("FTP 연결 종료");
+        } catch (IOException ex) {
+          log.error("FTP 연결 종료 중 오류 발생: {}", ex.getMessage());
+        }
+      }
     }
   }
-
 }

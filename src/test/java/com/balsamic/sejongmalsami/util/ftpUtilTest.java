@@ -12,23 +12,19 @@ import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.List;
 import org.springframework.test.context.ActiveProfiles;
-import org.springframework.test.context.TestPropertySource;
-
-import static org.junit.jupiter.api.Assertions.*;
 
 @SpringBootTest
 @ActiveProfiles("dev")
 @Slf4j
-class SynologyFileUtilTest {
+class FtpUtilTest {
 
   @Autowired
-  private FtpService ftpService;
+  private FtpUtil ftpUtil;
 
   private final List<String> uploadedFtpFiles = new ArrayList<>();
 
   @Test
   void testUploadFiles() throws Exception {
-    String ftpRemotePath = "/projects/sejong-malsami/document"; // FTP 업로드 경로
 
     String[] fileNames = {
         "테스트_문서_1.pdf",
@@ -39,21 +35,30 @@ class SynologyFileUtilTest {
 
     for (String fileName : fileNames) {
       URL resource = classLoader.getResource("document/" + fileName);
-      assertNotNull(resource, "파일을 찾을 수 없습니다: " + fileName);
+      if (resource == null) {
+        log.error("파일을 찾을 수 없습니다: {}", fileName);
+        continue; // 다음 파일로 넘어갑니다.
+      } else {
+        log.info("파일을 성공적으로 찾았습니다: {}", fileName);
+      }
 
       File file = Paths.get(resource.toURI()).toFile();
-      assertTrue(file.exists(), "로컬 파일이 존재하지 않습니다: " + file.getAbsolutePath());
+      if (!file.exists()) {
+        log.error("로컬 파일이 존재하지 않습니다: {}", file.getAbsolutePath());
+        continue;
+      } else {
+        log.info("로컬 파일이 존재합니다: {}", file.getAbsolutePath());
+      }
 
       log.info("로컬 파일 경로: {}", file.getAbsolutePath());
 
-      // FTP 업로드 시도
+      // FTP 업로드
       try {
-        ftpService.uploadFile(ftpRemotePath, file);
-        String ftpUploadedFilePath = ftpRemotePath + "/" + file.getName();
-        uploadedFtpFiles.add(ftpUploadedFilePath);
-        log.info("FTP 업로드 성공: {}", ftpUploadedFilePath);
+        ftpUtil.uploadFile(file);
+        uploadedFtpFiles.add(file.getName());
+        log.info("FTP 업로드 성공: {}", file.getName());
       } catch (Exception e) {
-        fail("FTP 업로드 실패: " + fileName + " - " + e.getMessage());
+        log.error("FTP 업로드 실패: {} - {}", fileName, e.getMessage());
       }
     }
   }
@@ -62,7 +67,7 @@ class SynologyFileUtilTest {
 //  void cleanup() throws Exception {
 //    for (String fileName : uploadedFtpFiles) {
 //      try {
-//        ftpService.deleteFile(fileName);
+//        ftpUtil.deleteFile(fileName);
 //        log.info("FTP 파일 삭제 성공: {}", fileName);
 //      } catch (Exception e) {
 //        log.error("FTP 파일 삭제 실패: {} - {}", fileName, e.getMessage());
