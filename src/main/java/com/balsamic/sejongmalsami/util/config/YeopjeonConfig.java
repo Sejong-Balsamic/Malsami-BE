@@ -10,58 +10,55 @@ public class YeopjeonConfig {
 
   // 엽전 보상 및 패널티
   @Value("${yeopjeon.receive-like-reward}")
-  private int likeReward;
+  private Integer likeReward;
 
   @Value("${yeopjeon.receive-dislike-penalty}")
-  private int dislikePenalty;
-
-  @Value("${yeopjeon.send-like}")
-  private int sendLike;
+  private Integer dislikePenalty;
 
   @Value("${yeopjeon.attendance-bonus}")
-  private int attendanceBonus;
+  private Integer attendanceBonus;
 
   @Value("${yeopjeon.report-penalty}")
-  private int reportPenalty;
+  private Integer reportPenalty;
 
   @Value("${yeopjeon.chaetaek-chosen}")
-  private int chaetaekChosen;
+  private Integer chaetaekChosen;
 
   @Value("${yeopjeon.chaetaek-accept}")
-  private int chaetaekAccept;
+  private Integer chaetaekAccept;
 
   @Value("${yeopjeon.create-question-post}")
-  private int createQuestionPost;
+  private Integer createQuestionPost;
 
   @Value("${yeopjeon.purchase-document}")
-  private int purchaseDocument;
+  private Integer purchaseDocument;
 
   @Value("${yeopjeon.copyright-violation}")
-  private int copyrightViolation;
+  private Integer copyrightViolation;
 
   @Value("${yeopjeon.report-reward}")
-  private int reportReward;
+  private Integer reportReward;
 
   @Value("${yeopjeon.create-account}")
-  private int createAccount;
+  private Integer createAccount;
 
   // 게시글 등급 접근 조건 (필요 엽전)
   @Value("${yeopjeon.jungin-requirement}")
-  private int junginRequirement;
+  private Integer junginRequirement;
 
   @Value("${yeopjeon.yangban-requirement}")
-  private int yangbanRequirement;
+  private Integer yangbanRequirement;
 
   @Value("${yeopjeon.king-requirement}")
-  private int kingRequirement;
+  private Integer kingRequirement;
 
   // 게시글 상세보기 시 엽전 소모 비용
   @Value("${yeopjeon.view-jungin-cost}")
-  private int viewJunginCost;
+  private Integer viewJunginCost;
 
   @Value("${yeopjeon.view-yangban-cost}")
-  private int viewYangbanCost;
+  private Integer viewYangbanCost;
 
   @Value("${yeopjeon.view-king-cost}")
-  private int viewKingCost;
+  private Integer viewKingCost;
 }
