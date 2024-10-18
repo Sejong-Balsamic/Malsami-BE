@@ -20,7 +20,13 @@ public enum MimeType {
   MOV("video/quicktime"),
   MP3("audio/mpeg"),
   WAV("audio/wav"),
-  AAC("audio/aac");
+  AAC("audio/aac"),
+  DOC("application/msword"),
+  DOCX("application/vnd.openxmlformats-officedocument.wordprocessingml.document"),
+  XLS("application/vnd.ms-excel"),
+  XLSX("application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"),
+  PPT("application/vnd.ms-powerpoint"),
+  PPTX("application/vnd.openxmlformats-officedocument.presentationml.presentation");
 
   private final String mimeType;
 

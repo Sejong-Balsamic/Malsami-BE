@@ -22,4 +22,7 @@ public class FtpConfig {
 
   @Value("${ftp.path.document}")
   private String documentPath;
+
+  @Value("${ftp.path.thumbnail}")
+  private String thumbnailPath;
 }
