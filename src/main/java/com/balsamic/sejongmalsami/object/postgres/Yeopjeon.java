@@ -32,7 +32,7 @@ public class Yeopjeon {
   // 총 엽전량
   private Integer resultYeopjeon;
 
-  public void changeResultYeopjeon(int resultYeopjeon) {
+  public void updateResultYeopjeon(int resultYeopjeon) {
     this.resultYeopjeon = resultYeopjeon;
   }
 }
