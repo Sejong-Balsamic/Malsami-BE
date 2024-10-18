@@ -27,8 +27,8 @@ public class FtpClientFactory extends BasePooledObjectFactory<FTPClient>{
         throw new CustomException(ErrorCode.FTP_CONNECTION_ERROR);
       }
 
-      boolean login = ftpClient.login(ftpConfig.getUser(), ftpConfig.getPass());
-      if (!login) {
+      // FTP 로그인 시도
+      if (!ftpClient.login(ftpConfig.getUser(), ftpConfig.getPass())) {
         throw new CustomException(ErrorCode.FTP_LOGIN_ERROR);
       }
 

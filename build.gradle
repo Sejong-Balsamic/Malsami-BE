@@ -74,13 +74,21 @@ dependencies {
     testImplementation 'org.mockito:mockito-core:4.0.0'
 
     // Apache POI : MS file
+    implementation 'org.apache.poi:poi:5.2.3'
     implementation 'org.apache.poi:poi-ooxml:5.2.3'
+    implementation 'org.apache.poi:poi-scratchpad:5.2.3'
 
     // ftp
     implementation 'commons-net:commons-net:3.8.0'
 
     // Apache Commons Pool2
     implementation 'org.apache.commons:commons-pool2:2.11.1'
+
+    // Thumbnailator
+    implementation('net.coobird:thumbnailator:0.4.14')
+
+    // PDF
+    implementation 'org.apache.pdfbox:pdfbox:2.0.29'
 }
 
 tasks.named('test') {
