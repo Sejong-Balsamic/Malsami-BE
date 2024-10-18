@@ -55,7 +55,7 @@ public enum ErrorCode {
 
   MEMBER_NOT_FOUND(HttpStatus.NOT_FOUND, "회원이 존재하지 않습니다."),
 
-  MEMBER_YEOPJEON_NOT_FOUND(HttpStatus.NOT_FOUND, "유저의 엽전 테이블이 존재하지 않습니다."),
+  YEOPJEON_NOT_FOUND(HttpStatus.NOT_FOUND, "유저의 엽전 테이블이 존재하지 않습니다."),
 
   // QuestionPost
 

@@ -1,6 +1,7 @@
 package com.balsamic.sejongmalsami.service;
 
 import com.balsamic.sejongmalsami.object.QuestionCommand;
+import com.balsamic.sejongmalsami.object.YeopjeonDto;
 import com.balsamic.sejongmalsami.object.constants.ContentType;
 import com.balsamic.sejongmalsami.object.constants.YeopjeonAction;
 import com.balsamic.sejongmalsami.object.mongo.QuestionBoardLike;
@@ -21,8 +22,8 @@ import org.springframework.transaction.annotation.Transactional;
 
 /**
  * 좋아요 누를경우
- * 누른 사용자 : 엽전, 경험치 증가
- * 좋아요 받은 사용자 : 엽전, 경험치 증가
+ * 누른 사용자 : 경험치 증가 좋아요
+ * 받은 사용자 : 엽전, 경험치 증가
  * 엽전 히스토리 내역 저장
  * 해당 질문글, 답변글 좋아요 수 증가
  */
@@ -39,6 +40,7 @@ public class QuestionBoardLikeService {
   private final YeopjeonHistoryService yeopjeonHistoryService;
 
   // 좋아요 이벤트 발생 시
+  // QuestionCommand에서 QuestionId, ContentType 받음
   @Transactional
   public QuestionBoardLike increaseLikeCount(QuestionCommand command) {
 
@@ -48,44 +50,40 @@ public class QuestionBoardLikeService {
     Member member = memberRepository.findById(command.getMemberId())
         .orElseThrow(() -> new CustomException(ErrorCode.MEMBER_NOT_FOUND));
 
-    ContentType contentType;
     Member writer;
     QuestionPost questionPost = null;
     AnswerPost answerPost = null;
-    if (questionPostRepository.existsById(postId)) {
-      contentType = ContentType.QUESTION;
-      questionPost = questionPostRepository.getReferenceById(postId);
+
+    // 해당 글 좋아요 증가
+    if (command.getContentType().equals(ContentType.QUESTION)) {
+      questionPost = questionPostRepository.findById(postId)
+          .orElseThrow(() -> new CustomException(ErrorCode.QUESTION_POST_NOT_FOUND));
       writer = questionPost.getMember();
-    } else if (answerPostRepository.existsById(postId)) {
-      contentType = ContentType.ANSWER;
-      answerPost = answerPostRepository.getReferenceById(postId);
+      questionPost.increaseLikeCount();
+    } else if (command.getContentType().equals(ContentType.ANSWER)) {
+      answerPost = answerPostRepository.findById(postId)
+          .orElseThrow(() -> new CustomException(ErrorCode.ANSWER_POST_NOT_FOUND));
       writer = answerPost.getMember();
+      answerPost.increaseLikeCount();
     } else {
       throw new CustomException(ErrorCode.INVALID_REQUEST);
     }
 
-    // 좋아요 누른 사용자 엽전 개수 증가
-    yeopjeonService.updateYeopjeon(member, YeopjeonAction.SEND_LIKE);
-
     // 좋아요 받은 사용자 엽전 개수 증가
-    yeopjeonService.updateYeopjeon(writer, YeopjeonAction.RECEIVE_LIKE);
-
-    // 해당 글의 좋아요 수 증가
-    if (contentType.equals(ContentType.QUESTION)) {
-      questionPost.increaseLikeCount();
-    } else if (contentType.equals(ContentType.ANSWER)) {
-      answerPost.increaseLikeCount();
-    }
+    YeopjeonDto yeopjeonDto = yeopjeonService
+        .updateYeopjeon(writer, YeopjeonAction.RECEIVE_LIKE);
+    log.info("업데이트 된 엽전: 작성자: {} 총 엽전수: {}",
+        yeopjeonDto.getYeopjeon().getMember().getStudentId(),
+        yeopjeonDto.getYeopjeon().getResultYeopjeon());
 
     // 엽전 히스토리 내역 추가
-    yeopjeonHistoryService.addYeopjeonHistory(member, YeopjeonAction.SEND_LIKE);
     yeopjeonHistoryService.addYeopjeonHistory(writer, YeopjeonAction.RECEIVE_LIKE);
 
-    // 좋아요 엔티티 저장
+    // MongoDB에 좋아요 내역 저장
     return questionBoardLikeRepository.save(QuestionBoardLike.builder()
         .memberId(command.getMemberId())
         .questionBoardId(command.getQuestionPostId())
-        .contentType(contentType)
+        .contentType(command.getContentType())
         .build());
   }
 }

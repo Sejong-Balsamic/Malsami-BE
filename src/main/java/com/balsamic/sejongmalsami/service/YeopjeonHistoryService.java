@@ -27,7 +27,8 @@ public class YeopjeonHistoryService {
         .memberId(member.getMemberId())
         .yeopjeonChange(yeopjeonCalculator.calculateYeopjeon(action))
         .yeopjeonAction(action)
-        .resultYeopjeon(yeopjeonService.getResultYeopjeon(member))
+        .resultYeopjeon(yeopjeonService.getResultYeopjeon(member)
+            .getYeopjeon().getResultYeopjeon())
         .build());
   }
 
