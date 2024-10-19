@@ -11,22 +11,32 @@ import lombok.Getter;
 @AllArgsConstructor
 @Getter
 public enum MimeType {
+  // 이미지
   JPEG("image/jpeg"),
   JPG("image/jpeg"),
   PNG("image/png"),
+  GIF("image/gif"),
+  BMP("image/bmp"),
+  TIFF("image/tiff"),
+  SVG("image/svg+xml"),
+  WEBP("image/webp"),
+  // 동영상
   MP4("video/mp4"),
-  ZIP("application/zip"),
   AVI("video/x-msvideo"),
   MOV("video/quicktime"),
+  // 음악
   MP3("audio/mpeg"),
   WAV("audio/wav"),
   AAC("audio/aac"),
+  // 문서
   DOC("application/msword"),
   DOCX("application/vnd.openxmlformats-officedocument.wordprocessingml.document"),
   XLS("application/vnd.ms-excel"),
   XLSX("application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"),
   PPT("application/vnd.ms-powerpoint"),
-  PPTX("application/vnd.openxmlformats-officedocument.presentationml.presentation");
+  PPTX("application/vnd.openxmlformats-officedocument.presentationml.presentation"),
+  OGG("application/ogg"),
+  PDF("application/pdf");
 
   private final String mimeType;
 

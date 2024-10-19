@@ -84,6 +84,9 @@ dependencies {
     // Apache Commons Pool2
     implementation 'org.apache.commons:commons-pool2:2.11.1'
 
+    // Seida
+    implementation 'org.sejda.imageio:webp-imageio:0.1.6'
+
     // Thumbnailator
     implementation('net.coobird:thumbnailator:0.4.14')
 

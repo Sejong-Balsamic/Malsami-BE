@@ -1,12 +1,17 @@
 package com.balsamic.sejongmalsami.util;
 
+import com.balsamic.sejongmalsami.object.constants.MimeType;
+import com.balsamic.sejongmalsami.object.constants.SystemType;
 import java.awt.Dimension;
 import java.awt.Graphics2D;
 import java.awt.image.BufferedImage;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.util.Objects;
 import javax.imageio.ImageIO;
+import lombok.Getter;
+import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import net.coobird.thumbnailator.Thumbnails;
 import org.apache.pdfbox.pdmodel.PDDocument;
@@ -21,21 +26,51 @@ import org.springframework.web.multipart.MultipartFile;
 
 @Component
 @Slf4j
+@Getter
+@RequiredArgsConstructor
 public class ImageThumbnailGenerator {
 
   // 썸네일 기본 크기 설정
   public static final int DEFAULT_WIDTH = 300;
   public static final int DEFAULT_HEIGHT = 300;
 
+  private final String outputFormat;
+
+  public ImageThumbnailGenerator() {
+    this.outputFormat = isWebPSupported() ? "webp" : "jpg";
+    log.info("Selected image format for thumbnails: {}", outputFormat);
+  }
+
+  private boolean isWebPSupported() {
+    SystemType os = FileUtil.getCurrentSystem();
+    switch (os) {
+      case WINDOWS:
+      case LINUX:
+        return true;
+      case MAC:
+        return false;
+      default:
+        log.warn("Unknown operating system. Defaulting output format to 'jpg'.");
+        return false;
+    }
+  }
+
   // 이미지 썸네일 생성
   public byte[] generateImageThumbnail(MultipartFile multipartFile) throws IOException {
     log.info("이미지 썸네일 생성 시작: {}", multipartFile.getOriginalFilename());
+
+    if (Objects.requireNonNull(multipartFile.getContentType()).equals(MimeType.WEBP.getMimeType())) {
+      log.info("WebP 형식의 이미지입니다. 썸네일 생성을 건너뜁니다: {}", multipartFile.getOriginalFilename());
+      // WebP 이미지를 그대로 반환 (썸네일 생성 없음)
+      return multipartFile.getBytes();
+    }
+
     ByteArrayOutputStream thumbnailOutputStream = new ByteArrayOutputStream();
     try {
       Thumbnails.of(multipartFile.getInputStream())
           .size(DEFAULT_WIDTH, DEFAULT_HEIGHT)
           .keepAspectRatio(true)
-          .outputFormat("jpg")
+          .outputFormat(outputFormat)
           .toOutputStream(thumbnailOutputStream);
       log.info("이미지 썸네일 생성 완료: {}", multipartFile.getOriginalFilename());
     } catch (Exception e) {
@@ -60,7 +95,7 @@ public class ImageThumbnailGenerator {
           .asBufferedImage();
 
       ByteArrayOutputStream thumbnailOutputStream = new ByteArrayOutputStream();
-      ImageIO.write(thumbnail, "jpg", thumbnailOutputStream);
+      ImageIO.write(thumbnail, outputFormat, thumbnailOutputStream);
       log.info("PDF 썸네일 생성 완료");
       return thumbnailOutputStream.toByteArray();
     } catch (Exception e) {
@@ -84,7 +119,7 @@ public class ImageThumbnailGenerator {
       graphics.drawString(firstPageText, 10, 20);
 
       ByteArrayOutputStream thumbnailOutputStream = new ByteArrayOutputStream();
-      ImageIO.write(img, "jpg", thumbnailOutputStream);
+      ImageIO.write(img, outputFormat, thumbnailOutputStream);
       log.info("Word 썸네일 생성 완료");
       return thumbnailOutputStream.toByteArray();
     } catch (Exception e) {
@@ -105,7 +140,7 @@ public class ImageThumbnailGenerator {
       graphics.drawString("Sheet: " + sheetName, 10, 20);
 
       ByteArrayOutputStream thumbnailOutputStream = new ByteArrayOutputStream();
-      ImageIO.write(img, "jpg", thumbnailOutputStream);
+      ImageIO.write(img, outputFormat, thumbnailOutputStream);
       log.info("Excel 썸네일 생성 완료");
       return thumbnailOutputStream.toByteArray();
     } catch (Exception e) {
@@ -133,7 +168,7 @@ public class ImageThumbnailGenerator {
           .asBufferedImage();
 
       ByteArrayOutputStream thumbnailOutputStream = new ByteArrayOutputStream();
-      ImageIO.write(thumbnail, "jpg", thumbnailOutputStream);
+      ImageIO.write(thumbnail, outputFormat, thumbnailOutputStream);
       log.info("PowerPoint 썸네일 생성 완료");
       return thumbnailOutputStream.toByteArray();
     } catch (Exception e) {

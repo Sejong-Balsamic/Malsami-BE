@@ -4,6 +4,7 @@ import com.balsamic.sejongmalsami.util.config.FtpConfig;
 import com.balsamic.sejongmalsami.util.exception.CustomException;
 import com.balsamic.sejongmalsami.util.exception.ErrorCode;
 import com.balsamic.sejongmalsami.util.log.LogMonitoringInvocation;
+import java.io.ByteArrayInputStream;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.net.ftp.FTPClient;
@@ -204,4 +205,34 @@ public class FtpUtil {
     }
   }
 
-}
+  @Async
+  public void uploadThumbnailBytesAsync(byte[] thumbnailBytes, String filename) {
+    uploadThumbnailBytes(thumbnailBytes, filename);
+  }
+
+  @LogMonitoringInvocation
+  public void uploadThumbnailBytes(byte[] thumbnailBytes, String filename) {
+    String remoteFile = ftpConfig.getThumbnailPath() + "/" + filename;
+    log.info("FTP 썸네일 파일 업로드 시작: {} -> {}", filename, remoteFile);
+
+    FTPClient ftpClient = null;
+    try {
+      ftpClient = ftpClientPool.borrowObject();
+      try (InputStream inputStream = new ByteArrayInputStream(thumbnailBytes)) {
+        boolean success = ftpClient.storeFile(remoteFile, inputStream);
+        if (success) {
+          log.info("FTP 썸네일 파일 업로드 성공: {}", remoteFile);
+        } else {
+          log.error("FTP 썸네일 파일 업로드 실패: {}", remoteFile);
+          throw new CustomException(ErrorCode.FTP_FILE_UPLOAD_ERROR);
+        }
+      }
+    } catch (Exception e) {
+      log.error("FTP 썸네일 파일 업로드 중 예외 발생: {}", e.getMessage());
+      throw new CustomException(ErrorCode.FTP_FILE_UPLOAD_ERROR);
+    } finally {
+      if (ftpClient != null) {
+        ftpClientPool.returnObject(ftpClient);
+      }
+    }
+  }}
