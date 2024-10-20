@@ -5,8 +5,12 @@ import com.balsamic.sejongmalsami.object.QuestionCommand;
 import com.balsamic.sejongmalsami.object.QuestionDto;
 import com.balsamic.sejongmalsami.object.TestCommand;
 import com.balsamic.sejongmalsami.object.TestDto;
+import com.balsamic.sejongmalsami.object.constants.Author;
 import com.balsamic.sejongmalsami.service.TestService;
+import com.balsamic.sejongmalsami.util.log.ApiChangeLog;
+import com.balsamic.sejongmalsami.util.log.ApiChangeLogs;
 import com.balsamic.sejongmalsami.util.log.LogMonitoringInvocation;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
@@ -19,20 +23,38 @@ import org.springframework.web.bind.annotation.RestController;
 @RestController
 @RequiredArgsConstructor
 @RequestMapping("/api/test")
+@Tag(
+    name = "개발자용 TEST API",
+    description = "TEST API 제공"
+)
 public class TestController {
 
   private final TestService testService;;
 
-  /**
-   * 자료 Multipart 파일을 업로드
-   * 워드, 엑셀, PPT, PDF 파일
-   */
+  @ApiChangeLogs({
+      @ApiChangeLog(
+          date = "2024.10.20",
+          author = Author.SUHSAECHAN,
+          description = "Test API Init"
+      )
+  })
+  // 자료게시판 : 자료 파일을 업로드
   @PostMapping(value = "/thumbnail/save-document", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
   @LogMonitoringInvocation
   public ResponseEntity<TestDto> saveDocumentThumbnail(@ModelAttribute TestCommand command) {
     return ResponseEntity.ok(testService.saveDocumentThumbnail(command));
   }
 
+
+  @ApiChangeLogs({
+      @ApiChangeLog(
+          //TODO: 이미지 ZIP 묶음 업로드 및 암호화, 파일 이름 unique 값 생성
+          date = "2024.10.20",
+          author = Author.SUHSAECHAN,
+          description = "이미지 리스트 업로드시 첫번재 이미지 썸네일로 업로드 구현"
+      )
+  })
+  // 자료게시판 : 이미지 리스트 파일을 업로드
   @PostMapping(value = "/thumbnail/save-images", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
   @LogMonitoringInvocation
   public ResponseEntity<TestDto> saveImagesThumbnail(@ModelAttribute TestCommand command) {
