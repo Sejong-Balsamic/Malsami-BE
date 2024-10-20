@@ -17,8 +17,7 @@ public class ImageIOTest {
   @Test
   public void mainTest() {
     webPSupportTest();
-    // 라이브러리가 MAC 환경에서는 WEBP 압축이 불가능함
-//    webPThumbnailCreationTest();
+//    webPThumbnailCreationTest(); // 라이브러리가 MAC 환경에서는 WEBP 압축이 불가능함
 //    webPConversionTest();
   }
 

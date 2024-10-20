@@ -235,7 +235,7 @@ class FtpUtilTest {
           thumbnailFilename = fileName; // 또는 다른 로직 적용
           log.info("WebP 이미지의 경우 썸네일을 생성하지 않았으므로 원본 파일명을 사용합니다: {}", thumbnailFilename);
         } else {
-          thumbnailFilename = fileName.replaceAll("\\.[^.]+$", "." + imageThumbnailGenerator.getOutputFormat());
+          thumbnailFilename = fileName.replaceAll("\\.[^.]+$", "." + imageThumbnailGenerator.getOutputThumbnailFormat());
         }
 
         ftpUtil.uploadThumbnailBytes(thumbnail, thumbnailFilename);
