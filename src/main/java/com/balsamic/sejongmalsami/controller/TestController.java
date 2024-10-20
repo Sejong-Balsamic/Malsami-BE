@@ -27,36 +27,21 @@ import org.springframework.web.bind.annotation.RestController;
     name = "개발자용 TEST API",
     description = "TEST API 제공"
 )
-public class TestController {
+public class TestController implements TestControllerDocs {
 
   private final TestService testService;;
 
-  @ApiChangeLogs({
-      @ApiChangeLog(
-          date = "2024.10.20",
-          author = Author.SUHSAECHAN,
-          description = "Test API Init"
-      )
-  })
-  // 자료게시판 : 자료 파일을 업로드
   @PostMapping(value = "/thumbnail/save-document", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
   @LogMonitoringInvocation
+  @Override
   public ResponseEntity<TestDto> saveDocumentThumbnail(@ModelAttribute TestCommand command) {
     return ResponseEntity.ok(testService.saveDocumentThumbnail(command));
   }
 
 
-  @ApiChangeLogs({
-      @ApiChangeLog(
-          //TODO: 이미지 ZIP 묶음 업로드 및 암호화, 파일 이름 unique 값 생성
-          date = "2024.10.20",
-          author = Author.SUHSAECHAN,
-          description = "이미지 리스트 업로드시 첫번재 이미지 썸네일로 업로드 구현"
-      )
-  })
-  // 자료게시판 : 이미지 리스트 파일을 업로드
   @PostMapping(value = "/thumbnail/save-images", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
   @LogMonitoringInvocation
+  @Override
   public ResponseEntity<TestDto> saveImagesThumbnail(@ModelAttribute TestCommand command) {
     return ResponseEntity.ok(testService.saveImagesThumbnail(command));
   }
