@@ -2,8 +2,10 @@ package com.balsamic.sejongmalsami.service;
 
 import com.balsamic.sejongmalsami.object.TestCommand;
 import com.balsamic.sejongmalsami.object.TestDto;
+import com.balsamic.sejongmalsami.util.FileUtil;
 import com.balsamic.sejongmalsami.util.FtpUtil;
 import com.balsamic.sejongmalsami.util.ImageThumbnailGenerator;
+import com.balsamic.sejongmalsami.util.TimeUtil;
 import com.balsamic.sejongmalsami.util.config.FtpConfig;
 import com.balsamic.sejongmalsami.util.exception.CustomException;
 import com.balsamic.sejongmalsami.util.exception.ErrorCode;
@@ -35,14 +37,12 @@ public class TestService {
     MultipartFile targetImageFile = imageFiles.get(0);
 
     // 임시 파일 이름
-    LocalDateTime currentDateTime = LocalDateTime.now();
-    DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MMdd-HHmmss");
-    String formattedDateTime = currentDateTime.format(formatter);
+    String curTimeStr = TimeUtil.formatLocalDateTimeNowForFileName();
 
     // 기본 이미지 URL 정의
     String imageFileUrl = ftpConfig.getBaseImageUrl();
 
-    String fileName = targetImageFile.getOriginalFilename();
+    String fileName = curTimeStr + "_" + targetImageFile.getOriginalFilename();
 
     // 파일 업로드
     if(!imageFiles.isEmpty()) {
