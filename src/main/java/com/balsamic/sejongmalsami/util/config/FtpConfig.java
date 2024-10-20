@@ -28,4 +28,10 @@ public class FtpConfig {
 
   @Value("${ftp.path.thumbnail-base-url}")
   private String thumbnailBaseUrl;
+
+  @Value("${ftp.basic.document}")
+  private String baseDocumentUrl;
+
+  @Value("${ftp.basic.image}")
+  private String baseImageUrl;
 }
