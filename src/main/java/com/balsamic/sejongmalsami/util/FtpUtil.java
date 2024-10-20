@@ -211,17 +211,20 @@ public class FtpUtil {
   }
 
   @LogMonitoringInvocation
-  public void uploadThumbnailBytes(byte[] thumbnailBytes, String filename) {
+  public String uploadThumbnailBytes(byte[] thumbnailBytes, String filename) {
     String remoteFile = ftpConfig.getThumbnailPath() + "/" + filename;
     log.info("FTP 썸네일 파일 업로드 시작: {} -> {}", filename, remoteFile);
+    String uploadedThumbnailUrl = ftpConfig.getThumbnailBaseUrl() + filename;
 
-    FTPClient ftpClient = null;
+        FTPClient ftpClient = null;
     try {
       ftpClient = ftpClientPool.borrowObject();
       try (InputStream inputStream = new ByteArrayInputStream(thumbnailBytes)) {
         boolean success = ftpClient.storeFile(remoteFile, inputStream);
         if (success) {
           log.info("FTP 썸네일 파일 업로드 성공: {}", remoteFile);
+          log.info("업로드 썸네일 주소: {}", uploadedThumbnailUrl);
+          return uploadedThumbnailUrl;
         } else {
           log.error("FTP 썸네일 파일 업로드 실패: {}", remoteFile);
           throw new CustomException(ErrorCode.FTP_FILE_UPLOAD_ERROR);
@@ -235,4 +238,5 @@ public class FtpUtil {
         ftpClientPool.returnObject(ftpClient);
       }
     }
-  }}
+  }
+}
