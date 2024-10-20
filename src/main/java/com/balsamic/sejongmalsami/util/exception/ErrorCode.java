@@ -47,6 +47,10 @@ public enum ErrorCode {
 
   THUMBNAIL_GENERATION_ERROR(HttpStatus.BAD_REQUEST, "썸네일 생성 중 오류 발생"),
 
+  FILE_EMPTY(HttpStatus.BAD_REQUEST, "파일이 존재하지 않습니다."),
+
+  FILE_SIZE_EXCEEDED(HttpStatus.BAD_REQUEST, "파일 크기가 너무 큽니다."),
+
   // FTP
 
   FTP_FILE_UPLOAD_ERROR(HttpStatus.BAD_REQUEST, "FTP 파일 업로드에 실패했습니다."),
