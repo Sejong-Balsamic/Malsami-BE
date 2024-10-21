@@ -20,13 +20,6 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-/**
- * 좋아요 누를경우
- * 누른 사용자 : 경험치 증가 좋아요
- * 받은 사용자 : 엽전, 경험치 증가
- * 엽전 히스토리 내역 저장
- * 해당 질문글, 답변글 좋아요 수 증가
- */
 @Service
 @Slf4j
 @RequiredArgsConstructor
@@ -66,18 +59,15 @@ public class QuestionBoardLikeService {
       writer = answerPost.getMember();
       answerPost.increaseLikeCount();
     } else {
-      throw new CustomException(ErrorCode.INVALID_REQUEST);
+      throw new CustomException(ErrorCode.INVALID_CONTENT_TYPE);
     }
 
     // 좋아요 받은 사용자 엽전 개수 증가
     YeopjeonDto yeopjeonDto = yeopjeonService
         .updateYeopjeon(writer, YeopjeonAction.RECEIVE_LIKE);
-    log.info("업데이트 된 엽전: 작성자: {} 총 엽전수: {}",
-        yeopjeonDto.getYeopjeon().getMember().getStudentId(),
-        yeopjeonDto.getYeopjeon().getResultYeopjeon());
 
     // 엽전 히스토리 내역 추가
-    yeopjeonHistoryService.addYeopjeonHistory(writer, YeopjeonAction.RECEIVE_LIKE);
+    yeopjeonHistoryService.saveYeopjeonHistory(writer, YeopjeonAction.RECEIVE_LIKE);
 
     // MongoDB에 좋아요 내역 저장
     return questionBoardLikeRepository.save(QuestionBoardLike.builder()

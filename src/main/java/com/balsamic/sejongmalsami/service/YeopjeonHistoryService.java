@@ -21,7 +21,7 @@ public class YeopjeonHistoryService {
 
   // 엽전 히스토리 내역 추가
   @Transactional
-  public void addYeopjeonHistory(Member member, YeopjeonAction action) {
+  public void saveYeopjeonHistory(Member member, YeopjeonAction action) {
 
     yeopjeonHistoryRepository.save(YeopjeonHistory.builder()
         .memberId(member.getMemberId())
