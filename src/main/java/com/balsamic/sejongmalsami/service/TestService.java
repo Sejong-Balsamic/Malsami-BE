@@ -22,7 +22,6 @@ public class TestService {
   private final FtpConfig ftpConfig;
   private final FtpUtil ftpUtil;
   private final ImageThumbnailGenerator thumbnailGenerator;
-  private final ImageThumbnailGenerator imageThumbnailGenerator;
 
   private final int MAX_FILE_UPLOAD_SIZE = 50; // 50MB
 
@@ -44,14 +43,14 @@ public class TestService {
     // 파일 이름 처리
     String curTimeStr = TimeUtil.formatLocalDateTimeNowForFileName();
     String baseName = FileUtil.getBaseName(file.getOriginalFilename());
-    String thumbnailExtension = imageThumbnailGenerator.getOutputThumbnailFormat();
+    String thumbnailExtension = thumbnailGenerator.getOutputThumbnailFormat();
 
     String fileName = String.format("%s_%s.%s", curTimeStr, baseName, thumbnailExtension);
 
     if(!file.isEmpty()){
       try {
         documentFileUrl = ftpUtil.uploadThumbnailBytes(
-            imageThumbnailGenerator.generateDocumentThumbnail(file), fileName);
+            thumbnailGenerator.generateDocumentThumbnail(file), fileName);
       } catch (IOException e) {
         throw new CustomException(ErrorCode.FTP_FILE_UPLOAD_ERROR);
       }
@@ -83,7 +82,7 @@ public class TestService {
     // 파일 이름 처리
     String curTimeStr = TimeUtil.formatLocalDateTimeNowForFileName();
     String baseName = FileUtil.getBaseName(targetImageFile.getOriginalFilename());
-    String thumbnailExtension = imageThumbnailGenerator.getOutputThumbnailFormat();
+    String thumbnailExtension = thumbnailGenerator.getOutputThumbnailFormat();
 
     String fileName = String.format("%s_%s.%s", curTimeStr, baseName, thumbnailExtension);
 
