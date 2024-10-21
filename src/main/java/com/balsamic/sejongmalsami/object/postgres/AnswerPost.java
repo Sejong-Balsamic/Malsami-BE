@@ -57,4 +57,8 @@ public class AnswerPost extends BaseEntity {
   // 닉네임 비공개 여부
   @Builder.Default
   private Boolean isPrivate = false;
+
+  public void increaseLikeCount() {
+    likeCount++;
+  }
 }
