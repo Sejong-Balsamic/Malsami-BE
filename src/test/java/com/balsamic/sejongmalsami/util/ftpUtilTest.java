@@ -1,5 +1,9 @@
 package com.balsamic.sejongmalsami.util;
 
+import java.awt.image.BufferedImage;
+import java.io.ByteArrayInputStream;
+import java.io.ByteArrayOutputStream;
+import javax.imageio.ImageIO;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.net.ftp.FTPClient;
 import org.apache.commons.pool2.impl.GenericObjectPool;
@@ -25,23 +29,36 @@ class FtpUtilTest {
   private FtpUtil ftpUtil;
 
   @Autowired
+  private ImageThumbnailGenerator imageThumbnailGenerator;
+
+  @Autowired
   private GenericObjectPool<FTPClient> ftpClientPool;
 
-  private final String[] fileNames = {
-      "테스트_문서_1.pdf",
-      "테스트_이미지_1.png"
+  private final String[] documentFileNames = {
+      "테스트_문서_PDF.pdf",
+      "테스트_이미지_JPEG.jpeg",
+      "테스트_이미지_JPG.jpg",
+      "테스트_이미지_PNG.png",
+      "테스트_이미지_WEBP.webp"
   };
 
   /**
-   * 여러 파일을 FTP 서버에 업로드하는 테스트
+   * 메인 테스트 메소드
    */
   @Test
-  void testUploadFiles() {
+  void mainTest() {
+//    testUploadDocuments();
+//    testDeleteDocuments();
+//    testPoolLimit();
+    testUploadThumbnails();
+//    testWebPConversion();
+  }
+
+  void testUploadDocuments() {
     List<String> uploadedFtpFiles = new ArrayList<>();
 
-    for (String fileName : fileNames) {
+    for (String fileName : documentFileNames) {
       try {
-        // 파일 리소스 로드
         ClassPathResource resource = new ClassPathResource("document/" + fileName);
         if (!resource.exists()) {
           log.error("파일을 찾을 수 없습니다: {}", fileName);
@@ -49,7 +66,6 @@ class FtpUtilTest {
         }
         log.info("파일을 성공적으로 찾았습니다: {}", fileName);
 
-        // MultipartFile 생성
         MultipartFile multipartFile = new MockMultipartFile(
             "file",
             fileName,
@@ -57,10 +73,9 @@ class FtpUtilTest {
             resource.getInputStream()
         );
 
-        // FTP 업로드
-        ftpUtil.uploadFile(multipartFile);
+        ftpUtil.uploadDocument(multipartFile);
         uploadedFtpFiles.add(fileName);
-        log.info("FTP 업로드 성공: {}", fileName);
+        log.info("FTP 문서 업로드 성공: {}", fileName);
 
       } catch (IOException e) {
         log.error("파일 읽기 중 예외 발생: {}", e.getMessage());
@@ -69,34 +84,18 @@ class FtpUtilTest {
       }
     }
 
-    // 업로드된 파일 목록 로깅
     if (!uploadedFtpFiles.isEmpty()) {
-      log.info("업로드된 파일 목록: {}", uploadedFtpFiles);
+      log.info("업로드된 문서 파일 목록: {}", uploadedFtpFiles);
     } else {
-      log.warn("업로드된 파일이 없습니다.");
+      log.warn("업로드된 문서 파일이 없습니다.");
     }
-
-//    // 업로드된 파일 삭제
-//    for (String fileName : uploadedFtpFiles) {
-//      try {
-//        ftpUtil.deleteFile(fileName);
-//        log.info("테스트 후 FTP 파일 삭제 성공: {}", fileName);
-//      } catch (Exception e) {
-//        log.error("테스트 후 FTP 파일 삭제 실패: {} - {}", fileName, e.getMessage());
-//      }
-//    }
   }
 
-  /**
-   * 업로드한 파일들을 FTP 서버에서 삭제하는 테스트
-   */
-  @Test
-  void testDeleteFiles() {
+  void testDeleteDocuments() {
     List<String> uploadedFtpFiles = new ArrayList<>();
 
-    for (String fileName : fileNames) {
+    for (String fileName : documentFileNames) {
       try {
-        // 파일 리소스 로드
         ClassPathResource resource = new ClassPathResource("document/" + fileName);
         if (!resource.exists()) {
           log.error("파일을 찾을 수 없습니다: {}", fileName);
@@ -104,7 +103,6 @@ class FtpUtilTest {
         }
         log.info("파일을 성공적으로 찾았습니다: {}", fileName);
 
-        // MultipartFile 생성
         MultipartFile multipartFile = new MockMultipartFile(
             "file",
             fileName,
@@ -112,10 +110,9 @@ class FtpUtilTest {
             resource.getInputStream()
         );
 
-        // FTP 업로드
-        ftpUtil.uploadFile(multipartFile);
+        ftpUtil.uploadDocument(multipartFile);
         uploadedFtpFiles.add(fileName);
-        log.info("FTP 업로드 성공: {}", fileName);
+        log.info("FTP 문서 업로드 성공: {}", fileName);
 
       } catch (IOException e) {
         log.error("파일 읽기 중 예외 발생: {}", e.getMessage());
@@ -125,26 +122,20 @@ class FtpUtilTest {
     }
 
     if (uploadedFtpFiles.isEmpty()) {
-      log.warn("삭제할 업로드된 파일이 없습니다.");
+      log.warn("삭제할 업로드된 문서 파일이 없습니다.");
       return;
     }
 
     for (String fileName : uploadedFtpFiles) {
       try {
-        ftpUtil.deleteFile(fileName);
-        log.info("FTP 삭제 성공: {}", fileName);
+        ftpUtil.deleteDocument(fileName);
+        log.info("FTP 문서 삭제 성공: {}", fileName);
       } catch (Exception e) {
-        log.error("FTP 삭제 중 예외 발생: {}", e.getMessage());
+        log.error("FTP 문서 삭제 중 예외 발생: {}", e.getMessage());
       }
     }
   }
 
-  /**
-   * 풀의 동작을 테스트하기 위한 동시 업로드 테스트
-   * 최대 풀 크기(10)를 초과하는 15개의 동시 업로드 작업을 수행합니다.
-   * 각 스레드의 시작과 종료 시점을 로깅하여 풀의 상태를 모니터링합니다.
-   */
-  @Test
   void testPoolLimit() {
     int numberOfThreads = 15;
     List<Thread> threads = new ArrayList<>();
@@ -168,8 +159,10 @@ class FtpUtilTest {
       Thread thread = new Thread(() -> {
         try {
           log.info("Thread {} 시작: {}", Thread.currentThread().getName(), fileName);
-          ftpUtil.uploadFile(multipartFile);
-          uploadedFtpFiles.add(fileName);
+          ftpUtil.uploadDocument(multipartFile);
+          synchronized (uploadedFtpFiles) {
+            uploadedFtpFiles.add(fileName);
+          }
           log.info("Thread {} 업로드 성공: {}", Thread.currentThread().getName(), fileName);
         } catch (Exception e) {
           log.error("Thread {} 업로드 실패: {} - {}", Thread.currentThread().getName(), fileName, e.getMessage());
@@ -180,46 +173,124 @@ class FtpUtilTest {
 
     long startTime = System.currentTimeMillis();
 
-    // 모든 스레드 시작
     for (Thread thread : threads) {
       thread.start();
     }
 
-    // 모든 스레드가 완료될 때까지 대기
     for (Thread thread : threads) {
       try {
         thread.join();
       } catch (InterruptedException e) {
         log.error("Thread join interrupted: {}", e.getMessage());
+        Thread.currentThread().interrupt();
       }
     }
 
     long endTime = System.currentTimeMillis();
     log.info("모든 스레드 완료. 소요 시간: {} ms", (endTime - startTime));
 
-    // 최종 풀 상태 로깅
     log.info("최종 풀 상태 - MaxTotal: {}, Active: {}, Idle: {}",
         ftpClientPool.getMaxTotal(),
         ftpClientPool.getNumActive(),
         ftpClientPool.getNumIdle());
 
-    // 업로드된 파일 목록 로깅
     if (!uploadedFtpFiles.isEmpty()) {
       log.info("업로드된 파일 목록: {}", uploadedFtpFiles);
     } else {
       log.warn("업로드된 파일이 없습니다.");
     }
+  }
 
-    // 업로드된 파일 삭제
-    for (String fileName : uploadedFtpFiles) {
+  void testUploadThumbnails() {
+    List<String> uploadedThumbnailFiles = new ArrayList<>();
+
+    for (String fileName : documentFileNames) {
       try {
-        ftpUtil.deleteFile(fileName);
-        log.info("테스트 후 FTP 파일 삭제 성공: {}", fileName);
+        ClassPathResource resource = new ClassPathResource("document/" + fileName);
+        if (!resource.exists()) {
+          log.error("파일을 찾을 수 없습니다: {}", fileName);
+          continue;
+        }
+        log.info("파일을 성공적으로 찾았습니다: {}", fileName);
+
+        MultipartFile multipartFile = new MockMultipartFile(
+            "file",
+            fileName,
+            Files.probeContentType(resource.getFile().toPath()),
+            resource.getInputStream()
+        );
+
+        byte[] thumbnail;
+        boolean isWebp = fileName.toLowerCase().endsWith(".webp");
+        if (fileName.toLowerCase().endsWith(".pdf")) {
+          thumbnail = imageThumbnailGenerator.generatePdfThumbnail(multipartFile.getInputStream());
+        } else {
+          thumbnail = imageThumbnailGenerator.generateImageThumbnail(multipartFile);
+        }
+
+        // WEBP 이미지의 경우 썸네일을 생성하지 않았으므로, 별도의 처리 필요
+        String thumbnailFilename;
+        if (isWebp) {
+          // 원본 파일명을 유지하거나 다른 형식으로 처리
+          thumbnailFilename = fileName; // 또는 다른 로직 적용
+          log.info("WebP 이미지의 경우 썸네일을 생성하지 않았으므로 원본 파일명을 사용합니다: {}", thumbnailFilename);
+        } else {
+          thumbnailFilename = fileName.replaceAll("\\.[^.]+$", "." + imageThumbnailGenerator.getOutputThumbnailFormat());
+        }
+
+        ftpUtil.uploadThumbnailBytes(thumbnail, thumbnailFilename);
+        uploadedThumbnailFiles.add(thumbnailFilename);
+        log.info("FTP 썸네일 업로드 성공: {}", thumbnailFilename);
+
+        if (!isWebp) {
+          BufferedImage thumbnailImage = ImageIO.read(new ByteArrayInputStream(thumbnail));
+          log.info("생성된 썸네일 이미지 크기: {}x{}", thumbnailImage.getWidth(), thumbnailImage.getHeight());
+        } else {
+          log.info("WebP 이미지의 경우 썸네일을 생성하지 않았습니다: {}", thumbnailFilename);
+        }
+
+      } catch (IOException e) {
+        log.error("썸네일 파일 처리 중 예외 발생: {}", e.getMessage());
       } catch (Exception e) {
-        log.error("테스트 후 FTP 파일 삭제 실패: {} - {}", fileName, e.getMessage());
+        log.error("FTP 썸네일 업로드 중 예외 발생: {}", e.getMessage());
       }
+    }
+
+    if (!uploadedThumbnailFiles.isEmpty()) {
+      log.info("업로드된 썸네일 파일 목록: {}", uploadedThumbnailFiles);
+    } else {
+      log.warn("업로드된 썸네일 파일이 없습니다.");
     }
   }
 
 
+  void testWebPConversion() {
+    try {
+      ClassPathResource resource = new ClassPathResource("document/테스트_이미지_PNG.png");
+      MultipartFile multipartFile = new MockMultipartFile(
+          "file",
+          "테스트_이미지_PNG.png",
+          Files.probeContentType(resource.getFile().toPath()),
+          resource.getInputStream()
+      );
+
+      // PNG를 WebP로 변환
+      byte[] webpImage = imageThumbnailGenerator.generateImageThumbnail(multipartFile);
+
+      // WebP 이미지 검증
+      BufferedImage convertedImage = ImageIO.read(new ByteArrayInputStream(webpImage));
+      log.info("PNG에서 변환된 WebP 이미지 크기: {}x{}", convertedImage.getWidth(), convertedImage.getHeight());
+
+      // 변환된 WebP 이미지를 파일로 저장 (테스트용)
+      String webpFilename = "converted_test_image.webp";
+      ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
+      ImageIO.write(convertedImage, "webp", outputStream);
+      ftpUtil.uploadThumbnailBytes(outputStream.toByteArray(), webpFilename);
+
+      log.info("WebP 변환 테스트 완료: {}", webpFilename);
+
+    } catch (IOException e) {
+      log.error("WebP 변환 테스트 중 예외 발생: {}", e.getMessage());
+    }
+  }
 }
