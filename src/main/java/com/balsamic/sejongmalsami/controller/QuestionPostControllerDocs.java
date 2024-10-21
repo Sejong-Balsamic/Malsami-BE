@@ -7,6 +7,7 @@ import com.balsamic.sejongmalsami.object.constants.Author;
 import com.balsamic.sejongmalsami.util.log.ApiChangeLog;
 import com.balsamic.sejongmalsami.util.log.ApiChangeLogs;
 import io.swagger.v3.oas.annotations.Operation;
+import java.util.UUID;
 import org.springframework.http.ResponseEntity;
 
 public interface QuestionPostControllerDocs {
@@ -107,6 +108,69 @@ public interface QuestionPostControllerDocs {
   ResponseEntity<QuestionDto> saveQuestionPost(
       CustomUserDetails customUserDetails,
       QuestionCommand questionCommand);
+
+  @ApiChangeLogs({
+      @ApiChangeLog(
+          date = "2024.10.21",
+          author = Author.BAEKJIHOON,
+          description = "특정 질문 글 조회"
+      )
+  })
+  @Operation(
+      summary = "특정 질문 글 조회",
+      description = """
+          **특정 질문 글 조회 요청**
+
+          **이 API는 인증이 필요하며, JWT 토큰이 존재해야합니다.**
+
+          **입력 파라미터 값:**
+
+          - **UUID postId**: 질문 글 PK
+            _예: "9b1deb4d-3b7d-4bad-9bdd-2b0d7b3dcb6d"_
+
+          **반환 파라미터 값:**
+
+          - **QuestionDto**: 질문 게시판 정보 반환
+            - **QuestionPost questionPost**: 특정 질문 글
+
+          **참고 사항:**
+
+          - 이 API를 통해 사용자는 입력 Id 값에 해당하는 질문 글을 조회할 수 있습니다.
+          """
+  )
+  ResponseEntity<QuestionDto> getQuestionPost(
+      QuestionCommand command);
+
+  @ApiChangeLogs({
+      @ApiChangeLog(
+          date = "2024.10.21",
+          author = Author.BAEKJIHOON,
+          description = "전체 질문 글 조회"
+      )
+  })
+  @Operation(
+      summary = "전체 질문 글 조회",
+      description = """
+          **전체 질문 글 조회 요청**
+
+          **이 API는 인증이 필요하며, JWT 토큰이 존재해야합니다.**
+
+          **입력 파라미터 값:**
+
+          없음
+
+          **반환 파라미터 값:**
+
+          - **QuestionDto**: 질문 게시판 정보 반환
+            - **List\\<QuestionPost\\> questionPosts**: 전체 질문 글 리스트
+
+          **참고 사항:**
+
+          - 이 API를 통해 사용자는 전체 질문 글을 조회할 수 있습니다.
+          """
+  )
+  ResponseEntity<QuestionDto> getAllQuestionPost(
+      QuestionCommand command);
 
   @ApiChangeLogs({
       @ApiChangeLog(
