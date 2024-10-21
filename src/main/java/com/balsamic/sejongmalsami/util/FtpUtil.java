@@ -61,6 +61,7 @@ public class FtpUtil {
     } finally {
       if (ftpClient != null) {
         ftpClientPool.returnObject(ftpClient);
+        log.debug("FTPClient 반환 완료: {}", ftpClient);
       }
     }
   }

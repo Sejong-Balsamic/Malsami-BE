@@ -13,6 +13,11 @@ public interface DocumentPostControllerDocs {
 
   @ApiChangeLogs({
       @ApiChangeLog(
+          date = "2024.10.22",
+          author = Author.SUHSAECHAN,
+          description = "자료 업로드 및 썸네일 로직 추가"
+      ),
+      @ApiChangeLog(
           date = "2024.10.15",
           author = Author.BAEKJIHOON,
           description = "dto 필드 변경에 따른 반환값 수정"
@@ -31,51 +36,48 @@ public interface DocumentPostControllerDocs {
   @Operation(
       summary = "자료 글 등록",
       description = """
-          **글 등록 요청**
+        **자료 글 등록 요청**
 
-          **이 API는 인증이 필요하며, JWT 토큰이 존재해야합니다.**
+        이 API는 인증이 필요하며, JWT 토큰이 존재해야 합니다. 클라이언트는 Bearer 토큰을 통해 인증을 수행해야 합니다.
 
-          **입력 파라미터 값:**
+        ### **요청 파라미터**
+        
+        - **`title`** (`String`, **필수**)
+        
+        - **`content`** (`String`, **필수**)
+        
+        - **`subject`** (`String`, **필수**): 교과목명
+        
+        - **`documentTypeSet`** (`String`, **선택**)
+        
+        - **`isDepartmentPrivate`** (`Boolean`, **선택**): 내 학과 비공개 여부 : 기본값 `false` (공개)
+        
+       
+        - **`documentFiles`** (`MultipartFile`, **선택**): 업로드 문서 파일 리스트
+        
+        - **`imageFiles`** (`MultipartFile`, **선택**): 업로드 이미지 파일 리스트 : 단일 이미지를 업로드하면 직접 저장, 여러 이미지를 업로드 -> ZIP 파일로 압축 
+        
+        - **`mediaFiles`** (`MultipartFile`, **선택**): 업로드 미디어 파일 리스트
+        
+        ### **documentTypeSet**
 
-          - **String title**: 자료게시글 제목 (필수)
-            _예: "컴퓨터구조 과제5 로지심파일"_
+        최대 2개까지의 카테고리를 설정 가능
 
-          - **String content**: 자료게시글 본문 (필수)
-            _예: "컴구 과제5 로지심파일 입니다."_
-            
-          - **String subject**: 교과목 명 (필수)
-            _예: "컴퓨터구조"_
-            
-          - **Enum documentTypeSet**: 자료 카테고리 (최대 2개까지만 선택가능)
-            _예: "SOLUTION"_
-            
-          - **Boolean isDepartmentPrivate**: 내 학과 비공개 여부 (default = false)
-            _기본값은 false입니다. true로 요청할 시 자료 글에 내 학과가 비공개 처리됩니다._
+        - **DOCUMENT**: 필기 자료, 교안, 녹화본, 실험/실습 자료 등
+        - **PAST_EXAM**: 퀴즈, 기출 문제, 과제 등
+        - **SOLUTION**: 솔루션 등
 
-          **자료 카테고리**
-                    
-          총 3개의 자료 카테고리가 존재하며 최대 2개까지의 카테고리를 설정할 수 있습니다.
-          - **DOCUMENT** (자료: 필기 자료, 교안, 녹화본, 실험/실습 자료)
-          - **PAST_EXAM** (기출: 퀴즈, 기출 문제, 과제)
-          - **SOLUTION** (해설: 솔루션)
-                    
-            _예: "formData.append('documentTypeSet', 'SOLUTION');_
+        ### **반환 파라미터 값**
 
-          **반환 파라미터 값:**
+        - **`DocumentDto`**: 자료 게시판 정보 반환
+          - **`DocumentPost documentPost`**: 자료 글 정보
 
-          - **DocumentDto**: 자료 게시판 정보 반환
-            - **DocumentPost documentPost**: 자료 글 정보
+        ### **참고 사항**
 
-          **참고 사항:**
-
-          - 이 API를 통해 사용자는 자료게시판에 자료 글을 동록할 수 있습니다.
-          - 글 제목, 본문, 과목명은 null 값이 들어갈 수 없습니다. (required)
-          - 내 학과 비공개 여부는 프론트에서 설정하지 않으면 default 값이 할당됩니다.
-          - 자료 글은 닉네임 비공개 기능이 없습니다.
-          - 자료 글 등록 시 게시물 등급은 "천민" 등급으로 자동 설정됩니다.
-          - 성공적인 등록 후, 등록 된 자료글을 반환합니다.
-          - Swagger에서 테스트 시 mediaFiles에 있는 "Send empty value" 체크박스 해제해야합니다.
-          """
+        - 자료 글은 닉네임 비공개 기능이 없습니다.
+        - 자료 글 등록 시 게시물 등급은 "천민" 등급 
+        - 개별 파일의 최대 크기는 50MB
+        """
   )
   ResponseEntity<DocumentDto> saveDocumentPost(
       CustomUserDetails customUserDetails,
