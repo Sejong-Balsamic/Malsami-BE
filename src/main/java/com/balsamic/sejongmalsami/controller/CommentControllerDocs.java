@@ -53,7 +53,6 @@ public interface CommentControllerDocs {
 
           - **CommentDto**: 작성 된 댓글 반환
             - **Comment comment**: 댓글 정보
-            - **List\\<Comment\\> comments**: null
 
           **참고 사항:**
 

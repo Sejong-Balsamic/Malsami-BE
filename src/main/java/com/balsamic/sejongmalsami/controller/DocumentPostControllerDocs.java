@@ -65,9 +65,6 @@ public interface DocumentPostControllerDocs {
 
           - **DocumentDto**: 자료 게시판 정보 반환
             - **DocumentPost documentPost**: 자료 글 정보
-            - **List\\<DocumentPost\\> documentPosts**: null
-            - **DocumentRequestPost documentRequestPost**: null
-            - **List\\<DocumentRequestPost\\> documentRequestPosts**: null
 
           **참고 사항:**
 
@@ -109,10 +106,7 @@ public interface DocumentPostControllerDocs {
           **반환 파라미터 값:**
 
           - **DocumentDto**: 자료 게시판 정보 반환
-            - **DocumentPost documentPost**: null
             - **List\\<DocumentPost\\> documentPosts**: 일간 자료 인기글 리스트
-            - **DocumentRequestPost documentRequestPost**: null
-            - **List\\<DocumentRequestPost\\> documentRequestPosts**: null
 
           **참고 사항:**
 
@@ -149,10 +143,7 @@ public interface DocumentPostControllerDocs {
           **반환 파라미터 값:**
 
           - **DocumentDto**: 자료 게시판 정보 반환
-            - **DocumentPost documentPost**: null
             - **List\\<DocumentPost\\> documentPosts**: 주간 자료 인기글 리스트
-            - **DocumentRequestPost documentRequestPost**: null
-            - **List\\<DocumentRequestPost\\> documentRequestPosts**: null
 
           **참고 사항:**
 

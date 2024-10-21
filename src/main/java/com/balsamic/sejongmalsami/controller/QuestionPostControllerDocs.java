@@ -7,7 +7,6 @@ import com.balsamic.sejongmalsami.object.constants.Author;
 import com.balsamic.sejongmalsami.util.log.ApiChangeLog;
 import com.balsamic.sejongmalsami.util.log.ApiChangeLogs;
 import io.swagger.v3.oas.annotations.Operation;
-import java.util.UUID;
 import org.springframework.http.ResponseEntity;
 
 public interface QuestionPostControllerDocs {
@@ -88,9 +87,6 @@ public interface QuestionPostControllerDocs {
 
           - **QuestionDto**: 질문 게시판 정보 반환
             - **QuestionPost questionPost**: 질문 글 정보
-            - **List\\<QuestionPost\\> questionPosts**: null
-            - **AnswerPost answerPost**: null
-            - **List\\<AnswerPost\\> answerPosts**: null
             - **List\\<MediaFile\\> mediaFiles**: 질문 글 첨부파일
             - **Set\\<String\\> customTags**: 질문 글 커스텀태그
 
@@ -198,12 +194,7 @@ public interface QuestionPostControllerDocs {
           **반환 파라미터 값:**
 
           - **QuestionDto**: 질문 게시판 정보 반환
-            - **QuestionPost questionPost**: null
             - **List\\<QuestionPost\\> questionPosts**: 일간 인기 질문 글 리스트
-            - **AnswerPost answerPost**: null
-            - **List\\<AnswerPost\\>** answerPosts**: null
-            - **List\\<MediaFile\\>** mediaFiles: null
-            - **Set\\<String\\>** customTags: null
 
           **참고 사항:**
 
@@ -240,12 +231,7 @@ public interface QuestionPostControllerDocs {
           **반환 파라미터 값:**
 
           - **QuestionDto**: 질문 게시판 정보 반환
-            - **QuestionPost questionPost**: null
             - **List\\<QuestionPost\\> questionPosts**: 주간 인기 질문 글 리스트
-            - **AnswerPost answerPost**: null
-            - **List\\<AnswerPost\\>** answerPosts**: null
-            - **List\\<MediaFile\\>** mediaFiles: null
-            - **Set\\<String\\>** customTags: null
 
           **참고 사항:**
 
