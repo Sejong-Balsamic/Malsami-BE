@@ -45,21 +45,14 @@ public interface AnswerPostControllerDocs {
             
           - **List\\<MultipartFile\\> mediaFiles**: 첨부파일 (최대 3개까지만 추가가능, 이미지파일만 업로드가능)
                     
-          - **Boolean isChaetaek**: 채택 여부 (default = false)
-            -기본값은 false입니다.
-                    
           - **Boolean isPrivate**: 내 정보 비공개 여부 (default = false)
             _기본값은 false입니다. true로 요청할 시 질문 글에 내 정보가 비공개 처리됩니다._
 
           **반환 파라미터 값:**
 
           - **QuestionDto**: 질문 게시판 정보 반환
-            - **QuestionPost questionPost**: null
-            - **List\\<QuestionPost\\> questionPosts**: null
             - **AnswerPost answerPost**: 답변 글 정보
-            - **List\\<AnswerPost\\> answerPosts**: null
             - **List\\<MediaFile\\> mediaFiles**: 답변 글 첨부파일
-            - **Set\\<String\\> customTags**: null
 
           **참고 사항:**
 
