@@ -63,7 +63,14 @@ public class Member extends BaseEntity {
 
   private LocalDateTime lastLoginTime;
 
+  @Builder.Default
+  private Boolean isFirstLogin = true;
+
   public void updateLastLoginTime(LocalDateTime lastLoginTime) {
     this.lastLoginTime = lastLoginTime;
+  }
+
+  public void disableFirstLogin() {
+    this.isFirstLogin = false;
   }
 }
