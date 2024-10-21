@@ -1,6 +1,7 @@
 package com.balsamic.sejongmalsami.object.postgres;
 
 import com.balsamic.sejongmalsami.object.constants.ContentType;
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.FetchType;
@@ -22,6 +23,7 @@ import lombok.experimental.SuperBuilder;
 @AllArgsConstructor
 @NoArgsConstructor
 @ToString(callSuper = true)
+@JsonIgnoreProperties({"hibernateLazyInitializer", "handler"})
 public class Comment extends BaseEntity{
 
   @Id
@@ -38,6 +40,7 @@ public class Comment extends BaseEntity{
   private String content;
 
   // 좋아요
+  @Builder.Default
   private Integer likeCount = 0;
 
   // 댓글이 속한 게시글의 유형

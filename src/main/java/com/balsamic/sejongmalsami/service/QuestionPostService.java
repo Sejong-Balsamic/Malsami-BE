@@ -87,4 +87,21 @@ public class QuestionPostService {
         .customTags(customTags)
         .build();
   }
+
+  /* 특정 질문 글 조회 로직 */
+  @Transactional(readOnly = true)
+  public QuestionDto findQuestionPost(QuestionCommand command) {
+    return QuestionDto.builder()
+        .questionPost(questionPostRepository.findById(command.getPostId())
+            .orElseThrow(() -> new CustomException(ErrorCode.QUESTION_POST_NOT_FOUND)))
+        .build();
+  }
+
+  /* 전체 질문 글 리스트 조회 로직 */
+  @Transactional(readOnly = true)
+  public QuestionDto findAllQuestionPost() {
+    return QuestionDto.builder()
+        .questionPosts(questionPostRepository.findAll())
+        .build();
+  }
 }

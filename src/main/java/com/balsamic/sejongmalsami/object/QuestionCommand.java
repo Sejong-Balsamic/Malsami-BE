@@ -16,6 +16,7 @@ import org.springframework.web.multipart.MultipartFile;
 @ToString
 public class QuestionCommand {
 
+  private UUID postId; // 질문, 답변
   private UUID memberId; // 질문, 답변
   private String title; // 질문
   private UUID questionPostId; // 답변

@@ -53,13 +53,13 @@ public interface CommentControllerDocs {
 
           - **CommentDto**: 작성 된 댓글 반환
             - **Comment comment**: 댓글 정보
-            - **List\\<Comment\\> comments**: null
 
           **참고 사항:**
 
           - 이 API를 통해 사용자는 특정 게시글에 댓글을 작성할 수 있습니다.
           - 댓글 본문에는 null 값이 들어갈 수 없습니다.
           - 성공적인 등록 후, 등록 된 댓글을 반환합니다.
+          - Swagger에서 테스트 시 mediaFiles에 있는 "Send empty value" 체크박스 해제해야합니다.
           """
   )
   ResponseEntity<CommentDto> saveComment(
