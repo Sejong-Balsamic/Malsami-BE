@@ -45,7 +45,7 @@ public enum ErrorCode {
 
   WRONG_COURSE_FILE_FORMAT(HttpStatus.BAD_REQUEST, "교과목명 업로드 파일 포맷 오류"),
 
-  THUMBNAIL_GENERATION_ERROR(HttpStatus.BAD_REQUEST, "썸네일 생성 중 오류 발생"),
+  THUMBNAIL_CREATION_ERROR(HttpStatus.BAD_REQUEST, "썸네일 생성 중 오류 발생"),
 
   FILE_EMPTY(HttpStatus.BAD_REQUEST, "파일이 존재하지 않습니다."),
 
