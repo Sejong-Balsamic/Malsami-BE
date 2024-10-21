@@ -7,6 +7,10 @@ import org.springdoc.core.customizers.OperationCustomizer;
 import org.springframework.stereotype.Component;
 import org.springframework.web.method.HandlerMethod;
 
+/**
+ * Swagger 의 API 변경 이력 관리
+ * @ApiChangeLog 어노테이션에 대한 Table 생성
+ */
 @Component
 public class CustomOperationCustomizer implements OperationCustomizer {
 
