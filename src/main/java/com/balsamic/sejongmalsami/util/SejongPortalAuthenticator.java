@@ -30,13 +30,13 @@ public class SejongPortalAuthenticator {
     try {
       String jsessionId = obtainJSessionId();
       if (jsessionId == null) {
-        throw new CustomException(ErrorCode.SEJONG_AUTH_SESSION_FAILURE);
+        throw new CustomException(ErrorCode.SEJONG_AUTH_SESSION_ERROR);
       }
       performLogin(command.getSejongPortalId(), command.getSejongPortalPassword(), jsessionId);
       return fetchStudentData(jsessionId);
     } catch (IOException e) {
       log.error("로그인 실패: 인증 중 오류가 발생했습니다.", e);
-      throw new CustomException(ErrorCode.SEJONG_AUTH_CONNECTION_FAILURE);
+      throw new CustomException(ErrorCode.SEJONG_AUTH_CONNECTION_ERROR);
     }
   }
 
@@ -46,14 +46,14 @@ public class SejongPortalAuthenticator {
       return parseJSessionId(response);
     } catch (IOException e) {
       log.error("세션 ID 가져오기 실패: 연결 중 오류가 발생했습니다.", e);
-      throw new CustomException(ErrorCode.SEJONG_AUTH_SESSION_FAILURE);
+      throw new CustomException(ErrorCode.SEJONG_AUTH_SESSION_ERROR);
     }
   }
 
   private String parseJSessionId(Response response) {
     if (!response.isSuccessful()) {
       log.error("로그인 페이지 연결에 실패했습니다. 상태 코드: {}", response.code());
-      throw new CustomException(ErrorCode.SEJONG_AUTH_CONNECTION_FAILURE);
+      throw new CustomException(ErrorCode.SEJONG_AUTH_CONNECTION_ERROR);
     }
     return response.headers().values("Set-Cookie").stream()
         .filter(cookie -> cookie.startsWith("JSESSIONID"))
@@ -77,7 +77,7 @@ public class SejongPortalAuthenticator {
       String responseBody = response.body() != null ? response.body().string() : "";
       if (!response.isSuccessful()) {
         log.error("로그인 실패, 상태 코드: {}", response.code());
-        throw new CustomException(ErrorCode.SEJONG_AUTH_CONNECTION_FAILURE);
+        throw new CustomException(ErrorCode.SEJONG_AUTH_CONNECTION_ERROR);
       }
 
       if (responseBody.contains("로그인 정보가 올바르지 않습니다.")) {
@@ -98,7 +98,7 @@ public class SejongPortalAuthenticator {
     try (Response response = CLIENT.newCall(request).execute()) {
       if (!response.isSuccessful() || response.body() == null) {
         log.error("학생 데이터 가져오기 실패, 상태 코드: {}", response.code());
-        throw new CustomException(ErrorCode.SEJONG_AUTH_DATA_FETCH_FAILURE);
+        throw new CustomException(ErrorCode.SEJONG_AUTH_DATA_FETCH_ERROR);
       }
       return parseStudentData(response.body().string());
     }
@@ -122,7 +122,7 @@ public class SejongPortalAuthenticator {
           .build();
     } catch (IndexOutOfBoundsException e) {
       log.error("HTML 파싱 실패: 데이터가 부족합니다.", e);
-      throw new CustomException(ErrorCode.SEJONG_AUTH_DATA_FETCH_FAILURE);
+      throw new CustomException(ErrorCode.SEJONG_AUTH_DATA_FETCH_ERROR);
     }
   }
 }
