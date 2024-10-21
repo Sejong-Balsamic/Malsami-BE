@@ -74,6 +74,7 @@ public interface DocumentPostControllerDocs {
           - 자료 글은 닉네임 비공개 기능이 없습니다.
           - 자료 글 등록 시 게시물 등급은 "천민" 등급으로 자동 설정됩니다.
           - 성공적인 등록 후, 등록 된 자료글을 반환합니다.
+          - Swagger에서 테스트 시 mediaFiles에 있는 "Send empty value" 체크박스 해제해야합니다.
           """
   )
   ResponseEntity<DocumentDto> saveDocumentPost(
@@ -112,6 +113,7 @@ public interface DocumentPostControllerDocs {
 
           - 이 API를 통해 사용자는 일간 인기 자료글을 조회할 수 있습니다.
           - 요청 시각으로부터 24시간 이내에 작성된 상위 30개의 일간 인기글을 조회합니다.
+          - Swagger에서 테스트 시 mediaFiles에 있는 "Send empty value" 체크박스 해제해야합니다.
           """
   )
   ResponseEntity<DocumentDto> getDailyPopularDocumentPost(
@@ -149,6 +151,7 @@ public interface DocumentPostControllerDocs {
 
           - 이 API를 통해 사용자는 주간 인기 자료글을 조회할 수 있습니다.
           - 요청 시각으로부터 7일 이내에 작성된 상위 30개의 주간 인기글을 조회합니다.
+          - Swagger에서 테스트 시 mediaFiles에 있는 "Send empty value" 체크박스 해제해야합니다.
           """
   )
   ResponseEntity<DocumentDto> getWeeklyPopularDocumentPost(

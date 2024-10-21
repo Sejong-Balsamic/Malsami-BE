@@ -132,6 +132,7 @@ public interface QuestionPostControllerDocs {
           **참고 사항:**
 
           - 이 API를 통해 사용자는 입력 Id 값에 해당하는 질문 글을 조회할 수 있습니다.
+          - Swagger에서 테스트 시 mediaFiles에 있는 "Send empty value" 체크박스 해제해야합니다.
           """
   )
   ResponseEntity<QuestionDto> getQuestionPost(
@@ -163,6 +164,7 @@ public interface QuestionPostControllerDocs {
           **참고 사항:**
 
           - 이 API를 통해 사용자는 전체 질문 글을 조회할 수 있습니다.
+          - Swagger에서 테스트 시 mediaFiles에 있는 "Send empty value" 체크박스 해제해야합니다.
           """
   )
   ResponseEntity<QuestionDto> getAllQuestionPost(
@@ -200,6 +202,7 @@ public interface QuestionPostControllerDocs {
 
           - 이 API를 통해 사용자는 일간 인기 질문글을 조회할 수 있습니다.
           - 요청 시각으로부터 24시간 이내에 작성된 상위 30개의 일간 인기글을 조회합니다.
+          - Swagger에서 테스트 시 mediaFiles에 있는 "Send empty value" 체크박스 해제해야합니다.
           """
   )
   ResponseEntity<QuestionDto> getDailyPopularQuestionPost(
@@ -237,6 +240,7 @@ public interface QuestionPostControllerDocs {
 
           - 이 API를 통해 사용자는 주간 인기 질문글을 조회할 수 있습니다.
           - 요청 시각으로부터 7일 이내에 작성된 상위 30개의 주간 인기글을 조회합니다.
+          - Swagger에서 테스트 시 mediaFiles에 있는 "Send empty value" 체크박스 해제해야합니다.
           """
   )
   ResponseEntity<QuestionDto> getWeeklyPopularQuestionPost(
