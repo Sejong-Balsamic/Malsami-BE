@@ -10,7 +10,6 @@ import com.balsamic.sejongmalsami.object.postgres.Member;
 import com.balsamic.sejongmalsami.object.postgres.QuestionPost;
 import com.balsamic.sejongmalsami.repository.mongo.QuestionBoardLikeRepository;
 import com.balsamic.sejongmalsami.repository.postgres.AnswerPostRepository;
-import com.balsamic.sejongmalsami.repository.postgres.MemberRepository;
 import com.balsamic.sejongmalsami.repository.postgres.QuestionPostRepository;
 import com.balsamic.sejongmalsami.util.exception.CustomException;
 import com.balsamic.sejongmalsami.util.exception.ErrorCode;
@@ -26,7 +25,6 @@ import org.springframework.transaction.annotation.Transactional;
 public class QuestionBoardLikeService {
 
   private final QuestionBoardLikeRepository questionBoardLikeRepository;
-  private final MemberRepository memberRepository;
   private final QuestionPostRepository questionPostRepository;
   private final AnswerPostRepository answerPostRepository;
   private final YeopjeonService yeopjeonService;
@@ -39,13 +37,9 @@ public class QuestionBoardLikeService {
 
     UUID postId = command.getQuestionPostId();
 
-    // 좋아요 누른 사용자
-    Member member = memberRepository.findById(command.getMemberId())
-        .orElseThrow(() -> new CustomException(ErrorCode.MEMBER_NOT_FOUND));
-
     Member writer;
-    QuestionPost questionPost = null;
-    AnswerPost answerPost = null;
+    QuestionPost questionPost;
+    AnswerPost answerPost;
 
     // 해당 글 좋아요 증가
     if (command.getContentType().equals(ContentType.QUESTION)) {
@@ -62,18 +56,35 @@ public class QuestionBoardLikeService {
       throw new CustomException(ErrorCode.INVALID_CONTENT_TYPE);
     }
 
-    // 좋아요 받은 사용자 엽전 개수 증가
-    YeopjeonDto yeopjeonDto = yeopjeonService
-        .updateYeopjeon(writer, YeopjeonAction.RECEIVE_LIKE);
+    // 좋아요 받은 사용자 엽전 개수 증가 - A
+    yeopjeonService.updateYeopjeon(writer, YeopjeonAction.RECEIVE_LIKE);
 
-    // 엽전 히스토리 내역 추가
-    yeopjeonHistoryService.saveYeopjeonHistory(writer, YeopjeonAction.RECEIVE_LIKE);
+    YeopjeonDto yeopjeonDto;
+    try {
+      // 엽전 히스토리 내역 추가(MongoDB) - B
+      yeopjeonDto = yeopjeonHistoryService.saveYeopjeonHistory(writer, YeopjeonAction.RECEIVE_LIKE);
+    } catch (Exception e) {
+      log.error("엽전 히스토리 저장 실패 및 롤백: {}", e.getMessage());
 
-    // MongoDB에 좋아요 내역 저장
-    return questionBoardLikeRepository.save(QuestionBoardLike.builder()
-        .memberId(command.getMemberId())
-        .questionBoardId(command.getQuestionPostId())
-        .contentType(command.getContentType())
-        .build());
+      // 보상 로직: 엽전 수 롤백 - B 실패 시 A 롤백
+      yeopjeonService.rollbackYeopjeon(writer, YeopjeonAction.RECEIVE_LIKE);
+      throw new CustomException(ErrorCode.YEOPJEON_HISTORY_SAVE_ERROR);
+    }
+
+    // MongoDB에 좋아요 내역 저장 - C
+    try {
+      return questionBoardLikeRepository.save(QuestionBoardLike.builder()
+          .memberId(command.getMemberId())
+          .questionBoardId(command.getQuestionPostId())
+          .contentType(command.getContentType())
+          .build());
+    } catch (Exception e) {
+      log.error("좋아요 내역 저장 실패 및 롤백: {}", e.getMessage());
+
+      // 보상 로직: 엽전 히스토리 내역 삭제, 엽전 수 롤백 - C 실패시 A, B 롤백
+      yeopjeonService.rollbackYeopjeon(writer, YeopjeonAction.RECEIVE_LIKE);
+      yeopjeonHistoryService.deleteYeopjeonHistory(yeopjeonDto.getYeopjeonHistory());
+      throw new CustomException(ErrorCode.QUESTION_BOARD_LIKE_SAVE_ERROR);
+    }
   }
 }

@@ -10,7 +10,6 @@ import com.balsamic.sejongmalsami.util.exception.CustomException;
 import com.balsamic.sejongmalsami.util.exception.ErrorCode;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -23,8 +22,8 @@ public class YeopjeonService {
   private final YeopjeonCalculator yeopjeonCalculator;
 
   // 엽전 보상 처리 (비동기)
-  @Async
-  public YeopjeonDto updateYeopjeon(Member member, YeopjeonAction action) {
+  @Transactional
+  public void updateYeopjeon(Member member, YeopjeonAction action) {
     Yeopjeon yeopjeon = yeopjeonRepository.findByMember(member)
         .orElseThrow(() -> new CustomException(ErrorCode.INVALID_REQUEST));
 
@@ -37,9 +36,7 @@ public class YeopjeonService {
     }
     log.info("엽전 개수 업데이트 완료: {}의 엽전 개수 = {}", member.getStudentId(), yeopjeon.getResultYeopjeon());
 
-    return YeopjeonDto.builder()
-        .yeopjeon(yeopjeonRepository.save(yeopjeon))
-        .build();
+    yeopjeonRepository.save(yeopjeon);
   }
 
   // 사용자의 현재 총 엽전 수 조회
@@ -49,5 +46,18 @@ public class YeopjeonService {
         .yeopjeon(yeopjeonRepository.findByMember(member)
             .orElseThrow(() -> new CustomException(ErrorCode.YEOPJEON_NOT_FOUND)))
         .build();
+  }
+
+  // 엽전 개수 롤백
+  @Transactional
+  public void rollbackYeopjeon(Member member, YeopjeonAction action) {
+
+    Yeopjeon yeopjeon = yeopjeonRepository.findByMember(member)
+        .orElseThrow(() -> new CustomException(ErrorCode.YEOPJEON_NOT_FOUND));
+
+    log.info("엽전 수 롤백 전 - 회원: {}, 롤백 전 엽전 수: {}", member.getStudentId(), yeopjeon.getResultYeopjeon());
+    yeopjeon.updateResultYeopjeon(yeopjeon.getResultYeopjeon()
+        - yeopjeonCalculator.calculateYeopjeon(action));
+    log.info("엽전 수 롤백 후 - 회원: {}, 롤백 후 엽전 수: {}", member.getStudentId(), yeopjeon.getResultYeopjeon());
   }
 }

@@ -1,5 +1,6 @@
 package com.balsamic.sejongmalsami.service;
 
+import com.balsamic.sejongmalsami.object.YeopjeonDto;
 import com.balsamic.sejongmalsami.object.constants.YeopjeonAction;
 import com.balsamic.sejongmalsami.object.mongo.YeopjeonHistory;
 import com.balsamic.sejongmalsami.object.postgres.Member;
@@ -21,15 +22,24 @@ public class YeopjeonHistoryService {
 
   // 엽전 히스토리 내역 추가
   @Transactional
-  public void saveYeopjeonHistory(Member member, YeopjeonAction action) {
+  public YeopjeonDto saveYeopjeonHistory(Member member, YeopjeonAction action) {
 
-    yeopjeonHistoryRepository.save(YeopjeonHistory.builder()
-        .memberId(member.getMemberId())
-        .yeopjeonChange(yeopjeonCalculator.calculateYeopjeon(action))
-        .yeopjeonAction(action)
-        .resultYeopjeon(yeopjeonService.getResultYeopjeon(member)
-            .getYeopjeon().getResultYeopjeon())
-        .build());
+    return YeopjeonDto.builder()
+        .yeopjeonHistory(yeopjeonHistoryRepository.save(YeopjeonHistory.builder()
+            .memberId(member.getMemberId())
+            .yeopjeonChange(yeopjeonCalculator.calculateYeopjeon(action))
+            .yeopjeonAction(action)
+            .resultYeopjeon(yeopjeonService.getResultYeopjeon(member)
+                .getYeopjeon().getResultYeopjeon())
+            .build()))
+        .build();
+  }
+
+  // 엽전 히스토리 내역 삭제
+  @Transactional
+  public void deleteYeopjeonHistory(YeopjeonHistory yeopjeonHistory) {
+
+    yeopjeonHistoryRepository.delete(yeopjeonHistory);
   }
 
 }
