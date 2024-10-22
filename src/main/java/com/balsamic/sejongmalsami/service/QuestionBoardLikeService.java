@@ -35,7 +35,7 @@ public class QuestionBoardLikeService {
   /**
    * 질문글 or 답변글 좋아요 이벤트 발생 시
    * @param command: memberId, questionId, contentType
-   * @return
+   * @return 질문게시판 좋아요 내역
    */
   @Transactional
   public QuestionBoardLike increaseLikeCount(QuestionCommand command) {
