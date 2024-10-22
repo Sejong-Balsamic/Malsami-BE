@@ -10,6 +10,7 @@ import com.balsamic.sejongmalsami.object.postgres.Member;
 import com.balsamic.sejongmalsami.object.postgres.QuestionPost;
 import com.balsamic.sejongmalsami.repository.mongo.QuestionBoardLikeRepository;
 import com.balsamic.sejongmalsami.repository.postgres.AnswerPostRepository;
+import com.balsamic.sejongmalsami.repository.postgres.MemberRepository;
 import com.balsamic.sejongmalsami.repository.postgres.QuestionPostRepository;
 import com.balsamic.sejongmalsami.util.exception.CustomException;
 import com.balsamic.sejongmalsami.util.exception.ErrorCode;
@@ -24,36 +25,54 @@ import org.springframework.transaction.annotation.Transactional;
 @RequiredArgsConstructor
 public class QuestionBoardLikeService {
 
+  private final MemberRepository memberRepository;
   private final QuestionBoardLikeRepository questionBoardLikeRepository;
   private final QuestionPostRepository questionPostRepository;
   private final AnswerPostRepository answerPostRepository;
   private final YeopjeonService yeopjeonService;
   private final YeopjeonHistoryService yeopjeonHistoryService;
 
-  // 좋아요 이벤트 발생 시
-  // QuestionCommand에서 QuestionId, ContentType 받음
+  /**
+   * 질문글 or 답변글 좋아요 이벤트 발생 시
+   * @param command: memberId, questionId, contentType
+   * @return
+   */
   @Transactional
   public QuestionBoardLike increaseLikeCount(QuestionCommand command) {
+
+    Member member = memberRepository.findById(command.getMemberId())
+        .orElseThrow(() -> new CustomException(ErrorCode.MEMBER_NOT_FOUND));
 
     UUID postId = command.getQuestionPostId();
 
     Member writer;
-    QuestionPost questionPost;
-    AnswerPost answerPost;
+    QuestionPost questionPost = null;
+    AnswerPost answerPost = null;
 
     // 해당 글 좋아요 증가
     if (command.getContentType().equals(ContentType.QUESTION)) {
       questionPost = questionPostRepository.findById(postId)
           .orElseThrow(() -> new CustomException(ErrorCode.QUESTION_POST_NOT_FOUND));
       writer = questionPost.getMember();
-      questionPost.increaseLikeCount();
     } else if (command.getContentType().equals(ContentType.ANSWER)) {
       answerPost = answerPostRepository.findById(postId)
           .orElseThrow(() -> new CustomException(ErrorCode.ANSWER_POST_NOT_FOUND));
       writer = answerPost.getMember();
-      answerPost.increaseLikeCount();
     } else {
       throw new CustomException(ErrorCode.INVALID_CONTENT_TYPE);
+    }
+
+    // 로그인 된 사용자와 작성자가 같은 경우 좋아요 불가
+    if (member.getMemberId().equals(writer.getMemberId())) {
+      log.error("본인 글에 좋아요를 누를 수 없습니다. 로그인된 사용자: {}, 글 작성자: {}",
+          member.getStudentId(), writer.getStudentId());
+      throw new CustomException(ErrorCode.SELF_ACTION_NOT_ALLOWED);
+    }
+
+    if (questionPost != null) {
+      questionPost.increaseLikeCount();
+    } else {
+      answerPost.increaseLikeCount();
     }
 
     // 좋아요 받은 사용자 엽전 개수 증가 - A
