@@ -4,6 +4,7 @@ import com.balsamic.sejongmalsami.object.CourseCommand;
 import com.balsamic.sejongmalsami.object.CourseDto;
 import com.balsamic.sejongmalsami.service.CourseService;
 import com.balsamic.sejongmalsami.util.log.LogMonitoringInvocation;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
@@ -15,6 +16,10 @@ import org.springframework.web.bind.annotation.RestController;
 @RestController
 @RequiredArgsConstructor
 @RequestMapping("/api/course")
+@Tag(
+    name = "교과목 API",
+    description = "교고목 관련 API 제공"
+)
 public class CourseController implements CourseControllerDocs {
 
   private final CourseService courseService;
