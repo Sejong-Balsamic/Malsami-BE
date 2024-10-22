@@ -79,6 +79,7 @@ public class WebSecurityConfig {
             .authorizeHttpRequests((authorize) -> authorize
                 .requestMatchers(AUTH_WHITELIST).permitAll()
                 .requestMatchers(HttpMethod.POST, "/api/course/upload").hasRole("USER")
+                .requestMatchers(HttpMethod.POST, "/api/landing/popular/**").permitAll()
                 .anyRequest().authenticated()
             )
             .logout(logout -> logout
