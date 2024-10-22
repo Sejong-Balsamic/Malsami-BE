@@ -3,7 +3,6 @@ package com.balsamic.sejongmalsami.controller;
 import com.balsamic.sejongmalsami.object.CustomUserDetails;
 import com.balsamic.sejongmalsami.object.QuestionCommand;
 import com.balsamic.sejongmalsami.object.QuestionDto;
-import com.balsamic.sejongmalsami.service.PopularPostService;
 import com.balsamic.sejongmalsami.service.QuestionPostService;
 import com.balsamic.sejongmalsami.util.log.LogMonitoringInvocation;
 import io.swagger.v3.oas.annotations.tags.Tag;
@@ -26,7 +25,6 @@ import org.springframework.web.bind.annotation.RestController;
 public class QuestionPostController implements QuestionPostControllerDocs {
 
   private final QuestionPostService questionPostService;
-  private final PopularPostService popularPostService;
 
   @Override
   @PostMapping(value = "/post", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
@@ -51,21 +49,5 @@ public class QuestionPostController implements QuestionPostControllerDocs {
   public ResponseEntity<QuestionDto> getAllQuestionPost(
       @ModelAttribute QuestionCommand command) {
     return ResponseEntity.ok(questionPostService.findAllQuestionPost());
-  }
-
-  @Override
-  @PostMapping(value = "/popular/daily", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
-  @LogMonitoringInvocation
-  public ResponseEntity<QuestionDto> getDailyPopularQuestionPost(
-      @ModelAttribute QuestionCommand command) {
-    return ResponseEntity.ok(popularPostService.getDailyPopularQuestionPosts());
-  }
-
-  @Override
-  @PostMapping(value = "/popular/weekly", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
-  @LogMonitoringInvocation
-  public ResponseEntity<QuestionDto> getWeeklyPopularQuestionPost(
-      @ModelAttribute QuestionCommand command) {
-    return ResponseEntity.ok(popularPostService.getWeeklyPopularQuestionPosts());
   }
 }
