@@ -13,6 +13,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.cache.annotation.CacheEvict;
 import org.springframework.cache.annotation.Cacheable;
+import org.springframework.scheduling.annotation.Async;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -36,6 +37,7 @@ public class PopularPostService {
   private static final String WEEKLY_DOCUMENT_POSTS_KEY = "'weeklyPopularDocumentPosts'";
 
   // 30분마다 일간 인기글 점수 계산
+  @Async
   @Transactional
   @Scheduled(fixedRate = DAILY_SCHEDULED_RATE) // 30분마다 실행
   public void calculateDailyScore() {
@@ -63,6 +65,7 @@ public class PopularPostService {
   }
 
   // 6시간마다 주간 인기글 점수 계산
+  @Async
   @Transactional
   @Scheduled(fixedRate = WEEKLY_SCHEDULED_RATE) // 6시간마다 실행
   public void calculateWeeklyScore() {
@@ -134,12 +137,14 @@ public class PopularPostService {
   }
 
   // 캐시 갱신
+  @Async
   @Transactional
   @CacheEvict(value = QUESTION_POST_CACHE_VALUE, allEntries = true)
   public void updatePopularQuestionPostsCache() {
     log.info("질문 인기글 캐시 갱신");
   }
 
+  @Async
   @Transactional
   @CacheEvict(value = DOCUMENT_POST_CACHE_VALUE, allEntries = true)
   public void updatePopularDocumentPostsCache() {
