@@ -16,17 +16,7 @@ public interface LandingControllerDocs {
       @ApiChangeLog(
           date = "2024.10.22",
           author = Author.BAEKJIHOON,
-          description = "인기글 메서드 컨트롤러 변경"
-      ),
-      @ApiChangeLog(
-          date = "2024.10.15",
-          author = Author.BAEKJIHOON,
-          description = "dto 필드 변경에 따른 반환값 수정"
-      ),
-      @ApiChangeLog(
-          date = "2024.10.10",
-          author = Author.BAEKJIHOON,
-          description = "질문게시판 일간 인기글 init"
+          description = "랜딩페이지 인기글 init"
       )
   })
   @Operation(
@@ -34,7 +24,7 @@ public interface LandingControllerDocs {
       description = """
           **질문 일간 인기글 요청**
 
-          **이 API는 인증이 필요하며, JWT 토큰이 존재해야합니다.**
+          **이 API는 인증이 필요없으며, JWT 토큰이 존재하지 않아도 무방합니다.**
 
           **입력 파라미터 값:**
 
@@ -59,17 +49,7 @@ public interface LandingControllerDocs {
       @ApiChangeLog(
           date = "2024.10.22",
           author = Author.BAEKJIHOON,
-          description = "인기글 메서드 컨트롤러 변경"
-      ),
-      @ApiChangeLog(
-          date = "2024.10.15",
-          author = Author.BAEKJIHOON,
-          description = "dto 필드 변경에 따른 반환값 수정"
-      ),
-      @ApiChangeLog(
-          date = "2024.10.10",
-          author = Author.BAEKJIHOON,
-          description = "질문게시판 주간 인기글 init"
+          description = "랜딩페이지 인기글 init"
       )
   })
   @Operation(
@@ -77,7 +57,7 @@ public interface LandingControllerDocs {
       description = """
           **질문 주간 인기글 요청**
 
-          **이 API는 인증이 필요하며, JWT 토큰이 존재해야합니다.**
+          **이 API는 인증이 필요없으며, JWT 토큰이 존재하지 않아도 무방합니다.**
 
           **입력 파라미터 값:**
 
@@ -102,17 +82,7 @@ public interface LandingControllerDocs {
       @ApiChangeLog(
           date = "2024.10.22",
           author = Author.BAEKJIHOON,
-          description = "인기글 메서드 컨트롤러 변경"
-      ),
-      @ApiChangeLog(
-          date = "2024.10.15",
-          author = Author.BAEKJIHOON,
-          description = "dto 필드 변경에 따른 반환값 수정"
-      ),
-      @ApiChangeLog(
-          date = "2024.10.10",
-          author = Author.BAEKJIHOON,
-          description = "자료게시판 일간 인기글 init"
+          description = "랜딩페이지 인기글 init"
       )
   })
   @Operation(
@@ -120,7 +90,7 @@ public interface LandingControllerDocs {
       description = """
           **자료 일간 인기글 요청**
 
-          **이 API는 인증이 필요하며, JWT 토큰이 존재해야합니다.**
+          **이 API는 인증이 필요없으며, JWT 토큰이 존재하지 않아도 무방합니다.**
 
           **입력 파라미터 값:**
 
@@ -145,17 +115,7 @@ public interface LandingControllerDocs {
       @ApiChangeLog(
           date = "2024.10.22",
           author = Author.BAEKJIHOON,
-          description = "인기글 메서드 컨트롤러 변경"
-      ),
-      @ApiChangeLog(
-          date = "2024.10.15",
-          author = Author.BAEKJIHOON,
-          description = "dto 필드 변경에 따른 반환값 수정"
-      ),
-      @ApiChangeLog(
-          date = "2024.10.10",
-          author = Author.BAEKJIHOON,
-          description = "자료게시판 주간 인기글 init"
+          description = "랜딩페이지 인기글 init"
       )
   })
   @Operation(
@@ -163,7 +123,7 @@ public interface LandingControllerDocs {
       description = """
           **자료 주간 인기글 요청**
 
-          **이 API는 인증이 필요하며, JWT 토큰이 존재해야합니다.**
+          **이 API는 인증이 필요없으며, JWT 토큰이 존재하지 않아도 무방합니다.**
 
           **입력 파라미터 값:**
 
