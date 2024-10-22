@@ -111,6 +111,8 @@ public enum ErrorCode {
 
   // Yeopjeon
 
+  INSUFFICIENT_YEOPJEON(HttpStatus.BAD_REQUEST, "사용자의 엽전이 0개 미만입니다."),
+
   YEOPJEON_HISTORY_SAVE_ERROR(HttpStatus.INTERNAL_SERVER_ERROR, "엽전 히스토리 저장 중 오류가 발생했습니다."),
 
   // QuestionBoardLike
