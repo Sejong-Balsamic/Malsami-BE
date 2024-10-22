@@ -33,7 +33,7 @@ public class DocumentPostService {
   // 질문 게시글 등록
   @Transactional
   public DocumentDto saveDocumentPost(DocumentCommand command) {
-    List<DocumentFile> documentFiles = new ArrayList<>();
+    List<DocumentFile> documentFiles = new ArrayList<>(); // 저장된 자료 데이터
 
     // 회원 검증
     Member member = memberRepository.findById(command.getMemberId())
@@ -56,12 +56,34 @@ public class DocumentPostService {
     }
 
     // 자료 게시글 저장
-    DocumentPost documentPost = buildDocumentPost(member, command);
-    documentPostRepository.save(documentPost);
-    log.info("자료 게시글 저장 완료: 제목={}", command.getTitle());
+    DocumentPost documentPost = DocumentPost.builder()
+        .member(member)
+        .title(command.getTitle())
+        .content(command.getContent())
+        .subject(command.getSubject())
+        .postTier(PostTier.CHEONMIN)
+        .documentTypeSet(null)
+        .likeCount(0)
+        .commentCount(0)
+        .viewCount(0)
+        .isDepartmentPrivate(Boolean.TRUE.equals(command.getIsDepartmentPrivate()))
+        .dailyScore(0)
+        .weeklyScore(0)
+        .build();
+
+    // 자료 카테고리 설정 (최대 2개)
+    if (command.getDocumentTypeSet() != null) {
+      documentPost.updateDocumentTypeSet(new HashSet<>(command.getDocumentTypeSet()));
+    }
+
+    log.info("자료 게시글 객체 생성 완료: 제목={}", command.getTitle());
+
+    DocumentPost savedDocument = documentPostRepository.save(documentPost);
+    log.info("자료 게시글 저장 완료: 제목={} id={}", command.getTitle(), savedDocument.getDocumentPostId());
 
     return DocumentDto.builder()
-        .documentPost(documentPost)
+        .documentPost(savedDocument)
+        .documentFiles(documentFiles)
         .build();
   }
 
@@ -81,14 +103,17 @@ public class DocumentPostService {
   private List<DocumentFile> handleImageFiles(DocumentCommand command) {
     log.info("이미지 파일 처리 시작: 파일 개수={}", command.getImageFiles().size());
     List<DocumentFile> imageFiles = new ArrayList<>();
+
+    command.setUploadType(UploadType.IMAGE);
+
+    // 단일 이미지
     if (command.getImageFiles().size() == 1) {
-      command.setUploadType(UploadType.IMAGE);
       command.setFile(command.getImageFiles().get(0));
       DocumentFile documentFile = documentFileService.saveDocumentFile(command);
       imageFiles.add(documentFile);
       log.info("단일 이미지 파일 저장 완료: 업로드 파일명={}", documentFile.getUploadFileName());
     } else {
-      command.setUploadType(UploadType.IMAGE);
+      // 다중 이미지
       DocumentFile zipDocumentFile = documentFileService.saveImagesToDocumentFile(command);
       imageFiles.add(zipDocumentFile);
       log.info("다중 이미지 파일 ZIP 저장 완료: 업로드 파일명={}", zipDocumentFile.getUploadFileName());
@@ -107,29 +132,5 @@ public class DocumentPostService {
       log.info("미디어 파일 저장 완료: 업로드 파일명={}", documentFile.getUploadFileName());
     }
     return mediaFiles;
-  }
-  private DocumentPost buildDocumentPost(Member member, DocumentCommand command) {
-    DocumentPost documentPost = DocumentPost.builder()
-        .member(member)
-        .title(command.getTitle())
-        .content(command.getContent())
-        .subject(command.getSubject())
-        .documentTypeSet(command.getDocumentTypeSet() != null ? new HashSet<>(command.getDocumentTypeSet()) : new HashSet<>())
-        .postTier(PostTier.CHEONMIN)
-        .likeCount(0)
-        .commentCount(0)
-        .viewCount(0)
-        .isDepartmentPrivate(Boolean.TRUE.equals(command.getIsDepartmentPrivate()))
-        .dailyScore(0)
-        .weeklyScore(0)
-        .build();
-
-    // 자료 카테고리 추가
-    if (command.getDocumentTypeSet() != null) {
-      command.getDocumentTypeSet().forEach(documentPost::addDocumentType);
-    }
-
-    log.info("자료 게시글 객체 생성 완료: 제목={}", command.getTitle());
-    return documentPost;
   }
 }
