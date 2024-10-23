@@ -18,7 +18,7 @@ import org.springframework.web.bind.annotation.RestController;
 @RequestMapping("/api/course")
 @Tag(
     name = "교과목 API",
-    description = "교고목 관련 API 제공"
+    description = "교과목 관련 API 제공"
 )
 public class CourseController implements CourseControllerDocs {
 
