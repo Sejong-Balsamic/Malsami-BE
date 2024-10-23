@@ -31,7 +31,7 @@ public class LandingController implements LandingControllerDocs {
   @LogMonitoringInvocation
   public ResponseEntity<QuestionDto> getDailyPopularQuestionPost(
       @ModelAttribute QuestionCommand command) {
-    return ResponseEntity.ok(popularPostService.getDailyPopularQuestionPosts());
+    return ResponseEntity.ok(popularPostService.getDailyPopularQuestionPosts(command));
   }
 
   @Override
@@ -39,7 +39,7 @@ public class LandingController implements LandingControllerDocs {
   @LogMonitoringInvocation
   public ResponseEntity<QuestionDto> getWeeklyPopularQuestionPost(
       @ModelAttribute QuestionCommand command) {
-    return ResponseEntity.ok(popularPostService.getWeeklyPopularQuestionPosts());
+    return ResponseEntity.ok(popularPostService.getWeeklyPopularQuestionPosts(command));
   }
 
   @Override

@@ -186,8 +186,10 @@ public interface QuestionPostControllerDocs {
           **이 API는 인증이 필요하며, JWT 토큰이 존재해야합니다.**
 
           **입력 파라미터 값:**
-
-          `없음`
+           
+          - **Integer pageSize**: 조회하고싶은 질문 글 개수 [필수]
+          
+            _예: 30_ (총 30개의 일간 인기 질문글이 반환됩니다.)
 
           **반환 파라미터 값:**
 
@@ -197,7 +199,7 @@ public interface QuestionPostControllerDocs {
           **참고 사항:**
 
           - 이 API를 통해 사용자는 일간 인기 질문글을 조회할 수 있습니다.
-          - 요청 시각으로부터 24시간 이내에 작성된 상위 30개의 일간 인기글을 조회합니다.
+          - 요청 시각으로부터 24시간 이내에 작성된 상위 n개의 일간 인기글을 조회합니다.
           - Swagger에서 테스트 시 mediaFiles에 있는 "Send empty value" 체크박스 해제해야합니다.
           """
   )
@@ -225,7 +227,9 @@ public interface QuestionPostControllerDocs {
 
           **입력 파라미터 값:**
 
-          `없음`
+          - **Integer pageSize**: 조회하고싶은 질문 글 개수 [필수]
+          
+            _예: 30_ (총 30개의 주간 인기 질문글이 반환됩니다.)
 
           **반환 파라미터 값:**
 
@@ -235,7 +239,7 @@ public interface QuestionPostControllerDocs {
           **참고 사항:**
 
           - 이 API를 통해 사용자는 주간 인기 질문글을 조회할 수 있습니다.
-          - 요청 시각으로부터 7일 이내에 작성된 상위 30개의 주간 인기글을 조회합니다.
+          - 요청 시각으로부터 7일 이내에 작성된 상위 n개의 주간 인기글을 조회합니다.
           - Swagger에서 테스트 시 mediaFiles에 있는 "Send empty value" 체크박스 해제해야합니다.
           """
   )

@@ -1,6 +1,7 @@
 package com.balsamic.sejongmalsami.service;
 
 import com.balsamic.sejongmalsami.object.DocumentDto;
+import com.balsamic.sejongmalsami.object.QuestionCommand;
 import com.balsamic.sejongmalsami.object.QuestionDto;
 import com.balsamic.sejongmalsami.object.postgres.DocumentPost;
 import com.balsamic.sejongmalsami.object.postgres.QuestionPost;
@@ -13,6 +14,8 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.cache.annotation.CacheEvict;
 import org.springframework.cache.annotation.Cacheable;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
@@ -95,22 +98,24 @@ public class PopularPostService {
   // 캐시된 일간 질문 인기글 가져오기
   @Transactional(readOnly = true)
   @Cacheable(value = QUESTION_POST_CACHE_VALUE, key = DAILY_QUESTION_POSTS_KEY)
-  public QuestionDto getDailyPopularQuestionPosts() {
+  public QuestionDto getDailyPopularQuestionPosts(QuestionCommand command) {
     LocalDateTime yesterday = LocalDateTime.now().minusDays(1);
+    Pageable pageable = PageRequest.of(0, command.getPageSize());
     return QuestionDto.builder()
         .questionPosts(questionPostRepository
-            .findTop30ByOrderByWeeklyScoreDescAndCreatedDateAfter(yesterday))
+            .findOrderByDailyScoreDescAndCreatedDateAfter(yesterday, pageable))
         .build();
   }
 
   // 캐시된 주간 질문 인기글 가져오기
   @Transactional(readOnly = true)
   @Cacheable(value = QUESTION_POST_CACHE_VALUE, key = WEEKLY_QUESTION_POSTS_KEY)
-  public QuestionDto getWeeklyPopularQuestionPosts() {
+  public QuestionDto getWeeklyPopularQuestionPosts(QuestionCommand command) {
     LocalDateTime lastWeek = LocalDateTime.now().minusWeeks(1);
+    Pageable pageable = PageRequest.of(0, command.getPageSize());
     return QuestionDto.builder()
         .questionPosts(questionPostRepository
-            .findTop30ByOrderByWeeklyScoreDescAndCreatedDateAfter(lastWeek))
+            .findOrderByWeeklyScoreDescAndCreatedDateAfter(lastWeek, pageable))
         .build();
   }
 

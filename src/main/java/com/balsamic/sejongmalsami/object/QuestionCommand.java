@@ -30,4 +30,6 @@ public class QuestionCommand {
   private ContentType contentType;
   private Boolean isChaetaek; // 답변
   private Boolean isPrivate; // 질문, 답변
+  private Integer pageNumber; // n번째 페이지 조회
+  private Integer pageSize; // n개의 데이터 조회
 }
