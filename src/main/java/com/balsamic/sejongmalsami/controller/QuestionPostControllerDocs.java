@@ -168,6 +168,11 @@ public interface QuestionPostControllerDocs {
 
   @ApiChangeLogs({
       @ApiChangeLog(
+          date = "2024.10.23",
+          author = Author.BAEKJIHOON,
+          description = "pageable 추가, 상위 n개의 인기글 조회"
+      ),
+      @ApiChangeLog(
           date = "2024.10.15",
           author = Author.BAEKJIHOON,
           description = "dto 필드 변경에 따른 반환값 수정"
@@ -207,6 +212,11 @@ public interface QuestionPostControllerDocs {
       QuestionCommand command);
 
   @ApiChangeLogs({
+      @ApiChangeLog(
+          date = "2024.10.23",
+          author = Author.BAEKJIHOON,
+          description = "pageable 추가, 상위 n개의 인기글 조회"
+      ),
       @ApiChangeLog(
           date = "2024.10.15",
           author = Author.BAEKJIHOON,

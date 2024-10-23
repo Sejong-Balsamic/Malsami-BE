@@ -14,6 +14,11 @@ public interface LandingControllerDocs {
 
   @ApiChangeLogs({
       @ApiChangeLog(
+          date = "2024.10.23",
+          author = Author.BAEKJIHOON,
+          description = "pageable 추가, 상위 n개의 인기글 조회"
+      ),
+      @ApiChangeLog(
           date = "2024.10.22",
           author = Author.BAEKJIHOON,
           description = "랜딩페이지 인기글 init"
@@ -22,7 +27,7 @@ public interface LandingControllerDocs {
   @Operation(
       summary = "일간 인기 질문글",
       description = """
-          **질문 일간 인기글 요청**
+          **일간 인기 질문글 요청**
 
           `이 API는 인증이 필요없으며, JWT 토큰이 존재하지 않아도 무방합니다.`
 
@@ -49,6 +54,11 @@ public interface LandingControllerDocs {
 
   @ApiChangeLogs({
       @ApiChangeLog(
+          date = "2024.10.23",
+          author = Author.BAEKJIHOON,
+          description = "pageable 추가, 상위 n개의 인기글 조회"
+      ),
+      @ApiChangeLog(
           date = "2024.10.22",
           author = Author.BAEKJIHOON,
           description = "랜딩페이지 인기글 init"
@@ -57,7 +67,7 @@ public interface LandingControllerDocs {
   @Operation(
       summary = "주간 인기 질문글",
       description = """
-          **질문 주간 인기글 요청**
+          **주간 인기 질문글 요청**
 
           `이 API는 인증이 필요없으며, JWT 토큰이 존재하지 않아도 무방합니다.`
 
@@ -92,7 +102,7 @@ public interface LandingControllerDocs {
   @Operation(
       summary = "일간 인기 자료글",
       description = """
-          **자료 일간 인기글 요청**
+          **일간 인기 자료글 요청**
 
           `이 API는 인증이 필요없으며, JWT 토큰이 존재하지 않아도 무방합니다.`
 
@@ -125,7 +135,7 @@ public interface LandingControllerDocs {
   @Operation(
       summary = "주간 인기 자료글",
       description = """
-          **자료 주간 인기글 요청**
+          **주간 인기 자료글 요청**
 
           `이 API는 인증이 필요없으며, JWT 토큰이 존재하지 않아도 무방합니다.`
 
