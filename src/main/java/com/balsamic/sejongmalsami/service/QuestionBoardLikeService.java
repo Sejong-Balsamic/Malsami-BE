@@ -85,6 +85,12 @@ public class QuestionBoardLikeService {
     } catch (Exception e) {
       log.error("엽전 히스토리 저장 실패 및 롤백: {}", e.getMessage());
 
+      // 좋아요 수 롤백
+      if (questionPost != null) {
+        questionPost.decreaseLikeCount();
+      } else {
+        answerPost.decreaseLikeCount();
+      }
       // 보상 로직: 엽전 수 롤백 - B 실패 시 A 롤백
       yeopjeonService.rollbackYeopjeon(writer, YeopjeonAction.RECEIVE_LIKE);
       throw new CustomException(ErrorCode.YEOPJEON_HISTORY_SAVE_ERROR);
@@ -100,6 +106,12 @@ public class QuestionBoardLikeService {
     } catch (Exception e) {
       log.error("좋아요 내역 저장 실패 및 롤백: {}", e.getMessage());
 
+      // 좋아요 수 롤백
+      if (questionPost != null) {
+        questionPost.decreaseLikeCount();
+      } else {
+        answerPost.decreaseLikeCount();
+      }
       // 보상 로직: 엽전 히스토리 내역 삭제, 엽전 수 롤백 - C 실패시 A, B 롤백
       yeopjeonService.rollbackYeopjeon(writer, YeopjeonAction.RECEIVE_LIKE);
       yeopjeonHistoryService.deleteYeopjeonHistory(yeopjeonDto.getYeopjeonHistory());

@@ -90,6 +90,13 @@ public class QuestionPost extends BasePost {
     likeCount++;
   }
 
+  // 좋아요 감소 (롤백)
+  public void decreaseLikeCount() {
+    if (likeCount > 0) {
+      likeCount--;
+    }
+  }
+
   // 질문글 정적 태그 추가(최대 2개)
   public void addPresetTag(QuestionPresetTag tag) {
 
