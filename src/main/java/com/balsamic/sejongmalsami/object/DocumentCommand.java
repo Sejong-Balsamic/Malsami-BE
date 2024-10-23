@@ -28,9 +28,13 @@ public class DocumentCommand {
 
   private UUID postId;
   private Member member;
-  private MultipartFile file;
+  private MultipartFile targetUploadFile;
+  private MultipartFile targetThumbnailFile;
   private UploadType uploadType;
+
+  private List<MultipartFile> attachmentFiles; // 첨부된 파일들 (업로드전)
   private List<MultipartFile> documentFiles; // 문서
   private List<MultipartFile> imageFiles; // 이미지
-  private List<MultipartFile> MediaFiles; // 영상, 음원
+  private List<MultipartFile> videoFiles; // 비디오
+  private List<MultipartFile> musicFiles; // 음원
 }
