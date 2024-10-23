@@ -24,11 +24,11 @@ public interface LandingControllerDocs {
       description = """
           **질문 일간 인기글 요청**
 
-          **이 API는 인증이 필요없으며, JWT 토큰이 존재하지 않아도 무방합니다.**
+          `이 API는 인증이 필요없으며, JWT 토큰이 존재하지 않아도 무방합니다.`
 
           **입력 파라미터 값:**
 
-          없음
+          `없음`
 
           **반환 파라미터 값:**
 
@@ -57,11 +57,11 @@ public interface LandingControllerDocs {
       description = """
           **질문 주간 인기글 요청**
 
-          **이 API는 인증이 필요없으며, JWT 토큰이 존재하지 않아도 무방합니다.**
+          `이 API는 인증이 필요없으며, JWT 토큰이 존재하지 않아도 무방합니다.`
 
           **입력 파라미터 값:**
 
-          없음
+          `없음`
 
           **반환 파라미터 값:**
 
@@ -90,11 +90,11 @@ public interface LandingControllerDocs {
       description = """
           **자료 일간 인기글 요청**
 
-          **이 API는 인증이 필요없으며, JWT 토큰이 존재하지 않아도 무방합니다.**
+          `이 API는 인증이 필요없으며, JWT 토큰이 존재하지 않아도 무방합니다.`
 
           **입력 파라미터 값:**
 
-          없음
+          `없음`
 
           **반환 파라미터 값:**
 
@@ -123,11 +123,11 @@ public interface LandingControllerDocs {
       description = """
           **자료 주간 인기글 요청**
 
-          **이 API는 인증이 필요없으며, JWT 토큰이 존재하지 않아도 무방합니다.**
+          `이 API는 인증이 필요없으며, JWT 토큰이 존재하지 않아도 무방합니다.`
 
           **입력 파라미터 값:**
 
-          없음
+          `없음`
 
           **반환 파라미터 값:**
 
