@@ -127,9 +127,7 @@ public class DocumentPostService {
         .content(command.getContent())
         .subject(command.getSubject())
         .postTier(PostTier.CHEONMIN)
-        .documentTypeSet(command.getDocumentTypeSet() != null
-            ? new HashSet<>(command.getDocumentTypeSet())
-            : null)
+        .documentTypeSet(command.getDocumentTypeSet() != null ? new HashSet<>(command.getDocumentTypeSet()) : null)
         .likeCount(0)
         .commentCount(0)
         .viewCount(0)

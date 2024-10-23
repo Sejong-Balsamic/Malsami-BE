@@ -25,30 +25,32 @@ public class FtpUtil {
   /**
    * FTP를 통해 단일 파일 업로드 (비동기)
    *
-   * @param multipartFile 업로드할 멀티파트 파일 객체
+   * @param file 업로드할 멀티파트 파일 객체
    */
   @Async
-  public void uploadDocumentAsync(MultipartFile multipartFile) {
-    uploadDocument(multipartFile);
+  public void uploadDocumentAsync(MultipartFile file) {
+    uploadDocument(file, FileUtil.generateUploadFileName(file));
   }
 
   /**
    * FTP를 통해 단일 파일 업로드
-   *
-   * @param multipartFile 업로드할 멀티파트 파일 객체
+   * @param file
+   * @param uploadFileName
+   * @return uploadFileName
    */
   @LogMonitoringInvocation
-  public void uploadDocument(MultipartFile multipartFile) {
-    String remoteFile = ftpConfig.getDocumentPath() + "/" + multipartFile.getOriginalFilename();
-    log.info("FTP 파일 업로드 시작: {} -> {}", multipartFile.getOriginalFilename(), remoteFile);
+  public String uploadDocument(MultipartFile file, String uploadFileName) {
+    String remoteFile = ftpConfig.getDocumentPath() + "/" + uploadFileName;
+    log.info("FTP 파일 업로드 시작: {} -> {}", file.getOriginalFilename(), remoteFile);
 
     FTPClient ftpClient = null;
     try {
       ftpClient = ftpClientPool.borrowObject();
-      try (InputStream inputStream = multipartFile.getInputStream()) {
+      try (InputStream inputStream = file.getInputStream()) {
         boolean success = ftpClient.storeFile(remoteFile, inputStream);
         if (success) {
           log.info("FTP 파일 업로드 성공: {}", remoteFile);
+          return uploadFileName;
         } else {
           log.error("FTP 파일 업로드 실패: {}", remoteFile);
           throw new CustomException(ErrorCode.FTP_FILE_UPLOAD_ERROR);
@@ -72,8 +74,9 @@ public class FtpUtil {
    */
   @Async
   public void uploadFilesAsync(MultipartFile[] multipartFiles) {
-    for (MultipartFile multipartFile : multipartFiles) {
-      uploadDocument(multipartFile);
+    for (MultipartFile file : multipartFiles) {
+      // 업로드 파일명 생성
+      uploadDocument(file, FileUtil.generateUploadFileName(file));
     }
   }
 

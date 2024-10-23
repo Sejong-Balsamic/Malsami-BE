@@ -41,10 +41,10 @@ public class DocumentFileService {
     String thumbnailUrl = generateThumbnailUrl(file, uploadType);
 
     // 업로드 파일명 생성
-    String uploadFileName = generateUploadFileName(file);
+    String uploadFileName = FileUtil.generateUploadFileName(file);
 
-    // MIME 타입 Enum 변환
-    MimeType mimeType = MimeType.fromString(file.getContentType());
+    // 원본 파일 업로드
+    ftpUtil.uploadDocument(file, FileUtil.generateUploadFileName(file));
 
     // DocumentFile 객체 생성
     DocumentFile documentFile = DocumentFile.builder()
@@ -54,7 +54,7 @@ public class DocumentFileService {
         .originalFileName(file.getOriginalFilename())
         .uploadFileName(uploadFileName)
         .fileSize(file.getSize())
-        .mimeType(mimeType)
+        .mimeType(MimeType.fromString(file.getContentType()))
         .downloadCount(0L)
         .password(null)
         .isInitialPasswordSet(false)
@@ -87,16 +87,6 @@ public class DocumentFileService {
       log.error("유효하지 않은 MIME 타입: {}", file.getContentType());
       throw new CustomException(ErrorCode.INVALID_FILE_FORMAT);
     }
-  }
-
-  /**
-   * 업로드 파일명 생성 (확장자 포함)
-   */
-  private String generateUploadFileName(MultipartFile file) {
-    String curTimeStr = TimeUtil.formatLocalDateTimeNowForFileName();
-    String baseName = FileUtil.getBaseName(file.getOriginalFilename());
-    String extension = FileUtil.getExtension(file.getOriginalFilename());
-    return String.format("%s_%s.%s", curTimeStr, baseName, extension);
   }
 
   /**

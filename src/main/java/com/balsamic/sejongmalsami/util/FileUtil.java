@@ -90,4 +90,14 @@ public class FileUtil {
     }
     return baos.toByteArray();
   }
+
+  /**
+   * 업로드 파일명 생성 (확장자 포함)
+   */
+  public static String generateUploadFileName(MultipartFile file) {
+    String curTimeStr = TimeUtil.formatLocalDateTimeNowForFileName();
+    String baseName = getBaseName(file.getOriginalFilename());
+    String extension = getExtension(file.getOriginalFilename());
+    return String.format("%s_%s.%s", curTimeStr, baseName, extension);
+  }
 }
