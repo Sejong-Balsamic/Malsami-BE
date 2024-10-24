@@ -14,5 +14,6 @@ import org.springframework.web.multipart.MultipartFile;
 public class TestCommand {
   private MultipartFile documentFile;
   private List<MultipartFile> imageFiles;
+  private List<MultipartFile> files;
 
 }

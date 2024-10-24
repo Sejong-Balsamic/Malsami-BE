@@ -1,6 +1,5 @@
 package com.balsamic.sejongmalsami.util.config;
 
-import java.nio.file.Path;
 import lombok.Getter;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Configuration;
@@ -8,6 +7,7 @@ import org.springframework.context.annotation.Configuration;
 @Configuration
 @Getter
 public class FtpConfig {
+
   @Value("${ftp.server}")
   private String server;
 
@@ -29,9 +29,18 @@ public class FtpConfig {
   @Value("${ftp.path.thumbnail-base-url}")
   private String thumbnailBaseUrl;
 
+  @Value("${ftp.path.document-base-url}")
+  private String documentBaseUrl;
+
   @Value("${ftp.basic.document}")
-  private String baseDocumentUrl;
+  private String defaultDocumentThumbnailUrl;
 
   @Value("${ftp.basic.image}")
-  private String baseImageUrl;
+  private String defaultImageThumbnailUrl;
+
+  @Value("${ftp.basic.video}")
+  private String defaultVideoThumbnailUrl;
+
+  @Value("${ftp.basic.music}")
+  private String defaultMusicThumbnailUrl;
 }

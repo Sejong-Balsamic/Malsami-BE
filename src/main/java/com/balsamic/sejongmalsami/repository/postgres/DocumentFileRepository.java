@@ -1,6 +1,7 @@
-package com.balsamic.sejongmalsami.repository.mongo;
+package com.balsamic.sejongmalsami.repository.postgres;
 
 import com.balsamic.sejongmalsami.object.postgres.DocumentFile;
+import com.balsamic.sejongmalsami.object.postgres.Member;
 import java.util.List;
 import java.util.UUID;
 import org.springframework.data.jpa.repository.JpaRepository;
@@ -11,6 +12,5 @@ public interface DocumentFileRepository extends JpaRepository<DocumentFile, UUID
 
   List<DocumentFile> findByPostId(UUID postId);
 
-  List<DocumentFile> findByMemberId(UUID memberId);
-
+  List<DocumentFile> findByUploader(Member uploader);
 }

@@ -45,11 +45,27 @@ public enum ErrorCode {
 
   WRONG_COURSE_FILE_FORMAT(HttpStatus.BAD_REQUEST, "교과목명 업로드 파일 포맷 오류"),
 
-  THUMBNAIL_GENERATION_ERROR(HttpStatus.BAD_REQUEST, "썸네일 생성 중 오류 발생"),
+  THUMBNAIL_CREATION_ERROR(HttpStatus.BAD_REQUEST, "썸네일 생성 중 오류 발생"),
 
   FILE_EMPTY(HttpStatus.BAD_REQUEST, "파일이 존재하지 않습니다."),
 
+  EMPTY_OR_SINGLE_FILE_FOR_ZIP(HttpStatus.BAD_REQUEST, "압축할 파일 목록이 비어있거다 하나입니다"),
+
   FILE_SIZE_EXCEEDED(HttpStatus.BAD_REQUEST, "파일 크기가 너무 큽니다."),
+
+  INVALID_UPLOAD_TYPE(HttpStatus.BAD_REQUEST, "지원되지 않는 업로드 타입"),
+
+  IMAGE_ZIP_UPLOAD_ERROR(HttpStatus.BAD_REQUEST, "이미지 ZIP 파일 생성 또는 업로드 중 오류"),
+
+  DOCUMENT_FILES_EMPTY(HttpStatus.BAD_REQUEST, "DOCUMENT 업로드 타입인데 문서 파일이 없음"),
+
+  IMAGE_FILES_EMPTY(HttpStatus.BAD_REQUEST, "IMAGE 업로드 타입인데 이미지 파일이 없음"),
+
+  MEDIA_FILES_EMPTY(HttpStatus.BAD_REQUEST, "MEDIA 업로드 타입인데 미디어 파일이 없음"),
+
+  UPLOAD_TYPE_NOT_SET(HttpStatus.BAD_REQUEST, "업로드 타입이 설정되지 않음"),
+
+  FILE_LIST_EMPTY(HttpStatus.BAD_REQUEST, "업로드된 파일 목록이 비어있음"),
 
   // FTP
 

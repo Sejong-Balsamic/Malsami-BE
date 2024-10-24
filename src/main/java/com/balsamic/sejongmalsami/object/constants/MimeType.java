@@ -12,33 +12,34 @@ import lombok.Getter;
 @Getter
 public enum MimeType {
   // 이미지
-  JPEG("image/jpeg"),
-  JPG("image/jpeg"),
-  PNG("image/png"),
-  GIF("image/gif"),
-  BMP("image/bmp"),
-  TIFF("image/tiff"),
-  SVG("image/svg+xml"),
-  WEBP("image/webp"),
+  JPEG("image/jpeg", UploadType.IMAGE),
+  JPG("image/jpeg", UploadType.IMAGE),
+  PNG("image/png", UploadType.IMAGE),
+  GIF("image/gif", UploadType.IMAGE),
+  BMP("image/bmp", UploadType.IMAGE),
+  TIFF("image/tiff", UploadType.IMAGE),
+  SVG("image/svg+xml", UploadType.IMAGE),
+  WEBP("image/webp", UploadType.IMAGE),
   // 동영상
-  MP4("video/mp4"),
-  AVI("video/x-msvideo"),
-  MOV("video/quicktime"),
+  MP4("video/mp4", UploadType.VIDEO),
+  AVI("video/x-msvideo", UploadType.VIDEO),
+  MOV("video/quicktime", UploadType.VIDEO),
   // 음악
-  MP3("audio/mpeg"),
-  WAV("audio/wav"),
-  AAC("audio/aac"),
+  MP3("audio/mpeg", UploadType.MUSIC),
+  WAV("audio/wav", UploadType.MUSIC),
+  AAC("audio/aac", UploadType.MUSIC),
+  OGG("audio/ogg", UploadType.MUSIC),
   // 문서
-  DOC("application/msword"),
-  DOCX("application/vnd.openxmlformats-officedocument.wordprocessingml.document"),
-  XLS("application/vnd.ms-excel"),
-  XLSX("application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"),
-  PPT("application/vnd.ms-powerpoint"),
-  PPTX("application/vnd.openxmlformats-officedocument.presentationml.presentation"),
-  OGG("application/ogg"),
-  PDF("application/pdf");
+  DOC("application/msword", UploadType.DOCUMENT),
+  DOCX("application/vnd.openxmlformats-officedocument.wordprocessingml.document", UploadType.DOCUMENT),
+  XLS("application/vnd.ms-excel", UploadType.DOCUMENT),
+  XLSX("application/vnd.openxmlformats-officedocument.spreadsheetml.sheet", UploadType.DOCUMENT),
+  PPT("application/vnd.ms-powerpoint", UploadType.DOCUMENT),
+  PPTX("application/vnd.openxmlformats-officedocument.presentationml.presentation", UploadType.DOCUMENT),
+  PDF("application/pdf", UploadType.DOCUMENT);
 
   private final String mimeType;
+  private final UploadType uploadType;
 
   private static final Set<String> MIME_TYPES = Arrays
       .stream(MimeType.values())
