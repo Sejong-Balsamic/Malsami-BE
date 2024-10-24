@@ -12,7 +12,6 @@ import com.balsamic.sejongmalsami.util.TimeUtil;
 import com.balsamic.sejongmalsami.util.config.FtpConfig;
 import com.balsamic.sejongmalsami.util.exception.CustomException;
 import com.balsamic.sejongmalsami.util.exception.ErrorCode;
-import java.io.IOException;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
@@ -31,23 +30,23 @@ public class DocumentFileService {
   private final int MAX_FILE_UPLOAD_SIZE = 50; // 50MB
 
   /**
-   * 업로드 타입에 따라 파일을 저장하는 메서드
+   * 파일 저장
+   *
+   * @param command    문서 명령어 객체
+   * @param uploadType 업로드 타입
+   * @param file       업로드 파일
+   * @return 저장된 DocumentFile 객체
    */
   public DocumentFile saveFile(DocumentCommand command, UploadType uploadType, MultipartFile file) {
-    // 파일 유효성 검증
     validateFile(file);
-
-    // 썸네일 URL 생성
     String thumbnailUrl = generateThumbnailUrl(file, uploadType);
-
-    // 업로드 파일명 생성
     String uploadFileName = FileUtil.generateUploadFileName(file);
 
-    // 원본 파일 업로드
-    ftpUtil.uploadDocument(file, FileUtil.generateUploadFileName(file));
+    // 첨부파일 업로드
+    ftpUtil.uploadDocument(file, uploadFileName);
 
-    // DocumentFile 객체 생성
-    DocumentFile documentFile = DocumentFile.builder()
+    // 메타 데이터 documentFile 저장
+    DocumentFile savedDocumentFile = documentFileRepository.save(DocumentFile.builder()
         .postId(command.getPostId())
         .uploader(command.getMember())
         .thumbnailUrl(thumbnailUrl)
@@ -58,18 +57,15 @@ public class DocumentFileService {
         .downloadCount(0L)
         .password(null)
         .isInitialPasswordSet(false)
-        .build();
-
-    // 저장
-    documentFileRepository.save(documentFile);
-
-    log.info("{} 파일 저장 완료: 업로드 파일명={}", uploadType, uploadFileName);
-
-    return documentFile;
+        .build());
+    log.info("DocumentFile 저장완료 : ID : {} ,업로드 파일명={}", savedDocumentFile.getDocumentFileId(), savedDocumentFile.getUploadFileName());
+    return savedDocumentFile;
   }
 
   /**
-   * 파일 유효성 확인 (단일 파일)
+   * 파일 유효성 검증
+   *
+   * @param file 검증할 파일
    */
   private void validateFile(MultipartFile file) {
     if (file == null || file.isEmpty()) {
@@ -91,52 +87,47 @@ public class DocumentFileService {
 
   /**
    * 썸네일 URL 생성
-   * 예외처리 : 빈 문자열 반환
+   *
+   * @param file       대상 파일
+   * @param uploadType 업로드 타입
+   * @return 썸네일 URL
    */
   private String generateThumbnailUrl(MultipartFile file, UploadType uploadType) {
 
-    // 썸네일 파일 이름 생성
     String thumbnailFileName = generateThumbnailFileName(file.getOriginalFilename());
     String thumbnailUrl = "";
 
-    // 파일 존재하는지 확인
     if (file.isEmpty()) {
       log.info("generateThumbnailUrl : 파일이 비어있습니다");
       return "";
     }
 
-    // 음악 파일 : 기본 음악 썸네일
     if (uploadType == UploadType.MUSIC) {
-      // MUSIC 타입은 썸네일 생성 없이 기본 썸네일 URL 사용
       log.info("MUSIC 타입의 파일은 기본 썸네일 URL을 사용합니다.");
       return ftpConfig.getDefaultMusicThumbnailUrl();
     }
 
-    try {
-      // 썸네일 생성 로직 (생성에 실패하면 바이트배열 반환)
-      byte[] thumbnailBytes = generateThumbnailBytes(file, uploadType);
+    byte[] thumbnailBytes = generateThumbnailBytes(file, uploadType);
 
-      // 썸네일이 정상 생성된 경우 업로드
-      if (thumbnailBytes.length > 0) {
-        thumbnailUrl = ftpUtil.uploadThumbnailBytes(thumbnailBytes, thumbnailFileName);
-        log.info("{} 썸네일 생성 및 업로드 완료: {}", uploadType, thumbnailFileName);
-      } else {
-        // 썸네일 생성 되지 않은 경우 기본값
-        thumbnailUrl = getDefaultThumbnailUrl(uploadType);
-        log.info("썸네일 생성 실패, 기본 썸네일 사용: {}", thumbnailUrl);
-      }
-    } catch (IOException e) {
-      log.error("파일 {} 썸네일 생성 중 오류 발생: {}", file.getOriginalFilename(), e.getMessage());
-      throw new CustomException(ErrorCode.THUMBNAIL_CREATION_ERROR);
+    if (thumbnailBytes.length > 0) {
+      thumbnailUrl = ftpUtil.uploadThumbnailBytes(thumbnailBytes, thumbnailFileName);
+      log.info("{} 썸네일 생성 및 업로드 완료: {}", uploadType, thumbnailFileName);
+    } else {
+      thumbnailUrl = getDefaultThumbnailUrl(uploadType);
+      log.info("썸네일 생성 실패, 기본 썸네일 사용: {}", thumbnailUrl);
     }
     return thumbnailUrl;
   }
 
   /**
-   * 업로드 타입에 따른 썸네일 바이트 생성
-   * 예외처리 : CustomException(ErrorCode.INVALID_UPLOAD_TYPE)
+   * 썸네일 바이트 생성
+   *
+   * @param file       대상 파일
+   * @param uploadType 업로드 타입
+   * @return 썸네일 바이트 배열
+   * @throws CustomException ErrorCode.INVALID_UPLOAD_TYPE
    */
-  private byte[] generateThumbnailBytes(MultipartFile file, UploadType uploadType) throws IOException {
+  private byte[] generateThumbnailBytes(MultipartFile file, UploadType uploadType) throws CustomException {
     if (uploadType == UploadType.IMAGE) {
       return thumbnailGenerator.generateImageThumbnail(file);
     } else if (uploadType == UploadType.DOCUMENT) {
@@ -150,8 +141,10 @@ public class DocumentFileService {
   }
 
   /**
-   * 업로드 타입에 따른 기본 썸네일 URL 반환
-   * 예외처리 : 빈문자열 반환
+   * 기본 썸네일 URL 반환
+   *
+   * @param uploadType 업로드 타입
+   * @return 기본 썸네일 URL
    */
   private String getDefaultThumbnailUrl(UploadType uploadType) {
     if (uploadType == UploadType.DOCUMENT) {
@@ -167,7 +160,10 @@ public class DocumentFileService {
   }
 
   /**
-   * 썸네일 파일명 생성 (썸네일 확장자에 맞게)
+   * 썸네일 파일명 생성
+   *
+   * @param originalFileName 원본 파일명
+   * @return 생성된 썸네일 파일명
    */
   private String generateThumbnailFileName(String originalFileName) {
     String curTimeStr = TimeUtil.formatLocalDateTimeNowForFileName();

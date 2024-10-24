@@ -32,11 +32,14 @@ public class DocumentPostService {
   private final DocumentFileService documentFileService;
 
   /**
-   * 자료 게시글 저장 메서드
+   * 자료 게시글 저장
+   *
+   * @param command 자료 게시글 정보
+   * @return 저장된 DocumentDto
    */
   @Transactional
   public DocumentDto saveDocumentPost(DocumentCommand command) {
-    List<DocumentFile> documentFiles = new ArrayList<>(); // 저장된 자료 파일들
+    List<DocumentFile> savedDocumentFiles = new ArrayList<>(); // 저장된 자료 파일들
 
     // 회원 검증
     Member member = memberRepository.findById(command.getMemberId())
@@ -46,35 +49,48 @@ public class DocumentPostService {
         });
     log.info("회원 검증 완료: 회원ID={}", command.getMemberId());
 
-    // 업로드 타입에 따른 파일 처리
-    processUploadTypes(command, documentFiles);
+    // 업로드 타입에 따른 파일 처리 : 저장된 자료 파일은 savedDocumentFiles 에 추가
+    processUploadTypes(command, savedDocumentFiles);
 
-    // 자료 게시글 객체 생성
-    DocumentPost documentPost = createDocumentPost(command, member);
-    log.info("자료 게시글 객체 생성 완료: 제목={}", command.getTitle());
-
-    // 자료 게시글 저장
-    DocumentPost savedDocument = documentPostRepository.save(documentPost);
+    // 자료 게시글 객세 생성 및 저장
+    DocumentPost savedDocument = documentPostRepository.save(DocumentPost.builder()
+        .member(member)
+        .title(command.getTitle())
+        .content(command.getContent())
+        .subject(command.getSubject())
+        .postTier(PostTier.CHEONMIN)
+        .documentTypeSet(command.getDocumentTypeSet() != null ? new HashSet<>(command.getDocumentTypeSet()) : null)
+        .likeCount(0)
+        .commentCount(0)
+        .viewCount(0)
+        .isDepartmentPrivate(Boolean.TRUE.equals(command.getIsDepartmentPrivate()))
+        .dailyScore(0)
+        .weeklyScore(0)
+        .build());
     log.info("자료 게시글 저장 완료: 제목={} id={}", command.getTitle(), savedDocument.getDocumentPostId());
 
     return DocumentDto.builder()
         .documentPost(savedDocument)
-        .documentFiles(documentFiles)
+        .documentFiles(savedDocumentFiles)
         .build();
   }
 
   /**
-   * 업로드 타입에 따른 파일 처리 메서드
+   * 업로드 타입에 따른 파일 처리
+   *
+   * @param command       자료 게시글 명령어
+   * @param documentFiles 저장된 파일 리스트
    */
   private void processUploadTypes(DocumentCommand command, List<DocumentFile> documentFiles) {
     List<MultipartFile> attachmentFiles = command.getAttachmentFiles();
 
-    // 첨부파일이 없을 때
+    // 첨부파일 리스트에 첨부된 파일이 없을 때
     if (attachmentFiles == null || attachmentFiles.isEmpty()) {
-      log.warn("첨부된 파일이 없습니다.");
+      log.info("첨부된 파일이 없습니다.");
       return;
     }
 
+    // 첨부파일 리스트에서 파일 순회
     for (MultipartFile file : attachmentFiles) {
       try {
         String mimeType = file.getContentType();
@@ -87,7 +103,7 @@ public class DocumentPostService {
         MimeType type = MimeType.fromString(mimeType);
         UploadType uploadType = type.getUploadType();
 
-        // 해당 UploadType에 따라 파일 리스트에 추가
+        // UploadType에 따른 파일리스트에 파일 분류 작업
         if (uploadType == UploadType.DOCUMENT) {
           command.getDocumentFiles().add(file);
         } else if (uploadType == UploadType.IMAGE) {
@@ -115,25 +131,5 @@ public class DocumentPostService {
         throw new CustomException(ErrorCode.INTERNAL_SERVER_ERROR);
       }
     }
-  }
-
-  /**
-   * 자료 게시글 객체를 생성합니다.
-   */
-  private DocumentPost createDocumentPost(DocumentCommand command, Member member) {
-    return DocumentPost.builder()
-        .member(member)
-        .title(command.getTitle())
-        .content(command.getContent())
-        .subject(command.getSubject())
-        .postTier(PostTier.CHEONMIN)
-        .documentTypeSet(command.getDocumentTypeSet() != null ? new HashSet<>(command.getDocumentTypeSet()) : null)
-        .likeCount(0)
-        .commentCount(0)
-        .viewCount(0)
-        .isDepartmentPrivate(Boolean.TRUE.equals(command.getIsDepartmentPrivate()))
-        .dailyScore(0)
-        .weeklyScore(0)
-        .build();
   }
 }
