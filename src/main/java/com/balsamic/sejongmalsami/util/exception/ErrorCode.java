@@ -123,7 +123,9 @@ public enum ErrorCode {
 
   // QuestionBoardLike
 
-  QUESTION_BOARD_LIKE_SAVE_ERROR(HttpStatus.INTERNAL_SERVER_ERROR, "질문게시판 좋아요 내역 저장 중 오류가 발생했습니다.");
+  QUESTION_BOARD_LIKE_SAVE_ERROR(HttpStatus.INTERNAL_SERVER_ERROR, "질문게시판 좋아요 내역 저장 중 오류가 발생했습니다."),
+
+  LIKE_COUNT_CANNOT_BE_NEGATIVE(HttpStatus.BAD_REQUEST, "좋아요 개수의 최소값은 0입니다.");
 
   private final HttpStatus status;
   private final String message;

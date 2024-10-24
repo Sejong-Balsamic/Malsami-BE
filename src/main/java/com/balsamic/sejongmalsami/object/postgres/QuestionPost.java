@@ -92,9 +92,10 @@ public class QuestionPost extends BasePost {
 
   // 좋아요 감소 (롤백)
   public void decreaseLikeCount() {
-    if (likeCount > 0) {
-      likeCount--;
+    if (likeCount <= 0) {
+      throw new CustomException(ErrorCode.LIKE_COUNT_CANNOT_BE_NEGATIVE);
     }
+    likeCount--;
   }
 
   // 질문글 정적 태그 추가(최대 2개)
