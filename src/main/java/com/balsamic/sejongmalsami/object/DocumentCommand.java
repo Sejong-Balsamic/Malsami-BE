@@ -29,11 +29,9 @@ public class DocumentCommand {
 
   private UUID postId;
   private Member member;
-  private MultipartFile targetUploadFile;
-  private MultipartFile targetThumbnailFile;
-  private UploadType uploadType;
 
-  private List<MultipartFile> attachmentFiles = new ArrayList<>();
+  private List<MultipartFile> attachmentFiles = new ArrayList<>(); // 첨부된 파일들
+
   private List<MultipartFile> documentFiles = new ArrayList<>();
   private List<MultipartFile> imageFiles = new ArrayList<>();
   private List<MultipartFile> videoFiles = new ArrayList<>();
