@@ -48,6 +48,9 @@ public class PopularPostService {
     LocalDateTime yesterday = LocalDateTime.now().minusDays(1);
     Integer postCounts = questionPostRepository.countByCreatedDateAfter(yesterday);
 
+    if (postCounts <= 0) {
+      postCounts = 1;
+    }
     // 질문글
     Pageable pageable = PageRequest.of(0, postCounts);
     Page<QuestionPost> posts = questionPostRepository.findByCreatedDateAfter(yesterday, pageable);
@@ -78,6 +81,9 @@ public class PopularPostService {
     LocalDateTime lastWeek = LocalDateTime.now().minusWeeks(1);
     Integer postCounts = questionPostRepository.countByCreatedDateAfter(lastWeek);
 
+    if (postCounts <= 0) {
+      postCounts = 1;
+    }
     // 질문글
     Pageable pageable = PageRequest.of(0, postCounts);
     Page<QuestionPost> posts = questionPostRepository.findByCreatedDateAfter(lastWeek, pageable);
