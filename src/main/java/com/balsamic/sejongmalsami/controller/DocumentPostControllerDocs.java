@@ -13,6 +13,11 @@ public interface DocumentPostControllerDocs {
 
   @ApiChangeLogs({
       @ApiChangeLog(
+          date = "2024.10.24",
+          author = Author.SUHSAECHAN,
+          description = "자료 업로드 및 썸네일 로직 전체 구조 개선 및 업로드 로직 간편화"
+      ),
+      @ApiChangeLog(
           date = "2024.10.22",
           author = Author.SUHSAECHAN,
           description = "자료 업로드 및 썸네일 로직 추가"
@@ -51,13 +56,8 @@ public interface DocumentPostControllerDocs {
         - **`documentTypeSet`** (`String`, **선택**)
         
         - **`isDepartmentPrivate`** (`Boolean`, **선택**): 내 학과 비공개 여부 : 기본값 `false` (공개)
-        
        
-        - **`documentFiles`** (`MultipartFile`, **선택**): 업로드 문서 파일 리스트
-        
-        - **`imageFiles`** (`MultipartFile`, **선택**): 업로드 이미지 파일 리스트 : 단일 이미지를 업로드하면 직접 저장, 여러 이미지를 업로드 -> ZIP 파일로 압축 
-        
-        - **`mediaFiles`** (`MultipartFile`, **선택**): 업로드 미디어 파일 리스트
+        - **`attachmentFiles`** (`MultipartFile`, **선택**): 업로드 자료 파일 리스트
         
         ### **documentTypeSet**
 
