@@ -14,6 +14,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.cache.annotation.CacheEvict;
 import org.springframework.cache.annotation.Cacheable;
+import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.scheduling.annotation.Async;
@@ -45,16 +46,18 @@ public class PopularPostService {
   @Scheduled(fixedRate = DAILY_SCHEDULED_RATE) // 30분마다 실행
   public void calculateDailyScore() {
     LocalDateTime yesterday = LocalDateTime.now().minusDays(1);
+    Integer postCounts = questionPostRepository.countByCreatedDateAfter(yesterday);
 
     // 질문글
-    List<QuestionPost> questionPosts = questionPostRepository.findQuestionPostsAfter(yesterday);
+    Pageable pageable = PageRequest.of(0, postCounts);
+    Page<QuestionPost> posts = questionPostRepository.findByCreatedDateAfter(yesterday, pageable);
 
-    for (QuestionPost post : questionPosts) {
+    for (QuestionPost post : posts) {
       post.updateDailyScore(scoreCalculator.calculateQuestionPostDailyScore(post));
       questionPostRepository.save(post);
     }
 
-    // 자료글
+    // 자료글 TODO: 인기 자료글 로직 수정
     List<DocumentPost> documentPosts = documentPostRepository.findDocumentPostsAfter(yesterday);
 
     for (DocumentPost documentPost : documentPosts) {
@@ -73,16 +76,18 @@ public class PopularPostService {
   @Scheduled(fixedRate = WEEKLY_SCHEDULED_RATE) // 6시간마다 실행
   public void calculateWeeklyScore() {
     LocalDateTime lastWeek = LocalDateTime.now().minusWeeks(1);
+    Integer postCounts = questionPostRepository.countByCreatedDateAfter(lastWeek);
 
     // 질문글
-    List<QuestionPost> posts = questionPostRepository.findQuestionPostsAfter(lastWeek);
+    Pageable pageable = PageRequest.of(0, postCounts);
+    Page<QuestionPost> posts = questionPostRepository.findByCreatedDateAfter(lastWeek, pageable);
 
     for (QuestionPost post : posts) {
       post.updateWeeklyScore(scoreCalculator.calculateQuestionPostWeeklyScore(post));
       questionPostRepository.save(post);
     }
 
-    // 자료글
+    // 자료글 TODO: 인기 자료글 로직 수정
     List<DocumentPost> documentPosts = documentPostRepository.findDocumentPostsAfter(lastWeek);
 
     for (DocumentPost documentPost : documentPosts) {
@@ -101,9 +106,12 @@ public class PopularPostService {
   public QuestionDto getDailyPopularQuestionPosts(QuestionCommand command) {
     LocalDateTime yesterday = LocalDateTime.now().minusDays(1);
     Pageable pageable = PageRequest.of(0, command.getPageSize());
+
+    Page<QuestionPost> posts = questionPostRepository
+        .findByCreatedDateAfterOrderByDailyScoreDesc(yesterday, pageable);
+
     return QuestionDto.builder()
-        .questionPosts(questionPostRepository
-            .findOrderByDailyScoreDescAndCreatedDateAfter(yesterday, pageable))
+        .questionPosts(posts.getContent())
         .build();
   }
 
@@ -113,13 +121,16 @@ public class PopularPostService {
   public QuestionDto getWeeklyPopularQuestionPosts(QuestionCommand command) {
     LocalDateTime lastWeek = LocalDateTime.now().minusWeeks(1);
     Pageable pageable = PageRequest.of(0, command.getPageSize());
+
+    Page<QuestionPost> posts = questionPostRepository
+        .findByCreatedDateAfterOrderByWeeklyScoreDesc(lastWeek, pageable);
+
     return QuestionDto.builder()
-        .questionPosts(questionPostRepository
-            .findOrderByWeeklyScoreDescAndCreatedDateAfter(lastWeek, pageable))
+        .questionPosts(posts.getContent())
         .build();
   }
 
-  // 캐시된 일간 자료 인기글 가져오기
+  // 캐시된 일간 자료 인기글 가져오기 TODO: 인기 자료글 로직 수정
   @Transactional(readOnly = true)
   @Cacheable(value = DOCUMENT_POST_CACHE_VALUE, key = DAILY_DOCUMENT_POSTS_KEY)
   public DocumentDto getDailyPopularDocumentPosts() {
@@ -130,7 +141,7 @@ public class PopularPostService {
         .build();
   }
 
-  // 캐시된 주간 자료 인기글 가져오기
+  // 캐시된 주간 자료 인기글 가져오기 TODO: 인기 자료글 로직 수정
   @Transactional(readOnly = true)
   @Cacheable(value = DOCUMENT_POST_CACHE_VALUE, key = WEEKLY_DOCUMENT_POSTS_KEY)
   public DocumentDto getWeeklyPopularDocumentPosts() {
