@@ -1,10 +1,10 @@
 package com.balsamic.sejongmalsami.service;
 
 import com.balsamic.sejongmalsami.object.QuestionCommand;
-import com.balsamic.sejongmalsami.object.YeopjeonDto;
 import com.balsamic.sejongmalsami.object.constants.ContentType;
 import com.balsamic.sejongmalsami.object.constants.YeopjeonAction;
 import com.balsamic.sejongmalsami.object.mongo.QuestionBoardLike;
+import com.balsamic.sejongmalsami.object.mongo.YeopjeonHistory;
 import com.balsamic.sejongmalsami.object.postgres.AnswerPost;
 import com.balsamic.sejongmalsami.object.postgres.Member;
 import com.balsamic.sejongmalsami.object.postgres.QuestionPost;
@@ -34,6 +34,7 @@ public class QuestionBoardLikeService {
 
   /**
    * 질문글 or 답변글 좋아요 이벤트 발생 시
+   *
    * @param command: memberId, questionId, contentType
    * @return 질문게시판 좋아요 내역
    */
@@ -54,34 +55,25 @@ public class QuestionBoardLikeService {
       questionPost = questionPostRepository.findById(postId)
           .orElseThrow(() -> new CustomException(ErrorCode.QUESTION_POST_NOT_FOUND));
       writer = questionPost.getMember();
+      validateSelfLike(member, writer);
+      questionPost.increaseLikeCount();
     } else if (command.getContentType().equals(ContentType.ANSWER)) {
       answerPost = answerPostRepository.findById(postId)
           .orElseThrow(() -> new CustomException(ErrorCode.ANSWER_POST_NOT_FOUND));
       writer = answerPost.getMember();
+      validateSelfLike(member, writer);
+      answerPost.increaseLikeCount();
     } else {
       throw new CustomException(ErrorCode.INVALID_CONTENT_TYPE);
     }
 
-    // 로그인 된 사용자와 작성자가 같은 경우 좋아요 불가
-    if (member.getMemberId().equals(writer.getMemberId())) {
-      log.error("본인 글에 좋아요를 누를 수 없습니다. 로그인된 사용자: {}, 글 작성자: {}",
-          member.getStudentId(), writer.getStudentId());
-      throw new CustomException(ErrorCode.SELF_ACTION_NOT_ALLOWED);
-    }
-
-    if (questionPost != null) {
-      questionPost.increaseLikeCount();
-    } else {
-      answerPost.increaseLikeCount();
-    }
-
     // 좋아요 받은 사용자 엽전 개수 증가 - A
-    yeopjeonService.updateYeopjeon(writer, YeopjeonAction.RECEIVE_LIKE);
+    yeopjeonService.updateMemberYeopjeon(writer, YeopjeonAction.RECEIVE_LIKE);
 
-    YeopjeonDto yeopjeonDto;
+    YeopjeonHistory yeopjeonHistory;
     try {
       // 엽전 히스토리 내역 추가(MongoDB) - B
-      yeopjeonDto = yeopjeonHistoryService.saveYeopjeonHistory(writer, YeopjeonAction.RECEIVE_LIKE);
+      yeopjeonHistory = yeopjeonHistoryService.saveYeopjeonHistory(writer, YeopjeonAction.RECEIVE_LIKE);
     } catch (Exception e) {
       log.error("엽전 히스토리 저장 실패 및 롤백: {}", e.getMessage());
 
@@ -114,8 +106,17 @@ public class QuestionBoardLikeService {
       }
       // 보상 로직: 엽전 히스토리 내역 삭제, 엽전 수 롤백 - C 실패시 A, B 롤백
       yeopjeonService.rollbackYeopjeon(writer, YeopjeonAction.RECEIVE_LIKE);
-      yeopjeonHistoryService.deleteYeopjeonHistory(yeopjeonDto.getYeopjeonHistory());
+      yeopjeonHistoryService.deleteYeopjeonHistory(yeopjeonHistory);
       throw new CustomException(ErrorCode.QUESTION_BOARD_LIKE_SAVE_ERROR);
+    }
+  }
+
+  // 로그인 된 사용자와 작성자가 같은 경우 검증 메서드
+  private static void validateSelfLike(Member member, Member writer) {
+    if (member.getMemberId().equals(writer.getMemberId())) {
+      log.error("본인 글에 좋아요를 누를 수 없습니다. 로그인된 사용자: {}, 글 작성자: {}",
+          member.getStudentId(), writer.getStudentId());
+      throw new CustomException(ErrorCode.SELF_ACTION_NOT_ALLOWED);
     }
   }
 }
