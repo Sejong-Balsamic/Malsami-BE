@@ -12,17 +12,17 @@ import com.balsamic.sejongmalsami.util.TimeUtil;
 import com.balsamic.sejongmalsami.util.config.FtpConfig;
 import com.balsamic.sejongmalsami.util.exception.CustomException;
 import com.balsamic.sejongmalsami.util.exception.ErrorCode;
+import java.io.IOException;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
-import java.io.IOException;
-
 @Service
 @Slf4j
 @RequiredArgsConstructor
 public class DocumentFileService {
+
   private final DocumentFileRepository documentFileRepository;
   private final FtpConfig ftpConfig;
   private final FtpUtil ftpUtil;
@@ -91,42 +91,50 @@ public class DocumentFileService {
 
   /**
    * 썸네일 URL 생성
+   * 예외처리 : 빈 문자열 반환
    */
   private String generateThumbnailUrl(MultipartFile file, UploadType uploadType) {
+
+    // 썸네일 파일 이름 생성
+    String thumbnailFileName = generateThumbnailFileName(file.getOriginalFilename());
+    String thumbnailUrl = "";
+
+    // 파일 존재하는지 확인
+    if (file.isEmpty()) {
+      log.info("generateThumbnailUrl : 파일이 비어있습니다");
+      return "";
+    }
+
+    // 음악 파일 : 기본 음악 썸네일
     if (uploadType == UploadType.MUSIC) {
       // MUSIC 타입은 썸네일 생성 없이 기본 썸네일 URL 사용
       log.info("MUSIC 타입의 파일은 기본 썸네일 URL을 사용합니다.");
       return ftpConfig.getDefaultMusicThumbnailUrl();
     }
 
-    String thumbnailFileName = generateThumbnailFileName(file.getOriginalFilename());
-    String thumbnailUrl = ftpConfig.getThumbnailBaseUrl();
-
     try {
-      if (!file.isEmpty()) {
-        byte[] thumbnailBytes = generateThumbnailBytes(file, uploadType);
+      // 썸네일 생성 로직 (생성에 실패하면 바이트배열 반환)
+      byte[] thumbnailBytes = generateThumbnailBytes(file, uploadType);
 
-        if (thumbnailBytes.length > 0) {
-          thumbnailUrl = ftpUtil.uploadThumbnailBytes(thumbnailBytes, thumbnailFileName);
-          log.info("{} 썸네일 생성 및 업로드 완료: {}", uploadType, thumbnailFileName);
-        } else {
-          thumbnailUrl = getDefaultThumbnailUrl(uploadType);
-          log.info("썸네일 생성 실패, 기본 썸네일 사용: {}", thumbnailUrl);
-        }
+      // 썸네일이 정상 생성된 경우 업로드
+      if (thumbnailBytes.length > 0) {
+        thumbnailUrl = ftpUtil.uploadThumbnailBytes(thumbnailBytes, thumbnailFileName);
+        log.info("{} 썸네일 생성 및 업로드 완료: {}", uploadType, thumbnailFileName);
       } else {
+        // 썸네일 생성 되지 않은 경우 기본값
         thumbnailUrl = getDefaultThumbnailUrl(uploadType);
-        log.info("파일이 비어있어 기본 썸네일 사용: {}", thumbnailUrl);
+        log.info("썸네일 생성 실패, 기본 썸네일 사용: {}", thumbnailUrl);
       }
     } catch (IOException e) {
       log.error("파일 {} 썸네일 생성 중 오류 발생: {}", file.getOriginalFilename(), e.getMessage());
       throw new CustomException(ErrorCode.THUMBNAIL_CREATION_ERROR);
     }
-
     return thumbnailUrl;
   }
 
   /**
    * 업로드 타입에 따른 썸네일 바이트 생성
+   * 예외처리 : CustomException(ErrorCode.INVALID_UPLOAD_TYPE)
    */
   private byte[] generateThumbnailBytes(MultipartFile file, UploadType uploadType) throws IOException {
     if (uploadType == UploadType.IMAGE) {
@@ -143,6 +151,7 @@ public class DocumentFileService {
 
   /**
    * 업로드 타입에 따른 기본 썸네일 URL 반환
+   * 예외처리 : 빈문자열 반환
    */
   private String getDefaultThumbnailUrl(UploadType uploadType) {
     if (uploadType == UploadType.DOCUMENT) {
@@ -152,7 +161,8 @@ public class DocumentFileService {
     } else if (uploadType == UploadType.VIDEO) {
       return ftpConfig.getDefaultVideoThumbnailUrl();
     } else {
-      return ftpConfig.getDefaultImageThumbnailUrl(); // 안전하게 기본 이미지 썸네일 사용
+      log.warn("기본 썸네일이 존재하지 않습니다. UploadType={}", uploadType);
+      return "";
     }
   }
 
@@ -162,7 +172,7 @@ public class DocumentFileService {
   private String generateThumbnailFileName(String originalFileName) {
     String curTimeStr = TimeUtil.formatLocalDateTimeNowForFileName();
     String baseName = FileUtil.getBaseName(originalFileName);
-    String thumbnailExtension = thumbnailGenerator.getOutputThumbnailFormat();
+    String thumbnailExtension = thumbnailGenerator.getOutputThumbnailFormat(); // JPG, WEBP
     return String.format("%s_%s.%s", curTimeStr, baseName, thumbnailExtension);
   }
 }

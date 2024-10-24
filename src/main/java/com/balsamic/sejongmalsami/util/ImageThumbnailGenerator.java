@@ -35,7 +35,7 @@ public class ImageThumbnailGenerator {
   public static final int DEFAULT_WIDTH = 300;
   public static final int DEFAULT_HEIGHT = 300;
 
-  private final String outputThumbnailFormat;
+  private final String outputThumbnailFormat; // JPG, WEBP
 
   public ImageThumbnailGenerator() {
     if (isWebPSupported()) {

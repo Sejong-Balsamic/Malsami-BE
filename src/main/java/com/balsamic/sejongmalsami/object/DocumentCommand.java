@@ -1,7 +1,6 @@
 package com.balsamic.sejongmalsami.object;
 
 import com.balsamic.sejongmalsami.object.constants.DocumentType;
-import com.balsamic.sejongmalsami.object.constants.UploadType;
 import com.balsamic.sejongmalsami.object.postgres.Member;
 import java.util.ArrayList;
 import java.util.List;

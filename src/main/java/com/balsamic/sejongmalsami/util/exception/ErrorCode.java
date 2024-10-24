@@ -49,6 +49,8 @@ public enum ErrorCode {
 
   FILE_EMPTY(HttpStatus.BAD_REQUEST, "파일이 존재하지 않습니다."),
 
+  EMPTY_OR_SINGLE_FILE_FOR_ZIP(HttpStatus.BAD_REQUEST, "압축할 파일 목록이 비어있거다 하나입니다"),
+
   FILE_SIZE_EXCEEDED(HttpStatus.BAD_REQUEST, "파일 크기가 너무 큽니다."),
 
   INVALID_UPLOAD_TYPE(HttpStatus.BAD_REQUEST, "지원되지 않는 업로드 타입"),
