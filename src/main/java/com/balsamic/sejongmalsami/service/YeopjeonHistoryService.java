@@ -1,6 +1,5 @@
 package com.balsamic.sejongmalsami.service;
 
-import com.balsamic.sejongmalsami.object.YeopjeonDto;
 import com.balsamic.sejongmalsami.object.constants.YeopjeonAction;
 import com.balsamic.sejongmalsami.object.mongo.YeopjeonHistory;
 import com.balsamic.sejongmalsami.object.postgres.Member;
@@ -22,16 +21,13 @@ public class YeopjeonHistoryService {
 
   // 엽전 히스토리 내역 추가
   @Transactional
-  public YeopjeonDto saveYeopjeonHistory(Member member, YeopjeonAction action) {
+  public YeopjeonHistory saveYeopjeonHistory(Member member, YeopjeonAction action) {
 
-    return YeopjeonDto.builder()
-        .yeopjeonHistory(yeopjeonHistoryRepository.save(YeopjeonHistory.builder()
-            .memberId(member.getMemberId())
-            .yeopjeonChange(yeopjeonCalculator.calculateYeopjeon(action))
-            .yeopjeonAction(action)
-            .resultYeopjeon(yeopjeonService.getResultYeopjeon(member)
-                .getYeopjeon().getResultYeopjeon())
-            .build()))
+    return YeopjeonHistory.builder()
+        .memberId(member.getMemberId())
+        .yeopjeonChange(yeopjeonCalculator.calculateYeopjeon(action))
+        .yeopjeonAction(action)
+        .resultYeopjeon(yeopjeonService.getResultYeopjeon(member).getResultYeopjeon())
         .build();
   }
 

@@ -1,6 +1,5 @@
 package com.balsamic.sejongmalsami.service;
 
-import com.balsamic.sejongmalsami.object.YeopjeonDto;
 import com.balsamic.sejongmalsami.object.constants.YeopjeonAction;
 import com.balsamic.sejongmalsami.object.postgres.Member;
 import com.balsamic.sejongmalsami.object.postgres.Yeopjeon;
@@ -23,33 +22,30 @@ public class YeopjeonService {
 
   // 엽전 보상 처리
   @Transactional
-  public void updateYeopjeon(Member member, YeopjeonAction action) {
+  public void updateMemberYeopjeon(Member member, YeopjeonAction action) {
     Yeopjeon yeopjeon = yeopjeonRepository.findByMember(member)
         .orElseThrow(() -> new CustomException(ErrorCode.INVALID_REQUEST));
 
-    // 엽전 업데이트
-    int updateYeopjeon = yeopjeon.getResultYeopjeon() + yeopjeonCalculator.calculateYeopjeon(action);
+    // 엽전 개수 변동
+    int calculatedYeopjeon = yeopjeon.getResultYeopjeon() + yeopjeonCalculator.calculateYeopjeon(action);
 
-    if (updateYeopjeon < 0) {
+    if (calculatedYeopjeon < 0) {
       log.error("엽전이 부족합니다: {}의 엽전 개수 = {}", member.getStudentId(), yeopjeon.getResultYeopjeon());
-      yeopjeon.updateResultYeopjeon(0);  // 엽전 개수를 0으로 설정
       throw new CustomException(ErrorCode.INSUFFICIENT_YEOPJEON);
     } else {
-      yeopjeon.updateResultYeopjeon(updateYeopjeon);
+      yeopjeon.updateResultYeopjeon(calculatedYeopjeon);
     }
-
-    log.info("엽전 개수 업데이트 완료: {}의 엽전 개수 = {}", member.getStudentId(), yeopjeon.getResultYeopjeon());
+    log.info("엽전 개수 변동 완료: {}의 엽전 개수 = {}", member.getStudentId(), yeopjeon.getResultYeopjeon());
 
     yeopjeonRepository.save(yeopjeon);
   }
 
   // 사용자의 현재 총 엽전 수 조회
   @Transactional(readOnly = true)
-  public YeopjeonDto getResultYeopjeon(Member member) {
-    return YeopjeonDto.builder()
-        .yeopjeon(yeopjeonRepository.findByMember(member)
-            .orElseThrow(() -> new CustomException(ErrorCode.YEOPJEON_NOT_FOUND)))
-        .build();
+  public Yeopjeon getResultYeopjeon(Member member) {
+
+    return yeopjeonRepository.findByMember(member)
+        .orElseThrow(() -> new CustomException(ErrorCode.YEOPJEON_NOT_FOUND));
   }
 
   // 엽전 개수 롤백
