@@ -1,5 +1,6 @@
 package com.balsamic.sejongmalsami.object;
 
+import com.balsamic.sejongmalsami.object.constants.ContentType;
 import com.balsamic.sejongmalsami.object.constants.QuestionPresetTag;
 import java.util.List;
 import java.util.Set;
@@ -26,6 +27,9 @@ public class QuestionCommand {
   private Set<QuestionPresetTag> questionPresetTagSet; // 질문
   private Set<String> customTagSet; // 질문
   private Integer rewardYeopjeon; // 질문
+  private ContentType contentType;
   private Boolean isChaetaek; // 답변
   private Boolean isPrivate; // 질문, 답변
+  private Integer pageNumber; // n번째 페이지 조회
+  private Integer pageSize; // n개의 데이터 조회
 }

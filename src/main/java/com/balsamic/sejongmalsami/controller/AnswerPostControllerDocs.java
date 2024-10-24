@@ -37,16 +37,14 @@ public interface AnswerPostControllerDocs {
 
           **입력 파라미터 값:**
 
-          - **UUID questionPostId**: 질문글 PK (필수)
-            _예: "9b1deb4d-3b7d-4bad-9bdd-2b0d7b3dcb6d"_
+          - **UUID questionPostId**: 질문글 PK [필수]
 
-          - **String content**: 답변 본문 (필수)
-            _예: "이 문제 포인터 활용해야하는 문제에요. 포인터 먼저 공부해보세요~"_
-            
-          - **List\\<MultipartFile\\> mediaFiles**: 첨부파일 (최대 3개까지만 추가가능, 이미지파일만 업로드가능)
-                    
-          - **Boolean isPrivate**: 내 정보 비공개 여부 (default = false)
-            _기본값은 false입니다. true로 요청할 시 질문 글에 내 정보가 비공개 처리됩니다._
+          - **String content**: 답변 본문 [필수]
+           \s
+          - **List\\<MultipartFile\\> mediaFiles**: 첨부파일 [선택]
+            - 최대 3개까지만 추가가능, 이미지파일만 업로드가능
+                   \s
+          - **Boolean isPrivate**: 내 정보 비공개 여부 (default = false) [선택]
 
           **반환 파라미터 값:**
 
@@ -57,9 +55,9 @@ public interface AnswerPostControllerDocs {
           **참고 사항:**
 
           - 이 API를 통해 사용자는 질문 글에 답변을 동록할 수 있습니다.
-          - 질문글 PK, 본문은 null 값이 들어갈 수 없습니다. (required)
+          - 질문글 PK, 본문은 null 값이 들어갈 수 없습니다. [필수]
           - 첨부파일은 이미지 파일만 지원합니다.
-          - 채택 여부, 내 정보 비공개 여부는 프론트에서 설정하지 않으면 default 값이 할당됩니다.
+          - 내 정보 비공개 여부는 프론트에서 설정하지 않으면 default 값이 할당됩니다.
           - 성공적인 등록 후, 등록 된 답변을 반환합니다.
           - Swagger에서 테스트 시 mediaFiles에 있는 "Send empty value" 체크박스 해제해야합니다.
           """
