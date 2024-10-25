@@ -44,7 +44,7 @@ public class QuestionBoardLikeService {
     Member member = memberRepository.findById(command.getMemberId())
         .orElseThrow(() -> new CustomException(ErrorCode.MEMBER_NOT_FOUND));
 
-    UUID postId = command.getQuestionPostId();
+    UUID postId = command.getPostId();
 
     Member writer;
     QuestionPost questionPost = null;
