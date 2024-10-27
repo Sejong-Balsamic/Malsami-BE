@@ -47,10 +47,10 @@ public class DocumentPostService {
           log.error("회원이 존재하지 않습니다: memberId={}", command.getMemberId());
           return new CustomException(ErrorCode.MEMBER_NOT_FOUND);
         });
-    log.info("회원 검증 완료: 회원ID={}", command.getMemberId());
+    log.info("회원 검증 완료: studentId={}", member.getStudentId());
 
-    // 업로드 타입에 따른 파일 처리 : 저장된 자료 파일은 savedDocumentFiles 에 추가
-    processUploadTypes(command, savedDocumentFiles);
+    // 첨부 자료 처리 및 저장 : 저장된 자료 파일은 savedDocumentFiles 에 추가
+    processAndSaveUploadedFiles(command, savedDocumentFiles);
 
     // 자료 게시글 객세 생성 및 저장
     DocumentPost savedDocument = documentPostRepository.save(DocumentPost.builder()
@@ -76,12 +76,21 @@ public class DocumentPostService {
   }
 
   /**
-   * 업로드 타입에 따른 파일 처리
+   * 첨부 파일 처리, 업로드, 저장
    *
-   * @param command       자료 게시글 명령어
-   * @param documentFiles 저장된 파일 리스트
+   * <ul>
+   *   <li>첨부 파일의 존재 여부를 확인</li>
+   *   <li>각 파일의 MIME 타입에 따라 이미지, 동영상, 음악, 문서로 분류</li>
+   *   <li>해당 파일 타입 매칭 -> 타입에 따른 썸네일 생성</li>
+   *   <li>생성한 파일 및 썸네일 -> FTP 서버에 업로드</li>
+   *   <li>파일의 메타데이터 {@link DocumentFile} -> DB에 저장</li>
+   *   <li>저장된 {@link DocumentFile} 객체 -> savedDocumentFiles 추가</li>
+   * </ul>
+   *
+   * @param command       DocumentCommand
+   * @param savedDocumentFiles 저장된 파일 리스트
    */
-  private void processUploadTypes(DocumentCommand command, List<DocumentFile> documentFiles) {
+  private void processAndSaveUploadedFiles(DocumentCommand command, List<DocumentFile> savedDocumentFiles) {
     List<MultipartFile> attachmentFiles = command.getAttachmentFiles();
 
     // 첨부파일 리스트에 첨부된 파일이 없을 때
@@ -100,8 +109,10 @@ public class DocumentPostService {
         }
 
         // UploadType 결정
-        MimeType type = MimeType.fromString(mimeType);
-        UploadType uploadType = type.getUploadType();
+        UploadType uploadType = MimeType.fromString(mimeType).getUploadType();
+
+        // 파일 유효성 검사
+        documentFileService.validateFile(file, uploadType);
 
         // UploadType에 따른 파일리스트에 파일 분류 작업
         if (uploadType == UploadType.DOCUMENT) {
@@ -119,7 +130,7 @@ public class DocumentPostService {
 
         // 파일 저장
         DocumentFile savedFile = documentFileService.saveFile(command, uploadType, file);
-        documentFiles.add(savedFile);
+        savedDocumentFiles.add(savedFile);
 
         log.info("파일 저장 완료: 업로드 파일명={}", savedFile.getUploadFileName());
 

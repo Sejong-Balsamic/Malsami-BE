@@ -27,7 +27,9 @@ public class DocumentFileService {
   private final FtpUtil ftpUtil;
   private final ImageThumbnailGenerator thumbnailGenerator;
 
-  private final int MAX_FILE_UPLOAD_SIZE = 50; // 50MB
+  // 파일 유형별 최대 업로드 크기 (MB 단위)
+  private static final int MAX_IMAGE_UPLOAD_SIZE = 50;    // 이미지, 문서 등
+  private static final int MAX_VIDEO_UPLOAD_SIZE = 200;   // 비디오
 
   /**
    * 파일 저장
@@ -38,7 +40,6 @@ public class DocumentFileService {
    * @return 저장된 DocumentFile 객체
    */
   public DocumentFile saveFile(DocumentCommand command, UploadType uploadType, MultipartFile file) {
-    validateFile(file);
     String thumbnailUrl = generateThumbnailUrl(file, uploadType);
     String uploadFileName = FileUtil.generateUploadFileName(file);
 
@@ -65,18 +66,33 @@ public class DocumentFileService {
   /**
    * 파일 유효성 검증
    *
-   * @param file 검증할 파일
+   * @param file       검증할 파일
+   * @param uploadType 업로드 타입
    */
-  private void validateFile(MultipartFile file) {
+  public void validateFile(MultipartFile file, UploadType uploadType) {
     if (file == null || file.isEmpty()) {
       log.error("업로드된 파일이 비어있습니다.");
       throw new CustomException(ErrorCode.FILE_EMPTY);
     }
-    if (file.getSize() > MAX_FILE_UPLOAD_SIZE * 1024 * 1024) {
-      log.error("파일 크기가 초과되었습니다: 파일 크기={}MB, 최대 허용 크기={}MB",
-          file.getSize() / (1024 * 1024), MAX_FILE_UPLOAD_SIZE);
+
+    long fileSizeInMB = file.getSize() / (1024 * 1024);
+    int maxSize;
+
+    // 업로드 타입에 따른 최대 파일 크기 설정 (if-else if 사용)
+    if (uploadType == UploadType.VIDEO) {
+      maxSize = MAX_VIDEO_UPLOAD_SIZE;
+    } else if (uploadType == UploadType.IMAGE || uploadType == UploadType.DOCUMENT || uploadType == UploadType.MUSIC) {
+      maxSize = MAX_IMAGE_UPLOAD_SIZE;
+    } else {
+      log.warn("uploadType 을 알 수 없습니다. file {} , {}", file.getOriginalFilename(), uploadType);
+      maxSize = MAX_IMAGE_UPLOAD_SIZE;
+    }
+
+    if (fileSizeInMB > maxSize) {
+      log.error("파일 크기가 초과되었습니다: 파일 크기={}MB, 최대 허용 크기={}MB", fileSizeInMB, maxSize);
       throw new CustomException(ErrorCode.FILE_SIZE_EXCEEDED);
     }
+
     try {
       MimeType.fromString(file.getContentType());
     } catch (CustomException e) {
@@ -84,6 +100,7 @@ public class DocumentFileService {
       throw new CustomException(ErrorCode.INVALID_FILE_FORMAT);
     }
   }
+
 
   /**
    * 썸네일 URL 생성
