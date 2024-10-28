@@ -13,6 +13,11 @@ public interface DocumentPostControllerDocs {
 
   @ApiChangeLogs({
       @ApiChangeLog(
+          date = "2024.10.28",
+          author = Author.SUHSAECHAN,
+          description = "파일 유효성 검사 구체화 : UploadType 검증 및 업로드 크기 제한"
+      ),
+      @ApiChangeLog(
           date = "2024.10.24",
           author = Author.SUHSAECHAN,
           description = "자료 업로드 및 썸네일 로직 전체 구조 개선 및 업로드 로직 간편화"
