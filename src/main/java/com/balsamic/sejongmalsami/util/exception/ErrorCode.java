@@ -87,8 +87,6 @@ public enum ErrorCode {
 
   QUESTION_REWARD_INVALID(HttpStatus.BAD_REQUEST, "질문게시글 엽전 현상금에 잘못된 값이 할당되었습니다."),
 
-  SELF_ACTION_NOT_ALLOWED(HttpStatus.BAD_REQUEST, "본인에게 할 수 없는 행동입니다."), // TODO: Action을 세분화(like, chaetaek...) 할 것인지 상의필요
-
   // AnswerPost
 
   ANSWER_POST_NOT_FOUND(HttpStatus.BAD_REQUEST, "답변 글을 찾을 수 없습니다."),
@@ -124,6 +122,10 @@ public enum ErrorCode {
   // QuestionBoardLike
 
   QUESTION_BOARD_LIKE_SAVE_ERROR(HttpStatus.INTERNAL_SERVER_ERROR, "질문게시판 좋아요 내역 저장 중 오류가 발생했습니다."),
+
+  SELF_ACTION_NOT_ALLOWED(HttpStatus.BAD_REQUEST, "본인에게 할 수 없는 행동입니다."), // TODO: Action을 세분화(like, chaetaek...) 할 것인지 상의필요
+
+  ALREADY_LIKED(HttpStatus.BAD_REQUEST, "이미 좋아요를 누른 글입니다."),
 
   LIKE_COUNT_CANNOT_BE_NEGATIVE(HttpStatus.BAD_REQUEST, "좋아요 개수의 최소값은 0입니다.");
 

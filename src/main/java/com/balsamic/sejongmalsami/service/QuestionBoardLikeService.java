@@ -57,12 +57,14 @@ public class QuestionBoardLikeService {
           .orElseThrow(() -> new CustomException(ErrorCode.QUESTION_POST_NOT_FOUND));
       writer = questionPost.getMember();
       validateSelfLike(member, writer);
+      isMemberAlreadyLiked(postId, member.getMemberId());
       questionPost.increaseLikeCount();
     } else if (command.getContentType().equals(ContentType.ANSWER)) {
       answerPost = answerPostRepository.findById(postId)
           .orElseThrow(() -> new CustomException(ErrorCode.ANSWER_POST_NOT_FOUND));
       writer = answerPost.getMember();
       validateSelfLike(member, writer);
+      isMemberAlreadyLiked(postId, member.getMemberId());
       answerPost.increaseLikeCount();
     } else {
       throw new CustomException(ErrorCode.INVALID_CONTENT_TYPE);
@@ -94,7 +96,7 @@ public class QuestionBoardLikeService {
       return QuestionDto.builder()
           .questionBoardLike(questionBoardLikeRepository.save(QuestionBoardLike.builder()
               .memberId(command.getMemberId())
-              .questionBoardId(command.getQuestionPostId())
+              .questionBoardId(command.getPostId())
               .contentType(command.getContentType())
               .build()))
           .build();
@@ -120,6 +122,13 @@ public class QuestionBoardLikeService {
       log.error("본인 글에 좋아요를 누를 수 없습니다. 로그인된 사용자: {}, 글 작성자: {}",
           member.getStudentId(), writer.getStudentId());
       throw new CustomException(ErrorCode.SELF_ACTION_NOT_ALLOWED);
+    }
+  }
+
+  // 이미 좋아요를 누른 경우 검증 메서드
+  private void isMemberAlreadyLiked(UUID postId, UUID memberId) {
+    if (questionBoardLikeRepository.existsByQuestionBoardIdAndMemberId(postId, memberId)) {
+      throw new CustomException(ErrorCode.ALREADY_LIKED);
     }
   }
 }
