@@ -1,6 +1,7 @@
 package com.balsamic.sejongmalsami.service;
 
 import com.balsamic.sejongmalsami.object.QuestionCommand;
+import com.balsamic.sejongmalsami.object.QuestionDto;
 import com.balsamic.sejongmalsami.object.constants.ContentType;
 import com.balsamic.sejongmalsami.object.constants.YeopjeonAction;
 import com.balsamic.sejongmalsami.object.mongo.QuestionBoardLike;
@@ -35,11 +36,11 @@ public class QuestionBoardLikeService {
   /**
    * 질문글 or 답변글 좋아요 이벤트 발생 시
    *
-   * @param command: memberId, questionId, contentType
+   * @param command: memberId, postId, contentType
    * @return 질문게시판 좋아요 내역
    */
   @Transactional
-  public QuestionBoardLike increaseLikeCount(QuestionCommand command) {
+  public QuestionDto increaseLikeCount(QuestionCommand command) {
 
     Member member = memberRepository.findById(command.getMemberId())
         .orElseThrow(() -> new CustomException(ErrorCode.MEMBER_NOT_FOUND));
@@ -90,11 +91,13 @@ public class QuestionBoardLikeService {
 
     // MongoDB에 좋아요 내역 저장 - C
     try {
-      return questionBoardLikeRepository.save(QuestionBoardLike.builder()
-          .memberId(command.getMemberId())
-          .questionBoardId(command.getQuestionPostId())
-          .contentType(command.getContentType())
-          .build());
+      return QuestionDto.builder()
+          .questionBoardLike(questionBoardLikeRepository.save(QuestionBoardLike.builder()
+              .memberId(command.getMemberId())
+              .questionBoardId(command.getQuestionPostId())
+              .contentType(command.getContentType())
+              .build()))
+          .build();
     } catch (Exception e) {
       log.error("좋아요 내역 저장 실패 및 롤백: {}", e.getMessage());
 
