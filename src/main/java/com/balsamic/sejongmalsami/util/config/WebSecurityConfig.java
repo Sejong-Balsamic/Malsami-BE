@@ -43,6 +43,7 @@ public class WebSecurityConfig {
       "/api/auth/refresh", // 리프레시 토큰
       "/api/course/subjects/faculty", // 교과목명 조회
       "/api/login", // 로그인
+      "/api/landing/**", // 랜딩페이지
       "/api/test/**", // 테스트 API
       "/docs/**", // Swagger
       "/v3/api-docs/**", // Swagger
