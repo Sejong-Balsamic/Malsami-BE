@@ -75,7 +75,7 @@ public class FtpUtil {
   @Async
   public void uploadFilesAsync(MultipartFile[] multipartFiles) {
     for (MultipartFile file : multipartFiles) {
-      // 업로드 파일명 생성
+      // 업로드 파일명 생성 및 파일업로드
       uploadDocument(file, FileUtil.generateUploadFileName(file));
     }
   }

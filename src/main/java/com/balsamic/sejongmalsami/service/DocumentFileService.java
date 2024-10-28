@@ -27,8 +27,8 @@ public class DocumentFileService {
   private final FtpUtil ftpUtil;
   private final ImageThumbnailGenerator thumbnailGenerator;
 
-  // 파일 유형별 최대 업로드 크기 (MB 단위)
-  private static final int MAX_IMAGE_UPLOAD_SIZE = 50;    // 이미지, 문서 등
+  // 파일 유형별 최대 업로드 크기 (MB)
+  private static final int MAX_BASIC_UPLOAD_SIZE = 50;    // 이미지, 문서 등
   private static final int MAX_VIDEO_UPLOAD_SIZE = 200;   // 비디오
 
   /**
@@ -82,10 +82,10 @@ public class DocumentFileService {
     if (uploadType == UploadType.VIDEO) {
       maxSize = MAX_VIDEO_UPLOAD_SIZE;
     } else if (uploadType == UploadType.IMAGE || uploadType == UploadType.DOCUMENT || uploadType == UploadType.MUSIC) {
-      maxSize = MAX_IMAGE_UPLOAD_SIZE;
+      maxSize = MAX_BASIC_UPLOAD_SIZE;
     } else {
       log.warn("uploadType 을 알 수 없습니다. file {} , {}", file.getOriginalFilename(), uploadType);
-      maxSize = MAX_IMAGE_UPLOAD_SIZE;
+      maxSize = MAX_BASIC_UPLOAD_SIZE;
     }
 
     if (fileSizeInMB > maxSize) {
