@@ -27,8 +27,8 @@ public class QuestionBoardLike extends BaseMongoEntity {
 
   @Indexed
   @NotNull
-  private UUID questionBoardId; // 질문글 or 답변 or 댓글 UUID
+  private UUID questionBoardId; // 질문글 or 답변 UUID
 
   @NotNull
-  private ContentType contentType; // Question, Answer, Comment
+  private ContentType contentType; // Question, Answer
 }
