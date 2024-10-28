@@ -85,6 +85,19 @@ public class QuestionPost extends BasePost {
   @Builder.Default
   private Boolean isPrivate = false;
 
+  // 좋아요 증가
+  public void increaseLikeCount() {
+    likeCount++;
+  }
+
+  // 좋아요 감소 (롤백)
+  public void decreaseLikeCount() {
+    if (likeCount <= 0) {
+      throw new CustomException(ErrorCode.LIKE_COUNT_CANNOT_BE_NEGATIVE);
+    }
+    likeCount--;
+  }
+
   // 질문글 정적 태그 추가(최대 2개)
   public void addPresetTag(QuestionPresetTag tag) {
 

@@ -49,7 +49,8 @@ public class QuestionPostController implements QuestionPostControllerDocs {
   @PostMapping(value = "/get/all", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
   @LogMonitoringInvocation
   public ResponseEntity<QuestionDto> getAllQuestionPost(
-      @ModelAttribute QuestionCommand command) {
+      @ModelAttribute QuestionCommand command
+  ) {
     return ResponseEntity.ok(questionPostService.findAllQuestionPost());
   }
 
@@ -58,7 +59,7 @@ public class QuestionPostController implements QuestionPostControllerDocs {
   @LogMonitoringInvocation
   public ResponseEntity<QuestionDto> getDailyPopularQuestionPost(
       @ModelAttribute QuestionCommand command) {
-    return ResponseEntity.ok(popularPostService.getDailyPopularQuestionPosts());
+    return ResponseEntity.ok(popularPostService.getDailyPopularQuestionPosts(command));
   }
 
   @Override
@@ -66,6 +67,6 @@ public class QuestionPostController implements QuestionPostControllerDocs {
   @LogMonitoringInvocation
   public ResponseEntity<QuestionDto> getWeeklyPopularQuestionPost(
       @ModelAttribute QuestionCommand command) {
-    return ResponseEntity.ok(popularPostService.getWeeklyPopularQuestionPosts());
+    return ResponseEntity.ok(popularPostService.getWeeklyPopularQuestionPosts(command));
   }
 }

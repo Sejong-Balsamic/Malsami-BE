@@ -87,6 +87,8 @@ public enum ErrorCode {
 
   MEMBER_NOT_FOUND(HttpStatus.NOT_FOUND, "회원이 존재하지 않습니다."),
 
+  YEOPJEON_NOT_FOUND(HttpStatus.NOT_FOUND, "유저의 엽전 테이블이 존재하지 않습니다."),
+
   // QuestionPost
 
   QUESTION_POST_NOT_FOUND(HttpStatus.BAD_REQUEST, "질문 글을 찾을 수 없습니다."),
@@ -105,9 +107,15 @@ public enum ErrorCode {
 
   ANSWER_POST_NOT_FOUND(HttpStatus.BAD_REQUEST, "답변 글을 찾을 수 없습니다."),
 
+  CHAETAEK_ANSWER_ALREADY_EXISTS(HttpStatus.BAD_REQUEST, "해당 질문글에 이미 채택된 답변이 존재합니다."),
+
   // DocumentPost
 
   DOCUMENT_TYPE_LIMIT_EXCEEDED(HttpStatus.BAD_REQUEST, "자료게시글 자료 종류는 최대 2개까지 선택가능합니다."),
+
+  // ContentType
+
+  INVALID_CONTENT_TYPE(HttpStatus.BAD_REQUEST, "잘못된 ContentType 입니다."),
 
   // MediaFile
 
@@ -117,7 +125,25 @@ public enum ErrorCode {
 
   CUSTOM_TAG_LIMIT_EXCEEDED(HttpStatus.BAD_REQUEST, "커스텀태그는 최대 4개까지 추가할 수 있습니다."),
 
-  CUSTOM_TAG_LENGTH_EXCEEDED(HttpStatus.BAD_REQUEST, "커스텀태그 길이는 최대 10자 입니다.");
+  CUSTOM_TAG_LENGTH_EXCEEDED(HttpStatus.BAD_REQUEST, "커스텀태그 길이는 최대 10자 입니다."),
+
+  // Yeopjeon
+
+  INSUFFICIENT_YEOPJEON(HttpStatus.BAD_REQUEST, "사용자의 엽전이 0개 미만입니다."),
+
+  YEOPJEON_SAVE_ERROR(HttpStatus.INTERNAL_SERVER_ERROR, "엽전 저장 시 오류가 발생했습니다."),
+
+  YEOPJEON_HISTORY_SAVE_ERROR(HttpStatus.INTERNAL_SERVER_ERROR, "엽전 히스토리 저장 중 오류가 발생했습니다."),
+
+  // QuestionBoardLike
+
+  QUESTION_BOARD_LIKE_SAVE_ERROR(HttpStatus.INTERNAL_SERVER_ERROR, "질문게시판 좋아요 내역 저장 중 오류가 발생했습니다."),
+
+  SELF_ACTION_NOT_ALLOWED(HttpStatus.BAD_REQUEST, "본인에게 할 수 없는 행동입니다."), // TODO: Action을 세분화(like, chaetaek...) 할 것인지 상의필요
+
+  ALREADY_LIKED(HttpStatus.BAD_REQUEST, "이미 좋아요를 누른 글입니다."),
+
+  LIKE_COUNT_CANNOT_BE_NEGATIVE(HttpStatus.BAD_REQUEST, "좋아요 개수의 최소값은 0입니다.");
 
   private final HttpStatus status;
   private final String message;

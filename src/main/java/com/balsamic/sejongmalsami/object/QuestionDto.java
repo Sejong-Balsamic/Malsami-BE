@@ -1,5 +1,6 @@
 package com.balsamic.sejongmalsami.object;
 
+import com.balsamic.sejongmalsami.object.mongo.QuestionBoardLike;
 import com.balsamic.sejongmalsami.object.postgres.AnswerPost;
 import com.balsamic.sejongmalsami.object.postgres.MediaFile;
 import com.balsamic.sejongmalsami.object.postgres.QuestionPost;
@@ -27,4 +28,7 @@ public class QuestionDto {
 
   // 커스텀 태그
   private Set<String> customTags; // 질문
+
+  // 좋아요 내역
+  private QuestionBoardLike questionBoardLike;
 }
