@@ -48,7 +48,9 @@ public class QuestionPostController implements QuestionPostControllerDocs {
   @Override
   @PostMapping(value = "/get/all", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
   @LogMonitoringInvocation
-  public ResponseEntity<QuestionDto> getAllQuestionPost() {
+  public ResponseEntity<QuestionDto> getAllQuestionPost(
+      @ModelAttribute QuestionCommand command
+  ) {
     return ResponseEntity.ok(questionPostService.findAllQuestionPost());
   }
 

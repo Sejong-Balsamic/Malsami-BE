@@ -168,7 +168,9 @@ public interface QuestionPostControllerDocs {
           - Swagger에서 테스트 시 mediaFiles에 있는 "Send empty value" 체크박스 해제해야합니다.
           """
   )
-  ResponseEntity<QuestionDto> getAllQuestionPost();
+  ResponseEntity<QuestionDto> getAllQuestionPost(
+      QuestionCommand command
+  );
 
   @ApiChangeLogs({
       @ApiChangeLog(
