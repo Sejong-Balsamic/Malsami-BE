@@ -1,6 +1,8 @@
 package com.balsamic.sejongmalsami.object;
 
+import com.balsamic.sejongmalsami.object.postgres.Exp;
 import com.balsamic.sejongmalsami.object.postgres.Member;
+import com.balsamic.sejongmalsami.object.postgres.Yeopjeon;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.ToString;
@@ -22,4 +24,7 @@ public class MemberDto {
   // token
   private String accessToken;
   private String refreshToken;
+
+  private Yeopjeon yeopjeon;
+  private Exp exp;
 }

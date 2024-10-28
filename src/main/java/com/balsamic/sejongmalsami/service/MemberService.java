@@ -6,9 +6,11 @@ import com.balsamic.sejongmalsami.object.MemberDto;
 import com.balsamic.sejongmalsami.object.constants.AccountStatus;
 import com.balsamic.sejongmalsami.object.constants.Role;
 import com.balsamic.sejongmalsami.object.mongo.RefreshToken;
+import com.balsamic.sejongmalsami.object.postgres.Exp;
 import com.balsamic.sejongmalsami.object.postgres.Member;
 import com.balsamic.sejongmalsami.object.postgres.Yeopjeon;
 import com.balsamic.sejongmalsami.repository.mongo.RefreshTokenRepository;
+import com.balsamic.sejongmalsami.repository.postgres.ExpRepository;
 import com.balsamic.sejongmalsami.repository.postgres.MemberRepository;
 import com.balsamic.sejongmalsami.repository.postgres.YeopjeonRepository;
 import com.balsamic.sejongmalsami.util.JwtUtil;
@@ -23,6 +25,7 @@ import java.time.LocalDateTime;
 import java.util.UUID;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.userdetails.UserDetailsService;
@@ -41,6 +44,7 @@ public class MemberService implements UserDetailsService {
   private final SejongPortalAuthenticator sejongPortalAuthenticator;
   private final JwtUtil jwtUtil;
   private final YeopjeonConfig yeopjeonConfig;
+  private final ExpRepository expRepository;
 
   /**
    * Spring Security에서 회원 정보를 로드하는 메서드
@@ -167,6 +171,24 @@ public class MemberService implements UserDetailsService {
     return MemberDto.builder()
         .member(member)
         .accessToken(accessToken)
+        .build();
+  }
+
+  @Transactional(readOnly = true)
+  public MemberDto myPage(MemberCommand command) {
+    Member member = memberRepository.findById(command.getMemberId())
+        .orElseThrow(() -> new CustomException(ErrorCode.MEMBER_NOT_FOUND));
+
+    Yeopjeon yeopjeon = yeopjeonRepository.findByMember(member)
+        .orElseThrow(() -> new CustomException(ErrorCode.YEOPJEON_NOT_FOUND));
+
+    Exp exp = expRepository.findByMember(member)
+        .orElseThrow(() -> new CustomException(ErrorCode.EXP_NOT_FOUND));
+
+    return MemberDto.builder()
+        .member(member)
+        .yeopjeon(yeopjeon)
+        .exp(exp)
         .build();
   }
 

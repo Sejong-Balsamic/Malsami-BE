@@ -1,5 +1,6 @@
 package com.balsamic.sejongmalsami.controller;
 
+import com.balsamic.sejongmalsami.object.CustomUserDetails;
 import com.balsamic.sejongmalsami.object.MemberCommand;
 import com.balsamic.sejongmalsami.object.MemberDto;
 import com.balsamic.sejongmalsami.object.constants.Author;
@@ -8,6 +9,7 @@ import com.balsamic.sejongmalsami.util.log.ApiChangeLogs;
 import io.swagger.v3.oas.annotations.Operation;
 import jakarta.servlet.http.HttpServletResponse;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.ModelAttribute;
 
 public interface MemberControllerDocs {
@@ -86,4 +88,35 @@ public interface MemberControllerDocs {
   ResponseEntity<MemberDto> signIn(
       @ModelAttribute MemberCommand command,
       HttpServletResponse response);
+
+  @ApiChangeLogs({
+      @ApiChangeLog(
+          date = "2024.10.28",
+          author = Author.SUHSAECHAN,
+          description = "마이페이지 API init"
+      )
+  })
+  @Operation(
+      summary = "마이페이지",
+      description = """
+          **마이페이지**
+
+          **입력 파라미터 값:**
+
+          - **String sejongPortalId**: 세종대학교 포털 ID
+            _예: "18010561"_
+
+          **반환 파라미터 값:**
+
+          - **MemberDto**: 로그인 및 인증이 완료된 회원의 정보와 액세스 토큰
+            - **Member member**: 회원 정보
+
+          **참고 사항:**
+
+          - 이 API를 통해 회원은 세종대학교 포털 인증 정보를 이용하여 로그인할 수 있습니다.
+          """
+  )
+  ResponseEntity<MemberDto> myPage(
+      @ModelAttribute MemberCommand command,
+      @AuthenticationPrincipal CustomUserDetails customUserDetails);
 }
