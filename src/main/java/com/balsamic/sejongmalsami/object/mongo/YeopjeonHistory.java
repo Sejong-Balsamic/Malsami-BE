@@ -30,5 +30,5 @@ public class YeopjeonHistory extends BaseMongoEntity {
 
   private YeopjeonAction yeopjeonAction;    // 엽전 거래 유형
 
-  private Integer resultYeopjeon;   // 거래 이후 염전량
+  private Integer resultYeopjeon;   // 거래 이후 엽전량
 }

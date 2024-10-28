@@ -1,16 +1,15 @@
 package com.balsamic.sejongmalsami.controller;
 
-import com.balsamic.sejongmalsami.object.CustomUserDetails;
 import com.balsamic.sejongmalsami.object.DocumentCommand;
 import com.balsamic.sejongmalsami.object.DocumentDto;
-import com.balsamic.sejongmalsami.service.DocumentPostService;
+import com.balsamic.sejongmalsami.object.QuestionCommand;
+import com.balsamic.sejongmalsami.object.QuestionDto;
 import com.balsamic.sejongmalsami.service.PopularPostService;
 import com.balsamic.sejongmalsami.util.log.LogMonitoringInvocation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
-import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -18,29 +17,33 @@ import org.springframework.web.bind.annotation.RestController;
 
 @RestController
 @RequiredArgsConstructor
-@RequestMapping("/api/document")
+@RequestMapping("/api/landing")
 @Tag(
-    name = "자료 게시판 API",
-    description = "자료 게시글 관련 API 제공"
+    name = "랜딩 페이지 API",
+    description = "랜딩 페이지 관련 API 제공"
 )
-public class DocumentPostController implements DocumentPostControllerDocs {
+public class LandingController implements LandingControllerDocs {
 
-  private final DocumentPostService documentPostService;
   private final PopularPostService popularPostService;
 
-
   @Override
-  @PostMapping(value = "/post", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
+  @PostMapping(value = "/popular/question/daily", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
   @LogMonitoringInvocation
-  public ResponseEntity<DocumentDto> saveDocumentPost(
-      @AuthenticationPrincipal CustomUserDetails customUserDetails,
-      @ModelAttribute DocumentCommand command) {
-    command.setMemberId(customUserDetails.getMemberId());
-    return ResponseEntity.ok(documentPostService.saveDocumentPost(command));
+  public ResponseEntity<QuestionDto> getDailyPopularQuestionPost(
+      @ModelAttribute QuestionCommand command) {
+    return ResponseEntity.ok(popularPostService.getDailyPopularQuestionPosts(command));
   }
 
   @Override
-  @PostMapping(value = "/popular/daily", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
+  @PostMapping(value = "/popular/question/weekly", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
+  @LogMonitoringInvocation
+  public ResponseEntity<QuestionDto> getWeeklyPopularQuestionPost(
+      @ModelAttribute QuestionCommand command) {
+    return ResponseEntity.ok(popularPostService.getWeeklyPopularQuestionPosts(command));
+  }
+
+  @Override
+  @PostMapping(value = "/popular/document/daily", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
   @LogMonitoringInvocation
   public ResponseEntity<DocumentDto> getDailyPopularDocumentPost(
       @ModelAttribute DocumentCommand command) {
@@ -48,10 +51,9 @@ public class DocumentPostController implements DocumentPostControllerDocs {
   }
 
   @Override
-  @PostMapping(value = "/popular/weekly", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
+  @PostMapping(value = "/popular/document/weekly", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
   @LogMonitoringInvocation
   public ResponseEntity<DocumentDto> getWeeklyPopularDocumentPost(DocumentCommand command) {
     return ResponseEntity.ok(popularPostService.getWeeklyPopularDocumentPosts());
   }
-
 }
