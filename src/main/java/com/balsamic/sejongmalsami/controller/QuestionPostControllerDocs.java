@@ -136,6 +136,11 @@ public interface QuestionPostControllerDocs {
 
   @ApiChangeLogs({
       @ApiChangeLog(
+          date = "2024.10.28",
+          author = Author.BAEKJIHOON,
+          description = "입력 파라미터 수정"
+      ),
+      @ApiChangeLog(
           date = "2024.10.21",
           author = Author.BAEKJIHOON,
           description = "전체 질문 글 조회"
@@ -163,8 +168,7 @@ public interface QuestionPostControllerDocs {
           - Swagger에서 테스트 시 mediaFiles에 있는 "Send empty value" 체크박스 해제해야합니다.
           """
   )
-  ResponseEntity<QuestionDto> getAllQuestionPost(
-      QuestionCommand command);
+  ResponseEntity<QuestionDto> getAllQuestionPost();
 
   @ApiChangeLogs({
       @ApiChangeLog(
