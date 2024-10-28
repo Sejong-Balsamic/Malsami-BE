@@ -8,6 +8,7 @@ import jakarta.persistence.Enumerated;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
+import jakarta.persistence.ManyToOne;
 import java.util.UUID;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -33,12 +34,17 @@ public class DocumentFile extends BaseEntity {
 
   private UUID postId;
 
-  private UUID memberId;
+  @ManyToOne
+  private Member uploader;
 
   // 파일 경로 (파일 URL)
-  private String fileUrl;
+  private String thumbnailUrl;
 
+  // 기존 파일
   private String originalFileName;
+
+  // 업로드한 파일 이름
+  private String uploadFileName;
 
   // 파일 크기
   private Long fileSize;
@@ -52,5 +58,6 @@ public class DocumentFile extends BaseEntity {
   private String password;
 
   // 이미 비밀번호가 설정되어 있는 파일인지
-  private Boolean isInitialPasswordSet;
+  @Builder.Default
+  private Boolean isInitialPasswordSet = false;
 }
