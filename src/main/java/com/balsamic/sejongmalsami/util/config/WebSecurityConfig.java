@@ -65,6 +65,7 @@ public class WebSecurityConfig {
   public WebSecurityCustomizer configure() {
     return (web) -> web.ignoring()
         .requestMatchers(new AntPathRequestMatcher("/static/**"));
+//        .requestMatchers(new AntPathRequestMatcher("/favicon.ico"));
   }
 
   // 보안 필터 체인 설정
