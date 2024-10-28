@@ -27,4 +27,6 @@ public class MemberDto {
 
   private Yeopjeon yeopjeon;
   private Exp exp;
+
+  private Boolean isFirstLogin;
 }
