@@ -121,7 +121,7 @@ public class QuestionBoardLikeService {
     if (member.getMemberId().equals(writer.getMemberId())) {
       log.error("본인 글에 좋아요를 누를 수 없습니다. 로그인된 사용자: {}, 글 작성자: {}",
           member.getStudentId(), writer.getStudentId());
-      throw new CustomException(ErrorCode.SELF_ACTION_NOT_ALLOWED);
+      throw new CustomException(ErrorCode.SELF_LIKE_NOT_ALLOWED);
     }
   }
 

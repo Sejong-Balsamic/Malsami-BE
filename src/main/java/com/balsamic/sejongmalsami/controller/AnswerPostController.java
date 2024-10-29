@@ -35,4 +35,14 @@ public class AnswerPostController implements AnswerPostControllerDocs {
     command.setMemberId(customUserDetails.getMemberId());
     return ResponseEntity.ok(answerPostService.saveAnswer(command));
   }
+
+  @Override
+  @PostMapping(value = "/chaetaek", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
+  @LogMonitoringInvocation
+  public ResponseEntity<QuestionDto> chaetaekAnswerPost(
+      @AuthenticationPrincipal CustomUserDetails customUserDetails,
+      @ModelAttribute QuestionCommand command) {
+    command.setMemberId(customUserDetails.getMemberId());
+    return ResponseEntity.ok(answerPostService.chaetaekAnswer(command));
+  }
 }

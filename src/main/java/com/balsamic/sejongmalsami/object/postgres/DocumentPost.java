@@ -13,7 +13,6 @@ import jakarta.persistence.FetchType;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
-import jakarta.persistence.Lob;
 import jakarta.persistence.ManyToOne;
 import java.util.HashSet;
 import java.util.Set;
@@ -48,7 +47,6 @@ public class DocumentPost extends BasePost {
 
   private String subject; // 교과목명
 
-  @Lob
   private String content; // 내용
 
   @Builder.Default
