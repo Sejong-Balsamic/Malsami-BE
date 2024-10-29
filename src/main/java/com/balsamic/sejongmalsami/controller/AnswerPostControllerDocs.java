@@ -65,4 +65,38 @@ public interface AnswerPostControllerDocs {
   ResponseEntity<QuestionDto> saveAnswerPost(
       CustomUserDetails customUserDetails,
       QuestionCommand command);
+
+  @ApiChangeLogs({
+      @ApiChangeLog(
+          date = "2024.10.29",
+          author = Author.BAEKJIHOON,
+          description = "답변 채택"
+      )
+  })
+  @Operation(
+      summary = "답변 채택",
+      description = """
+          **답변 채택 요청**
+
+          **이 API는 인증이 필요하며, JWT 토큰이 존재해야합니다.**
+
+          **입력 파라미터 값:**
+
+          - **UUID postId**: 답변 글 PK [필수]
+
+          **반환 파라미터 값:**
+
+          - **QuestionDto**: 질문 게시판 정보 반환
+            - **AnswerPost answerPost**: 채택 된 답변 글 정보
+
+          **참고 사항:**
+
+          - 이 API를 통해 사용자는 등록된 답변을 채택할 수 있습니다.
+          - 200OK 시, 채택 된 답변을 반환합니다.
+          - Swagger에서 테스트 시 mediaFiles에 있는 "Send empty value" 체크박스 해제해야합니다.
+          """
+  )
+  ResponseEntity<QuestionDto> chaetaekAnswerPost(
+      CustomUserDetails customUserDetails,
+      QuestionCommand command);
 }
