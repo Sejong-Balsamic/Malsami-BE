@@ -107,6 +107,8 @@ public enum ErrorCode {
 
   ANSWER_POST_NOT_FOUND(HttpStatus.BAD_REQUEST, "답변 글을 찾을 수 없습니다."),
 
+  SELF_CHAETAEK_NOT_ALLOWED(HttpStatus.BAD_REQUEST, "본인이 작성한 답변을 채택할 수 없습니다."),
+
   ONLY_AUTHOR_CAN_CHAETAEK(HttpStatus.BAD_REQUEST, "오직 질문 작성자만 답변을 채택할 수 있습니다."),
 
   CHAETAEK_ANSWER_ALREADY_EXISTS(HttpStatus.BAD_REQUEST, "해당 질문글에 이미 채택된 답변이 존재합니다."),
@@ -145,7 +147,7 @@ public enum ErrorCode {
 
   QUESTION_BOARD_LIKE_SAVE_ERROR(HttpStatus.INTERNAL_SERVER_ERROR, "질문게시판 좋아요 내역 저장 중 오류가 발생했습니다."),
 
-  SELF_ACTION_NOT_ALLOWED(HttpStatus.BAD_REQUEST, "본인에게 할 수 없는 행동입니다."), // TODO: Action을 세분화(like, chaetaek...) 할 것인지 상의필요
+  SELF_LIKE_NOT_ALLOWED(HttpStatus.BAD_REQUEST, "본인에게 좋아요를 누를 수 없습니다."),
 
   ALREADY_LIKED(HttpStatus.BAD_REQUEST, "이미 좋아요를 누른 글입니다."),
 

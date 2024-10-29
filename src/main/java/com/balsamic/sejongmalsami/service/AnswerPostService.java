@@ -92,7 +92,7 @@ public class AnswerPostService {
     if (member.getMemberId().equals(writer.getMemberId())) {
       log.error("본인이 작성한 글을 채택할 수 없습니다. 로그인된 사용자: {}, 글 작성자: {}",
           member.getStudentId(), writer.getStudentId());
-      throw new CustomException(ErrorCode.SELF_ACTION_NOT_ALLOWED);
+      throw new CustomException(ErrorCode.SELF_CHAETAEK_NOT_ALLOWED);
     }
 
     // 해당 질문 글의 답변 중 이미 채택된 답변이 있는 경우
@@ -107,7 +107,7 @@ public class AnswerPostService {
 
     // 답변 채택
     answerPost.chaetaekAnswer();
-    log.info("답변글: {}, 채택여부: {}", answerPost.getAnswerPostId(), answerPost.getIsChaetaek());
+    log.info("답변글 : {} 채택되었습니다.", answerPost.getAnswerPostId());
 
     // 답변 채택된 사용자와 채택한 사용자 엽전 증가
     try {
