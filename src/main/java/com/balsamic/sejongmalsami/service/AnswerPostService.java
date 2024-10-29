@@ -2,6 +2,7 @@ package com.balsamic.sejongmalsami.service;
 
 import com.balsamic.sejongmalsami.object.QuestionCommand;
 import com.balsamic.sejongmalsami.object.QuestionDto;
+import com.balsamic.sejongmalsami.object.constants.YeopjeonAction;
 import com.balsamic.sejongmalsami.object.postgres.AnswerPost;
 import com.balsamic.sejongmalsami.object.postgres.MediaFile;
 import com.balsamic.sejongmalsami.object.postgres.Member;
@@ -26,8 +27,14 @@ public class AnswerPostService {
   private final MemberRepository memberRepository;
   private final QuestionPostRepository questionPostRepository;
   private final MediaFileService mediaFileService;
+  private final YeopjeonService yeopjeonService;
+  private final YeopjeonHistoryService yeopjeonHistoryService;
 
-  // 답변 작성 로직
+  /**
+   * 답변 작성 로직
+   * @param command: memberId, questionPostId, content, mediaFiles, isPrivate
+   * @return 작성된 답변글, 첨부파일(이미지)
+   */
   @Transactional
   public QuestionDto saveAnswer(QuestionCommand command) {
 
@@ -42,7 +49,7 @@ public class AnswerPostService {
         .content(command.getContent())
         .likeCount(0)
         .commentCount(0)
-        .isPrivate(command.getIsPrivate() != null ? command.getIsPrivate() : false)
+        .isPrivate(Boolean.TRUE.equals(command.getIsPrivate()))
         .isChaetaek(false)
         .build());
 
@@ -56,6 +63,73 @@ public class AnswerPostService {
     return QuestionDto.builder()
         .answerPost(answerPost)
         .mediaFiles(mediaFiles)
+        .build();
+  }
+
+  /**
+   * 답변 채택 로직
+   * @param command: memberId(현재 접속중인 사용자), postId(답변 PK)
+   * @return 채택 된 답변글
+   */
+  @Transactional
+  public QuestionDto chaetaekAnswer(QuestionCommand command) {
+
+    Member member = memberRepository.findById(command.getMemberId())
+        .orElseThrow(() -> new CustomException(ErrorCode.MEMBER_NOT_FOUND));
+
+    AnswerPost answerPost = answerPostRepository.findById(command.getPostId())
+        .orElseThrow(() -> new CustomException(ErrorCode.ANSWER_POST_NOT_FOUND));
+
+    // 답변 글 작성자
+    Member writer = answerPost.getMember();
+
+    // 질문자와 답변자가 같은경우 채택불가
+    if (member.getMemberId().equals(writer.getMemberId())) {
+      log.error("본인이 작성한 글을 채택할 수 없습니다. 로그인된 사용자: {}, 글 작성자: {}",
+          member.getStudentId(), writer.getStudentId());
+      throw new CustomException(ErrorCode.SELF_ACTION_NOT_ALLOWED);
+    }
+
+    // 해당 질문 글의 답변 중 이미 채택된 답변이 있는 경우
+    List<AnswerPost> answerPosts = answerPostRepository
+        .findAnswerPostsByQuestionPost(answerPost.getQuestionPost());
+
+    for (AnswerPost post : answerPosts) {
+      if (post.getIsChaetaek().equals(Boolean.TRUE)) {
+        throw new CustomException(ErrorCode.CHAETAEK_ANSWER_ALREADY_EXISTS);
+      }
+    }
+
+    // 답변 채택
+    answerPost.chaetaekAnswer();
+    log.info("답변글: {}, 채택여부: {}", answerPost.getAnswerPostId(), answerPost.getIsChaetaek());
+
+    // 답변 채택된 사용자와 채택한 사용자 엽전 증가
+    try {
+      yeopjeonService.updateMemberYeopjeon(writer, YeopjeonAction.CHAETAEK_CHOSEN); // 답변 채택 됨
+      yeopjeonService.updateMemberYeopjeon(member, YeopjeonAction.CHAETAEK_ACCEPT); // 답변 채택 함
+    } catch (Exception e) {
+      log.info("엽전 증가 시 오류 발생 및 롤백: {}", e.getMessage());
+      // 채택 취소
+      answerPost.rollbackChaetaek();
+      throw new CustomException(ErrorCode.YEOPJEON_SAVE_ERROR);
+    }
+
+    // 답변 채택된 사용자와 채택한 사용자 엽전 히스토리 추가
+    try {
+      yeopjeonHistoryService.saveYeopjeonHistory(writer, YeopjeonAction.CHAETAEK_CHOSEN);
+      yeopjeonHistoryService.saveYeopjeonHistory(member, YeopjeonAction.CHAETAEK_ACCEPT);
+    } catch (Exception e) {
+      log.info("엽전 히스토리 저장 실패 및 롤백: {}", e.getMessage());
+      yeopjeonService.rollbackYeopjeon(writer, YeopjeonAction.CHAETAEK_CHOSEN);
+      yeopjeonService.rollbackYeopjeon(member, YeopjeonAction.CHAETAEK_ACCEPT);
+      answerPost.rollbackChaetaek();
+      throw new CustomException(ErrorCode.YEOPJEON_HISTORY_SAVE_ERROR);
+    }
+
+    // 답변 글 채택여부 true 변경 후 리턴
+    return QuestionDto.builder()
+        .answerPost(answerPostRepository.save(answerPost))
         .build();
   }
 }
