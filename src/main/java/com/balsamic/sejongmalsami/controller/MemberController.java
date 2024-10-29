@@ -1,5 +1,6 @@
 package com.balsamic.sejongmalsami.controller;
 
+import com.balsamic.sejongmalsami.object.CustomUserDetails;
 import com.balsamic.sejongmalsami.object.MemberCommand;
 import com.balsamic.sejongmalsami.object.MemberDto;
 import com.balsamic.sejongmalsami.service.MemberService;
@@ -8,6 +9,7 @@ import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -29,7 +31,15 @@ public class MemberController implements MemberControllerDocs {
   public ResponseEntity<MemberDto> signIn(
       @ModelAttribute MemberCommand command,
       HttpServletResponse response) {
-    MemberDto memberDto = memberService.signIn(command, response);
-    return ResponseEntity.ok(memberDto);
+    return ResponseEntity.ok(memberService.signIn(command, response));
+  }
+
+  @Override
+  @PostMapping(value = "/my-page", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
+  public ResponseEntity<MemberDto> myPage(
+      @ModelAttribute MemberCommand command,
+      @AuthenticationPrincipal CustomUserDetails customUserDetails) {
+    command.setMemberId(customUserDetails.getMemberId());
+    return ResponseEntity.ok(memberService.myPage(command));
   }
 }
