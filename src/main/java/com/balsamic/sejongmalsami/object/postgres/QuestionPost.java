@@ -12,7 +12,6 @@ import jakarta.persistence.FetchType;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
-import jakarta.persistence.Lob;
 import jakarta.persistence.ManyToOne;
 import java.util.HashSet;
 import java.util.Set;
@@ -48,7 +47,6 @@ public class QuestionPost extends BasePost {
   private String title;
 
   // 본문
-  @Lob
   @Column(nullable = false)
   private String content;
 
