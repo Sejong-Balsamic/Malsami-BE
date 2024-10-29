@@ -6,9 +6,11 @@ import com.balsamic.sejongmalsami.object.MemberDto;
 import com.balsamic.sejongmalsami.object.constants.AccountStatus;
 import com.balsamic.sejongmalsami.object.constants.Role;
 import com.balsamic.sejongmalsami.object.mongo.RefreshToken;
+import com.balsamic.sejongmalsami.object.postgres.Exp;
 import com.balsamic.sejongmalsami.object.postgres.Member;
 import com.balsamic.sejongmalsami.object.postgres.Yeopjeon;
 import com.balsamic.sejongmalsami.repository.mongo.RefreshTokenRepository;
+import com.balsamic.sejongmalsami.repository.postgres.ExpRepository;
 import com.balsamic.sejongmalsami.repository.postgres.MemberRepository;
 import com.balsamic.sejongmalsami.repository.postgres.YeopjeonRepository;
 import com.balsamic.sejongmalsami.util.JwtUtil;
@@ -23,6 +25,7 @@ import java.time.LocalDateTime;
 import java.util.UUID;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.userdetails.UserDetailsService;
@@ -41,6 +44,7 @@ public class MemberService implements UserDetailsService {
   private final SejongPortalAuthenticator sejongPortalAuthenticator;
   private final JwtUtil jwtUtil;
   private final YeopjeonConfig yeopjeonConfig;
+  private final ExpRepository expRepository;
 
   /**
    * Spring Security에서 회원 정보를 로드하는 메서드
@@ -76,7 +80,8 @@ public class MemberService implements UserDetailsService {
     Member member = memberRepository.findByStudentId(studentId)
         .orElseGet(() -> {
           log.info("신규 회원 등록: studentId = {}", studentId);
-          return Member.builder()
+          Member newMember = memberRepository.save(
+              Member.builder()
               .studentId(studentId)
               .studentName(dto.getStudentName())
               .uuidNickname(UUID.randomUUID().toString().substring(0, 6))
@@ -87,26 +92,43 @@ public class MemberService implements UserDetailsService {
               .role(Role.ROLE_USER)
               .accountStatus(AccountStatus.ACTIVE)
               .isFirstLogin(true)
-              .build();
+              .build());
+
+          // Exp 엔티티 생성 및 저장
+          Exp exp = expRepository.save(
+              Exp.builder()
+                  .member(newMember)
+                  .resultExp(0)
+                  .build());
+
+          log.info("신규 회원 : Exp 객체 생성 : {}", exp.getExpId());
+
+          return newMember;
         });
 
+    boolean isFirstLogin = false;
+    Yeopjeon yeopjeon = null;
+
     // 첫 로그인 여부 확인
-    if (memberRepository.existsByStudentId(studentId)) {
+    if (member.getIsFirstLogin()) {
+      isFirstLogin = true;
+
+      // 엽전 보상 지급
+      //TODO: 엽전 이력 관리 로직을 포함한 메소드 정의
+      yeopjeon = yeopjeonRepository.save(Yeopjeon.builder()
+          .member(member)
+          .resultYeopjeon(yeopjeonConfig.getCreateAccount()) // 첫 로그인 보상
+          .build());
+      log.info("첫 로그인 엽전 보상 지급: Yeopjeon ID = {}", yeopjeon.getYeopjeonId());
+
+      // 첫 로그인 플래그 비활성화
       member.disableFirstLogin();
     }
 
     // 마지막 로그인 시간 업데이트
     member.updateLastLoginTime(LocalDateTime.now());
-    log.info("회원 로그인 완료: studentId = {}", studentId);
+    log.info("회원 로그인 완료: studentId = {} , memberId = {}", studentId, member.getMemberId());
     memberRepository.save(member);
-
-    // 첫 로그인 시 엽전 테이블 생성
-    if (member.getIsFirstLogin()) {
-      yeopjeonRepository.save(Yeopjeon.builder()
-          .member(member)
-          .resultYeopjeon(yeopjeonConfig.getCreateAccount()) // 첫 로그인 보상
-          .build());
-    }
 
     // 회원 상세 정보 로드
     CustomUserDetails userDetails = new CustomUserDetails(member);
@@ -135,14 +157,14 @@ public class MemberService implements UserDetailsService {
     refreshCookie.setMaxAge((int) (jwtUtil.getRefreshExpirationTime() / 1000)); // 7일
     // SameSite 설정은 직접 Set-Cookie 헤더에 추가
 
-    // 쿠키 설정 정보 로깅
-    log.info("설정할 쿠키 정보: ");
-    log.info("Name: {}", refreshCookie.getName());
-    log.info("Value: {}", refreshCookie.getValue());
-    log.info("HttpOnly: {}", refreshCookie.isHttpOnly());
-    log.info("Secure: {}", refreshCookie.getSecure());
-    log.info("Path: {}", refreshCookie.getPath());
-    log.info("Max-Age: {}", refreshCookie.getMaxAge());
+//    // 쿠키 설정 정보 로깅
+//    log.info("설정할 쿠키 정보: ");
+//    log.info("Name: {}", refreshCookie.getName());
+//    log.info("Value: {}", refreshCookie.getValue());
+//    log.info("HttpOnly: {}", refreshCookie.isHttpOnly());
+//    log.info("Secure: {}", refreshCookie.getSecure());
+//    log.info("Path: {}", refreshCookie.getPath());
+//    log.info("Max-Age: {}", refreshCookie.getMaxAge());
 
     // 쿠키에 SameSite 속성 추가
     StringBuilder cookieBuilder = new StringBuilder();
@@ -167,6 +189,29 @@ public class MemberService implements UserDetailsService {
     return MemberDto.builder()
         .member(member)
         .accessToken(accessToken)
+        .isFirstLogin(isFirstLogin)
+        .yeopjeon(yeopjeon)
+        .exp(expRepository.findByMember(member)
+            .orElseThrow(() -> new CustomException(ErrorCode.EXP_NOT_FOUND)))
+        .build();
+  }
+
+
+  @Transactional(readOnly = true)
+  public MemberDto myPage(MemberCommand command) {
+    Member member = memberRepository.findById(command.getMemberId())
+        .orElseThrow(() -> new CustomException(ErrorCode.MEMBER_NOT_FOUND));
+
+    Yeopjeon yeopjeon = yeopjeonRepository.findByMember(member)
+        .orElseThrow(() -> new CustomException(ErrorCode.YEOPJEON_NOT_FOUND));
+
+    Exp exp = expRepository.findByMember(member)
+        .orElseThrow(() -> new CustomException(ErrorCode.EXP_NOT_FOUND));
+
+    return MemberDto.builder()
+        .member(member)
+        .yeopjeon(yeopjeon)
+        .exp(exp)
         .build();
   }
 
