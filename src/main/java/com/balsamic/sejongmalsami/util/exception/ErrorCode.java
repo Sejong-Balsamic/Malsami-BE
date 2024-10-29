@@ -107,6 +107,8 @@ public enum ErrorCode {
 
   ANSWER_POST_NOT_FOUND(HttpStatus.BAD_REQUEST, "답변 글을 찾을 수 없습니다."),
 
+  ONLY_AUTHOR_CAN_CHAETAEK(HttpStatus.BAD_REQUEST, "오직 질문 작성자만 답변을 채택할 수 있습니다."),
+
   CHAETAEK_ANSWER_ALREADY_EXISTS(HttpStatus.BAD_REQUEST, "해당 질문글에 이미 채택된 답변이 존재합니다."),
 
   // DocumentPost
