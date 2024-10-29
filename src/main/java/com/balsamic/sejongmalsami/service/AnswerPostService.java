@@ -80,11 +80,14 @@ public class AnswerPostService {
     AnswerPost answerPost = answerPostRepository.findById(command.getPostId())
         .orElseThrow(() -> new CustomException(ErrorCode.ANSWER_POST_NOT_FOUND));
 
+    QuestionPost questionPost = questionPostRepository.findQuestionPostByAnswerPost(answerPost)
+        .orElseThrow(() -> new CustomException(ErrorCode.QUESTION_POST_NOT_FOUND));
+
     // 답변 글 작성자
     Member writer = answerPost.getMember();
 
     // 질문 작성자만 답변 채택 가능 (로그인 된 사용자와 질문 작성자가 같은지 확인)
-    if (!writer.getMemberId().equals(command.getMemberId())) {
+    if (!questionPost.getMember().getMemberId().equals(command.getMemberId())) {
       throw new CustomException(ErrorCode.ONLY_AUTHOR_CAN_CHAETAEK);
     }
 
