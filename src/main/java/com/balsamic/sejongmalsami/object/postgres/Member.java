@@ -2,6 +2,7 @@ package com.balsamic.sejongmalsami.object.postgres;
 
 import com.balsamic.sejongmalsami.object.constants.AccountStatus;
 import com.balsamic.sejongmalsami.object.constants.Role;
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
@@ -64,6 +65,7 @@ public class Member extends BaseEntity {
   private LocalDateTime lastLoginTime;
 
   @Builder.Default
+  @JsonIgnore
   private Boolean isFirstLogin = true;
 
   public void updateLastLoginTime(LocalDateTime lastLoginTime) {
