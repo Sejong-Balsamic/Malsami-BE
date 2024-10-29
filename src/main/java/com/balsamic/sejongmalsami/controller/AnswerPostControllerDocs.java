@@ -92,7 +92,7 @@ public interface AnswerPostControllerDocs {
           **참고 사항:**
 
           - 이 API를 통해 사용자는 등록된 답변을 채택할 수 있습니다.
-          - 200OK 시, 채택 된 답변을 반환합니다.
+          - 성공 후, 채택 된 답변을 반환합니다.
           - Swagger에서 테스트 시 mediaFiles에 있는 "Send empty value" 체크박스 해제해야합니다.
           """
   )
