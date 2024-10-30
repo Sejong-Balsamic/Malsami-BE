@@ -106,12 +106,28 @@ public class PopularPostService {
     updatePopularDocumentPostsCache();
   }
 
-  // 캐시된 일간 질문 인기글 가져오기
+  /**
+   * 캐시된 일간 인기 질문글 조회 로직
+   * @param command <br>
+   * Integer pageNum : 페이지 번호 (default = 0) <br>
+   * Integer pageSize : 페이지당 보여줄 글 개수 (default = 30)
+   *
+   * @return
+   */
   @Transactional(readOnly = true)
   @Cacheable(value = QUESTION_POST_CACHE_VALUE, key = DAILY_QUESTION_POSTS_KEY)
   public QuestionDto getDailyPopularQuestionPosts(QuestionCommand command) {
     LocalDateTime yesterday = LocalDateTime.now().minusDays(1);
-    Pageable pageable = PageRequest.of(0, command.getPageSize());
+
+    // 기본값 설정
+    if (command.getPageNumber() == null) {
+      command.setPageNumber(0);
+    }
+    if (command.getPageSize() == null) {
+      command.setPageSize(30);
+    }
+
+    Pageable pageable = PageRequest.of(command.getPageNumber(), command.getPageSize());
 
     Page<QuestionPost> posts = questionPostRepository
         .findByCreatedDateAfterOrderByDailyScoreDesc(yesterday, pageable);
@@ -121,12 +137,28 @@ public class PopularPostService {
         .build();
   }
 
-  // 캐시된 주간 질문 인기글 가져오기
+  /**
+   * 캐시된 주간 인기 질문글 조회 로직
+   * @param command <br>
+   * Integer pageNum : 페이지 번호 (default = 0) <br>
+   * Integer pageSize : 페이지당 보여줄 글 개수 (default = 30)
+   *
+   * @return
+   */
   @Transactional(readOnly = true)
   @Cacheable(value = QUESTION_POST_CACHE_VALUE, key = WEEKLY_QUESTION_POSTS_KEY)
   public QuestionDto getWeeklyPopularQuestionPosts(QuestionCommand command) {
     LocalDateTime lastWeek = LocalDateTime.now().minusWeeks(1);
-    Pageable pageable = PageRequest.of(0, command.getPageSize());
+
+    // 기본값 설정
+    if (command.getPageNumber() == null) {
+      command.setPageNumber(0);
+    }
+    if (command.getPageSize() == null) {
+      command.setPageSize(30);
+    }
+
+    Pageable pageable = PageRequest.of(command.getPageNumber(), command.getPageSize());
 
     Page<QuestionPost> posts = questionPostRepository
         .findByCreatedDateAfterOrderByWeeklyScoreDesc(lastWeek, pageable);
