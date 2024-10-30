@@ -60,6 +60,10 @@ public class AnswerPostService {
           .uploadMediaFiles(answerPost.getAnswerPostId(), command.getMediaFiles());
     }
 
+    // 답변이 작성된 질문 글 답변 수 증가
+    questionPost.updateAnswerCount(answerPostRepository.countByQuestionPost(questionPost));
+    log.info("{} 질문 글에 작성된 답변 수 : {}", questionPost.getQuestionPostId(), questionPost.getAnswerCount());
+
     return QuestionDto.builder()
         .answerPost(answerPost)
         .mediaFiles(mediaFiles)
