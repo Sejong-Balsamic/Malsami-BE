@@ -106,4 +106,9 @@ public class QuestionPost extends BasePost {
     // 태그 추가
     questionPresetTagSet.add(tag);
   }
+
+  // 답변 수 동기화
+  public void updateAnswerCount(Integer answerCount) {
+    this.answerCount = answerCount;
+  }
 }
