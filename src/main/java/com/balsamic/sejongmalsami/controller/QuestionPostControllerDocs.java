@@ -174,6 +174,11 @@ public interface QuestionPostControllerDocs {
 
   @ApiChangeLogs({
       @ApiChangeLog(
+          date = "2024.10.30",
+          author = Author.BAEKJIHOON,
+          description = "pageable 입력 파라미터 수정"
+      ),
+      @ApiChangeLog(
           date = "2024.10.23",
           author = Author.BAEKJIHOON,
           description = "pageable 추가, 상위 n개의 인기글 조회"
@@ -197,10 +202,14 @@ public interface QuestionPostControllerDocs {
           **이 API는 인증이 필요하며, JWT 토큰이 존재해야합니다.**
 
           **입력 파라미터 값:**
-           
-          - **Integer pageSize**: 조회하고싶은 질문 글 개수 [필수]
           
-            _예: 30_ (총 30개의 일간 인기 질문글이 반환됩니다.)
+          - **Integer pageNum**: 조회하고싶은 질문 글 페이지 [선택]
+          
+            _예: 0_ (첫번째 페이지를 반환합니다) default = 0
+           
+          - **Integer pageSize**: 한 페이지에 조회하고싶은 질문 글 개수 [선택]
+          
+            _예: 30_ (총 30개의 일간 인기 질문글이 반환됩니다.) default = 30
 
           **반환 파라미터 값:**
 
@@ -210,7 +219,8 @@ public interface QuestionPostControllerDocs {
           **참고 사항:**
 
           - 이 API를 통해 사용자는 일간 인기 질문글을 조회할 수 있습니다.
-          - 요청 시각으로부터 24시간 이내에 작성된 상위 n개의 일간 인기글을 조회합니다.
+          - 요청 시각으로부터 24시간 이내에 작성된 pageNum 번째 페이지의 pageSize 개의 일간 인기글을 조회합니다.
+          - pageNum, pageSize 파라미터를 설정하지 않으면 기본값이 할당됩니다.
           - Swagger에서 테스트 시 mediaFiles에 있는 "Send empty value" 체크박스 해제해야합니다.
           """
   )
@@ -218,6 +228,11 @@ public interface QuestionPostControllerDocs {
       QuestionCommand command);
 
   @ApiChangeLogs({
+      @ApiChangeLog(
+          date = "2024.10.30",
+          author = Author.BAEKJIHOON,
+          description = "pageable 입력 파라미터 수정"
+      ),
       @ApiChangeLog(
           date = "2024.10.23",
           author = Author.BAEKJIHOON,
@@ -243,9 +258,13 @@ public interface QuestionPostControllerDocs {
 
           **입력 파라미터 값:**
 
-          - **Integer pageSize**: 조회하고싶은 질문 글 개수 [필수]
+          - **Integer pageNum**: 조회하고싶은 질문 글 페이지 [선택]
           
-            _예: 30_ (총 30개의 주간 인기 질문글이 반환됩니다.)
+            _예: 0_ (첫번째 페이지를 반환합니다) default = 0
+           
+          - **Integer pageSize**: 한 페이지에 조회하고싶은 질문 글 개수 [선택]
+          
+            _예: 30_ (총 30개의 일간 인기 질문글이 반환됩니다.) default = 30
 
           **반환 파라미터 값:**
 
@@ -255,7 +274,8 @@ public interface QuestionPostControllerDocs {
           **참고 사항:**
 
           - 이 API를 통해 사용자는 주간 인기 질문글을 조회할 수 있습니다.
-          - 요청 시각으로부터 7일 이내에 작성된 상위 n개의 주간 인기글을 조회합니다.
+          - 요청 시각으로부터 7일 이내에 작성된 pageNum 번째 페이지의 pageSize 개의 주간 인기글을 조회합니다.
+          - pageNum, pageSize 파라미터를 설정하지 않으면 기본값이 할당됩니다.
           - Swagger에서 테스트 시 mediaFiles에 있는 "Send empty value" 체크박스 해제해야합니다.
           """
   )
