@@ -14,9 +14,11 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.cache.annotation.CacheEvict;
 import org.springframework.cache.annotation.Cacheable;
+import org.springframework.context.ApplicationContext;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
@@ -30,6 +32,8 @@ public class PopularPostService {
   private final QuestionPostRepository questionPostRepository;
   private final DocumentPostRepository documentPostRepository;
   private final ScoreCalculator scoreCalculator;
+  // 클래스 내부에서 @Cacheable 메서드를 호출하기 위해 ApplicationContext 사용
+  private final ApplicationContext applicationContext;
 
   private static final long DAILY_SCHEDULED_RATE = 30 * 60 * 1000L;
   private static final long WEEKLY_SCHEDULED_RATE = 6 * 60 * 60 * 1000L;
@@ -45,13 +49,18 @@ public class PopularPostService {
   @Transactional
   @Scheduled(fixedRate = DAILY_SCHEDULED_RATE) // 30분마다 실행
   public void calculateDailyScore() {
+
+    // 일간 인기글 질문/자료 캐시 삭제
+    deleteDailyPopularQuestionPostsCache();
+    deleteDailyPopularDocumentPostsCache();
+
     LocalDateTime yesterday = LocalDateTime.now().minusDays(1);
     Integer postCounts = questionPostRepository.countByCreatedDateAfter(yesterday);
 
     if (postCounts <= 0) {
       postCounts = 1;
     }
-    // 질문글
+    // 24시간 이내에 작성된 모든 질문글 일간 점수 업데이트
     Pageable pageable = PageRequest.of(0, postCounts);
     Page<QuestionPost> posts = questionPostRepository.findByCreatedDateAfter(yesterday, pageable);
 
@@ -67,10 +76,6 @@ public class PopularPostService {
       documentPost.updateDailyScore(scoreCalculator.calculateDocumentPostDailyScore(documentPost));
       documentPostRepository.save(documentPost);
     }
-
-    // 캐시 갱신
-    updatePopularQuestionPostsCache();
-    updatePopularDocumentPostsCache();
   }
 
   // 6시간마다 주간 인기글 점수 계산
@@ -78,13 +83,18 @@ public class PopularPostService {
   @Transactional
   @Scheduled(fixedRate = WEEKLY_SCHEDULED_RATE) // 6시간마다 실행
   public void calculateWeeklyScore() {
+
+    // 주간 인기글 질문/자료 캐시 삭제
+    deleteWeeklyPopularQuestionPostsCache();
+    deleteWeeklyPopularDocumentPostsCache();
+
     LocalDateTime lastWeek = LocalDateTime.now().minusWeeks(1);
     Integer postCounts = questionPostRepository.countByCreatedDateAfter(lastWeek);
 
     if (postCounts <= 0) {
       postCounts = 1;
     }
-    // 질문글
+    // 7일 이내에 작성된 모든 질문글 주간 점수 업데이트
     Pageable pageable = PageRequest.of(0, postCounts);
     Page<QuestionPost> posts = questionPostRepository.findByCreatedDateAfter(lastWeek, pageable);
 
@@ -100,71 +110,56 @@ public class PopularPostService {
       documentPost.updateDailyScore(scoreCalculator.calculateDocumentPostWeeklyScore(documentPost));
       documentPostRepository.save(documentPost);
     }
-
-    // 캐시 갱신
-    updatePopularQuestionPostsCache();
-    updatePopularDocumentPostsCache();
   }
 
   /**
    * 캐시된 일간 인기 질문글 조회 로직
+   *
    * @param command <br>
-   * Integer pageNum : 페이지 번호 (default = 0) <br>
-   * Integer pageSize : 페이지당 보여줄 글 개수 (default = 30)
+   * Integer pageSize : 조회하고 싶은 일간 인기 질문글 개수 (default = 30)
    *
    * @return
    */
   @Transactional(readOnly = true)
-  @Cacheable(value = QUESTION_POST_CACHE_VALUE, key = DAILY_QUESTION_POSTS_KEY)
   public QuestionDto getDailyPopularQuestionPosts(QuestionCommand command) {
-    LocalDateTime yesterday = LocalDateTime.now().minusDays(1);
 
-    // 기본값 설정
-    if (command.getPageNumber() == null) {
-      command.setPageNumber(0);
-    }
     if (command.getPageSize() == null) {
       command.setPageSize(30);
     }
 
-    Pageable pageable = PageRequest.of(command.getPageNumber(), command.getPageSize());
-
-    Page<QuestionPost> posts = questionPostRepository
-        .findByCreatedDateAfterOrderByDailyScoreDesc(yesterday, pageable);
+    // 캐시에서 일간 인기 질문글 조회 후 pageSize 만큼 반환
+    List<QuestionPost> posts = applicationContext
+        .getBean(PopularPostService.class)
+        .updateDailyPopularQuestionPostsCache();
 
     return QuestionDto.builder()
-        .questionPosts(posts.getContent())
+        .questionPosts(posts.subList(0, Math.min(command.getPageSize(), posts.size())))
         .build();
   }
 
   /**
    * 캐시된 주간 인기 질문글 조회 로직
+   *
    * @param command <br>
-   * Integer pageNum : 페이지 번호 (default = 0) <br>
-   * Integer pageSize : 페이지당 보여줄 글 개수 (default = 30)
+   * Integer pageSize : 조회하고 싶은 주간 인기 질문글 개수 (default = 30)
    *
    * @return
    */
   @Transactional(readOnly = true)
   @Cacheable(value = QUESTION_POST_CACHE_VALUE, key = WEEKLY_QUESTION_POSTS_KEY)
   public QuestionDto getWeeklyPopularQuestionPosts(QuestionCommand command) {
-    LocalDateTime lastWeek = LocalDateTime.now().minusWeeks(1);
 
-    // 기본값 설정
-    if (command.getPageNumber() == null) {
-      command.setPageNumber(0);
-    }
     if (command.getPageSize() == null) {
       command.setPageSize(30);
     }
 
-    Pageable pageable = PageRequest.of(command.getPageNumber(), command.getPageSize());
-
-    Page<QuestionPost> posts = questionPostRepository
-        .findByCreatedDateAfterOrderByWeeklyScoreDesc(lastWeek, pageable);
+    // 캐시에서 일간 인기 질문글 pageSize 개수만큼 조회
+    List<QuestionPost> posts = applicationContext
+        .getBean(PopularPostService.class)
+        .updateWeeklyPopularQuestionPostsCache();
 
     return QuestionDto.builder()
-        .questionPosts(posts.getContent())
+        .questionPosts(posts.subList(0, Math.min(command.getPageSize(), posts.size())))
         .build();
   }
 
@@ -190,18 +185,59 @@ public class PopularPostService {
         .build();
   }
 
-  // 캐시 갱신
-  @Async
+  // 일간 인기 질문 글 캐시 업데이트 (상위 50개)
   @Transactional
-  @CacheEvict(value = QUESTION_POST_CACHE_VALUE, allEntries = true)
-  public void updatePopularQuestionPostsCache() {
-    log.info("질문 인기글 캐시 갱신");
+  @Cacheable(value = QUESTION_POST_CACHE_VALUE, key = DAILY_QUESTION_POSTS_KEY)
+  public List<QuestionPost> updateDailyPopularQuestionPostsCache() {
+
+    LocalDateTime yesterday = LocalDateTime.now().minusDays(1);
+    Pageable pageable = PageRequest.of(0, 50, Sort.by("dailyScore").descending());
+
+    Page<QuestionPost> posts = questionPostRepository
+        .findByCreatedDateAfterOrderByDailyScoreDesc(yesterday, pageable);
+
+    return posts.getContent();
   }
 
-  @Async
+  // 주간 인기 질문 글 캐시 업데이트 (상위 50개)
   @Transactional
-  @CacheEvict(value = DOCUMENT_POST_CACHE_VALUE, allEntries = true)
-  public void updatePopularDocumentPostsCache() {
-    log.info("자료 인기글 캐시 갱신");
+  @Cacheable(value = QUESTION_POST_CACHE_VALUE, key = WEEKLY_QUESTION_POSTS_KEY)
+  public List<QuestionPost> updateWeeklyPopularQuestionPostsCache() {
+
+    LocalDateTime lastWeek = LocalDateTime.now().minusWeeks(1);
+    Pageable pageable = PageRequest.of(0, 50, Sort.by("weeklyScore").descending());
+
+    Page<QuestionPost> posts = questionPostRepository
+        .findByCreatedDateAfterOrderByWeeklyScoreDesc(lastWeek, pageable);
+
+    return posts.getContent();
+  }
+
+  // 일간 인기 질문 글 캐시 삭제
+  @Transactional
+  @CacheEvict(value = QUESTION_POST_CACHE_VALUE, key = DAILY_QUESTION_POSTS_KEY)
+  public void deleteDailyPopularQuestionPostsCache() {
+    log.info("일간 인기 질문글 캐시 삭제");
+  }
+
+  // 주간 인기 질문 글 캐시 삭제
+  @Transactional
+  @CacheEvict(value = QUESTION_POST_CACHE_VALUE, key = WEEKLY_QUESTION_POSTS_KEY)
+  public void deleteWeeklyPopularQuestionPostsCache() {
+    log.info("주간 인기 질문글 캐시 삭제");
+  }
+
+  // 일간 인기 자료 글 캐시 삭제
+  @Transactional
+  @CacheEvict(value = DOCUMENT_POST_CACHE_VALUE, key = DAILY_DOCUMENT_POSTS_KEY)
+  public void deleteDailyPopularDocumentPostsCache() {
+    log.info("일간 인기 자료글 캐시 삭제");
+  }
+
+  // 주간 인기 자료 글 캐시 삭제
+  @Transactional
+  @CacheEvict(value = DOCUMENT_POST_CACHE_VALUE, key = WEEKLY_DOCUMENT_POSTS_KEY)
+  public void deleteWeeklyPopularDocumentPostsCache() {
+    log.info("주간 인기 자료글 캐시 삭제");
   }
 }
