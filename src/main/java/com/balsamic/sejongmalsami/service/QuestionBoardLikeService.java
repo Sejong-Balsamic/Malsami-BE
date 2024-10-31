@@ -59,6 +59,7 @@ public class QuestionBoardLikeService {
       validateSelfLike(member, writer);
       isMemberAlreadyLiked(postId, member.getMemberId());
       questionPost.increaseLikeCount();
+      questionPostRepository.save(questionPost);
     } else if (command.getContentType().equals(ContentType.ANSWER)) {
       answerPost = answerPostRepository.findById(postId)
           .orElseThrow(() -> new CustomException(ErrorCode.ANSWER_POST_NOT_FOUND));
@@ -66,6 +67,7 @@ public class QuestionBoardLikeService {
       validateSelfLike(member, writer);
       isMemberAlreadyLiked(postId, member.getMemberId());
       answerPost.increaseLikeCount();
+      answerPostRepository.save(answerPost);
     } else {
       throw new CustomException(ErrorCode.INVALID_CONTENT_TYPE);
     }
@@ -83,8 +85,10 @@ public class QuestionBoardLikeService {
       // 좋아요 수 롤백
       if (questionPost != null) {
         questionPost.decreaseLikeCount();
+        questionPostRepository.save(questionPost);
       } else {
         answerPost.decreaseLikeCount();
+        answerPostRepository.save(answerPost);
       }
       // 보상 로직: 엽전 수 롤백 - B 실패 시 A 롤백
       yeopjeonService.rollbackYeopjeon(writer, YeopjeonAction.RECEIVE_LIKE);
@@ -106,8 +110,10 @@ public class QuestionBoardLikeService {
       // 좋아요 수 롤백
       if (questionPost != null) {
         questionPost.decreaseLikeCount();
+        questionPostRepository.save(questionPost);
       } else {
         answerPost.decreaseLikeCount();
+        answerPostRepository.save(answerPost);
       }
       // 보상 로직: 엽전 히스토리 내역 삭제, 엽전 수 롤백 - C 실패시 A, B 롤백
       yeopjeonService.rollbackYeopjeon(writer, YeopjeonAction.RECEIVE_LIKE);
