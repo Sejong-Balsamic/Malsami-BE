@@ -2,10 +2,11 @@ package com.balsamic.sejongmalsami.service;
 
 import com.balsamic.sejongmalsami.object.QuestionCommand;
 import com.balsamic.sejongmalsami.object.QuestionDto;
+import com.balsamic.sejongmalsami.object.constants.QuestionPresetTag;
 import com.balsamic.sejongmalsami.object.postgres.MediaFile;
 import com.balsamic.sejongmalsami.object.postgres.Member;
 import com.balsamic.sejongmalsami.object.postgres.QuestionPost;
-import com.balsamic.sejongmalsami.object.constants.QuestionPresetTag;
+import com.balsamic.sejongmalsami.repository.postgres.CourseRepository;
 import com.balsamic.sejongmalsami.repository.postgres.MemberRepository;
 import com.balsamic.sejongmalsami.repository.postgres.QuestionPostRepository;
 import com.balsamic.sejongmalsami.util.exception.CustomException;
@@ -15,6 +16,9 @@ import java.util.List;
 import java.util.Set;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -27,6 +31,7 @@ public class QuestionPostService {
   private final MemberRepository memberRepository;
   private final QuestionPostCustomTagService questionPostCustomTagService;
   private final MediaFileService mediaFileService;
+  private final CourseRepository courseRepository;
 
   /* 질문 게시글 등록 로직 */
   @Transactional
@@ -47,6 +52,7 @@ public class QuestionPostService {
         .title(command.getTitle())
         .content(command.getContent())
         .subject(command.getSubject())
+        .faculty(courseRepository.findBySubject(command.getSubject()).getFaculty())
         .questionPresetTagSet(new HashSet<>())
         .viewCount(0)
         .likeCount(0)
@@ -104,4 +110,27 @@ public class QuestionPostService {
         .questionPosts(questionPostRepository.findAll())
         .build();
   }
+
+  /**
+   * 아직 답변 안된 글 조회 로직 (최신순)
+   * @param command <br>
+   * Integer pageNumber <br>
+   * Integer pageSize <br>
+   *
+   * @return
+   */
+  @Transactional(readOnly = true)
+  public QuestionDto findAllQuestionPostsNotAnswered(QuestionCommand command) {
+
+    // pageNumber 최솟값 0, pageSize 최솟값 1
+    Pageable pageable = PageRequest
+        .of(Math.max(command.getPageNumber(), 0), Math.max(command.getPageSize(), 1));
+
+    Page<QuestionPost> posts = questionPostRepository.findByAnswerCountOrderByCreatedDateDesc(0, pageable);
+
+    return QuestionDto.builder()
+        .questionPosts(posts.getContent())
+        .build();
+  }
+
 }
