@@ -114,14 +114,6 @@ public class QuestionPostService {
   @Transactional(readOnly = true)
   public QuestionDto findAllQuestionPost(QuestionCommand command) {
 
-    // null 값이 넘어오면 default 값으로 세팅
-    if (command.getPageNumber() == null) {
-      command.setPageNumber(0);
-    }
-    if (command.getPageSize() == null) {
-      command.setPageSize(30);
-    }
-
     Pageable pageable = PageRequest.of(command.getPageNumber(),
         command.getPageSize(),
         Sort.by("createdDate").descending());
@@ -144,15 +136,6 @@ public class QuestionPostService {
   @Transactional(readOnly = true)
   public QuestionDto findAllQuestionPostsNotAnswered(QuestionCommand command) {
 
-    // null 값이 넘어오면 default 값으로 세팅
-    if (command.getPageNumber() == null) {
-      command.setPageNumber(0);
-    }
-    if (command.getPageSize() == null) {
-      command.setPageSize(10);
-    }
-
-    // pageNumber 최솟값 0, pageSize 최솟값 1
     Pageable pageable = PageRequest.of(command.getPageNumber(),
         command.getPageSize(),
         Sort.by("createdDate").descending());

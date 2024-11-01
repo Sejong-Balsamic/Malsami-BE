@@ -5,16 +5,16 @@ import com.balsamic.sejongmalsami.object.constants.QuestionPresetTag;
 import java.util.List;
 import java.util.Set;
 import java.util.UUID;
-import lombok.Builder;
 import lombok.Getter;
+import lombok.NoArgsConstructor;
 import lombok.Setter;
 import lombok.ToString;
 import org.springframework.web.multipart.MultipartFile;
 
-@Builder
 @Getter
 @Setter
 @ToString
+@NoArgsConstructor
 public class QuestionCommand {
 
   private UUID postId; // 질문, 답변
@@ -30,6 +30,8 @@ public class QuestionCommand {
   private ContentType contentType;
   private Boolean isChaetaek; // 답변
   private Boolean isPrivate; // 질문, 답변
-  private Integer pageNumber; // n번째 페이지 조회
-  private Integer pageSize; // n개의 데이터 조회
+  private Integer pageNumber = 0; // n번째 페이지 조회
+  private Integer pageSize = 30; // n개의 데이터 조회
+
+
 }
