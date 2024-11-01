@@ -28,23 +28,8 @@ public interface QuestionPostRepository extends JpaRepository<QuestionPost, UUID
 
   // 주간 인기글 상위 n개 조회 (7일 이내에 등록된 글만 조회)
   Page<QuestionPost> findByCreatedDateAfterOrderByWeeklyScoreDesc(LocalDateTime lastWeek, Pageable pageable);
-//
-//  // 아직 답변하지 않은 질문글 조회
-//  Page<QuestionPost> findByAnswerCount(int answerCount, Pageable pageable);
-//
-//  // 아직 답변을 채택하지 않은 질문글 조회
-//  @Query("SELECT q FROM QuestionPost q " +
-//      "LEFT JOIN AnswerPost a ON a.questionPost.questionPostId = q.questionPostId " +
-//      "WHERE (:#{#command.subject} IS NULL OR q.subject = :#{#command.subject}) " +
-//      "AND (:#{#command.minYeopjeon} IS NULL OR q.rewardYeopjeon >= :#{#command.minYeopjeon}) " +
-//      "AND (:#{#command.maxYeopjeon} IS NULL OR q.rewardYeopjeon <= :#{#command.maxYeopjeon}) " +
-//      "AND (:#{#command.questionPresetTagSet} IS NULL OR q.questionPresetTagSet IN :#{#command.questionPresetTagSet}) " +
-//      "AND (COUNT(a) = 0 OR SUM(CASE WHEN a.isChaetaek = true THEN 1 ELSE 0 END) = 0) " +
-//      "GROUP BY q " +
-//      "ORDER BY " +
-//      "CASE WHEN :#{#command.sortType} = 'LATEST' THEN q.createdDate END DESC, " +
-//      "CASE WHEN :#{#command.sortType} = 'MOST_LIKED' THEN q.likeCount END DESC, " +
-//      "CASE WHEN :#{#command.sortType} = 'YEOPJEON_REWARD' THEN q.rewardYeopjeon END DESC, " +
-//      "CASE WHEN :#{#command.sortType} = 'VIEW_COUNT' THEN q.viewCount END DESC")
-//  Page<QuestionPost> findFilteredQuestions(QuestionCommand command, Pageable pageable);
+
+  // 아직 답변하지 않은 질문글 조회 (최신순)
+  Page<QuestionPost> findByAnswerCountOrderByCreatedDateDesc(int answerCount, Pageable pageable);
+
 }
