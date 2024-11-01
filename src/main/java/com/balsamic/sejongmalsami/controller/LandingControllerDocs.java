@@ -14,6 +14,11 @@ public interface LandingControllerDocs {
 
   @ApiChangeLogs({
       @ApiChangeLog(
+          date = "2024.11.1",
+          author = Author.BAEKJIHOON,
+          description = "Page<QuestionPost> 반환값 수정"
+      ),
+      @ApiChangeLog(
           date = "2024.10.31",
           author = Author.BAEKJIHOON,
           description = "인기 질문글 캐싱 로직 수정에 따른 입력 파라미터 수정"
@@ -50,7 +55,7 @@ public interface LandingControllerDocs {
           **반환 파라미터 값:**
 
           - **QuestionDto**: 질문 게시판 정보 반환
-            - **List\\<QuestionPost\\> questionPosts**: 일간 인기 질문 글 리스트
+            - **Page\\<QuestionPost\\> questionPosts**: 일간 인기 질문 글 리스트
 
           **참고 사항:**
 
@@ -64,6 +69,11 @@ public interface LandingControllerDocs {
       QuestionCommand command);
 
   @ApiChangeLogs({
+      @ApiChangeLog(
+          date = "2024.11.1",
+          author = Author.BAEKJIHOON,
+          description = "Page<QuestionPost> 반환값 수정"
+      ),
       @ApiChangeLog(
           date = "2024.10.31",
           author = Author.BAEKJIHOON,
@@ -101,7 +111,7 @@ public interface LandingControllerDocs {
           **반환 파라미터 값:**
 
           - **QuestionDto**: 질문 게시판 정보 반환
-            - **List\\<QuestionPost\\> questionPosts**: 주간 인기 질문 글 리스트
+            - **Page\\<QuestionPost\\> questionPosts**: 주간 인기 질문 글 리스트
 
           **참고 사항:**
 

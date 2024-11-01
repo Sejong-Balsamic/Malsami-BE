@@ -2,10 +2,11 @@ package com.balsamic.sejongmalsami.service;
 
 import com.balsamic.sejongmalsami.object.QuestionCommand;
 import com.balsamic.sejongmalsami.object.QuestionDto;
+import com.balsamic.sejongmalsami.object.constants.QuestionPresetTag;
 import com.balsamic.sejongmalsami.object.postgres.MediaFile;
 import com.balsamic.sejongmalsami.object.postgres.Member;
 import com.balsamic.sejongmalsami.object.postgres.QuestionPost;
-import com.balsamic.sejongmalsami.object.constants.QuestionPresetTag;
+import com.balsamic.sejongmalsami.repository.postgres.CourseRepository;
 import com.balsamic.sejongmalsami.repository.postgres.MemberRepository;
 import com.balsamic.sejongmalsami.repository.postgres.QuestionPostRepository;
 import com.balsamic.sejongmalsami.util.exception.CustomException;
@@ -15,6 +16,10 @@ import java.util.List;
 import java.util.Set;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -27,6 +32,7 @@ public class QuestionPostService {
   private final MemberRepository memberRepository;
   private final QuestionPostCustomTagService questionPostCustomTagService;
   private final MediaFileService mediaFileService;
+  private final CourseRepository courseRepository;
 
   /* 질문 게시글 등록 로직 */
   @Transactional
@@ -47,6 +53,7 @@ public class QuestionPostService {
         .title(command.getTitle())
         .content(command.getContent())
         .subject(command.getSubject())
+        .faculty(courseRepository.findBySubject(command.getSubject()).getFaculty())
         .questionPresetTagSet(new HashSet<>())
         .viewCount(0)
         .likeCount(0)
@@ -97,11 +104,67 @@ public class QuestionPostService {
         .build();
   }
 
-  /* 전체 질문 글 리스트 조회 로직 */
+  /**
+   * 전체 질문 글 조회
+   * @param command <br>
+   * Integer pageNumber <br>
+   * Integer PageSize <br>
+   *
+   * @return
+   */
   @Transactional(readOnly = true)
-  public QuestionDto findAllQuestionPost() {
+  public QuestionDto findAllQuestionPost(QuestionCommand command) {
+
+    // null 값이 넘어오면 default 값으로 세팅
+    if (command.getPageNumber() == null) {
+      command.setPageNumber(0);
+    }
+    if (command.getPageSize() == null) {
+      command.setPageSize(30);
+    }
+
+    Pageable pageable = PageRequest.of(command.getPageNumber(),
+        command.getPageSize(),
+        Sort.by("createdDate").descending());
+
+    Page<QuestionPost> posts = questionPostRepository.findAll(pageable);
+
     return QuestionDto.builder()
-        .questionPosts(questionPostRepository.findAll())
+        .questionPosts(posts)
         .build();
   }
+
+  /**
+   * 아직 답변 안된 글 조회 로직 (최신순)
+   * @param command <br>
+   * Integer pageNumber <br>
+   * Integer pageSize <br>
+   *
+   * @return
+   */
+  @Transactional(readOnly = true)
+  public QuestionDto findAllQuestionPostsNotAnswered(QuestionCommand command) {
+
+    // null 값이 넘어오면 default 값으로 세팅
+    if (command.getPageNumber() == null) {
+      command.setPageNumber(0);
+    }
+    if (command.getPageSize() == null) {
+      command.setPageSize(10);
+    }
+
+    // pageNumber 최솟값 0, pageSize 최솟값 1
+    Pageable pageable = PageRequest.of(command.getPageNumber(),
+        command.getPageSize(),
+        Sort.by("createdDate").descending());
+
+    Page<QuestionPost> postPage = questionPostRepository
+        .findByAnswerCount(0, pageable);
+
+    return QuestionDto.builder()
+        .questionPosts(postPage)
+        .build();
+  }
+
+
 }
