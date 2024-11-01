@@ -1,5 +1,6 @@
 package com.balsamic.sejongmalsami.object.postgres;
 
+import com.balsamic.sejongmalsami.object.constants.Faculty;
 import com.balsamic.sejongmalsami.object.constants.QuestionPresetTag;
 import com.balsamic.sejongmalsami.util.exception.CustomException;
 import com.balsamic.sejongmalsami.util.exception.ErrorCode;
@@ -53,6 +54,9 @@ public class QuestionPost extends BasePost {
   // 과목 명
   @Column(nullable = false)
   private String subject;
+
+  // 단과대
+  private Faculty faculty;
 
   // 정적 태그
   @Builder.Default
