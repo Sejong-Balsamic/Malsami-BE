@@ -2,6 +2,7 @@ package com.balsamic.sejongmalsami.object;
 
 import com.balsamic.sejongmalsami.object.constants.ContentType;
 import com.balsamic.sejongmalsami.object.constants.QuestionPresetTag;
+import io.swagger.v3.oas.annotations.media.Schema;
 import java.util.List;
 import java.util.Set;
 import java.util.UUID;
@@ -30,7 +31,9 @@ public class QuestionCommand {
   private ContentType contentType;
   private Boolean isChaetaek; // 답변
   private Boolean isPrivate; // 질문, 답변
+  @Schema(defaultValue = "0")
   private Integer pageNumber = 0; // n번째 페이지 조회
+  @Schema(defaultValue = "30")
   private Integer pageSize = 30; // n개의 데이터 조회
 
 
