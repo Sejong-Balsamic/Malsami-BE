@@ -19,6 +19,7 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
@@ -134,7 +135,9 @@ public class PopularPostService {
         .subList(0, command.getPageSize());
 
     // pageSize개수 만큼 List를 Page로 변환
-    Pageable pageable = PageRequest.of(0, command.getPageSize());
+    Pageable pageable = PageRequest
+        .of(0, command.getPageSize(), Sort.by("dailyScore").descending());
+
     Page<QuestionPost> posts = new PageImpl<>(cachedPosts, pageable, cachedPosts.size());
 
     return QuestionDto.builder()
@@ -157,7 +160,7 @@ public class PopularPostService {
       command.setPageSize(30);
     }
 
-    // 캐시에서 일간 인기 질문글 pageSize 개수만큼 조회
+    // 캐시에서 주간 인기 질문글 pageSize 개수만큼 조회
     List<QuestionPost> cachedPosts = applicationContext
         .getBean(PopularPostService.class)
         .updateWeeklyPopularQuestionPostsCache()
@@ -166,7 +169,9 @@ public class PopularPostService {
     log.info("캐시된 데이터 파싱 {}", cachedPosts);
 
     // pageSize개수 만큼 List를 Page로 변환
-    Pageable pageable = PageRequest.of(0, command.getPageSize());
+    Pageable pageable = PageRequest
+        .of(0, command.getPageSize(), Sort.by("weeklyScore").descending());
+    
     Page<QuestionPost> posts = new PageImpl<>(cachedPosts, pageable, cachedPosts.size());
 
     return QuestionDto.builder()
