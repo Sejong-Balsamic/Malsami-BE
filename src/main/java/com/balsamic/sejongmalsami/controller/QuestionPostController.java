@@ -55,6 +55,15 @@ public class QuestionPostController implements QuestionPostControllerDocs {
   }
 
   @Override
+  @PostMapping(value = "/get/all/no-answer", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
+  @LogMonitoringInvocation
+  public ResponseEntity<QuestionDto> getAllQuestionPostsNotAnswered(
+      @ModelAttribute QuestionCommand command) {
+    return ResponseEntity
+        .ok(questionPostService.findAllQuestionPostsNotAnswered(command));
+  }
+
+  @Override
   @PostMapping(value = "/popular/daily", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
   @LogMonitoringInvocation
   public ResponseEntity<QuestionDto> getDailyPopularQuestionPost(

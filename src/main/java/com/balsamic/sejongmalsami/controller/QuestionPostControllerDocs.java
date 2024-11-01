@@ -174,6 +174,42 @@ public interface QuestionPostControllerDocs {
 
   @ApiChangeLogs({
       @ApiChangeLog(
+          date = "2024.11.1",
+          author = Author.BAEKJIHOON,
+          description = "답변 개수가 0개인 글 조회"
+      )
+  })
+  @Operation(
+      summary = "답변 개수가 0개인 글 조회 (최신순)",
+      description = """
+          **답변 개수가 0개인 질문 글 조회 요청**
+
+          **이 API는 인증이 필요하며, JWT 토큰이 존재해야합니다.**
+
+          **입력 파라미터 값:**
+
+          - **Integer pageNumber**: 조회하고싶은 페이지 번호 [선택] (default = 0)
+           
+          - **Integer pageSize**: 한 페이지에 조회하고싶은 글 개수 [선택] (default = 1)
+
+          **반환 파라미터 값:**
+
+          - **QuestionDto**: 질문 게시판 정보 반환
+            - **List\\<QuestionPost\\> questionPosts**: 답변 개수가 0개인 질문글 리스트
+
+          **참고 사항:**
+
+          - 이 API를 통해 사용자는 아직 답변이 작성되지 않은 질문 글 최신순으로 조회할 수 있습니다.
+          - Swagger에서 테스트 시 mediaFiles에 있는 "Send empty value" 체크박스 해제해야합니다.
+          - pageNumber = 3, pageSize = 10 입력시 3페이지에 해당하는 10개의 글을 반환합니다. (21번째 글 ~ 30번째 글 반환)
+          """
+  )
+  ResponseEntity<QuestionDto> getAllQuestionPostsNotAnswered(
+      QuestionCommand command
+  );
+
+  @ApiChangeLogs({
+      @ApiChangeLog(
           date = "2024.10.31",
           author = Author.BAEKJIHOON,
           description = "인기 질문글 캐싱 로직 수정에 따른 입력 파라미터 수정"
