@@ -27,7 +27,7 @@ public class CourseController implements CourseControllerDocs {
   @PostMapping(value = "/upload", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
   public ResponseEntity<CourseDto> uploadExcel(
       @ModelAttribute CourseCommand command) {
-    courseService.parseAndSaveCourses(command);
+    courseService.parseAndSaveCourses(command.getSejongCourseFile());
     return ResponseEntity.ok().build();
   }
 
