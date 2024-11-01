@@ -124,10 +124,6 @@ public class PopularPostService {
   @Transactional(readOnly = true)
   public QuestionDto getDailyPopularQuestionPosts(QuestionCommand command) {
 
-    if (command.getPageSize() == null) {
-      command.setPageSize(30);
-    }
-
     // 캐시에서 일간 인기 질문글 조회
     List<QuestionPost> cachedPosts = applicationContext
         .getBean(PopularPostService.class)
@@ -157,10 +153,6 @@ public class PopularPostService {
    */
   @Transactional(readOnly = true)
   public QuestionDto getWeeklyPopularQuestionPosts(QuestionCommand command) {
-
-    if (command.getPageSize() == null) {
-      command.setPageSize(30);
-    }
 
     // 캐시에서 주간 인기 질문글 pageSize 개수만큼 조회
     List<QuestionPost> cachedPosts = applicationContext

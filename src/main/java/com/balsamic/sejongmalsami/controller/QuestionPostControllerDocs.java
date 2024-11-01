@@ -198,7 +198,7 @@ public interface QuestionPostControllerDocs {
 
           - **Integer pageNumber**: 조회하고싶은 페이지 번호 [선택] (default = 0)
            
-          - **Integer pageSize**: 한 페이지에 조회하고싶은 글 개수 [선택] (default = 10)
+          - **Integer pageSize**: 한 페이지에 조회하고싶은 글 개수 [선택] (default = 30)
 
           **반환 파라미터 값:**
 
