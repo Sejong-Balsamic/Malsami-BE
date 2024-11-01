@@ -31,7 +31,7 @@ public interface QuestionPostRepository extends JpaRepository<QuestionPost, UUID
   List<QuestionPost> findTop50ByCreatedDateAfterOrderByWeeklyScoreDesc(LocalDateTime lastWeek);
 
   // 아직 답변하지 않은 질문글 조회 (최신순)
-  Page<QuestionPost> findByAnswerCountOrderByCreatedDateDesc(int answerCount, Pageable pageable);
+  Page<QuestionPost> findByAnswerCount(int answerCount, Pageable pageable);
 
 //  // 질문글 필터링
 //  @Query("SELECT q FROM QuestionPost q " +

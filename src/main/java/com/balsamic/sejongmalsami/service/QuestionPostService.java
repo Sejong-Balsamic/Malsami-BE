@@ -154,12 +154,15 @@ public class QuestionPostService {
     }
 
     // pageNumber 최솟값 0, pageSize 최솟값 1
-    Pageable pageable = PageRequest.of(command.getPageNumber(), command.getPageSize());
+    Pageable pageable = PageRequest.of(command.getPageNumber(),
+        command.getPageSize(),
+        Sort.by("createdDate").descending());
 
-    Page<QuestionPost> posts = questionPostRepository.findByAnswerCountOrderByCreatedDateDesc(0, pageable);
+    Page<QuestionPost> postPage = questionPostRepository
+        .findByAnswerCount(0, pageable);
 
     return QuestionDto.builder()
-        .questionPosts(posts)
+        .questionPosts(postPage)
         .build();
   }
 
