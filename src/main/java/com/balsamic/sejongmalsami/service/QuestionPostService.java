@@ -53,7 +53,6 @@ public class QuestionPostService {
         .title(command.getTitle())
         .content(command.getContent())
         .subject(command.getSubject())
-        .faculty(courseRepository.findBySubject(command.getSubject()).getFaculty())
         .questionPresetTagSet(new HashSet<>())
         .viewCount(0)
         .likeCount(0)
