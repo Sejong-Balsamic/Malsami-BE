@@ -9,6 +9,7 @@ import java.util.Set;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.ToString;
+import org.springframework.data.domain.Page;
 
 @Builder
 @Getter
@@ -17,7 +18,7 @@ public class QuestionDto {
 
   private QuestionPost questionPost; // 질문
 
-  private List<QuestionPost> questionPosts; // 질문
+  private Page<QuestionPost> questionPosts; // 질문
 
   private AnswerPost answerPost; // 답변
 
