@@ -19,6 +19,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -103,11 +104,33 @@ public class QuestionPostService {
         .build();
   }
 
-  /* 전체 질문 글 리스트 조회 로직 */
+  /**
+   * 전체 질문 글 조회
+   * @param command <br>
+   * Integer pageNumber <br>
+   * Integer PageSize <br>
+   *
+   * @return
+   */
   @Transactional(readOnly = true)
-  public QuestionDto findAllQuestionPost() {
+  public QuestionDto findAllQuestionPost(QuestionCommand command) {
+
+    // null 값이 넘어오면 default 값으로 세팅
+    if (command.getPageNumber() == null) {
+      command.setPageNumber(0);
+    }
+    if (command.getPageSize() == null) {
+      command.setPageSize(30);
+    }
+
+    Pageable pageable = PageRequest.of(command.getPageNumber(),
+        command.getPageSize(),
+        Sort.by("createdDate").descending());
+
+    Page<QuestionPost> posts = questionPostRepository.findAll(pageable);
+
     return QuestionDto.builder()
-        .questionPosts(questionPostRepository.findAll())
+        .questionPosts(posts)
         .build();
   }
 
@@ -122,15 +145,23 @@ public class QuestionPostService {
   @Transactional(readOnly = true)
   public QuestionDto findAllQuestionPostsNotAnswered(QuestionCommand command) {
 
+    // null 값이 넘어오면 default 값으로 세팅
+    if (command.getPageNumber() == null) {
+      command.setPageNumber(0);
+    }
+    if (command.getPageSize() == null) {
+      command.setPageSize(10);
+    }
+
     // pageNumber 최솟값 0, pageSize 최솟값 1
-    Pageable pageable = PageRequest
-        .of(Math.max(command.getPageNumber(), 0), Math.max(command.getPageSize(), 1));
+    Pageable pageable = PageRequest.of(command.getPageNumber(), command.getPageSize());
 
     Page<QuestionPost> posts = questionPostRepository.findByAnswerCountOrderByCreatedDateDesc(0, pageable);
 
     return QuestionDto.builder()
-        .questionPosts(posts.getContent())
+        .questionPosts(posts)
         .build();
   }
+
 
 }
