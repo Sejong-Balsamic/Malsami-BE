@@ -51,7 +51,7 @@ public class CourseFileGenerator implements ApplicationRunner {
         // 파일 이름에서 year와 semester 추출
         String[] parts = Objects.requireNonNull(fileName).split("-");
         if (parts.length < 3 || !parts[0].equals("course")) {
-          log.error("잘못된 파일 형식: {}", fileName);
+          log.error("잘못된 파일 이름 구조: {}", fileName);
           // `CourseFile`에 실패 기록 추가
           courseFileRepository.save(CourseFile.builder()
               .fileName(fileName)
@@ -69,7 +69,7 @@ public class CourseFileGenerator implements ApplicationRunner {
           semester = Integer.parseInt(parts[2].split("\\.")[0]);
         } catch (Exception e) {
           log.error("년도 또는 학기 추출 실패: {}", fileName, e);
-          // `CourseFile`에 실패 기록 추가
+          // `CourseFile 정보 추출 실패
           courseFileRepository.save(CourseFile.builder()
               .fileName(fileName)
               .processedAt(LocalDateTime.now())
