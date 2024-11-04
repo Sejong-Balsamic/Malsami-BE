@@ -15,10 +15,9 @@ import jakarta.persistence.FetchType;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
-import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
-import java.util.HashSet;
-import java.util.Set;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.UUID;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -54,10 +53,9 @@ public class DocumentPost extends BasePost {
 
   @Builder.Default
   @ElementCollection(targetClass = DocumentType.class, fetch = FetchType.LAZY)
-  @CollectionTable(name = "document_type", joinColumns = @JoinColumn(name = "document_post_id"))
-  @Column(name = "document_type", nullable = false)
+  @CollectionTable
   @Enumerated(EnumType.STRING)
-  private Set<DocumentType> documentTypeSet = new HashSet<>();
+  private List<DocumentType> documentTypes = new ArrayList<>();
 
   @Builder.Default
   @Enumerated(EnumType.STRING)
@@ -81,10 +79,10 @@ public class DocumentPost extends BasePost {
   @Builder.Default
   private Boolean isDepartmentPrivate = false; // 내 학과 비공개
 
-  public void updateDocumentTypeSet(Set<DocumentType> documentTypes) {
+  public void updateDocumentTypeSet(List<DocumentType> documentTypes) {
     if (documentTypes.size() > MAX_DOCUMENT_TYPES) {
       throw new CustomException(ErrorCode.DOCUMENT_TYPE_LIMIT_EXCEEDED);
     }
-    this.documentTypeSet = documentTypes;
+    this.documentTypes = documentTypes;
   }
 }

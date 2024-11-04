@@ -14,9 +14,6 @@ import com.balsamic.sejongmalsami.repository.postgres.DocumentPostRepository;
 import com.balsamic.sejongmalsami.repository.postgres.MemberRepository;
 import java.time.LocalDateTime;
 import java.util.Arrays;
-import java.util.HashSet;
-import java.util.Set;
-import java.util.stream.Collectors;
 import lombok.extern.slf4j.Slf4j;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -78,7 +75,7 @@ class DocumentPostServiceTest {
         .enrollmentStatus("재학")
         .profileUrl("http://example.com/profile2.jpg")
         .isNotificationEnabled(true)
-        .role(Role.ROLE_USER) // Enum 타입으로 수정
+        .role(Role.ROLE_USER)
         .accountStatus(AccountStatus.ACTIVE)
         .lastLoginTime(LocalDateTime.now().minusDays(9))
         .isFirstLogin(true)
@@ -104,7 +101,7 @@ class DocumentPostServiceTest {
         .updatedDate(LocalDateTime.now().minusDays(1))
         .isEdited(false)
         .isDeleted(false)
-        .documentTypeSet(new HashSet<>(Arrays.asList(DocumentType.DOCUMENT)))
+        .documentTypes(Arrays.asList(DocumentType.DOCUMENT)) // Set -> List로 변경
         .build();
 
     DocumentPost tempPost2 = DocumentPost.builder()
@@ -124,7 +121,7 @@ class DocumentPostServiceTest {
         .updatedDate(LocalDateTime.now().minusDays(2))
         .isEdited(false)
         .isDeleted(false)
-        .documentTypeSet(new HashSet<>(Arrays.asList(DocumentType.DOCUMENT)))
+        .documentTypes(Arrays.asList(DocumentType.DOCUMENT)) // Set -> List로 변경
         .build();
 
     post1 = documentPostRepository.save(tempPost1);
@@ -170,34 +167,30 @@ class DocumentPostServiceTest {
 
   @Test
   public void mainTest() {
-    searchQuery("created"); // 기본 정렬: 생성일
-    searchQuery("like");    // 좋아요 수 기준 정렬 (무시됨)
-    searchQuery("view");    // 조회수 기준 정렬 (무시됨)
+    searchQuery("createDate"); // 기본 정렬: 생성일
+    searchQuery("likeCount");    // 좋아요 수 기준 정렬
+    searchQuery("viewCount");    // 조회수 기준 정렬
   }
 
   public void searchQuery(String sortType) {
+    // DocumentCommand 객체 설정
     DocumentCommand command = new DocumentCommand();
     command.setTitle("자료 제목");
     command.setSubject("수학");
     command.setContent("자료 내용");
     command.setPageNumber(0);
     command.setPageSize(10);
-    command.setDocumentTypeSet(Set.of(DocumentType.DOCUMENT));
-    command.setSort(sortType); // sortType 설정 (사용되지 않음)
+    command.setDocumentTypes(Arrays.asList(DocumentType.DOCUMENT)); // Set -> List로 변경
+    command.setSort(sortType);
 
-    Set<String> documentTypes = command.getDocumentTypeSet() != null
-        ? command.getDocumentTypeSet().stream()
-        .map(DocumentType::name)
-        .collect(Collectors.toSet())
-        : null;
-
-    Pageable pageable = PageRequest.of(command.getPageNumber(), command.getPageSize(), Sort.unsorted());
+    Sort sort = Sort.by(sortType);
+    Pageable pageable = PageRequest.of(command.getPageNumber(), command.getPageSize(), sort);
 
     Page<DocumentPost> documentPostsPage = documentPostRepository.findDocumentPostsByFilter(
         command.getTitle(),
         command.getSubject(),
         command.getContent(),
-        documentTypes,
+        command.getDocumentTypes(),
         pageable
     );
 

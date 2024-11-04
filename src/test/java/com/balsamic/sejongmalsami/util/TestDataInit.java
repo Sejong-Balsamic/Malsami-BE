@@ -65,7 +65,7 @@ public class TestDataInit {
         .updatedDate(LocalDateTime.now().minusDays(1))
         .isEdited(false)
         .isDeleted(false)
-        .documentTypeSet(new HashSet<>(Arrays.asList(DocumentType.DOCUMENT)))
+        .documentTypes(Arrays.asList(DocumentType.DOCUMENT))
         .build();
     return documentPostRepository.save(post);
   }

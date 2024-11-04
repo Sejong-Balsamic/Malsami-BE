@@ -164,6 +164,7 @@ public interface DocumentPostControllerDocs {
   ResponseEntity<DocumentDto> getWeeklyPopularDocumentPost(
       DocumentCommand command);
 
+  //TODO: description 추가, testCase 더 구체적으로, Mock 객체 생성 최적화 필요
   @ApiChangeLogs({
       @ApiChangeLog(
           date = "2024.11.04",
