@@ -115,6 +115,8 @@ public enum ErrorCode {
 
   // DocumentPost
 
+  DOCUMENT_POST_NOT_FOUND(HttpStatus.BAD_REQUEST, "자료 글을 찾을 수 없습니다."),
+
   DOCUMENT_TYPE_LIMIT_EXCEEDED(HttpStatus.BAD_REQUEST, "자료게시글 자료 종류는 최대 2개까지 선택가능합니다."),
 
   // ContentType

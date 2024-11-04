@@ -163,4 +163,20 @@ public interface DocumentPostControllerDocs {
   )
   ResponseEntity<DocumentDto> getWeeklyPopularDocumentPost(
       DocumentCommand command);
+
+  @ApiChangeLogs({
+      @ApiChangeLog(
+          date = "2024.11.04",
+          author = Author.SUHSAECHAN,
+          description = "자료게시판 필터링 조회 기본 구현"
+      )
+  })
+  @Operation(
+      summary = "자료글 필터링 조회",
+      description = """
+          """
+  )
+  ResponseEntity<DocumentDto> searchDocumentPost(
+      CustomUserDetails customUserDetails,
+      DocumentCommand command);
 }

@@ -2,6 +2,7 @@ package com.balsamic.sejongmalsami.service;
 
 import com.balsamic.sejongmalsami.object.DocumentCommand;
 import com.balsamic.sejongmalsami.object.DocumentDto;
+import com.balsamic.sejongmalsami.object.constants.DocumentType;
 import com.balsamic.sejongmalsami.object.constants.MimeType;
 import com.balsamic.sejongmalsami.object.constants.UploadType;
 import com.balsamic.sejongmalsami.object.postgres.DocumentFile;
@@ -12,8 +13,14 @@ import com.balsamic.sejongmalsami.repository.postgres.DocumentPostRepository;
 import com.balsamic.sejongmalsami.repository.postgres.MemberRepository;
 import com.balsamic.sejongmalsami.util.exception.CustomException;
 import com.balsamic.sejongmalsami.util.exception.ErrorCode;
+import java.util.Set;
+import java.util.stream.Collectors;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
@@ -74,6 +81,31 @@ public class DocumentPostService {
         .documentFiles(savedDocumentFiles)
         .build();
   }
+
+  public DocumentDto searchDocumentPost(DocumentCommand command) {
+    Pageable pageable = PageRequest.of(0, 10, Sort.unsorted());
+
+
+    // 각 필드 추출
+    String title = command.getTitle();
+    String subject = command.getSubject();
+    String content = command.getContent();
+    Set<String> documentTypes = command.getDocumentTypeSet() != null
+        ? command.getDocumentTypeSet().stream()
+        .map(DocumentType::name)
+        .collect(Collectors.toSet())
+        : null;
+
+    // 리포지토리 호출
+    Page<DocumentPost> documentPostsPage = documentPostRepository.findDocumentPostsByFilter(
+        title, subject, content, documentTypes, pageable
+    );
+
+    return DocumentDto.builder()
+        .documentPostsPage(documentPostsPage)
+        .build();
+  }
+
 
   /**
    * 첨부 파일 처리, 업로드, 저장

@@ -54,4 +54,15 @@ public class DocumentPostController implements DocumentPostControllerDocs {
     return ResponseEntity.ok(popularPostService.getWeeklyPopularDocumentPosts());
   }
 
+  @Override
+  @PostMapping(value = "/search", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
+  @LogMonitoringInvocation
+  public ResponseEntity<DocumentDto> searchDocumentPost(
+      @AuthenticationPrincipal CustomUserDetails customUserDetails,
+      @ModelAttribute DocumentCommand command) {
+    command.setMemberId(customUserDetails.getMemberId());
+    return ResponseEntity.ok(documentPostService.searchDocumentPost(command));
+  }
+
+
 }
