@@ -4,7 +4,9 @@ import com.balsamic.sejongmalsami.object.DocumentCommand;
 import com.balsamic.sejongmalsami.object.constants.MimeType;
 import com.balsamic.sejongmalsami.object.constants.UploadType;
 import com.balsamic.sejongmalsami.object.postgres.DocumentFile;
+import com.balsamic.sejongmalsami.object.postgres.DocumentPost;
 import com.balsamic.sejongmalsami.repository.postgres.DocumentFileRepository;
+import com.balsamic.sejongmalsami.repository.postgres.DocumentPostRepository;
 import com.balsamic.sejongmalsami.util.FileUtil;
 import com.balsamic.sejongmalsami.util.FtpUtil;
 import com.balsamic.sejongmalsami.util.ImageThumbnailGenerator;
@@ -30,6 +32,7 @@ public class DocumentFileService {
   // 파일 유형별 최대 업로드 크기 (MB)
   private static final int MAX_BASIC_UPLOAD_SIZE = 50;    // 이미지, 문서 등
   private static final int MAX_VIDEO_UPLOAD_SIZE = 200;   // 비디오
+  private final DocumentPostRepository documentPostRepository;
 
   /**
    * 파일 저장
@@ -43,12 +46,15 @@ public class DocumentFileService {
     String thumbnailUrl = generateThumbnailUrl(file, uploadType);
     String uploadFileName = FileUtil.generateUploadFileName(file);
 
+    DocumentPost documentPost = documentPostRepository.findByDocumentPostId(command.getDocumentPostId())
+        .orElseThrow(() -> new CustomException(ErrorCode.DOCUMENT_POST_NOT_FOUND));
+
     // 첨부파일 업로드
     ftpUtil.uploadDocument(file, uploadFileName);
 
     // 메타 데이터 documentFile 저장
     DocumentFile savedDocumentFile = documentFileRepository.save(DocumentFile.builder()
-        .postId(command.getPostId())
+        .documentPost(documentPost)
         .uploader(command.getMember())
         .thumbnailUrl(thumbnailUrl)
         .originalFileName(file.getOriginalFilename())

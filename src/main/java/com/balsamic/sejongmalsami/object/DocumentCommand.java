@@ -26,8 +26,13 @@ public class DocumentCommand {
   private Boolean isDepartmentPrivate; // 자료
   private Boolean isPrivate; // 자료 요청
 
-  private UUID postId;
+  private UUID documentPostId;
   private Member member;
+
+  private Integer pageNumber;
+  private Integer pageSize;
+  private String sort; // 최신순, 좋아요순
+
 
   private List<MultipartFile> attachmentFiles = new ArrayList<>(); // 첨부된 파일들
 
