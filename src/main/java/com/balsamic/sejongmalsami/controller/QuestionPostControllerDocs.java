@@ -152,7 +152,7 @@ public interface QuestionPostControllerDocs {
       )
   })
   @Operation(
-      summary = "전체 질문 글 조회",
+      summary = "전체 질문 글 조회 (최신순)",
       description = """
           **전체 질문 글 조회 요청**
 

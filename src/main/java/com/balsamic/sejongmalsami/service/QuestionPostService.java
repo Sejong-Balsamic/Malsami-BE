@@ -112,7 +112,7 @@ public class QuestionPostService {
   }
 
   /**
-   * 전체 질문 글 조회
+   * 전체 질문 글 조회 (최신순)
    * @param command <br>
    * Integer pageNumber <br>
    * Integer PageSize <br>
