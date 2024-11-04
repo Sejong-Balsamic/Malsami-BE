@@ -16,4 +16,7 @@ public interface CourseRepository extends JpaRepository<Course, UUID> {
   List<String> findDistinctSubjectByFaculty(Faculty faculty);
 
   boolean existsByYearAndSemester(int year, int semester);
+
+  // 교과목 명을 통해 단과대 조회
+  List<Course> findAllBySubject(String subject);
 }
