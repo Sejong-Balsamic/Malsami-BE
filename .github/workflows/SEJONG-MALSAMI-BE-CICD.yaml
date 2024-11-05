@@ -110,7 +110,6 @@ jobs:
               -e TZ=Asia/Seoul \
               -e "SPRING_PROFILES_ACTIVE=prod" \
               -v /etc/localtime:/etc/localtime:ro \
-              -v /volume1/projects/sejong-malsami:/mnt/sejong-malsami \
               ${{ secrets.DOCKERHUB_USERNAME }}/sejong-malsami-back-container:${BRANCH}
 
             echo "배포가 성공적으로 완료되었습니다."
