@@ -2,7 +2,9 @@ package com.balsamic.sejongmalsami.service;
 
 import com.balsamic.sejongmalsami.object.QuestionCommand;
 import com.balsamic.sejongmalsami.object.QuestionDto;
+import com.balsamic.sejongmalsami.object.constants.Faculty;
 import com.balsamic.sejongmalsami.object.constants.QuestionPresetTag;
+import com.balsamic.sejongmalsami.object.postgres.Course;
 import com.balsamic.sejongmalsami.object.postgres.MediaFile;
 import com.balsamic.sejongmalsami.object.postgres.Member;
 import com.balsamic.sejongmalsami.object.postgres.QuestionPost;
@@ -48,11 +50,17 @@ public class QuestionPostService {
       throw new CustomException(ErrorCode.QUESTION_REWARD_INVALID);
     }
 
+    // 입력된 교과목에 따른 단과대 설정
+    List<Faculty> faculties = courseRepository
+        .findAllBySubject(command.getSubject())
+        .stream().map(Course::getFaculty).toList();
+
     QuestionPost questionPost = QuestionPost.builder()
         .member(member)
         .title(command.getTitle())
         .content(command.getContent())
         .subject(command.getSubject())
+        .faculties(faculties)
         .questionPresetTagSet(new HashSet<>())
         .viewCount(0)
         .likeCount(0)
@@ -104,7 +112,7 @@ public class QuestionPostService {
   }
 
   /**
-   * 전체 질문 글 조회
+   * 전체 질문 글 조회 (최신순)
    * @param command <br>
    * Integer pageNumber <br>
    * Integer PageSize <br>
