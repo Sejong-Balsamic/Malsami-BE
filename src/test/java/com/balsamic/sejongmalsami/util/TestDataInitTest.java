@@ -1,7 +1,6 @@
 package com.balsamic.sejongmalsami.util;
 
 import static com.balsamic.sejongmalsami.util.LogUtils.*;
-import static org.junit.jupiter.api.Assertions.*;
 
 import com.balsamic.sejongmalsami.object.postgres.DocumentFile;
 import com.balsamic.sejongmalsami.object.postgres.DocumentPost;
@@ -19,7 +18,7 @@ import org.springframework.transaction.annotation.Transactional;
 @Transactional
 class TestDataInitTest {
   @Autowired
-  TestDataInit testDataInit;
+  TestDataGenerator testDataGenerator;
 
   @Test
   public void mainTest() {
@@ -29,26 +28,26 @@ class TestDataInitTest {
   }
 
   void createMember() {
-    Member member = testDataInit.createMember();
+    Member member = testDataGenerator.createMember();
     superLog(member);
   }
 
   void createDocumentPost() {
-    Member member = testDataInit.createMember();
+    Member member = testDataGenerator.createMember();
     superLog(member);
 
-    DocumentPost documentPost = testDataInit.createDocumentPost(member);
+    DocumentPost documentPost = testDataGenerator.createDocumentPost(member);
     superLog(documentPost);
   }
 
   void createDocumentFile() {
-    Member member = testDataInit.createMember();
+    Member member = testDataGenerator.createMember();
     superLog(member);
 
-    DocumentPost documentPost = testDataInit.createDocumentPost(member);
+    DocumentPost documentPost = testDataGenerator.createDocumentPost(member);
     superLog(documentPost);
 
-    DocumentFile documentFile = testDataInit.createDocumentFile(documentPost, member);
+    DocumentFile documentFile = testDataGenerator.createDocumentFile(documentPost, member);
     superLog(documentFile);
   }
 }

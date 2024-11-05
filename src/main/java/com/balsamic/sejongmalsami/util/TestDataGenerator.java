@@ -25,20 +25,17 @@ import com.balsamic.sejongmalsami.repository.postgres.MemberRepository;
 import com.github.javafaker.Faker;
 import java.time.LocalDateTime;
 import java.util.Arrays;
-import org.springframework.beans.factory.annotation.Autowired;
+import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
-import org.springframework.transaction.annotation.Transactional;
 
 @Component
-public class TestDataInit {
-  @Autowired
-  private MemberRepository memberRepository;
+@RequiredArgsConstructor
+public class TestDataGenerator {
+  private final MemberRepository memberRepository;
 
-  @Autowired
-  private DocumentPostRepository documentPostRepository;
+  private final DocumentPostRepository documentPostRepository;
 
-  @Autowired
-  private DocumentFileRepository documentFileRepository;
+  private final DocumentFileRepository documentFileRepository;
 
   private final Faker faker = new Faker();
 
