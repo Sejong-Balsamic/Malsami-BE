@@ -15,6 +15,7 @@ import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.ManyToOne;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Set;
 import java.util.UUID;
 import lombok.AllArgsConstructor;
@@ -56,7 +57,7 @@ public class QuestionPost extends BasePost {
   private String subject;
 
   // 단과대
-  private Faculty faculty;
+  private List<Faculty> faculties;
 
   // 정적 태그
   @Builder.Default
