@@ -163,4 +163,19 @@ public interface DocumentPostControllerDocs {
   )
   ResponseEntity<DocumentDto> getWeeklyPopularDocumentPost(
       DocumentCommand command);
+
+  //TODO: description 추가, testCase 더 구체적으로, Mock 객체 생성 최적화 필요
+  @ApiChangeLogs({
+      @ApiChangeLog(
+          date = "2024.11.04",
+          author = Author.SUHSAECHAN,
+          description = "자료게시판 필터링 조회 기본 구현"
+      )
+  })
+  @Operation(
+      summary = "자료글 필터링 조회",
+      description = """
+          """
+  )
+  ResponseEntity<DocumentDto> searchDocumentPost(DocumentCommand command);
 }

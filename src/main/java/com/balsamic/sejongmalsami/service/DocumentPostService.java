@@ -2,25 +2,28 @@ package com.balsamic.sejongmalsami.service;
 
 import com.balsamic.sejongmalsami.object.DocumentCommand;
 import com.balsamic.sejongmalsami.object.DocumentDto;
+import com.balsamic.sejongmalsami.object.constants.DocumentType;
 import com.balsamic.sejongmalsami.object.constants.MimeType;
+import com.balsamic.sejongmalsami.object.constants.PostTier;
 import com.balsamic.sejongmalsami.object.constants.UploadType;
 import com.balsamic.sejongmalsami.object.postgres.DocumentFile;
 import com.balsamic.sejongmalsami.object.postgres.DocumentPost;
 import com.balsamic.sejongmalsami.object.postgres.Member;
-import com.balsamic.sejongmalsami.object.constants.PostTier;
 import com.balsamic.sejongmalsami.repository.postgres.DocumentPostRepository;
 import com.balsamic.sejongmalsami.repository.postgres.MemberRepository;
 import com.balsamic.sejongmalsami.util.exception.CustomException;
 import com.balsamic.sejongmalsami.util.exception.ErrorCode;
+import java.util.ArrayList;
+import java.util.List;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
-
-import java.util.ArrayList;
-import java.util.HashSet;
-import java.util.List;
 
 @Service
 @Slf4j
@@ -52,14 +55,14 @@ public class DocumentPostService {
     // 첨부 자료 처리 및 저장 : 저장된 자료 파일은 savedDocumentFiles 에 추가
     processAndSaveUploadedFiles(command, savedDocumentFiles);
 
-    // 자료 게시글 객세 생성 및 저장
+    // 자료 게시글 객체 생성 및 저장
     DocumentPost savedDocument = documentPostRepository.save(DocumentPost.builder()
         .member(member)
         .title(command.getTitle())
         .content(command.getContent())
         .subject(command.getSubject())
         .postTier(PostTier.CHEONMIN)
-        .documentTypeSet(command.getDocumentTypeSet() != null ? new HashSet<>(command.getDocumentTypeSet()) : null)
+        .documentTypes(command.getDocumentTypes() != null ? new ArrayList<>(command.getDocumentTypes()) : null)
         .likeCount(0)
         .commentCount(0)
         .viewCount(0)
@@ -74,6 +77,39 @@ public class DocumentPostService {
         .documentFiles(savedDocumentFiles)
         .build();
   }
+
+  @Transactional(readOnly = true)
+  public DocumentDto searchDocumentPost(DocumentCommand command) {
+
+    // 정렬
+    Sort sort;
+    String sortType = command.getSort();
+    if ("likeCount".equalsIgnoreCase(sortType)) {
+      sort = Sort.by(Sort.Order.desc("likeCount"));
+    } else if ("viewCount".equalsIgnoreCase(sortType)) {
+      sort = Sort.by(Sort.Order.desc("viewCount"));
+    } else {
+      sort = Sort.by(Sort.Order.desc("createdDate"));
+    }
+
+    Pageable pageable = PageRequest.of(command.getPageNumber(), command.getPageSize(), sort);
+
+    //TODO: search 와 filter 분리 , like문 제거 및 필터링 변수 정의 추가 필요
+    String title = command.getTitle();
+    String subject = command.getSubject();
+    String content = command.getContent();
+    List<DocumentType> documentTypesList = command.getDocumentTypes();
+
+
+    Page<DocumentPost> documentPostsPage = documentPostRepository.findDocumentPostsByFilter(
+        title, subject, content, documentTypesList, pageable
+    );
+
+    return DocumentDto.builder()
+        .documentPostsPage(documentPostsPage)
+        .build();
+  }
+
 
   /**
    * 첨부 파일 처리, 업로드, 저장

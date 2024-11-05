@@ -32,7 +32,8 @@ public class DocumentFile extends BaseEntity {
   @Column(columnDefinition = "uuid DEFAULT uuid_generate_v4()", updatable = false)
   private UUID documentFileId;
 
-  private UUID postId;
+  @ManyToOne
+  private DocumentPost documentPost;
 
   @ManyToOne
   private Member uploader;
