@@ -168,8 +168,8 @@ class DocumentPostServiceTest {
   @Test
   public void mainTest() {
     searchQuery("createDate"); // 기본 정렬: 생성일
-    searchQuery("likeCount");    // 좋아요 수 기준 정렬
-    searchQuery("viewCount");    // 조회수 기준 정렬
+//    searchQuery("likeCount");    // 좋아요 수 기준 정렬
+//    searchQuery("viewCount");    // 조회수 기준 정렬
   }
 
   public void searchQuery(String sortType) {

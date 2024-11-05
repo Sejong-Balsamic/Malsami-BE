@@ -23,8 +23,8 @@ class TestDataInitTest {
 
   @Test
   public void mainTest() {
-//    createMember();
-//    createDocumentPost();
+    createMember();
+    createDocumentPost();
     createDocumentFile();
   }
 
