@@ -177,7 +177,5 @@ public interface DocumentPostControllerDocs {
       description = """
           """
   )
-  ResponseEntity<DocumentDto> searchDocumentPost(
-      CustomUserDetails customUserDetails,
-      DocumentCommand command);
+  ResponseEntity<DocumentDto> searchDocumentPost(DocumentCommand command);
 }

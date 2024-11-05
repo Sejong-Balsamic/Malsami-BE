@@ -94,6 +94,7 @@ public class DocumentPostService {
 
     Pageable pageable = PageRequest.of(command.getPageNumber(), command.getPageSize(), sort);
 
+    //TODO: search 와 filter 분리 , like문 제거 및 필터링 변수 정의 추가 필요
     String title = command.getTitle();
     String subject = command.getSubject();
     String content = command.getContent();
