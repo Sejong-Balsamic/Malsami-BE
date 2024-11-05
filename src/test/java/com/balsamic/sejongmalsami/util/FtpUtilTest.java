@@ -47,11 +47,11 @@ class FtpUtilTest {
    */
   @Test
   void mainTest() {
-//    testUploadDocuments();
-//    testDeleteDocuments();
-//    testPoolLimit();
+    testUploadDocuments();
+    testDeleteDocuments();
+    testPoolLimit();
     testUploadThumbnails();
-//    testWebPConversion();
+//    testWebPConversion(); // mac 에서 작동안함 (라이브러리 한계)
   }
 
   void testUploadDocuments() {
@@ -66,14 +66,14 @@ class FtpUtilTest {
         }
         log.info("파일을 성공적으로 찾았습니다: {}", fileName);
 
-        MultipartFile multipartFile = new MockMultipartFile(
+        MultipartFile file = new MockMultipartFile(
             "file",
             fileName,
             Files.probeContentType(resource.getFile().toPath()),
             resource.getInputStream()
         );
 
-        ftpUtil.uploadDocument(multipartFile);
+        ftpUtil.uploadDocument(file, FileUtil.generateUploadFileName(file));
         uploadedFtpFiles.add(fileName);
         log.info("FTP 문서 업로드 성공: {}", fileName);
 
@@ -103,14 +103,14 @@ class FtpUtilTest {
         }
         log.info("파일을 성공적으로 찾았습니다: {}", fileName);
 
-        MultipartFile multipartFile = new MockMultipartFile(
+        MultipartFile file = new MockMultipartFile(
             "file",
             fileName,
             Files.probeContentType(resource.getFile().toPath()),
             resource.getInputStream()
         );
 
-        ftpUtil.uploadDocument(multipartFile);
+        ftpUtil.uploadDocument(file, FileUtil.generateUploadFileName(file));
         uploadedFtpFiles.add(fileName);
         log.info("FTP 문서 업로드 성공: {}", fileName);
 
@@ -149,7 +149,7 @@ class FtpUtilTest {
 
     for (int i = 0; i < numberOfThreads; i++) {
       String fileName = "test_file_" + i + ".txt";
-      MultipartFile multipartFile = new MockMultipartFile(
+      MultipartFile file = new MockMultipartFile(
           "file",
           fileName,
           "text/plain",
@@ -159,7 +159,7 @@ class FtpUtilTest {
       Thread thread = new Thread(() -> {
         try {
           log.info("Thread {} 시작: {}", Thread.currentThread().getName(), fileName);
-          ftpUtil.uploadDocument(multipartFile);
+          ftpUtil.uploadDocument(file, FileUtil.generateUploadFileName(file));
           synchronized (uploadedFtpFiles) {
             uploadedFtpFiles.add(fileName);
           }
