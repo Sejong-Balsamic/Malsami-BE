@@ -161,7 +161,7 @@ public class ImageThumbnailGenerator {
   /**
    * PDF 썸네일 생성
    */
-  private byte[] generatePdfThumbnail(InputStream pdfInputStream) throws IOException {
+  public byte[] generatePdfThumbnail(InputStream pdfInputStream) throws IOException {
     log.info("PDF 썸네일 생성 시작");
     try (PDDocument document = PDDocument.load(pdfInputStream)) {
       log.info("PDF 문서 로드 완료, 페이지 수: {}", document.getNumberOfPages());
