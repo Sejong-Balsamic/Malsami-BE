@@ -142,10 +142,11 @@ public class QuestionPostService {
   }
 
   /**
-   * 아직 답변 안된 글 조회 로직 (최신순)
-   * @param command <br>
-   * Integer pageNumber <br>
-   * Integer pageSize <br>
+   * 아직 답변 안된 글 조회 로직 + 단과대 필터링 (정렬: 최신순)
+   * @param command
+   * <p>Faculty faculty
+   * <p>Integer pageNumber
+   * <p>Integer pageSize
    *
    * @return
    */
@@ -157,7 +158,7 @@ public class QuestionPostService {
         Sort.by("createdDate").descending());
 
     Page<QuestionPost> postPage = questionPostRepository
-        .findByAnswerCount(0, pageable);
+        .findFilteredNotAnsweredQuestion(command.getFaculty(), pageable);
 
     return QuestionDto.builder()
         .questionPosts(postPage)

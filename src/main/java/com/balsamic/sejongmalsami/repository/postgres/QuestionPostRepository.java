@@ -32,8 +32,16 @@ public interface QuestionPostRepository extends JpaRepository<QuestionPost, UUID
   // 주간 인기글 상위 n개 조회 (7일 이내에 등록된 글만 조회)
   List<QuestionPost> findTop50ByCreatedDateAfterOrderByWeeklyScoreDesc(LocalDateTime lastWeek);
 
-  // 아직 답변하지 않은 질문글 조회 (최신순)
-  Page<QuestionPost> findByAnswerCount(int answerCount, Pageable pageable);
+  // 아직 답변하지 않은 질문글 조회 및 단과대 필터링 (최신순)
+  @Query("""
+      select q
+      from QuestionPost q
+      where (:faculty is null or :faculty member of q.faculties)
+      and (q.answerCount = 0)
+      """)
+  Page<QuestionPost> findFilteredNotAnsweredQuestion(
+      @Param("faculty") Faculty faculty,
+      Pageable pageable);
 
   // 과목 필터링
   @Query("""
