@@ -51,7 +51,24 @@ public class QuestionPostController implements QuestionPostControllerDocs {
   public ResponseEntity<QuestionDto> getAllQuestionPost(
       @ModelAttribute QuestionCommand command
   ) {
-    return ResponseEntity.ok(questionPostService.findAllQuestionPost());
+    return ResponseEntity.ok(questionPostService.findAllQuestionPost(command));
+  }
+
+  @Override
+  @PostMapping(value = "/get/unanswered", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
+  @LogMonitoringInvocation
+  public ResponseEntity<QuestionDto> getAllQuestionPostsNotAnswered(
+      @ModelAttribute QuestionCommand command) {
+    return ResponseEntity
+        .ok(questionPostService.findAllQuestionPostsNotAnswered(command));
+  }
+
+  @Override
+  @PostMapping(value = "/get/filtered-posts", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
+  @LogMonitoringInvocation
+  public ResponseEntity<QuestionDto> getFilteredQuestionPosts(
+      @ModelAttribute QuestionCommand command) {
+    return ResponseEntity.ok(questionPostService.filteredQuestions(command));
   }
 
   @Override

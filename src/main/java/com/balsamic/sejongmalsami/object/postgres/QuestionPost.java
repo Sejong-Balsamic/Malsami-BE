@@ -1,10 +1,13 @@
 package com.balsamic.sejongmalsami.object.postgres;
 
+import com.balsamic.sejongmalsami.object.constants.Faculty;
 import com.balsamic.sejongmalsami.object.constants.QuestionPresetTag;
 import com.balsamic.sejongmalsami.util.exception.CustomException;
 import com.balsamic.sejongmalsami.util.exception.ErrorCode;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+import jakarta.persistence.CollectionTable;
 import jakarta.persistence.Column;
+import jakarta.persistence.ElementCollection;
 import jakarta.persistence.Entity;
 import jakarta.persistence.EnumType;
 import jakarta.persistence.Enumerated;
@@ -12,9 +15,10 @@ import jakarta.persistence.FetchType;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
+import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
-import java.util.HashSet;
-import java.util.Set;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.UUID;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -54,10 +58,21 @@ public class QuestionPost extends BasePost {
   @Column(nullable = false)
   private String subject;
 
-  // 정적 태그
-  @Builder.Default
+  // 단과대
+  @ElementCollection(targetClass = Faculty.class, fetch = FetchType.LAZY)
   @Enumerated(EnumType.STRING)
-  private Set<QuestionPresetTag> questionPresetTagSet = new HashSet<>();
+  @CollectionTable(name = "question_faculties", joinColumns = @JoinColumn(name = "question_post_id"))
+  @Builder.Default
+  @Column
+  private List<Faculty> faculties = new ArrayList<>();
+
+  // 정적 태그
+  @ElementCollection(targetClass = QuestionPresetTag.class, fetch = FetchType.LAZY)
+  @Enumerated(EnumType.STRING)
+  @CollectionTable(name = "question_preset_tags", joinColumns = @JoinColumn(name = "question_post_id"))
+  @Builder.Default
+  @Column
+  private List<QuestionPresetTag> questionPresetTags = new ArrayList<>();
 
   // 조회 수
   @Builder.Default
@@ -83,6 +98,11 @@ public class QuestionPost extends BasePost {
   @Builder.Default
   private Boolean isPrivate = false;
 
+  // 조회 수 증가
+  public void increaseViewCount() {
+    viewCount++;
+  }
+
   // 좋아요 증가
   public void increaseLikeCount() {
     likeCount++;
@@ -99,12 +119,12 @@ public class QuestionPost extends BasePost {
   // 질문글 정적 태그 추가(최대 2개)
   public void addPresetTag(QuestionPresetTag tag) {
 
-    if (questionPresetTagSet.size() >= MAX_PRESET_TAGS) {
+    if (questionPresetTags.size() >= MAX_PRESET_TAGS) {
       throw new CustomException(ErrorCode.QUESTION_PRESET_TAG_LIMIT_EXCEEDED);
     }
 
     // 태그 추가
-    questionPresetTagSet.add(tag);
+    questionPresetTags.add(tag);
   }
 
   // 답변 수 동기화

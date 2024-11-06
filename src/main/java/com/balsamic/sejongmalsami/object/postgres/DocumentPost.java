@@ -5,7 +5,9 @@ import com.balsamic.sejongmalsami.object.constants.PostTier;
 import com.balsamic.sejongmalsami.util.exception.CustomException;
 import com.balsamic.sejongmalsami.util.exception.ErrorCode;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+import jakarta.persistence.CollectionTable;
 import jakarta.persistence.Column;
+import jakarta.persistence.ElementCollection;
 import jakarta.persistence.Entity;
 import jakarta.persistence.EnumType;
 import jakarta.persistence.Enumerated;
@@ -14,8 +16,8 @@ import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.ManyToOne;
-import java.util.HashSet;
-import java.util.Set;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.UUID;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -50,8 +52,10 @@ public class DocumentPost extends BasePost {
   private String content; // 내용
 
   @Builder.Default
+  @ElementCollection(targetClass = DocumentType.class, fetch = FetchType.LAZY)
+  @CollectionTable
   @Enumerated(EnumType.STRING)
-  private Set<DocumentType> documentTypeSet = new HashSet<>();
+  private List<DocumentType> documentTypes = new ArrayList<>();
 
   @Builder.Default
   @Enumerated(EnumType.STRING)
@@ -75,10 +79,10 @@ public class DocumentPost extends BasePost {
   @Builder.Default
   private Boolean isDepartmentPrivate = false; // 내 학과 비공개
 
-  public void updateDocumentTypeSet(Set<DocumentType> documentTypes) {
+  public void updateDocumentTypeSet(List<DocumentType> documentTypes) {
     if (documentTypes.size() > MAX_DOCUMENT_TYPES) {
       throw new CustomException(ErrorCode.DOCUMENT_TYPE_LIMIT_EXCEEDED);
     }
-    this.documentTypeSet = documentTypes;
+    this.documentTypes = documentTypes;
   }
 }

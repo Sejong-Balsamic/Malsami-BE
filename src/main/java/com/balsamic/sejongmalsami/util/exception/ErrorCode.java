@@ -79,6 +79,8 @@ public enum ErrorCode {
 
   // Course
 
+  FACULTY_NOT_FOUND(HttpStatus.BAD_REQUEST, "교과목명에 해당하는 단과대를 찾을 수 없습니다."),
+
   COURSE_SAVE_ERROR(HttpStatus.BAD_REQUEST, "교과목명 파일 처리 중 오류가 발생했습니다"),
 
   WRONG_FACULTY_NAME(HttpStatus.BAD_REQUEST, "올바르지 않은 단과 대학입니다"),
@@ -114,6 +116,8 @@ public enum ErrorCode {
   CHAETAEK_ANSWER_ALREADY_EXISTS(HttpStatus.BAD_REQUEST, "해당 질문글에 이미 채택된 답변이 존재합니다."),
 
   // DocumentPost
+
+  DOCUMENT_POST_NOT_FOUND(HttpStatus.BAD_REQUEST, "자료 글을 찾을 수 없습니다."),
 
   DOCUMENT_TYPE_LIMIT_EXCEEDED(HttpStatus.BAD_REQUEST, "자료게시글 자료 종류는 최대 2개까지 선택가능합니다."),
 

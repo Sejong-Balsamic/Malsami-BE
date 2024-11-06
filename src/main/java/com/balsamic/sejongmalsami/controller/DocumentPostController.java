@@ -28,7 +28,6 @@ public class DocumentPostController implements DocumentPostControllerDocs {
   private final DocumentPostService documentPostService;
   private final PopularPostService popularPostService;
 
-
   @Override
   @PostMapping(value = "/post", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
   @LogMonitoringInvocation
@@ -54,4 +53,11 @@ public class DocumentPostController implements DocumentPostControllerDocs {
     return ResponseEntity.ok(popularPostService.getWeeklyPopularDocumentPosts());
   }
 
+  @Override
+  @PostMapping(value = "/filter", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
+  @LogMonitoringInvocation
+  public ResponseEntity<DocumentDto> searchDocumentPost(
+      @ModelAttribute DocumentCommand command) {
+    return ResponseEntity.ok(documentPostService.searchDocumentPost(command));
+  }
 }
