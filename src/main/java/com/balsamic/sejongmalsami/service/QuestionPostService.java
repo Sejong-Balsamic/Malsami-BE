@@ -4,6 +4,7 @@ import com.balsamic.sejongmalsami.object.QuestionCommand;
 import com.balsamic.sejongmalsami.object.QuestionDto;
 import com.balsamic.sejongmalsami.object.constants.Faculty;
 import com.balsamic.sejongmalsami.object.constants.QuestionPresetTag;
+import com.balsamic.sejongmalsami.object.constants.SortType;
 import com.balsamic.sejongmalsami.object.postgres.Course;
 import com.balsamic.sejongmalsami.object.postgres.MediaFile;
 import com.balsamic.sejongmalsami.object.postgres.Member;
@@ -13,15 +14,15 @@ import com.balsamic.sejongmalsami.repository.postgres.MemberRepository;
 import com.balsamic.sejongmalsami.repository.postgres.QuestionPostRepository;
 import com.balsamic.sejongmalsami.util.exception.CustomException;
 import com.balsamic.sejongmalsami.util.exception.ErrorCode;
-import java.util.HashSet;
+import java.util.ArrayList;
 import java.util.List;
-import java.util.Set;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
+import org.springframework.data.domain.Sort.Direction;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -55,13 +56,20 @@ public class QuestionPostService {
         .findAllBySubject(command.getSubject())
         .stream().map(Course::getFaculty).toList();
 
+    log.info("입력된 교과목명 : {}", command.getSubject());
+    log.info("단과대 List : {}", faculties);
+
+    if (faculties.isEmpty()) {
+      throw new CustomException(ErrorCode.FACULTY_NOT_FOUND);
+    }
+
     QuestionPost questionPost = QuestionPost.builder()
         .member(member)
         .title(command.getTitle())
         .content(command.getContent())
         .subject(command.getSubject())
         .faculties(faculties)
-        .questionPresetTagSet(new HashSet<>())
+        .questionPresetTags(new ArrayList<>())
         .viewCount(0)
         .likeCount(0)
         .answerCount(0)
@@ -73,8 +81,8 @@ public class QuestionPostService {
         .build();
 
     // 정적 태그 추가
-    if (command.getQuestionPresetTagSet() != null) {
-      for (QuestionPresetTag tag : command.getQuestionPresetTagSet()) {
+    if (command.getQuestionPresetTags() != null) {
+      for (QuestionPresetTag tag : command.getQuestionPresetTags()) {
         questionPost.addPresetTag(tag);
       }
     }
@@ -82,7 +90,7 @@ public class QuestionPostService {
     QuestionPost savedPost = questionPostRepository.save(questionPost);
 
     // 커스텀 태그 추가
-    Set<String> customTags = null;
+    List<String> customTags = null;
     if (command.getCustomTagSet() != null) {
       customTags = questionPostCustomTagService
           .saveCustomTags(command.getCustomTagSet(), savedPost.getQuestionPostId());
@@ -156,5 +164,73 @@ public class QuestionPostService {
         .build();
   }
 
+  /**
+   * <h3>질문글 필터링 로직
+   * <p>1. 교과목명 기준 필터링 - String subject (ex. 컴퓨터구조, 인터렉티브 디자인)
+   * <p>2. 엽전 현상금 범위 필터링 - Integer minYeopjeon, Integer maxYeopjeon
+   * <p>3. 정적 태그 필터링 - QuestionPresetTag (최대 2개)
+   * <p>4. 단과대별 필터링 - Faculty (ex. 공과대학, 예체는대학)
+   * <br><br>
+   * <h3>정렬 로직 (SortType)
+   * <p>최신순, 좋아요순, 엽전 현상금순, 조회순
+   *
+   * @param command
+   * <p>String subject
+   * <p>Integer minYeopjeon
+   * <p>Integer maxYeopjeon
+   * <p>List<QuestionPresetTag> questionPresetTags
+   * <p>Faculty
+   * <p>Boolean viewNotChaetaek
+   * <p>SortType
+   *
+   * @return Page questionPosts
+   */
+  @Transactional
+  public QuestionDto filteredQuestions(QuestionCommand command) {
 
+    // 과목명이 비어있는경우 null 설정 (비어있는 경우 쿼리문에서 오류 발생)
+    if (command.getSubject().isEmpty()) {
+      command.setSubject(null);
+    }
+
+    // 정적태그 List 사이즈가 0인경우 null로 설정 (비어있는 list의 경우 쿼리문에서 오류 발생)
+    if (command.getQuestionPresetTags().isEmpty()) {
+      command.setQuestionPresetTags(null);
+    }
+
+    // 정렬 기준 (default: 최신순)
+    SortType sortType = (command.getSortType() != null) ? command.getSortType() : SortType.LATEST;
+
+    Sort sort;
+    switch (sortType) {
+      case LATEST -> sort = Sort.by(Direction.DESC, "createdDate");
+      case MOST_LIKED -> sort = Sort.by(Direction.DESC, "likeCount");
+      case YEOPJEON_REWARD -> sort = Sort.by(Direction.DESC, "rewardYeopjeon");
+      case VIEW_COUNT -> sort = Sort.by(Direction.DESC, "viewCount");
+      default -> sort = Sort.by(Direction.DESC, "createdDate");
+    }
+
+    Pageable pageable = PageRequest.of(command.getPageNumber(), command.getPageSize(), sort);
+
+    Page<QuestionPost> posts = questionPostRepository
+        .findFilteredQuestions(command.getSubject(),
+            command.getMinYeopjeon(),
+            command.getMaxYeopjeon(),
+            command.getFaculty(),
+            command.getQuestionPresetTags(),
+            command.getViewNotChaetaek(),
+            pageable);
+
+    // TODO: 로그 추후 이쁘게 변경할 예정
+    log.info("!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!");
+    log.info("개수: {}", posts.getNumberOfElements());
+    log.info("테스트 결과: {}", posts.getContent()
+        .stream().map(QuestionPost::getTitle)
+        .toList());
+    log.info("!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!");
+
+    return QuestionDto.builder()
+        .questionPosts(posts)
+        .build();
+  }
 }

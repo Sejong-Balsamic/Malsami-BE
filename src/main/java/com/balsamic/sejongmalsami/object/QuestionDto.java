@@ -5,7 +5,6 @@ import com.balsamic.sejongmalsami.object.postgres.AnswerPost;
 import com.balsamic.sejongmalsami.object.postgres.MediaFile;
 import com.balsamic.sejongmalsami.object.postgres.QuestionPost;
 import java.util.List;
-import java.util.Set;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.ToString;
@@ -28,7 +27,7 @@ public class QuestionDto {
   private List<MediaFile> mediaFiles; // 질문, 답변
 
   // 커스텀 태그
-  private Set<String> customTags; // 질문
+  private List<String> customTags; // 질문
 
   // 좋아요 내역
   private QuestionBoardLike questionBoardLike;

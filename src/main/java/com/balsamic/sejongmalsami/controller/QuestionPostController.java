@@ -64,6 +64,14 @@ public class QuestionPostController implements QuestionPostControllerDocs {
   }
 
   @Override
+  @PostMapping(value = "/get/filter", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
+  @LogMonitoringInvocation
+  public ResponseEntity<QuestionDto> getFilteredQuestionPosts(
+      @ModelAttribute QuestionCommand command) {
+    return ResponseEntity.ok(questionPostService.filteredQuestions(command));
+  }
+
+  @Override
   @PostMapping(value = "/popular/daily", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
   @LogMonitoringInvocation
   public ResponseEntity<QuestionDto> getDailyPopularQuestionPost(
