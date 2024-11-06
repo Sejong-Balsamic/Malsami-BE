@@ -1,5 +1,7 @@
 package com.balsamic.sejongmalsami.repository.postgres;
 
+import com.balsamic.sejongmalsami.object.constants.Faculty;
+import com.balsamic.sejongmalsami.object.constants.QuestionPresetTag;
 import com.balsamic.sejongmalsami.object.postgres.AnswerPost;
 import com.balsamic.sejongmalsami.object.postgres.QuestionPost;
 import java.time.LocalDateTime;
@@ -30,8 +32,44 @@ public interface QuestionPostRepository extends JpaRepository<QuestionPost, UUID
   // 주간 인기글 상위 n개 조회 (7일 이내에 등록된 글만 조회)
   List<QuestionPost> findTop50ByCreatedDateAfterOrderByWeeklyScoreDesc(LocalDateTime lastWeek);
 
-  // 아직 답변하지 않은 질문글 조회 (최신순)
-  Page<QuestionPost> findByAnswerCount(int answerCount, Pageable pageable);
+  // 아직 답변하지 않은 질문글 조회 및 단과대 필터링 (최신순)
+  @Query("""
+      select q
+      from QuestionPost q
+      where (:faculty is null or :faculty member of q.faculties)
+      and (q.answerCount = 0)
+      """)
+  Page<QuestionPost> findFilteredNotAnsweredQuestion(
+      @Param("faculty") Faculty faculty,
+      Pageable pageable);
 
-
+  // 과목 필터링
+  @Query("""
+      select q
+      from QuestionPost q
+      join q.questionPresetTags qt
+      where
+          (:subject is null or q.subject = :subject)
+          and (:minYeopjeon is null or q.rewardYeopjeon >= :minYeopjeon)
+          and (:maxYeopjeon is null or q.rewardYeopjeon <= :maxYeopjeon)
+          and (:faculty is null or :faculty member of q.faculties)
+          and (:questionPresetTags is null or qt in :questionPresetTags)
+          AND (
+              (:viewNotChaetaek = TRUE AND NOT EXISTS (
+                  SELECT 1
+                  FROM AnswerPost a
+                  WHERE a.questionPost = q AND a.isChaetaek = TRUE
+              ))
+              OR
+              (:viewNotChaetaek IS NULL OR :viewNotChaetaek = FALSE)
+          )
+      """)
+  Page<QuestionPost> findFilteredQuestions(
+      @Param("subject") String subject,
+      @Param("minYeopjeon") Integer minYeopjeon,
+      @Param("maxYeopjeon") Integer maxYeopjeon,
+      @Param("faculty") Faculty faculty,
+      @Param("questionPresetTags") List<QuestionPresetTag> questionPresetTags,
+      @Param("viewNotChaetaek") Boolean viewNotChaeteak,
+      Pageable pageable);
 }

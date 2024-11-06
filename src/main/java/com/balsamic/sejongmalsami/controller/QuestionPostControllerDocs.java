@@ -108,9 +108,9 @@ public interface QuestionPostControllerDocs {
       )
   })
   @Operation(
-      summary = "질문 글 조회",
+      summary = "특정 질문 글 조회",
       description = """
-          **질문 글 조회 요청**
+          **특정 질문 글 조회 요청**
 
           **이 API는 인증이 필요하며, JWT 토큰이 존재해야합니다.**
 
@@ -128,6 +128,7 @@ public interface QuestionPostControllerDocs {
           **참고 사항:**
 
           - 이 API를 통해 사용자는 postId 값에 해당하는 질문 글을 조회할 수 있습니다.
+          - 반환된 질문글의 조회수가 1 증가합니다.
           - Swagger에서 테스트 시 mediaFiles에 있는 "Send empty value" 체크박스 해제해야합니다.
           """
   )
@@ -182,19 +183,26 @@ public interface QuestionPostControllerDocs {
 
   @ApiChangeLogs({
       @ApiChangeLog(
+          date = "2024.11.6",
+          author = Author.BAEKJIHOON,
+          description = "단과대 필터링 추가"
+      ),
+      @ApiChangeLog(
           date = "2024.11.1",
           author = Author.BAEKJIHOON,
           description = "답변 개수가 0개인 글 조회"
       )
   })
   @Operation(
-      summary = "답변 개수가 0개인 글 조회 (최신순)",
+      summary = "답변 개수가 0개인 글 조회 및 단과대 필터링 (최신순)",
       description = """
           **답변 개수가 0개인 질문 글 조회 요청**
 
           **이 API는 인증이 필요하며, JWT 토큰이 존재해야합니다.**
 
           **입력 파라미터 값:**
+          
+          - **Faculty faculty**: 단과대 필터링 [선택]
 
           - **Integer pageNumber**: 조회하고싶은 페이지 번호 [선택] (default = 0)
            
@@ -203,16 +211,91 @@ public interface QuestionPostControllerDocs {
           **반환 파라미터 값:**
 
           - **QuestionDto**: 질문 게시판 정보 반환
-            - **Page\\<QuestionPost\\> questionPosts**: 답변 개수가 0개인 질문글 리스트
+            - **Page\\<QuestionPost\\> questionPosts**: 단과대 필터링이 적용 된 답변 개수가 0개인 질문글 리스트
 
           **참고 사항:**
 
           - 이 API를 통해 사용자는 아직 답변이 작성되지 않은 질문 글 최신순으로 조회할 수 있습니다.
+          - 단과대 필터링 적용 시 해당 단과대가 적용된 글 중 답변 개수가 0개인 질문글을 반환합니다.
           - Swagger에서 테스트 시 mediaFiles에 있는 "Send empty value" 체크박스 해제해야합니다.
           - pageNumber = 3, pageSize = 10 입력시 4페이지에 해당하는 10개의 글을 반환합니다. (31번째 글 ~ 40번째 글 반환)
           """
   )
   ResponseEntity<QuestionDto> getAllQuestionPostsNotAnswered(
+      QuestionCommand command
+  );
+
+  @ApiChangeLogs({
+      @ApiChangeLog(
+          date = "2024.11.6",
+          author = Author.BAEKJIHOON,
+          description = "파라미터 수정"
+      ),
+      @ApiChangeLog(
+          date = "2024.11.4",
+          author = Author.BAEKJIHOON,
+          description = "질문 글 필터링 init"
+      )
+  })
+  @Operation(
+      summary = "질문 글 필터링 조회",
+      description = """
+          **질문 글 필터링 조회 요청**
+
+          **이 API는 인증이 필요하며, JWT 토큰이 존재해야합니다.**
+
+          **입력 파라미터 값:**
+          
+          - **String subject**: 교과목명 필터링 [선택]
+          
+          - **Integer minYeopjeon**: 엽전 현상금 최소 개수 [선택]
+          
+          - **Integer maxYeopjeon**: 엽전 현상금 최대 개수 [선택]
+          
+          - **Set<QuestionPresetTag> questionPresetTagSet**: 정적 태그 필터링 [선택]
+          
+          - **Faculty faculty**: 단과대별 필터링 [선택]
+          
+          - **Boolean viewNotChaetaek**: 아직 채택되지 않은 글 필터링 [선택] (default = false)
+          
+          - **SortType sortType**: 정렬 조건 [선택]
+          
+          - **Integer pageNumber**: 조회하고싶은 페이지 번호 [선택] (default = 0)
+           
+          - **Integer pageSize**: 한 페이지에 조회하고싶은 글 개수 [선택] (default = 30)
+          
+
+          **반환 파라미터 값:**
+
+          - **QuestionDto**: 질문 게시판 정보 반환
+            - **Page\\<QuestionPost\\> questionPosts**: 필터링 된 질문글 리스트
+          
+          **정적 태그**
+           
+          *총 7개의 정적태그가 존재하며 최대 2개까지의 정적태그를 설정할 수 있습니다.*
+          - **OUT_OF_CLASS** (수업 외 내용)
+          - **UNKNOWN_CONCEPT** (개념 모름)
+          - **BETTER_SOLUTION** (더 나은 풀이)
+          - **EXAM_PREPARATION** (시험 대비)
+          - **DOCUMENT_REQUEST** (자료 요청)
+          - **STUDY_TIPS** (공부 팁)
+          - **ADVICE_REQUEST** (조언 구함)
+          
+          **정렬 타입**
+          
+          - **LATEST** (최신순)
+          - **MOST_LIKED** (좋아요순)
+          - **YEOPJEON_REWARD** (엽전 현상금 순)
+          - **VIEW_COUNT** (조회수 순)
+
+          **참고 사항:**
+
+          - 이 API를 통해 사용자는 질문 게시판에 작성된 글을 필터링하여 조회할 수 있습니다.
+          - Swagger에서 테스트 시 mediaFiles에 있는 "Send empty value" 체크박스 해제해야합니다.
+          - pageNumber = 3, pageSize = 10 입력시 4페이지에 해당하는 10개의 글을 반환합니다. (31번째 글 ~ 40번째 글 반환)
+          """
+  )
+  ResponseEntity<QuestionDto> getFilteredQuestionPosts(
       QuestionCommand command
   );
 

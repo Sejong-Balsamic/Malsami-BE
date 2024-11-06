@@ -139,7 +139,7 @@ public class PopularPostService {
     Page<QuestionPost> posts = new PageImpl<>(subList, pageable, cachedPosts.size());
 
     return QuestionDto.builder()
-        .questionPosts(posts)
+        .questionPostsPage(posts)
         .build();
   }
 
@@ -169,7 +169,7 @@ public class PopularPostService {
     Page<QuestionPost> posts = new PageImpl<>(subList, pageable, cachedPosts.size());
 
     return QuestionDto.builder()
-        .questionPosts(posts)
+        .questionPostsPage(posts)
         .build();
   }
 
