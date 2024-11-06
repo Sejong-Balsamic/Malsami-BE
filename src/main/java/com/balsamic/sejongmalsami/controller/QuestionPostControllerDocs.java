@@ -108,9 +108,9 @@ public interface QuestionPostControllerDocs {
       )
   })
   @Operation(
-      summary = "질문 글 조회",
+      summary = "특정 질문 글 조회",
       description = """
-          **질문 글 조회 요청**
+          **특정 질문 글 조회 요청**
 
           **이 API는 인증이 필요하며, JWT 토큰이 존재해야합니다.**
 
@@ -128,6 +128,7 @@ public interface QuestionPostControllerDocs {
           **참고 사항:**
 
           - 이 API를 통해 사용자는 postId 값에 해당하는 질문 글을 조회할 수 있습니다.
+          - 반환된 질문글의 조회수가 1 증가합니다.
           - Swagger에서 테스트 시 mediaFiles에 있는 "Send empty value" 체크박스 해제해야합니다.
           """
   )

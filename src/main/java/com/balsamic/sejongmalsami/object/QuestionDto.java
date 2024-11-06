@@ -17,7 +17,7 @@ public class QuestionDto {
 
   private QuestionPost questionPost; // 질문
 
-  private Page<QuestionPost> questionPosts; // 질문
+  private Page<QuestionPost> questionPostsPage; // 질문
 
   private AnswerPost answerPost; // 답변
 

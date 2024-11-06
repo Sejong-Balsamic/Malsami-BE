@@ -110,12 +110,17 @@ public class QuestionPostService {
         .build();
   }
 
-  /* 특정 질문 글 조회 로직 */
-  @Transactional(readOnly = true)
+  /* 특정 질문 글 조회 로직 (해당 글 조회 수 증가) */
+  @Transactional
   public QuestionDto findQuestionPost(QuestionCommand command) {
+
+    QuestionPost questionPost = questionPostRepository.findById(command.getPostId())
+        .orElseThrow(() -> new CustomException(ErrorCode.QUESTION_POST_NOT_FOUND));
+    questionPost.increaseViewCount();
+    log.info("제목: {}, 조회수: {}", questionPost.getTitle(), questionPost.getViewCount());
+
     return QuestionDto.builder()
-        .questionPost(questionPostRepository.findById(command.getPostId())
-            .orElseThrow(() -> new CustomException(ErrorCode.QUESTION_POST_NOT_FOUND)))
+        .questionPost(questionPostRepository.save(questionPost))
         .build();
   }
 
@@ -137,7 +142,7 @@ public class QuestionPostService {
     Page<QuestionPost> posts = questionPostRepository.findAll(pageable);
 
     return QuestionDto.builder()
-        .questionPosts(posts)
+        .questionPostsPage(posts)
         .build();
   }
 
@@ -161,7 +166,7 @@ public class QuestionPostService {
         .findFilteredNotAnsweredQuestion(command.getFaculty(), pageable);
 
     return QuestionDto.builder()
-        .questionPosts(postPage)
+        .questionPostsPage(postPage)
         .build();
   }
 
@@ -232,7 +237,7 @@ public class QuestionPostService {
     log.info("!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!");
 
     return QuestionDto.builder()
-        .questionPosts(posts)
+        .questionPostsPage(posts)
         .build();
   }
 }

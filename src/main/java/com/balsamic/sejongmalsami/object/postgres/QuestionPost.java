@@ -62,6 +62,7 @@ public class QuestionPost extends BasePost {
   @ElementCollection(targetClass = Faculty.class, fetch = FetchType.LAZY)
   @Enumerated(EnumType.STRING)
   @CollectionTable(name = "question_faculties", joinColumns = @JoinColumn(name = "question_post_id"))
+  @Builder.Default
   @Column
   private List<Faculty> faculties = new ArrayList<>();
 
@@ -69,8 +70,8 @@ public class QuestionPost extends BasePost {
   @ElementCollection(targetClass = QuestionPresetTag.class, fetch = FetchType.LAZY)
   @Enumerated(EnumType.STRING)
   @CollectionTable(name = "question_preset_tags", joinColumns = @JoinColumn(name = "question_post_id"))
-  @Column
   @Builder.Default
+  @Column
   private List<QuestionPresetTag> questionPresetTags = new ArrayList<>();
 
   // 조회 수
@@ -96,6 +97,11 @@ public class QuestionPost extends BasePost {
   // 내 정보 비공개 여부
   @Builder.Default
   private Boolean isPrivate = false;
+
+  // 조회 수 증가
+  public void increaseViewCount() {
+    viewCount++;
+  }
 
   // 좋아요 증가
   public void increaseLikeCount() {
