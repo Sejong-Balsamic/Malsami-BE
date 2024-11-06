@@ -69,6 +69,7 @@ Thumbs.db
 src/main/resources/application-prod.yml
 /src/main/resources/yeopjeon.yml
 /src/main/resources/score.yml
+/src/main/resources/exp.yml
 
 ### cicd
 ./.github/workflows
