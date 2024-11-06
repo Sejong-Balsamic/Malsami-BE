@@ -170,6 +170,7 @@ public class QuestionPostService {
    * <p>2. 엽전 현상금 범위 필터링 - Integer minYeopjeon, Integer maxYeopjeon
    * <p>3. 정적 태그 필터링 - QuestionPresetTag (최대 2개)
    * <p>4. 단과대별 필터링 - Faculty (ex. 공과대학, 예체는대학)
+   * <p>5. 아직 채택되지 않은 질문 글 필터링 - Boolean viewNotChaetaek
    * <br><br>
    * <h3>정렬 로직 (SortType)
    * <p>최신순, 좋아요순, 엽전 현상금순, 조회순
