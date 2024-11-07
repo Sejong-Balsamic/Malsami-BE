@@ -33,7 +33,7 @@ public class LikeController implements LikeControllerDocs{
       @AuthenticationPrincipal CustomUserDetails customUserDetails,
       @ModelAttribute QuestionCommand command) {
     command.setMemberId(customUserDetails.getMemberId());
-    return ResponseEntity.ok(questionBoardLikeService.increaseLikeCount(command));
+    return ResponseEntity.ok(questionBoardLikeService.questionBoardLike(command));
   }
 
 }

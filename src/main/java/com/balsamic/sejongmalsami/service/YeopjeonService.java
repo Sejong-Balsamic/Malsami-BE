@@ -1,6 +1,7 @@
 package com.balsamic.sejongmalsami.service;
 
 import com.balsamic.sejongmalsami.object.constants.YeopjeonAction;
+import com.balsamic.sejongmalsami.object.mongo.YeopjeonHistory;
 import com.balsamic.sejongmalsami.object.postgres.Member;
 import com.balsamic.sejongmalsami.object.postgres.Yeopjeon;
 import com.balsamic.sejongmalsami.repository.postgres.YeopjeonRepository;
@@ -23,11 +24,13 @@ public class YeopjeonService {
 
   // 엽전 변동 로직 및 엽전 히스토리 내역 저장 (롤백 포함)
   @Transactional
-  public void updateYeopjeonAndSaveYeopjeonHistory(Member member, YeopjeonAction action) {
+  public YeopjeonHistory updateYeopjeonAndSaveYeopjeonHistory(Member member, YeopjeonAction action) {
+    YeopjeonHistory yeopjeonHistory;
+
     updateMemberYeopjeon(member, action);
 
     try {
-      yeopjeonHistoryService.saveYeopjeonHistory(member, action);
+      yeopjeonHistory = yeopjeonHistoryService.saveYeopjeonHistory(member, action);
       log.info("엽전 히스토리 저장 성공");
     } catch (Exception e) {
       log.error("엽전 히스토리 저장 시 오류가 발생했습니다. 오류내용: {}", e.getMessage());
@@ -35,11 +38,28 @@ public class YeopjeonService {
       rollbackYeopjeon(member, action);
       throw new CustomException(ErrorCode.YEOPJEON_SAVE_ERROR);
     }
+
+    return yeopjeonHistory;
+  }
+
+  // 엽전 및 엽전 히스토리 전체 롤백 (다른 메서드에서 문제가 발생했을 시 전체 롤백을 위한 메서드)
+  @Transactional
+  public void rollbackYeopjeonAndDeleteYeopjeonHistory(
+      Member member,
+      YeopjeonAction action,
+      YeopjeonHistory yeopjeonHistory) {
+    try {
+      log.info("엽전 롤백 및 엽전 내역 삭제를 진행합니다.");
+      yeopjeonHistoryService.deleteYeopjeonHistory(yeopjeonHistory);
+      rollbackYeopjeon(member, action);
+    } catch (Exception e) {
+      log.error("엽전 롤백 과정에서 오류가 발생했습니다.");
+      throw new CustomException(ErrorCode.INTERNAL_SERVER_ERROR);
+    }
   }
 
   // 엽전 증감 로직
-  @Transactional
-  public void updateMemberYeopjeon(Member member, YeopjeonAction action) {
+  private void updateMemberYeopjeon(Member member, YeopjeonAction action) {
 
     Yeopjeon yeopjeon = findMemberYeopjeon(member);
 
@@ -58,8 +78,7 @@ public class YeopjeonService {
   }
 
   // 엽전 개수 롤백
-  @Transactional
-  public void rollbackYeopjeon(Member member, YeopjeonAction action) {
+  private void rollbackYeopjeon(Member member, YeopjeonAction action) {
 
     Yeopjeon yeopjeon = findMemberYeopjeon(member);
 
