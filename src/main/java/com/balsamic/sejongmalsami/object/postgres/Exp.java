@@ -30,5 +30,9 @@ public class Exp {
   private Member member;
 
   // 총 경험치량
-  private Integer resultExp;
+  private Integer exp;
+
+  public void updateExp(int exp) {
+    this.exp = exp;
+  }
 }
