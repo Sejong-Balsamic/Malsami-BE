@@ -5,9 +5,11 @@ import com.balsamic.sejongmalsami.util.config.ExpConfig;
 import com.balsamic.sejongmalsami.util.exception.CustomException;
 import com.balsamic.sejongmalsami.util.exception.ErrorCode;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
 
 @Component
+@Slf4j
 @RequiredArgsConstructor
 public class ExpCalculator {
 
@@ -32,6 +34,7 @@ public class ExpCalculator {
     } else if (expAction.equals(ExpAction.RECEIVE_LIKE)) {
       return expConfig.getReceiveLike();
     } else {
+      log.error("잘못된 ExpAction 입니다. 요청한 action: {}", expAction);
       throw new CustomException(ErrorCode.INVALID_EXP_ACTION);
     }
 
