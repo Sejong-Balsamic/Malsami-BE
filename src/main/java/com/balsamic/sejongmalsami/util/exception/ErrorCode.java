@@ -145,6 +145,8 @@ public enum ErrorCode {
 
   // Exp
 
+  INSUFFICIENT_EXP(HttpStatus.BAD_REQUEST, "사용자의 경험치가 0 미만입니다."),
+
   EXP_NOT_FOUND(HttpStatus.BAD_REQUEST, "경험치 객체를 찾을 수 없습니다."),
 
   INVALID_EXP_ACTION(HttpStatus.BAD_REQUEST, "잘못된 ExpAction에 해당됩니다."),

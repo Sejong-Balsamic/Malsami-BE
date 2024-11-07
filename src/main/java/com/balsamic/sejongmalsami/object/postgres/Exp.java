@@ -31,4 +31,8 @@ public class Exp {
 
   // 총 경험치량
   private Integer resultExp;
+
+  public void updateResultExp(int resultExp) {
+    this.resultExp = resultExp;
+  }
 }
