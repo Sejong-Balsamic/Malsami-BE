@@ -25,7 +25,6 @@ import java.time.LocalDateTime;
 import java.util.UUID;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.userdetails.UserDetailsService;
@@ -98,7 +97,7 @@ public class MemberService implements UserDetailsService {
           Exp exp = expRepository.save(
               Exp.builder()
                   .member(newMember)
-                  .resultExp(0)
+                  .exp(0)
                   .build());
 
           log.info("신규 회원 : Exp 객체 생성 : {}", exp.getExpId());
@@ -117,7 +116,7 @@ public class MemberService implements UserDetailsService {
       //TODO: 엽전 이력 관리 로직을 포함한 메소드 정의
       yeopjeon = yeopjeonRepository.save(Yeopjeon.builder()
           .member(member)
-          .resultYeopjeon(yeopjeonConfig.getCreateAccount()) // 첫 로그인 보상
+          .yeopjeon(yeopjeonConfig.getCreateAccount()) // 첫 로그인 보상
           .build());
       log.info("첫 로그인 엽전 보상 지급: Yeopjeon ID = {}", yeopjeon.getYeopjeonId());
 

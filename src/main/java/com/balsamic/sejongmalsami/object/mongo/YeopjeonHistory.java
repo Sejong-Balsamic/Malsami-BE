@@ -25,10 +25,13 @@ public class YeopjeonHistory extends BaseMongoEntity {
   @Indexed
   @NotNull
   private UUID memberId;            // 사용자 ID
-  
+
+  @NotNull
   private Integer yeopjeonChange;         // 거래된 엽전 수 (양수: 획득, 음수: 소모)
 
+  @NotNull
   private YeopjeonAction yeopjeonAction;    // 엽전 거래 유형
 
+  @NotNull
   private Integer resultYeopjeon;   // 거래 이후 엽전량
 }
