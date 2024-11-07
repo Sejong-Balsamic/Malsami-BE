@@ -109,6 +109,8 @@ public enum ErrorCode {
 
   ANSWER_POST_NOT_FOUND(HttpStatus.BAD_REQUEST, "답변 글을 찾을 수 없습니다."),
 
+  SELF_ANSWER_NOT_ALLOWED(HttpStatus.BAD_REQUEST, "본인의 질문글에는 답변을 작성할 수 없습니다."),
+
   SELF_CHAETAEK_NOT_ALLOWED(HttpStatus.BAD_REQUEST, "본인이 작성한 답변을 채택할 수 없습니다."),
 
   ONLY_AUTHOR_CAN_CHAETAEK(HttpStatus.BAD_REQUEST, "오직 질문 작성자만 답변을 채택할 수 있습니다."),

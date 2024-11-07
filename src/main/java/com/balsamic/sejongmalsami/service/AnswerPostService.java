@@ -47,6 +47,11 @@ public class AnswerPostService {
     QuestionPost questionPost = questionPostRepository.findById(command.getQuestionPostId())
         .orElseThrow(() -> new CustomException(ErrorCode.QUESTION_POST_NOT_FOUND));
 
+    // 본인이 작성한 질문글에는 답변 작성 불가능
+    if (member.equals(questionPost.getMember())) {
+      throw new CustomException(ErrorCode.SELF_ANSWER_NOT_ALLOWED);
+    }
+
     AnswerPost answerPost = answerPostRepository.save(AnswerPost.builder()
         .member(member)
         .questionPost(questionPost)
