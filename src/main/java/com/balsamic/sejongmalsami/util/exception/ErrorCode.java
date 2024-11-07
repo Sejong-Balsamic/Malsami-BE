@@ -147,6 +147,8 @@ public enum ErrorCode {
 
   EXP_NOT_FOUND(HttpStatus.BAD_REQUEST, "경험치 객체를 찾을 수 없습니다."),
 
+  INVALID_EXP_ACTION(HttpStatus.BAD_REQUEST, "잘못된 ExpAction에 해당됩니다."),
+
   // QuestionBoardLike
 
   QUESTION_BOARD_LIKE_SAVE_ERROR(HttpStatus.INTERNAL_SERVER_ERROR, "질문게시판 좋아요 내역 저장 중 오류가 발생했습니다."),
