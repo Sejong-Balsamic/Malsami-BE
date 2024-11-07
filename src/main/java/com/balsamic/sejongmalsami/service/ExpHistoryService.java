@@ -30,7 +30,7 @@ public class ExpHistoryService {
         .memberId(member.getMemberId())
         .expChange(expCalculator.calculateExp(action))
         .expAction(action)
-        .resultExp(exp.getResultExp())
+        .resultExp(exp.getExp())
         .build();
   }
 

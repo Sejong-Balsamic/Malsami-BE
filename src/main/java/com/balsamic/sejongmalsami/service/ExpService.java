@@ -27,14 +27,14 @@ public class ExpService {
     Exp exp = findMemberExp(member);
 
     // 경험치 증가
-    int calculatedExp = exp.getResultExp() + expCalculator.calculateExp(action);
+    int calculatedExp = exp.getExp() + expCalculator.calculateExp(action);
 
     if (calculatedExp < 0) {
-      log.error("경험치가 부족합니다. {}의 현재 경험치: {}", member.getStudentId(), exp.getResultExp());
+      log.error("경험치가 부족합니다. {}의 현재 경험치: {}", member.getStudentId(), exp.getExp());
       throw new CustomException(ErrorCode.INSUFFICIENT_EXP);
     } else {
-      exp.updateResultExp(calculatedExp);
-      log.info("경험치 변동 완료. 변동 후 {}의 경험치: {}", member.getStudentId(), exp.getResultExp());
+      exp.updateExp(calculatedExp);
+      log.info("경험치 변동 완료. 변동 후 {}의 경험치: {}", member.getStudentId(), exp.getExp());
     }
 
     expRepository.save(exp);
@@ -46,10 +46,10 @@ public class ExpService {
 
     Exp exp = findMemberExp(member);
 
-    log.info("경험치 롤백 전 - 회원: {}, 경험치: {}", member.getStudentId(), exp.getResultExp());
-    exp.updateResultExp(exp.getResultExp()
-                        - expCalculator.calculateExp(action));
-    log.info("경험치 롤백 후 - 회원: {}, 경험치: {}", member.getStudentId(), exp.getResultExp());
+    log.info("경험치 롤백 전 - 회원: {}, 경험치: {}", member.getStudentId(), exp.getExp());
+    exp.updateExp(exp.getExp()
+                  - expCalculator.calculateExp(action));
+    log.info("경험치 롤백 후 - 회원: {}, 경험치: {}", member.getStudentId(), exp.getExp());
   }
 
   // 사용자의 경험치 테이블 반환 메서드

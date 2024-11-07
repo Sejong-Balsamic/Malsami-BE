@@ -30,9 +30,9 @@ public class Yeopjeon {
   private Member member;
 
   // 총 엽전량
-  private Integer resultYeopjeon;
+  private Integer yeopjeon;
 
-  public void updateResultYeopjeon(int resultYeopjeon) {
-    this.resultYeopjeon = resultYeopjeon;
+  public void updateYeopjeon(int yeopjeon) {
+    this.yeopjeon = yeopjeon;
   }
 }
