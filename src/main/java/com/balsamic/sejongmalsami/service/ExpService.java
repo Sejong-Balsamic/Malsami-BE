@@ -19,6 +19,23 @@ public class ExpService {
 
   private final ExpRepository expRepository;
   private final ExpCalculator expCalculator;
+  private final ExpHistoryService expHistoryService;
+
+  // 경험치 증가 로직 및 경험치 히스토리 내역 저장 (롤백 포함)
+  @Transactional
+  public void updateExpAndSaveExpHistory(Member member, ExpAction action) {
+    updateMemberExp(member, action);
+
+    try {
+      expHistoryService.saveExpHistory(member, action);
+      log.info("경험치 히스토리 저장 성공");
+    } catch (Exception e) {
+      log.error("경험치 히스토리 저장 시 오류가 발생했습니다. 오류내용: {}", e.getMessage());
+      log.info("경험치 롤백을 진행합니다.");
+      rollbackExp(member, action);
+      throw new CustomException(ErrorCode.EXP_SAVE_ERROR);
+    }
+  }
 
   // 경험치 증가 로직
   @Transactional
