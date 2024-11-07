@@ -2,7 +2,9 @@ package com.balsamic.sejongmalsami.service;
 
 import com.balsamic.sejongmalsami.object.QuestionCommand;
 import com.balsamic.sejongmalsami.object.QuestionDto;
+import com.balsamic.sejongmalsami.object.constants.ExpAction;
 import com.balsamic.sejongmalsami.object.constants.YeopjeonAction;
+import com.balsamic.sejongmalsami.object.mongo.YeopjeonHistory;
 import com.balsamic.sejongmalsami.object.postgres.AnswerPost;
 import com.balsamic.sejongmalsami.object.postgres.MediaFile;
 import com.balsamic.sejongmalsami.object.postgres.Member;
@@ -29,6 +31,8 @@ public class AnswerPostService {
   private final MediaFileService mediaFileService;
   private final YeopjeonService yeopjeonService;
   private final YeopjeonHistoryService yeopjeonHistoryService;
+  private final ExpService expService;
+  private final ExpHistoryService expHistoryService;
 
   /**
    * 답변 작성 로직
@@ -42,6 +46,11 @@ public class AnswerPostService {
         .orElseThrow(() -> new CustomException(ErrorCode.MEMBER_NOT_FOUND));
     QuestionPost questionPost = questionPostRepository.findById(command.getQuestionPostId())
         .orElseThrow(() -> new CustomException(ErrorCode.QUESTION_POST_NOT_FOUND));
+
+    // 본인이 작성한 질문글에는 답변 작성 불가능
+    if (member.equals(questionPost.getMember())) {
+      throw new CustomException(ErrorCode.SELF_ANSWER_NOT_ALLOWED);
+    }
 
     AnswerPost answerPost = answerPostRepository.save(AnswerPost.builder()
         .member(member)
@@ -64,6 +73,16 @@ public class AnswerPostService {
     questionPost.updateAnswerCount(answerPostRepository.countByQuestionPost(questionPost));
     log.info("{} 질문 글에 작성된 답변 수 : {}", questionPost.getQuestionPostId(), questionPost.getAnswerCount());
 
+    // 답변 작성 시 경험치 증가 및 경험치 히스토리 내역 추가
+    expService.updateMemberExp(member, ExpAction.CREATE_ANSWER_POST);
+
+    try {
+      expHistoryService.saveExpHistory(member, ExpAction.CREATE_ANSWER_POST);
+    } catch (Exception e) {
+      log.error("경험치 히스토리 저장 시 오류가 발생했습니다. 오류 내용: {}", e.getMessage());
+      expService.rollbackExp(member, ExpAction.CREATE_ANSWER_POST);
+    }
+
     return QuestionDto.builder()
         .answerPost(answerPost)
         .mediaFiles(mediaFiles)
@@ -71,7 +90,10 @@ public class AnswerPostService {
   }
 
   /**
-   * 답변 채택 로직
+   * <h3>답변 채택 로직
+   * <p>1. 해당 답변글 isChaetaek true로 변경
+   * <p>2. 글 작성자 - 엽전, 경험치 증가 및 내역 저장
+   * <p>3. 사용자 - 엽전, 경험치 증가 및 내역 저장
    * @param command: memberId(현재 접속중인 사용자), postId(답변 PK)
    * @return 채택 된 답변글
    */
@@ -116,27 +138,73 @@ public class AnswerPostService {
     answerPost.chaetaekAnswer();
     log.info("답변글 : {} 채택되었습니다.", answerPost.getAnswerPostId());
 
-    // 답변 채택된 사용자와 채택한 사용자 엽전 증가
+    // 답변 채택된 사용자 및 채택한 사용자 엽전 증가
     try {
       yeopjeonService.updateMemberYeopjeon(writer, YeopjeonAction.CHAETAEK_CHOSEN); // 답변 채택 됨
       yeopjeonService.updateMemberYeopjeon(member, YeopjeonAction.CHAETAEK_ACCEPT); // 답변 채택 함
     } catch (Exception e) {
-      log.info("엽전 증가 시 오류 발생 및 롤백: {}", e.getMessage());
+      log.error("엽전 증가 시 오류 발생 및 롤백: {}", e.getMessage());
       // 채택 취소
       answerPost.rollbackChaetaek();
       throw new CustomException(ErrorCode.YEOPJEON_SAVE_ERROR);
     }
 
-    // 답변 채택된 사용자와 채택한 사용자 엽전 히스토리 추가
+    // 답변 채택된 사용자 및 채택한 사용자 경험치 증가
     try {
-      yeopjeonHistoryService.saveYeopjeonHistory(writer, YeopjeonAction.CHAETAEK_CHOSEN);
-      yeopjeonHistoryService.saveYeopjeonHistory(member, YeopjeonAction.CHAETAEK_ACCEPT);
+      expService.updateMemberExp(writer, ExpAction.CHAETAEK_CHOSEN); // 답변 채택 됨
+      expService.updateMemberExp(member, ExpAction.CHAETAEK_ACCEPT); // 답변 채택 함
     } catch (Exception e) {
-      log.info("엽전 히스토리 저장 실패 및 롤백: {}", e.getMessage());
+      log.error("경험치 증가 시 오류 발생 및 롤백: {}", e.getMessage());
+      log.info("엽전 증감 롤백 시작");
       yeopjeonService.rollbackYeopjeon(writer, YeopjeonAction.CHAETAEK_CHOSEN);
       yeopjeonService.rollbackYeopjeon(member, YeopjeonAction.CHAETAEK_ACCEPT);
+      log.info("엽전 증감 롤백 완료");
+      answerPost.rollbackChaetaek();
+      throw new CustomException(ErrorCode.EXP_SAVE_ERROR);
+    }
+
+    // 답변 채택된 사용자와 채택한 사용자 엽전 히스토리 추가
+    YeopjeonHistory writerYeopjeonHistory; // 작성자 엽전 히스토리
+    YeopjeonHistory memberYeopjeonHistory; // 로그인 된 사용자 엽전 히스토리
+    try {
+      writerYeopjeonHistory = yeopjeonHistoryService
+          .saveYeopjeonHistory(writer, YeopjeonAction.CHAETAEK_CHOSEN);
+      memberYeopjeonHistory = yeopjeonHistoryService
+          .saveYeopjeonHistory(member, YeopjeonAction.CHAETAEK_ACCEPT);
+    } catch (Exception e) {
+      log.error("엽전 히스토리 저장 실패 및 롤백: {}", e.getMessage());
+      log.info("경험치 변동 롤백 시작");
+      expService.rollbackExp(member, ExpAction.CHAETAEK_CHOSEN);
+      expService.rollbackExp(member, ExpAction.CHAETAEK_ACCEPT);
+      log.info("경험치 변동 롤백 완료");
+      log.info("엽전 증감 롤백 시작");
+      yeopjeonService.rollbackYeopjeon(writer, YeopjeonAction.CHAETAEK_CHOSEN);
+      yeopjeonService.rollbackYeopjeon(member, YeopjeonAction.CHAETAEK_ACCEPT);
+      log.info("엽전 증감 롤백 완료");
       answerPost.rollbackChaetaek();
       throw new CustomException(ErrorCode.YEOPJEON_HISTORY_SAVE_ERROR);
+    }
+
+    // 답변 채택된 사용자와 채택한 사용자 경험치 히스토리 추가
+    try {
+      expHistoryService.saveExpHistory(writer, ExpAction.CHAETAEK_CHOSEN);
+      expHistoryService.saveExpHistory(member, ExpAction.CHAETAEK_ACCEPT);
+    } catch (Exception e) {
+      log.error("경험치 히스토리 저장 실패 및 롤백: {}", e.getMessage());
+      log.info("엽전 히스토리 롤백 시작");
+      yeopjeonHistoryService.deleteYeopjeonHistory(writerYeopjeonHistory);
+      yeopjeonHistoryService.deleteYeopjeonHistory(memberYeopjeonHistory);
+      log.info("엽전 히스토리 롤백 완료");
+      log.info("경험치 변동 롤백 시작");
+      expService.rollbackExp(member, ExpAction.CHAETAEK_CHOSEN);
+      expService.rollbackExp(member, ExpAction.CHAETAEK_ACCEPT);
+      log.info("경험치 변동 롤백 완료");
+      log.info("엽전 증감 롤백 시작");
+      yeopjeonService.rollbackYeopjeon(writer, YeopjeonAction.CHAETAEK_CHOSEN);
+      yeopjeonService.rollbackYeopjeon(member, YeopjeonAction.CHAETAEK_ACCEPT);
+      log.info("엽전 증감 롤백 완료");
+      answerPost.rollbackChaetaek();
+      throw new CustomException(ErrorCode.EXP_HISTORY_SAVE_ERROR);
     }
 
     // 답변 글 채택여부 true 변경 후 리턴

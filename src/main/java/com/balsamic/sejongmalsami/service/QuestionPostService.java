@@ -37,7 +37,7 @@ public class QuestionPostService {
   private final MediaFileService mediaFileService;
   private final CourseRepository courseRepository;
 
-  /* 질문 게시글 등록 로직 */
+  /* 질문 게시글 등록 로직 TODO: 질문 글 작성시 엽전 100냥 감소 */
   @Transactional
   public QuestionDto saveQuestionPost(QuestionCommand command) {
 

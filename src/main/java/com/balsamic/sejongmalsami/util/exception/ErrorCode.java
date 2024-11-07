@@ -109,6 +109,8 @@ public enum ErrorCode {
 
   ANSWER_POST_NOT_FOUND(HttpStatus.BAD_REQUEST, "답변 글을 찾을 수 없습니다."),
 
+  SELF_ANSWER_NOT_ALLOWED(HttpStatus.BAD_REQUEST, "본인의 질문글에는 답변을 작성할 수 없습니다."),
+
   SELF_CHAETAEK_NOT_ALLOWED(HttpStatus.BAD_REQUEST, "본인이 작성한 답변을 채택할 수 없습니다."),
 
   ONLY_AUTHOR_CAN_CHAETAEK(HttpStatus.BAD_REQUEST, "오직 질문 작성자만 답변을 채택할 수 있습니다."),
@@ -145,7 +147,15 @@ public enum ErrorCode {
 
   // Exp
 
+  INSUFFICIENT_EXP(HttpStatus.BAD_REQUEST, "사용자의 경험치가 0 미만입니다."),
+
+  EXP_SAVE_ERROR(HttpStatus.INTERNAL_SERVER_ERROR, "경험치 저장 시 올류가 발생했습니다."),
+
+  EXP_HISTORY_SAVE_ERROR(HttpStatus.INTERNAL_SERVER_ERROR, "경험치 히스토리 저장 중 오류가 발생했습니다."),
+
   EXP_NOT_FOUND(HttpStatus.BAD_REQUEST, "경험치 객체를 찾을 수 없습니다."),
+
+  INVALID_EXP_ACTION(HttpStatus.BAD_REQUEST, "잘못된 ExpAction에 해당됩니다."),
 
   // QuestionBoardLike
 

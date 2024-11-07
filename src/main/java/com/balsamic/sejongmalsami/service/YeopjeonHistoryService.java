@@ -3,6 +3,7 @@ package com.balsamic.sejongmalsami.service;
 import com.balsamic.sejongmalsami.object.constants.YeopjeonAction;
 import com.balsamic.sejongmalsami.object.mongo.YeopjeonHistory;
 import com.balsamic.sejongmalsami.object.postgres.Member;
+import com.balsamic.sejongmalsami.object.postgres.Yeopjeon;
 import com.balsamic.sejongmalsami.repository.mongo.YeopjeonHistoryRepository;
 import com.balsamic.sejongmalsami.util.YeopjeonCalculator;
 import lombok.RequiredArgsConstructor;
@@ -23,18 +24,19 @@ public class YeopjeonHistoryService {
   @Transactional
   public YeopjeonHistory saveYeopjeonHistory(Member member, YeopjeonAction action) {
 
+    Yeopjeon yeopjeon = yeopjeonService.findMemberYeopjeon(member);
+
     return YeopjeonHistory.builder()
         .memberId(member.getMemberId())
         .yeopjeonChange(yeopjeonCalculator.calculateYeopjeon(action))
         .yeopjeonAction(action)
-        .resultYeopjeon(yeopjeonService.getResultYeopjeon(member).getResultYeopjeon())
+        .resultYeopjeon(yeopjeon.getYeopjeon())
         .build();
   }
 
   // 엽전 히스토리 내역 삭제
   @Transactional
   public void deleteYeopjeonHistory(YeopjeonHistory yeopjeonHistory) {
-
     yeopjeonHistoryRepository.delete(yeopjeonHistory);
   }
 
