@@ -83,8 +83,7 @@ public class ExpService {
     Exp exp = findMemberExp(member);
 
     log.info("경험치 롤백 전 - 회원: {}, 경험치: {}", member.getStudentId(), exp.getExp());
-    exp.updateExp(exp.getExp()
-                  - expCalculator.calculateExp(action));
+    exp.updateExp(exp.getExp() - expCalculator.calculateExp(action));
     log.info("경험치 롤백 후 - 회원: {}, 경험치: {}", member.getStudentId(), exp.getExp());
   }
 
