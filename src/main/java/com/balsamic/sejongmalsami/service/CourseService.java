@@ -50,7 +50,7 @@ public class CourseService {
   }
 
   private int parseAndSaveCourses(String fileName, InputStream inputStream) {
-    log.debug("Parsing courses from file: {}", fileName);
+    log.debug("교과목 파일 내부 파싱 시작 : {}", fileName);
     Integer year;
     Integer semester;
     int addedCourses = 0;
@@ -137,6 +137,6 @@ public class CourseService {
   @Transactional
   public void deleteCoursesByYearAndSemester(Integer year, Integer semester) {
     courseRepository.deleteByYearAndSemester(year, semester);
-    log.info("년도 {} 학기 {}의 모든 교과목 삭제됨", year, semester);
+    log.info("{}년도  {}학기 의 모든 교과목 삭제됨", year, semester);
   }
 }

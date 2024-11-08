@@ -1,6 +1,6 @@
 package com.balsamic.sejongmalsami.object.postgres;
 
-import com.balsamic.sejongmalsami.object.constants.Status;
+import com.balsamic.sejongmalsami.object.constants.FileStatus;
 import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -33,7 +33,7 @@ public class CourseFile extends BaseEntity {
   private LocalDateTime processedAt;
 
   @Enumerated(EnumType.STRING)
-  private Status status;
+  private FileStatus fileStatus;
 
   private String errorMessage;
 
