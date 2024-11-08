@@ -115,7 +115,7 @@ public class TestDataGenerator {
     return String.format("%02d%s", year, randomDigits);
   }
 
-  public Member createMember() {
+  public Member createMockMember() {
     Member member = Member.builder()
         .studentId(Long.parseLong(generateStudentId())) // 임의의 8자리 학생 ID
         .studentName(faker.name().fullName().replace(" ", "").trim()) // 임의의 학생 이름 (한국어)
@@ -133,7 +133,7 @@ public class TestDataGenerator {
     return memberRepository.save(member);
   }
 
-  public DocumentPost createDocumentPost(Member member) {
+  public DocumentPost createMockDocumentPost(Member member) {
     DocumentPost post = DocumentPost.builder()
         .member(member)
         .title(faker.lorem().sentence()) // 임의의 제목
@@ -159,7 +159,7 @@ public class TestDataGenerator {
     return documentPostRepository.save(post);
   }
 
-  public DocumentFile createDocumentFile(DocumentPost post, Member uploader) {
+  public DocumentFile createMockDocumentFile(Member uploader,DocumentPost post) {
     DocumentFile file = DocumentFile.builder()
         .documentPost(post)
         .uploader(uploader)
