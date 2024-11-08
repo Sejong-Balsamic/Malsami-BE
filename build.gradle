@@ -60,12 +60,8 @@ dependencies {
     implementation 'com.squareup.okhttp3:okhttp:4.9.3'
     implementation 'org.jsoup:jsoup:1.15.3'
 
-    // Faker 오늘도 숭배 해야만해....
-    implementation('com.github.javafaker:javafaker:1.0.2') {
-        // Faker 의존성에서 snakeyaml 제외 (버전 충돌) snakeyaml의 2.0버전 명시적으로 추가
-        exclude module: 'snakeyaml'
-    }
-    implementation 'org.yaml:snakeyaml:2.0'
+    // Faker 오늘도 숭배 해야만해....DataFake 의존성
+    implementation 'net.datafaker:datafaker:2.4.1'
 
     // S3
     implementation 'org.springframework.cloud:spring-cloud-starter-aws:2.2.6.RELEASE'
