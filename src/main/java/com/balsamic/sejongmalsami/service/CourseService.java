@@ -18,7 +18,6 @@ import org.apache.poi.ss.usermodel.Row;
 import org.apache.poi.ss.usermodel.Sheet;
 import org.apache.poi.ss.usermodel.Workbook;
 import org.apache.poi.xssf.usermodel.XSSFWorkbook;
-import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
@@ -30,31 +29,31 @@ public class CourseService {
 
   private final CourseRepository courseRepository;
 
-  @Async
   @Transactional
-  public void parseAndSaveCourses(MultipartFile multipartFile) {
+  public int parseAndSaveCourses(MultipartFile multipartFile) {
     try {
-      parseAndSaveCourses(multipartFile.getOriginalFilename(), multipartFile.getInputStream());
+      return parseAndSaveCourses(multipartFile.getOriginalFilename(), multipartFile.getInputStream());
     } catch (IOException e) {
       log.error("파일을 읽는 중 오류 발생: {}", multipartFile.getOriginalFilename(), e);
       throw new CustomException(ErrorCode.COURSE_SAVE_ERROR);
     }
   }
 
-  @Async
   @Transactional
-  public void parseAndSaveCourses(File file) {
+  public int parseAndSaveCourses(File file) {
     try {
-      parseAndSaveCourses(file.getName(), Files.newInputStream(file.toPath()));
+      return parseAndSaveCourses(file.getName(), Files.newInputStream(file.toPath()));
     } catch (IOException e) {
       log.error("파일을 읽는 중 오류 발생: {}", file.getName(), e);
       throw new CustomException(ErrorCode.COURSE_SAVE_ERROR);
     }
   }
 
-  private void parseAndSaveCourses(String fileName, InputStream inputStream) {
+  private int parseAndSaveCourses(String fileName, InputStream inputStream) {
+    log.debug("Parsing courses from file: {}", fileName);
     Integer year;
     Integer semester;
+    int addedCourses = 0;
 
     // 파일 포맷 체크 (예시 : course-2024-2.xlsx )
     String[] parts = Objects.requireNonNull(fileName).split("-");
@@ -81,6 +80,7 @@ public class CourseService {
     // InputStream을 사용하여 Workbook 생성
     try (Workbook workbook = new XSSFWorkbook(inputStream)) {
       Sheet sheet = workbook.getSheetAt(0); // 첫 번째 시트를 가져온다
+      log.debug("Workbook 열기 성공: {}", fileName);
 
       for (int i = 1; i < sheet.getPhysicalNumberOfRows(); i++) { // 첫 번째 행은 헤더이므로 1부터 시작
         Row row = sheet.getRow(i);
@@ -89,6 +89,8 @@ public class CourseService {
         String facultyName = row.getCell(0).getStringCellValue(); // 단과대학명
         String department = row.getCell(1).getStringCellValue(); // 학과명
         String subject = row.getCell(2).getStringCellValue(); // 교과목명
+
+        log.debug("읽은 행: facultyName={}, department={}, subject={}", facultyName, department, subject);
 
         Faculty faculty;
         // 단과대학명이 "대학"이라고 적힌 경우, "법학부 법학전공"으로 처리
@@ -114,12 +116,15 @@ public class CourseService {
 
         log.info("교과목명 저장됨: faculty: {}, department: {}, subject: {}", faculty, department, subject);
         courseRepository.save(course); // DB에 저장
+        addedCourses++;
       }
-      log.info("교과목명 파싱 완료됨: {}", fileName);
+      log.debug("교과목명 파싱 완료됨: {}", fileName);
     } catch (IOException e) {
       log.error("교과목명 파일 InputStream 생성 중 오류 발생: {}", fileName, e);
       throw new CustomException(ErrorCode.COURSE_SAVE_ERROR);
     }
+
+    return addedCourses;
   }
 
   // 특정 단과대학에 해당하는 교과목명 목록을 반환하는 메서드
@@ -127,5 +132,11 @@ public class CourseService {
     return CourseDto.builder()
         .subjects(courseRepository.findDistinctSubjectByFaculty(command.getFaculty()))
         .build();
+  }
+
+  @Transactional
+  public void deleteCoursesByYearAndSemester(Integer year, Integer semester) {
+    courseRepository.deleteByYearAndSemester(year, semester);
+    log.info("년도 {} 학기 {}의 모든 교과목 삭제됨", year, semester);
   }
 }

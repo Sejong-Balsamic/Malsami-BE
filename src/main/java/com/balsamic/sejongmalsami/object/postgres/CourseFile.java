@@ -1,8 +1,10 @@
 package com.balsamic.sejongmalsami.object.postgres;
 
+import com.balsamic.sejongmalsami.object.constants.Status;
 import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
+import lombok.Setter;
 import lombok.ToString;
 import lombok.experimental.SuperBuilder;
 
@@ -11,6 +13,7 @@ import java.util.UUID;
 
 @Entity
 @Getter
+@Setter
 @NoArgsConstructor
 @ToString
 @SuperBuilder
@@ -29,7 +32,10 @@ public class CourseFile extends BaseEntity {
 
   private LocalDateTime processedAt;
 
-  private Boolean success;
+  @Enumerated(EnumType.STRING)
+  private Status status;
 
   private String errorMessage;
+
+  private Long durationSeconds;
 }
