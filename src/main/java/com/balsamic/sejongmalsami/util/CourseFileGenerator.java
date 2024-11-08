@@ -66,6 +66,7 @@ public class CourseFileGenerator implements ApplicationRunner {
 
     int successCount = 0;
     int failCount = 0;
+    int passCount = 0;
     int totalAddedCourses = 0;
 
     for (Path filePath : xlsxFiles) {
@@ -75,7 +76,7 @@ public class CourseFileGenerator implements ApplicationRunner {
           successCount++;
           totalAddedCourses += addedCourses;
         } else if (addedCourses == 0) { // 실패한 파일
-          failCount++;
+          passCount++;
         }
         // addedCourses < 0 은 현재 처리 중인 파일로 간주하여 카운트하지 않음
       } catch (Exception e) {
@@ -86,13 +87,14 @@ public class CourseFileGenerator implements ApplicationRunner {
 
     LocalDateTime endTime = LocalDateTime.now();
     Duration overallDuration = Duration.between(overallStartTime, endTime);
+    log.info("=========== Couerse File 처리 완료 =============");
     log.info("처리 종료 시간: {}", endTime);
     log.info("총 소요 시간: {}초", overallDuration.getSeconds());
     log.info("성공적으로 처리된 파일 수: {}", successCount);
     log.info("실패한 파일 수: {}", failCount);
+    log.info("패스한 파일 수: {}", passCount);
     log.info("추가된 교과목 수: {}", totalAddedCourses);
-
-    log.info("서버 시작 시 Course 파일 처리 완료");
+    log.info("=============================================");
   }
 
   @Transactional
