@@ -31,10 +31,10 @@ public class ExpService {
 
     try {
       expHistory = expHistoryService.saveExpHistory(member, action);
-      log.info("경험치 히스토리 저장 성공");
+      log.info("회원: {} 경험치 히스토리 저장 성공", member.getStudentId());
     } catch (Exception e) {
-      log.error("경험치 히스토리 저장 시 오류가 발생했습니다. 오류내용: {}", e.getMessage());
-      log.info("경험치 롤백을 진행합니다.");
+      log.error("회원: {} 경험치 히스토리 저장 시 오류가 발생했습니다. 오류내용: {}", member.getStudentId(), e.getMessage());
+      log.info("회원: {} 경험치 롤백을 진행합니다.", member.getStudentId());
       rollbackExp(member, action);
       throw new CustomException(ErrorCode.EXP_SAVE_ERROR);
     }
@@ -49,11 +49,11 @@ public class ExpService {
       ExpAction action,
       ExpHistory expHistory) {
     try {
-      log.info("경험치 롤백 및 경험치 내역 삭제를 진행합니다.");
+      log.info("회원: {} 경험치 롤백 및 경험치 내역 삭제를 진행합니다.", member.getStudentId());
       expHistoryService.deleteExpHistory(expHistory);
       rollbackExp(member, action);
     } catch (Exception e) {
-      log.error("경험치 롤백 과정에서 오류가 발생했습니다.");
+      log.error("회원: {} 경험치 롤백 과정에서 오류가 발생했습니다.", member.getStudentId());
       throw new CustomException(ErrorCode.INTERNAL_SERVER_ERROR);
     }
   }
