@@ -43,7 +43,7 @@ public interface LikeControllerDocs {
           - Swagger에서 테스트 시 mediaFiles에 있는 "Send empty value" 체크박스 해제해야합니다.
           """
   )
-  ResponseEntity<QuestionDto> increasePostLike(
+  ResponseEntity<QuestionDto> questionBoardLike(
       CustomUserDetails customUserDetails,
       QuestionCommand command);
 }

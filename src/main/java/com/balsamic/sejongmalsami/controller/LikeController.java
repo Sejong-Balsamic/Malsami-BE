@@ -29,7 +29,7 @@ public class LikeController implements LikeControllerDocs{
   @Override
   @PostMapping(value = "/question/board", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
   @LogMonitoringInvocation
-  public ResponseEntity<QuestionDto> increasePostLike(
+  public ResponseEntity<QuestionDto> questionBoardLike(
       @AuthenticationPrincipal CustomUserDetails customUserDetails,
       @ModelAttribute QuestionCommand command) {
     command.setMemberId(customUserDetails.getMemberId());
