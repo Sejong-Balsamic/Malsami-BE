@@ -16,7 +16,7 @@ import org.springframework.transaction.annotation.Transactional;
 @ActiveProfiles("dev")
 @Slf4j
 @Transactional
-class TestDataInitTest {
+class TestDataGeneratorTest {
   @Autowired
   TestDataGenerator testDataGenerator;
 
@@ -47,7 +47,7 @@ class TestDataInitTest {
     DocumentPost documentPost = testDataGenerator.createMockDocumentPost(member);
     superLog(documentPost);
 
-    DocumentFile documentFile = testDataGenerator.createMockDocumentFile(documentPost, member);
+    DocumentFile documentFile = testDataGenerator.createMockDocumentFile(member,documentPost);
     superLog(documentFile);
   }
 }
