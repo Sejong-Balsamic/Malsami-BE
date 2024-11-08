@@ -20,6 +20,8 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.boot.ApplicationArguments;
 import org.springframework.boot.ApplicationRunner;
+import org.springframework.core.io.ClassPathResource;
+import org.springframework.core.io.Resource;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -38,17 +40,30 @@ public class CourseFileGenerator implements ApplicationRunner {
   public void run(ApplicationArguments args) throws Exception {
     log.info("============== Course File Generator ==============");
     log.info("Course 교과목 XLSX 파일 처리 시작 = {}", LocalDateTime.now());
-    //TODO: 서버 업로드시 서버내 경로에서 확인
-    log.info("교과목파일 저장 디렉토리 = {}", COURSE_FILES_DIR);
 
-    Path path = Paths.get(COURSE_FILES_DIR);
-    if (!Files.exists(path) || !Files.isDirectory(path)) {
-      log.warn("Course 파일 디렉토리가 존재하지 않습니다: {}", COURSE_FILES_DIR);
+    //TODO: 서버 업로드시 서버내 경로에서 확인
+    Resource resource = new ClassPathResource("courses/");
+
+    if (!resource.exists()) {
+      log.warn("Course 파일 디렉토리가 존재하지 않습니다 : {}", resource.getFilename());
+      return;
+    }
+
+    Path coursesPath;
+    try {
+      coursesPath = Paths.get(resource.getURI());
+    } catch (Exception e) {
+      log.error("리소스 디렉토리 경로를 가져오는 중 오류 발생", e);
+      return;
+    }
+
+    if (!Files.isDirectory(coursesPath)) {
+      log.warn("Course 파일 디렉토리가 올바르지 않습니다: {}", coursesPath);
       return;
     }
 
     List<Path> xlsxFiles = new ArrayList<>();
-    try (DirectoryStream<Path> stream = Files.newDirectoryStream(path, "*.xlsx")) {
+    try (DirectoryStream<Path> stream = Files.newDirectoryStream(coursesPath, "*.xlsx")) {
       for (Path filePath : stream) {
         xlsxFiles.add(filePath);
       }
@@ -108,7 +123,8 @@ public class CourseFileGenerator implements ApplicationRunner {
       if (existingFile.getFileStatus() == FileStatus.SUCCESS) {
         log.info("이미 성공적으로 처리된 파일: {}", fileName);
         return 0;
-      } else if (existingFile.getFileStatus() == FileStatus.PENDING || existingFile.getFileStatus() == FileStatus.FAILURE) {
+      } else if (existingFile.getFileStatus() == FileStatus.PENDING
+          || existingFile.getFileStatus() == FileStatus.FAILURE) {
 
         // 파일 Status 가 PENDING 이거나 FAILURE 인 경우
         log.info("재처리 대상 파일: {}", fileName);
@@ -138,11 +154,11 @@ public class CourseFileGenerator implements ApplicationRunner {
         // CourseFile 에 실패 기록 추가 저장
         courseFileRepository.save(
             CourseFile.builder()
-            .fileName(fileName)
-            .processedAt(LocalDateTime.now())
-            .fileStatus(FileStatus.FAILURE)
-            .errorMessage("파일 이름 -> 잘못된 파일 이름 형식")
-            .build());
+                .fileName(fileName)
+                .processedAt(LocalDateTime.now())
+                .fileStatus(FileStatus.FAILURE)
+                .errorMessage("파일 이름 -> 잘못된 파일 이름 형식")
+                .build());
         return 0;
       }
 
