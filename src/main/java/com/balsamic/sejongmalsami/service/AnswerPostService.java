@@ -2,7 +2,10 @@ package com.balsamic.sejongmalsami.service;
 
 import com.balsamic.sejongmalsami.object.QuestionCommand;
 import com.balsamic.sejongmalsami.object.QuestionDto;
+import com.balsamic.sejongmalsami.object.constants.ExpAction;
 import com.balsamic.sejongmalsami.object.constants.YeopjeonAction;
+import com.balsamic.sejongmalsami.object.mongo.ExpHistory;
+import com.balsamic.sejongmalsami.object.mongo.YeopjeonHistory;
 import com.balsamic.sejongmalsami.object.postgres.AnswerPost;
 import com.balsamic.sejongmalsami.object.postgres.MediaFile;
 import com.balsamic.sejongmalsami.object.postgres.Member;
@@ -28,10 +31,12 @@ public class AnswerPostService {
   private final QuestionPostRepository questionPostRepository;
   private final MediaFileService mediaFileService;
   private final YeopjeonService yeopjeonService;
-  private final YeopjeonHistoryService yeopjeonHistoryService;
+  private final ExpService expService;
 
   /**
-   * 답변 작성 로직
+   * <h3>답변 작성 로직
+   * <p>작성자 경험치 증가
+   *
    * @param command: memberId, questionPostId, content, mediaFiles, isPrivate
    * @return 작성된 답변글, 첨부파일(이미지)
    */
@@ -42,6 +47,11 @@ public class AnswerPostService {
         .orElseThrow(() -> new CustomException(ErrorCode.MEMBER_NOT_FOUND));
     QuestionPost questionPost = questionPostRepository.findById(command.getQuestionPostId())
         .orElseThrow(() -> new CustomException(ErrorCode.QUESTION_POST_NOT_FOUND));
+
+    // 본인이 작성한 질문글에는 답변 작성 불가능
+    if (member.equals(questionPost.getMember())) {
+      throw new CustomException(ErrorCode.SELF_ANSWER_NOT_ALLOWED);
+    }
 
     AnswerPost answerPost = answerPostRepository.save(AnswerPost.builder()
         .member(member)
@@ -64,6 +74,9 @@ public class AnswerPostService {
     questionPost.updateAnswerCount(answerPostRepository.countByQuestionPost(questionPost));
     log.info("{} 질문 글에 작성된 답변 수 : {}", questionPost.getQuestionPostId(), questionPost.getAnswerCount());
 
+    // 답변 작성 시 경험치 증가 및 경험치 히스토리 내역 추가
+    expService.updateExpAndSaveExpHistory(member, ExpAction.CREATE_COMMENT);
+
     return QuestionDto.builder()
         .answerPost(answerPost)
         .mediaFiles(mediaFiles)
@@ -71,14 +84,19 @@ public class AnswerPostService {
   }
 
   /**
-   * 답변 채택 로직
+   * <h3>답변 채택 로직
+   * <p>1. 해당 답변글 isChaetaek true로 변경
+   * <p>2. 글 작성자 - 엽전, 경험치 증가 및 내역 저장
+   * <p>3. 사용자 - 엽전, 경험치 증가 및 내역 저장
+   *
    * @param command: memberId(현재 접속중인 사용자), postId(답변 PK)
    * @return 채택 된 답변글
    */
   @Transactional
   public QuestionDto chaetaekAnswer(QuestionCommand command) {
 
-    Member member = memberRepository.findById(command.getMemberId())
+    // 로그인된 사용자
+    Member curMember = memberRepository.findById(command.getMemberId())
         .orElseThrow(() -> new CustomException(ErrorCode.MEMBER_NOT_FOUND));
 
     AnswerPost answerPost = answerPostRepository.findById(command.getPostId())
@@ -88,21 +106,98 @@ public class AnswerPostService {
         .orElseThrow(() -> new CustomException(ErrorCode.QUESTION_POST_NOT_FOUND));
 
     // 답변 글 작성자
-    Member writer = answerPost.getMember();
+    Member answerMember = answerPost.getMember();
 
-    // 질문 작성자만 답변 채택 가능 (로그인 된 사용자와 질문 작성자가 같은지 확인)
-    if (!questionPost.getMember().getMemberId().equals(command.getMemberId())) {
-      throw new CustomException(ErrorCode.ONLY_AUTHOR_CAN_CHAETAEK);
+    // 채택 가능 여부 판단
+    validateChaetaekConditions(questionPost, answerPost, command);
+
+    // 엽전 변동 로직
+    YeopjeonHistory answerMemberYeopjeonHistory = yeopjeonService
+        .updateYeopjeonAndSaveYeopjeonHistory(answerMember, YeopjeonAction.CHAETAEK_CHOSEN);
+
+    YeopjeonHistory curMemberYeopjeonHistory = null;
+    try {
+      curMemberYeopjeonHistory = yeopjeonService
+          .updateYeopjeonAndSaveYeopjeonHistory(curMember, YeopjeonAction.CHAETAEK_ACCEPT);
+    } catch (Exception e) {
+      yeopjeonService.rollbackYeopjeonAndDeleteYeopjeonHistory(
+          answerMember,
+          YeopjeonAction.CHAETAEK_CHOSEN,
+          answerMemberYeopjeonHistory
+      );
     }
 
-    // 질문자와 답변자가 같은경우 채택불가
-    if (member.getMemberId().equals(writer.getMemberId())) {
+    // 경험치 변동 로직
+    ExpHistory answerMemberExpHistory = null;
+    try {
+      answerMemberExpHistory = expService
+          .updateExpAndSaveExpHistory(answerMember, ExpAction.CHAETAEK_CHOSEN);
+    } catch (Exception e) {
+      yeopjeonService.rollbackYeopjeonAndDeleteYeopjeonHistory(
+          curMember,
+          YeopjeonAction.CHAETAEK_ACCEPT,
+          curMemberYeopjeonHistory
+      );
+      yeopjeonService.rollbackYeopjeonAndDeleteYeopjeonHistory(
+          answerMember,
+          YeopjeonAction.CHAETAEK_CHOSEN,
+          answerMemberYeopjeonHistory
+      );
+    }
+    try {
+      expService.updateExpAndSaveExpHistory(curMember, ExpAction.CHAETAEK_ACCEPT);
+    } catch (Exception e) {
+      expService.rollbackExpAndDeleteExpHistory(
+          answerMember,
+          ExpAction.CHAETAEK_CHOSEN,
+          answerMemberExpHistory
+      );
+      yeopjeonService.rollbackYeopjeonAndDeleteYeopjeonHistory(
+          curMember,
+          YeopjeonAction.CHAETAEK_ACCEPT,
+          curMemberYeopjeonHistory
+      );
+      yeopjeonService.rollbackYeopjeonAndDeleteYeopjeonHistory(
+          answerMember,
+          YeopjeonAction.CHAETAEK_CHOSEN,
+          answerMemberYeopjeonHistory
+      );
+    }
+
+    // 답변 채택
+    answerPost.chaetaekAnswer();
+    log.info("답변글 : {} 채택되었습니다.", answerPost.getAnswerPostId());
+
+    // 답변 글 채택여부 true 변경
+    // 변경사항 저장 및 반환
+    return QuestionDto.builder()
+        .answerPost(answerPostRepository.save(answerPost))
+        .build();
+  }
+
+  // 채택 가능 여부 검증 메서드
+  private void validateChaetaekConditions(QuestionPost questionPost, AnswerPost answerPost, QuestionCommand command) {
+
+    // 로그인한 사용자
+    Member curMember = questionPost.getMember();
+    // 답변 글 작성자
+    Member answerWriter = answerPost.getMember();
+
+    // 질문 작성자와 답변자가 같은 경우 채택불가
+    if (curMember.getMemberId().equals(answerWriter.getMemberId())) {
       log.error("본인이 작성한 글을 채택할 수 없습니다. 로그인된 사용자: {}, 글 작성자: {}",
-          member.getStudentId(), writer.getStudentId());
+          curMember.getStudentId(), answerWriter.getStudentId());
       throw new CustomException(ErrorCode.SELF_CHAETAEK_NOT_ALLOWED);
     }
 
-    // 해당 질문 글의 답변 중 이미 채택된 답변이 있는 경우
+    // 질문 작성자만 답변 채택 가능 (로그인 된 사용자와 질문 작성자가 같은지 확인)
+    if (!questionPost.getMember().getMemberId().equals(command.getMemberId())) {
+      log.error("로그인한 사용자: {}, 질문 글 작성자: {}",
+          curMember.getStudentId(), questionPost.getMember().getStudentId());
+      throw new CustomException(ErrorCode.ONLY_AUTHOR_CAN_CHAETAEK);
+    }
+
+    // 해당 질문글의 답변 중 이미 채택된 답변이 있는 경우 채택 불가
     List<AnswerPost> answerPosts = answerPostRepository
         .findAnswerPostsByQuestionPost(answerPost.getQuestionPost());
 
@@ -111,37 +206,5 @@ public class AnswerPostService {
         throw new CustomException(ErrorCode.CHAETAEK_ANSWER_ALREADY_EXISTS);
       }
     }
-
-    // 답변 채택
-    answerPost.chaetaekAnswer();
-    log.info("답변글 : {} 채택되었습니다.", answerPost.getAnswerPostId());
-
-    // 답변 채택된 사용자와 채택한 사용자 엽전 증가
-    try {
-      yeopjeonService.updateMemberYeopjeon(writer, YeopjeonAction.CHAETAEK_CHOSEN); // 답변 채택 됨
-      yeopjeonService.updateMemberYeopjeon(member, YeopjeonAction.CHAETAEK_ACCEPT); // 답변 채택 함
-    } catch (Exception e) {
-      log.info("엽전 증가 시 오류 발생 및 롤백: {}", e.getMessage());
-      // 채택 취소
-      answerPost.rollbackChaetaek();
-      throw new CustomException(ErrorCode.YEOPJEON_SAVE_ERROR);
-    }
-
-    // 답변 채택된 사용자와 채택한 사용자 엽전 히스토리 추가
-    try {
-      yeopjeonHistoryService.saveYeopjeonHistory(writer, YeopjeonAction.CHAETAEK_CHOSEN);
-      yeopjeonHistoryService.saveYeopjeonHistory(member, YeopjeonAction.CHAETAEK_ACCEPT);
-    } catch (Exception e) {
-      log.info("엽전 히스토리 저장 실패 및 롤백: {}", e.getMessage());
-      yeopjeonService.rollbackYeopjeon(writer, YeopjeonAction.CHAETAEK_CHOSEN);
-      yeopjeonService.rollbackYeopjeon(member, YeopjeonAction.CHAETAEK_ACCEPT);
-      answerPost.rollbackChaetaek();
-      throw new CustomException(ErrorCode.YEOPJEON_HISTORY_SAVE_ERROR);
-    }
-
-    // 답변 글 채택여부 true 변경 후 리턴
-    return QuestionDto.builder()
-        .answerPost(answerPostRepository.save(answerPost))
-        .build();
   }
 }

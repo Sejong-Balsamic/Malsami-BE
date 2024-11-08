@@ -2,9 +2,11 @@ package com.balsamic.sejongmalsami.service;
 
 import com.balsamic.sejongmalsami.object.QuestionCommand;
 import com.balsamic.sejongmalsami.object.QuestionDto;
+import com.balsamic.sejongmalsami.object.constants.ExpAction;
 import com.balsamic.sejongmalsami.object.constants.Faculty;
 import com.balsamic.sejongmalsami.object.constants.QuestionPresetTag;
 import com.balsamic.sejongmalsami.object.constants.SortType;
+import com.balsamic.sejongmalsami.object.constants.YeopjeonAction;
 import com.balsamic.sejongmalsami.object.postgres.Course;
 import com.balsamic.sejongmalsami.object.postgres.MediaFile;
 import com.balsamic.sejongmalsami.object.postgres.Member;
@@ -36,8 +38,24 @@ public class QuestionPostService {
   private final QuestionPostCustomTagService questionPostCustomTagService;
   private final MediaFileService mediaFileService;
   private final CourseRepository courseRepository;
+  private final YeopjeonService yeopjeonService;
+  private final ExpService expService;
 
-  /* 질문 게시글 등록 로직 */
+  /**
+   * <h3>질문 글 등록 로직
+   * <p>작성자 엽전 100냥 감소
+   * <p>작성자 경험치 증가
+   * @param command
+   * <p>String title
+   * <p>String content
+   * <p>String subject
+   * <p>List mediaFiles
+   * <p>List questionPresetTags
+   * <p>List customTags
+   * <p>Integer reward
+   * <p>Boolean isPrivate
+   * @return
+   */
   @Transactional
   public QuestionDto saveQuestionPost(QuestionCommand command) {
 
@@ -102,6 +120,12 @@ public class QuestionPostService {
       mediaFiles = mediaFileService
           .uploadMediaFiles(savedPost.getQuestionPostId(), command.getMediaFiles());
     }
+
+    // 질문 글 등록 시 엽전 100냥 감소
+    yeopjeonService.updateYeopjeonAndSaveYeopjeonHistory(member, YeopjeonAction.CREATE_QUESTION_POST);
+
+    // 질문 글 등록 시 경험치 증가
+    expService.updateExpAndSaveExpHistory(member, ExpAction.CREATE_QUESTION_POST);
 
     return QuestionDto.builder()
         .questionPost(savedPost)

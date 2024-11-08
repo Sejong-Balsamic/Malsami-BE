@@ -38,6 +38,11 @@ jobs:
         run: |
           echo "${{ secrets.SCORE_YML }}" > ./src/main/resources/score.yml
 
+      # exp.yml 파일을 빌드 전에 생성
+      - name: Create exp.yml from secret
+        run: |
+          echo "${{ secrets.EXP_YML }}" > ./src/main/resources/exp.yml
+
       # prod 프로파일을 활성화하여 빌드
       - name: Build with Gradle
         run: ./gradlew clean build -x test -Dspring.profiles.active=prod

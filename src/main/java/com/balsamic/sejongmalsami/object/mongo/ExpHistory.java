@@ -1,6 +1,6 @@
 package com.balsamic.sejongmalsami.object.mongo;
 
-import com.balsamic.sejongmalsami.object.constants.ActionType;
+import com.balsamic.sejongmalsami.object.constants.ExpAction;
 import jakarta.validation.constraints.NotNull;
 import java.util.UUID;
 import lombok.AllArgsConstructor;
@@ -23,11 +23,14 @@ public class ExpHistory extends BaseMongoEntity {
 
   @Indexed
   @NotNull
-  private UUID memberId;
+  private UUID memberId; // 사용자 ID
 
   @NotNull
-  private Integer expChange;
+  private Integer expChange; // 변동된 경험치
 
   @NotNull
-  private ActionType actionType;
+  private ExpAction expAction; // 경험치 변동 유형
+
+  @NotNull
+  private Integer resultExp; // 변동 이후 경험치
 }
