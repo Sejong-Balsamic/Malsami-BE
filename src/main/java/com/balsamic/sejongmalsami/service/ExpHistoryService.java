@@ -5,7 +5,10 @@ import com.balsamic.sejongmalsami.object.mongo.ExpHistory;
 import com.balsamic.sejongmalsami.object.postgres.Exp;
 import com.balsamic.sejongmalsami.object.postgres.Member;
 import com.balsamic.sejongmalsami.repository.mongo.ExpHistoryRepository;
+import com.balsamic.sejongmalsami.repository.postgres.ExpRepository;
 import com.balsamic.sejongmalsami.util.ExpCalculator;
+import com.balsamic.sejongmalsami.util.exception.CustomException;
+import com.balsamic.sejongmalsami.util.exception.ErrorCode;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
@@ -16,15 +19,16 @@ import org.springframework.transaction.annotation.Transactional;
 @RequiredArgsConstructor
 public class ExpHistoryService {
 
+  private final ExpRepository expRepository;
   private final ExpHistoryRepository expHistoryRepository;
   private final ExpCalculator expCalculator;
-  private final ExpService expService;
 
   // 경험치 히스토리 내역 추가
   @Transactional
   public ExpHistory saveExpHistory(Member member, ExpAction action) {
 
-    Exp exp = expService.findMemberExp(member);
+    Exp exp = expRepository.findByMember(member)
+        .orElseThrow(() -> new CustomException(ErrorCode.EXP_NOT_FOUND));
 
     return ExpHistory.builder()
         .memberId(member.getMemberId())
