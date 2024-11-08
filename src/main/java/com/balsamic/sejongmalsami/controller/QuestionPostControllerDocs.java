@@ -55,9 +55,9 @@ public interface QuestionPostControllerDocs {
 
           - **List\\<MultipartFile\\> mediaFiles**: 첨부파일 (최대 3개까지만 추가가능, 이미지파일만 업로드가능) [선택]
 
-          - **Set\\<QuestionPresetTag\\> questionPresetTagSet**: 질문 게시글 정적태그 (최대 2개까지만 선택가능) [선택]
+          - **List\\<QuestionPresetTag\\> questionPresetTags**: 질문 게시글 정적태그 (최대 2개까지만 선택가능) [선택]
 
-          - **Set\\<String\\> customTagSet**: 질문 게시글 커스텀태그 (최대 4개까지만 추가가능) [선택]
+          - **List\\<String\\> customTags**: 질문 게시글 커스텀태그 (최대 4개까지만 추가가능) [선택]
 
           - **Integer reward**: 엽전 현상금 (default = 0) [선택]
 
@@ -252,7 +252,7 @@ public interface QuestionPostControllerDocs {
           
           - **Integer maxYeopjeon**: 엽전 현상금 최대 개수 [선택]
           
-          - **Set<QuestionPresetTag> questionPresetTagSet**: 정적 태그 필터링 [선택]
+          - **List<QuestionPresetTag> questionPresetTags**: 정적 태그 필터링 [선택]
           
           - **Faculty faculty**: 단과대별 필터링 [선택]
           
