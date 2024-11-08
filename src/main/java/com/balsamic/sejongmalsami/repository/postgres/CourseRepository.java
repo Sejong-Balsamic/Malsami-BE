@@ -19,4 +19,6 @@ public interface CourseRepository extends JpaRepository<Course, UUID> {
 
   // 교과목 명을 통해 단과대 조회
   List<Course> findAllBySubject(String subject);
+
+  void deleteByYearAndSemester(Integer year, Integer semester);
 }
