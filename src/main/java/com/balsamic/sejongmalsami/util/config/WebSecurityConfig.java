@@ -39,6 +39,7 @@ public class WebSecurityConfig {
 
   // 인증을 생략할 URL 패턴 목록
   private static final String[] AUTH_WHITELIST = {
+      "/", // 관리자페이지 로그인창
       "/api/member/signin", // 회원가입
       "/api/auth/refresh", // 리프레시 토큰
       "/api/course/subjects/faculty", // 교과목명 조회
@@ -47,7 +48,12 @@ public class WebSecurityConfig {
       "/api/test/**", // 테스트 API
       "/docs/**", // Swagger
       "/v3/api-docs/**", // Swagger
+      "/static/**", // 정적 자원
+      "/robots.txt", // 크롤링 허용 URL 파일
+      "/sitemap.xml", // 페이지 URL 파일
+      "/favicon.ico" // 아이콘 파일
   };
+
 
   // 허용된 CORS Origin 목록
   private static final String[] ALLOWED_ORIGINS = {
@@ -60,14 +66,6 @@ public class WebSecurityConfig {
       "http://localhost:8080",
       "http://localhost:3000"
   };
-
-  // 웹 보안 무시 설정 (정적 자원 등)
-  @Bean
-  public WebSecurityCustomizer configure() {
-    return (web) -> web.ignoring()
-        .requestMatchers(new AntPathRequestMatcher("/static/**"));
-//        .requestMatchers(new AntPathRequestMatcher("/favicon.ico"));
-  }
 
   // 보안 필터 체인 설정
   @Bean
