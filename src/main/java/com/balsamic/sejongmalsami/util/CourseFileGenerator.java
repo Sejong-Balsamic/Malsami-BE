@@ -1,7 +1,8 @@
 package com.balsamic.sejongmalsami.util;
 
-import com.balsamic.sejongmalsami.object.postgres.CourseFile;
 import com.balsamic.sejongmalsami.object.constants.FileStatus;
+import com.balsamic.sejongmalsami.object.constants.SystemType;
+import com.balsamic.sejongmalsami.object.postgres.CourseFile;
 import com.balsamic.sejongmalsami.repository.postgres.CourseFileRepository;
 import com.balsamic.sejongmalsami.service.CourseService;
 import com.balsamic.sejongmalsami.util.exception.CustomException;
@@ -33,35 +34,44 @@ public class CourseFileGenerator implements ApplicationRunner {
   private final CourseService courseService;
   private final CourseFileRepository courseFileRepository;
 
-  //FIXME: 임시 하드코딩
-  private static final String COURSE_FILES_DIR = "src/main/resources/courses/";
-
   @Override
   public void run(ApplicationArguments args) throws Exception {
     log.info("============== Course File Generator ==============");
     log.info("Course 교과목 XLSX 파일 처리 시작 = {}", LocalDateTime.now());
 
-    //TODO: 서버 업로드시 서버내 경로에서 확인
-    Resource resource = new ClassPathResource("courses/");
-
-    if (!resource.exists()) {
-      log.warn("Course 파일 디렉토리가 존재하지 않습니다 : {}", resource.getFilename());
-      return;
-    }
+    //TODO: path 경로
 
     Path coursesPath;
-    try {
-      coursesPath = Paths.get(resource.getURI());
-    } catch (Exception e) {
-      log.error("리소스 디렉토리 경로를 가져오는 중 오류 발생", e);
+
+    // 시스템 타입에 따라 경로 설정
+    if (FileUtil.getCurrentSystem() == SystemType.LINUX) {
+      // 서버 환경: 마운트된 외부 디렉토리 사용
+      coursesPath = Paths.get("/mnt/sejong-malsami/courses/");
+      log.info("서버 환경: coursesPath = {}", coursesPath);
+    } else {
+      // 로컬 환경: 클래스패스 리소스 사용
+      Resource resource = new ClassPathResource("courses/");
+      if (!resource.exists()) {
+        log.warn("Course 파일 디렉토리가 존재하지 않습니다 : {}", resource.getFilename());
+        return;
+      }
+
+      try {
+        coursesPath = Paths.get(resource.getURI());
+      } catch (Exception e) {
+        log.error("리소스 디렉토리 경로를 가져오는 중 오류 발생", e);
+        return;
+      }
+      log.info("로컬 환경: coursesPath = {}", coursesPath);
+    }
+
+    // 디렉토리 존재 여부 확인
+    if (!Files.exists(coursesPath) || !Files.isDirectory(coursesPath)) {
+      log.warn("Course 파일 디렉토리가 존재하지 않거나 디렉토리가 아닙니다: {}", coursesPath);
       return;
     }
 
-    if (!Files.isDirectory(coursesPath)) {
-      log.warn("Course 파일 디렉토리가 올바르지 않습니다: {}", coursesPath);
-      return;
-    }
-
+    // XLSX 파일 목록 수집
     List<Path> xlsxFiles = new ArrayList<>();
     try (DirectoryStream<Path> stream = Files.newDirectoryStream(coursesPath, "*.xlsx")) {
       for (Path filePath : stream) {
@@ -90,7 +100,7 @@ public class CourseFileGenerator implements ApplicationRunner {
         if (addedCourses > 0) { // 성공적으로 처리된 파일
           successCount++;
           totalAddedCourses += addedCourses;
-        } else if (addedCourses == 0) { // 실패한 파일
+        } else if (addedCourses == 0) { // 패스한 파일
           passCount++;
         }
         // addedCourses < 0 은 현재 처리 중인 파일로 간주하여 카운트하지 않음
@@ -102,7 +112,7 @@ public class CourseFileGenerator implements ApplicationRunner {
 
     LocalDateTime endTime = LocalDateTime.now();
     Duration overallDuration = Duration.between(overallStartTime, endTime);
-    log.info("=========== Couerse File 처리 완료 =============");
+    log.info("=========== Course File 처리 완료 =============");
     log.info("처리 종료 시간: {}", endTime);
     log.info("총 소요 시간: {}초", overallDuration.getSeconds());
     log.info("성공적으로 처리된 파일 수: {}", successCount);
@@ -126,7 +136,7 @@ public class CourseFileGenerator implements ApplicationRunner {
       } else if (existingFile.getFileStatus() == FileStatus.PENDING
           || existingFile.getFileStatus() == FileStatus.FAILURE) {
 
-        // 파일 Status 가 PENDING 이거나 FAILURE 인 경우
+        // 파일 Status가 PENDING이거나 FAILURE인 경우
         log.info("재처리 대상 파일: {}", fileName);
 
         // 기존 교과목 데이터 삭제
@@ -137,7 +147,7 @@ public class CourseFileGenerator implements ApplicationRunner {
           log.info("기존 교과목 삭제됨: 년도: {}, 학기: {}", year, semester);
         }
 
-        // CourseFile -> PENDING
+        // CourseFile -> PENDING 상태로 업데이트
         existingFile.setFileStatus(FileStatus.PENDING);
         existingFile.setErrorMessage(null);
         existingFile.setProcessedAt(LocalDateTime.now());
@@ -151,7 +161,7 @@ public class CourseFileGenerator implements ApplicationRunner {
       String[] parts = Objects.requireNonNull(fileName).split("-");
       if (parts.length < 3 || !parts[0].equals("course")) {
         log.error("파일 이름 -> 잘못된 구조: {}", fileName);
-        // CourseFile 에 실패 기록 추가 저장
+        // CourseFile에 실패 기록 추가 저장
         courseFileRepository.save(
             CourseFile.builder()
                 .fileName(fileName)
@@ -169,7 +179,7 @@ public class CourseFileGenerator implements ApplicationRunner {
         semester = Integer.parseInt(parts[2].split("\\.")[0]);
       } catch (Exception e) {
         log.error("파일 이름 -> 년도 또는 학기 추출 실패: {}", fileName, e);
-        // `CourseFile`에 실패 기록 추가
+        // CourseFile에 실패 기록 추가 저장
         courseFileRepository.save(CourseFile.builder()
             .fileName(fileName)
             .processedAt(LocalDateTime.now())
@@ -191,7 +201,7 @@ public class CourseFileGenerator implements ApplicationRunner {
       log.info("현재 작업중인 파일 : PENDING : {}", fileName);
     }
 
-    // 실행 시간 init
+    // 실행 시간 초기화
     LocalDateTime fileStartTime = LocalDateTime.now();
 
     // 파일 처리 시작
@@ -211,7 +221,7 @@ public class CourseFileGenerator implements ApplicationRunner {
         courseFileRepository.save(existingFile);
       } else {
         // 새로운 파일인 경우 (이미 PENDING 상태로 저장됨)
-        // Find the recently saved CourseFile
+        // 최근에 저장된 CourseFile 조회
         CourseFile newCourseFile = courseFileRepository.findByFileName(fileName)
             .orElseThrow(() -> new CustomException(ErrorCode.COURSE_SAVE_ERROR));
         newCourseFile.setFileStatus(FileStatus.SUCCESS);
@@ -223,7 +233,7 @@ public class CourseFileGenerator implements ApplicationRunner {
       log.info("파일 처리 성공: {}", fileName);
       return addedCourses;
     } catch (Exception e) {
-      // CourseFile -> FAILURE 변경 후 저장
+      // CourseFile을 FAILURE 상태로 변경 후 저장
 
       // 실행 시간 계산
       LocalDateTime fileEndTime = LocalDateTime.now();
@@ -238,7 +248,7 @@ public class CourseFileGenerator implements ApplicationRunner {
         existingFile.setDurationSeconds(durationSeconds);
         courseFileRepository.save(existingFile);
       } else {
-        // 새로운 파일
+        // 새로운 파일인 경우
         CourseFile newCourseFile = courseFileRepository.findByFileName(fileName)
             .orElseThrow(() -> new CustomException(ErrorCode.COURSE_SAVE_ERROR));
         newCourseFile.setFileStatus(FileStatus.FAILURE);
