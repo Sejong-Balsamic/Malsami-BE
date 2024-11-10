@@ -41,7 +41,6 @@ public class WebSecurityConfig {
   private static final String[] AUTH_WHITELIST = {
       "/", // 관리자페이지 메인창
       "/login", // 관리자페이지 로그인창
-      "/admin/**", //FIXME: 임시 관리자 페이지 전체허용
       "/api/member/signin", // 회원가입
       "/api/auth/refresh", // 리프레시 토큰
       "/api/course/subjects/faculty", // 교과목명 조회
@@ -83,7 +82,7 @@ public class WebSecurityConfig {
             .formLogin(AbstractHttpConfigurer::disable)
             .authorizeHttpRequests((authorize) -> authorize
                 .requestMatchers(AUTH_WHITELIST).permitAll()
-//                .requestMatchers("/admin/**").hasRole("ADMIN") //FIXME: 임시 전체허용
+                .requestMatchers("/admin/**").hasRole("ADMIN")
                 .requestMatchers(HttpMethod.POST, "/api/course/upload").hasRole("USER")
                 .requestMatchers(HttpMethod.POST, "/api/member/my-page").hasRole("USER")
                 .anyRequest().authenticated()

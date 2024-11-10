@@ -15,6 +15,7 @@ import com.balsamic.sejongmalsami.repository.postgres.MemberRepository;
 import com.balsamic.sejongmalsami.repository.postgres.YeopjeonRepository;
 import com.balsamic.sejongmalsami.util.JwtUtil;
 import com.balsamic.sejongmalsami.util.SejongPortalAuthenticator;
+import com.balsamic.sejongmalsami.util.config.AdminConfig;
 import com.balsamic.sejongmalsami.util.config.YeopjeonConfig;
 import com.balsamic.sejongmalsami.util.exception.CustomException;
 import com.balsamic.sejongmalsami.util.exception.ErrorCode;
@@ -22,6 +23,8 @@ import io.jsonwebtoken.Claims;
 import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletResponse;
 import java.time.LocalDateTime;
+import java.util.HashSet;
+import java.util.Set;
 import java.util.UUID;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -44,6 +47,7 @@ public class MemberService implements UserDetailsService {
   private final JwtUtil jwtUtil;
   private final YeopjeonConfig yeopjeonConfig;
   private final ExpRepository expRepository;
+  private final AdminConfig adminConfig;
 
   /**
    * Spring Security에서 회원 정보를 로드하는 메서드
@@ -73,25 +77,34 @@ public class MemberService implements UserDetailsService {
   public MemberDto signIn(MemberCommand command, HttpServletResponse response) {
     // 인증 정보 조회
     MemberDto dto = sejongPortalAuthenticator.getMemberAuthInfos(command);
-    Long studentId = Long.parseLong(dto.getStudentIdString());
+    String studentIdString = dto.getStudentIdString();
+    Long studentId = Long.parseLong(studentIdString);
 
     // 회원 조회 또는 신규 등록
     Member member = memberRepository.findByStudentId(studentId)
         .orElseGet(() -> {
+
+          // 관리자 계정 확인
+          HashSet<Role> roles = new HashSet<>(Set.of(Role.ROLE_USER));
+          if(adminConfig.isAdmin(studentIdString)){
+            roles = new HashSet<>(Set.of(Role.ROLE_USER, Role.ROLE_ADMIN));
+            log.info("관리자 계정 확인: {}", studentIdString);
+          }
+
           log.info("신규 회원 등록: studentId = {}", studentId);
           Member newMember = memberRepository.save(
               Member.builder()
-              .studentId(studentId)
-              .studentName(dto.getStudentName())
-              .uuidNickname(UUID.randomUUID().toString().substring(0, 6))
-              .major(dto.getMajor())
-              .academicYear(dto.getAcademicYear())
-              .enrollmentStatus(dto.getEnrollmentStatus())
-              .isNotificationEnabled(true)
-              .role(Role.ROLE_USER)
-              .accountStatus(AccountStatus.ACTIVE)
-              .isFirstLogin(true)
-              .build());
+                  .studentId(studentId)
+                  .studentName(dto.getStudentName())
+                  .uuidNickname(UUID.randomUUID().toString().substring(0, 6))
+                  .major(dto.getMajor())
+                  .academicYear(dto.getAcademicYear())
+                  .enrollmentStatus(dto.getEnrollmentStatus())
+                  .isNotificationEnabled(true)
+                  .roles(roles)
+                  .accountStatus(AccountStatus.ACTIVE)
+                  .isFirstLogin(true)
+                  .build());
 
           // Exp 엔티티 생성 및 저장
           Exp exp = expRepository.save(
@@ -156,7 +169,7 @@ public class MemberService implements UserDetailsService {
     refreshCookie.setMaxAge((int) (jwtUtil.getRefreshExpirationTime() / 1000)); // 7일
     // SameSite 설정은 직접 Set-Cookie 헤더에 추가
 
-//    // 쿠키 설정 정보 로깅
+//    //FIXME: 임시 로깅: 쿠키 설정
 //    log.info("설정할 쿠키 정보: ");
 //    log.info("Name: {}", refreshCookie.getName());
 //    log.info("Value: {}", refreshCookie.getValue());
