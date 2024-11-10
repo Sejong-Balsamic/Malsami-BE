@@ -4,10 +4,11 @@
 <head th:replace="~{fragments/header :: head}"></head>
 <body>
 <div th:replace="~{fragments/header :: header}"></div>
+<div th:replace="~{fragments/sidebar :: sidebar}"></div>
 
 <div class="ui stackable grid">
   <div class="three wide column">
-    <div th:replace="~{fragments/sidebar :: sidebar}"></div>
+    <!-- 사이드바는 이미 프래그먼트로 불러왔으므로 여기에 다시 호출할 필요 없음 -->
   </div>
   <div class="thirteen wide column">
     <h2 class="ui header">질문답변게시판 관리</h2>

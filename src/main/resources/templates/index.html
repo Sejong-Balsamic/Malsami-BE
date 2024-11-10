@@ -1,14 +1,50 @@
 <!-- src/main/resources/templates/index.html -->
 <!DOCTYPE html>
 <html xmlns:th="http://www.thymeleaf.org">
-<head th:replace="~{fragments/header :: head}"></head> <!-- 매개변수 제거 -->
+<head th:replace="~{fragments/header :: head}"></head>
 <body>
-<div th:replace="~{fragments/header :: header}"></div>
-<div class="ui container">
-  <h1 class="ui header">Welcome to the Admin Page</h1>
-  <p>관리자용 페이지에 오신 것을 환영합니다.</p>
-  <a th:href="@{/login}" class="ui primary button">Login</a>
+<div id="loading" class="ui active inverted dimmer">
+  <div class="ui large text loader">Loading</div>
 </div>
-<div th:replace="~{fragments/footer :: footer}"></div>
+
+<script th:inline="javascript">
+  document.addEventListener('DOMContentLoaded', function() {
+    // 로컬 스토리지에서 액세스 토큰 확인
+    const accessToken = localStorage.getItem('accessToken');
+
+    if (!accessToken) {
+      // 토큰이 없으면 로그인 페이지로 리다이렉트
+      window.location.href = '/admin/login';
+      return;
+    }
+
+    // 토큰 유효성 검증
+    fetch('/api/member/validate-token', {
+      method: 'POST',
+      headers: {
+        'Authorization': `Bearer ${accessToken}`
+      }
+    })
+    .then(response => {
+      if (response.ok) {
+        // 토큰이 유효하면 대시보드로 리다이렉트
+        window.location.href = '/admin/dashboard';
+      } else {
+        // 토큰이 유효하지 않으면 로그인 페이지로 리다이렉트
+        localStorage.removeItem('accessToken');
+        window.location.href = '/admin/login';
+      }
+    })
+    .catch(error => {
+      console.error('Token validation error:', error);
+      localStorage.removeItem('accessToken');
+      window.location.href = '/admin/login';
+    });
+  });
+</script>
+
+<!-- footer의 스크립트들만 포함 -->
+<script th:src="@{/js/jquery.min.js}"></script>
+<script th:src="@{/js/semantic.min.js}"></script>
 </body>
 </html>

@@ -12,6 +12,7 @@ import io.jsonwebtoken.Claims;
 import java.time.LocalDateTime;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -26,7 +27,6 @@ public class AuthService {
 
   /**
    * 리프레시 토큰을 사용하여 새로운 액세스 토큰 발급
-   *
    */
   @Transactional(readOnly = true)
   public AuthDto refreshAccessToken(AuthCommand command) {
@@ -63,7 +63,7 @@ public class AuthService {
 
     log.info("새로운 AccessToken 발급 완료: 회원 = {}", userDetails.getMember().getStudentId());
     log.info("새로운 AccessToken: {}", newAccessToken);
-    
+
     return AuthDto.builder()
         .accessToken(newAccessToken)
         .build();

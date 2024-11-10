@@ -51,6 +51,8 @@ public class WebSecurityConfig {
       "/docs/**", // Swagger
       "/v3/api-docs/**", // Swagger
       "/css/**", // CSS 파일
+      "/fonts/**", // CSS 파일
+      "/images/**", // 이미지 파일
       "/js/**", // JS 파일
       "/robots.txt", // 크롤링 허용 URL 파일
       "/sitemap.xml", // 페이지 URL 파일

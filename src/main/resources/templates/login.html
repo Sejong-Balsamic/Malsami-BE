@@ -1,35 +1,90 @@
 <!-- src/main/resources/templates/login.html -->
 <!DOCTYPE html>
 <html xmlns:th="http://www.thymeleaf.org">
-<head th:replace="~{fragments/header :: head(pageTitle='Login')}"></head>
+<head th:replace="~{fragments/header :: head}"></head>
 <body>
 <div th:replace="~{fragments/header :: header}"></div>
-<div class="ui middle aligned center aligned grid" style="height: 80vh;">
-  <div class="column" style="max-width: 450px;">
-    <h2 class="ui teal image header">
-      <div class="content">
-        로그인
-      </div>
-    </h2>
-    <form class="ui large form" th:action="@{/login}" method="post">
-      <div class="ui stacked segment">
-        <div class="field">
-          <div class="ui left icon input">
-            <i class="user icon"></i>
-            <input type="text" name="username" placeholder="Username" required>
-          </div>
+
+<div class="ui middle aligned grid container">
+  <div class="column">
+    <!-- 로고 및 타이틀 섹션 -->
+    <div class="ui center aligned very padded basic segment">
+      <div class="ui center aligned grid">
+        <div class="column">
+          <h1 class="ui massive center aligned header">
+            <div class="content">
+              <i class="cogs icon"></i>
+              SEJONG MALSAMI
+              <div class="sub header" style="margin-top: 0.5em; font-size: 0.4em;">Configuration Manager</div>
+            </div>
+          </h1>
         </div>
-        <div class="field">
-          <div class="ui left icon input">
-            <i class="lock icon"></i>
-            <input type="password" name="password" placeholder="Password" required>
-          </div>
-        </div>
-        <button type="submit" class="ui fluid large teal submit button">로그인</button>
       </div>
-    </form>
+      <div class="ui hidden section divider"></div>
+      <p class="large text">관리자용 페이지에 오신 것을 환영합니다.</p>
+      <div class="ui hidden divider"></div>
+    </div>
+
+    <!-- 로그인 폼 섹션 -->
+    <div class="ui center aligned basic segment">
+      <div class="ui center aligned grid">
+        <div class="column" style="max-width: 450px;">
+          <form class="ui large form" id="loginForm">
+            <div class="ui stacked segment">
+              <div class="field">
+                <div class="ui left icon input">
+                  <i class="user icon"></i>
+                  <input type="text" name="sejongPortalId" placeholder="세종대학교 포털 아이디" required>
+                </div>
+              </div>
+              <div class="field">
+                <div class="ui left icon input">
+                  <i class="lock icon"></i>
+                  <input type="password" name="sejongPortalPassword" placeholder="세종대학교 포털 비밀번호" required>
+                </div>
+              </div>
+              <button type="submit" class="ui fluid large primary submit button">로그인</button>
+            </div>
+            <div class="ui error message"></div>
+          </form>
+        </div>
+      </div>
+    </div>
   </div>
 </div>
+
 <div th:replace="~{fragments/footer :: footer}"></div>
+
+<script th:inline="javascript">
+  document.getElementById('loginForm').addEventListener('submit', function(e) {
+    e.preventDefault();
+
+    const formData = new FormData(this);
+
+    // 로그인 요청
+    fetch('/api/member/signin', {
+      method: 'POST',
+      body: formData
+    })
+    .then(response => response.json())
+    .then(data => {
+      if (data.accessToken) {
+        // 액세스 토큰 저장
+        localStorage.setItem('accessToken', data.accessToken);
+        // 대시보드로 리다이렉트
+        window.location.href = '/admin/dashboard';
+      } else {
+        throw new Error('로그인 실패');
+      }
+    })
+    .catch(error => {
+      console.error('Login error:', error);
+      // 에러 메시지 표시
+      const errorDiv = document.querySelector('.ui.error.message');
+      errorDiv.textContent = '로그인에 실패했습니다. 아이디와 비밀번호를 확인해주세요.';
+      errorDiv.style.display = 'block';
+    });
+  });
+</script>
 </body>
 </html>

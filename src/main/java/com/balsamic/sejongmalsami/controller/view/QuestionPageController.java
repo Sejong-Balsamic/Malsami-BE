@@ -2,14 +2,14 @@ package com.balsamic.sejongmalsami.controller.view;
 
 import com.balsamic.sejongmalsami.object.QuestionCommand;
 import com.balsamic.sejongmalsami.object.QuestionDto;
-import com.balsamic.sejongmalsami.object.QuestionPostDto;
 import com.balsamic.sejongmalsami.service.QuestionPostService;
-import java.util.List;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.MediaType;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
-import org.springframework.web.bind.annotation.*;
+import org.springframework.web.bind.annotation.ModelAttribute;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestMapping;
 
 @Controller
 @RequestMapping("/admin/question")

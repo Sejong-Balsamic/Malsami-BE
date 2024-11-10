@@ -2,6 +2,7 @@ package com.balsamic.sejongmalsami.controller;
 
 import com.balsamic.sejongmalsami.object.AuthCommand;
 import com.balsamic.sejongmalsami.object.AuthDto;
+import com.balsamic.sejongmalsami.object.CustomUserDetails;
 import com.balsamic.sejongmalsami.service.AuthService;
 import com.balsamic.sejongmalsami.util.exception.CustomException;
 import com.balsamic.sejongmalsami.util.exception.ErrorCode;
@@ -9,8 +10,11 @@ import com.balsamic.sejongmalsami.util.log.LogMonitoringInvocation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
@@ -36,6 +40,36 @@ public class AuthController implements AuthControllerDocs {
             .refreshToken(extractRefreshTokenFromCookies(request.getCookies()))
             .build());
     return ResponseEntity.ok(authDto);
+  }
+
+  @PostMapping(value = "/validate-token")
+  @LogMonitoringInvocation
+  @Override
+  public ResponseEntity<Void> validateToken(
+      @AuthenticationPrincipal CustomUserDetails customUserDetails) {
+    if (isValidateToken(customUserDetails)){
+      return ResponseEntity.ok().build();
+    }
+    return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
+  }
+
+  @PostMapping(value = "/logout")
+  @LogMonitoringInvocation
+  @Override
+  public ResponseEntity<Void> logout(HttpServletResponse response) {
+    // 리프레시 토큰 쿠키 삭제
+    Cookie cookie = new Cookie("refreshToken", null);
+    cookie.setMaxAge(0);
+    cookie.setPath("/");
+    response.addCookie(cookie);
+    return ResponseEntity.ok().build();
+  }
+
+  /*
+   인증된 사용자 확인
+   */
+  private Boolean isValidateToken(CustomUserDetails customUserDetails){
+    return customUserDetails != null && customUserDetails.getMemberId() != null;
   }
 
   /**
