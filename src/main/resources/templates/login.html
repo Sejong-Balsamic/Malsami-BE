@@ -1,0 +1,35 @@
+<!-- src/main/resources/templates/login.html -->
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{fragments/header :: head(pageTitle='Login')}"></head>
+<body>
+<div th:replace="~{fragments/header :: header}"></div>
+<div class="ui middle aligned center aligned grid" style="height: 80vh;">
+  <div class="column" style="max-width: 450px;">
+    <h2 class="ui teal image header">
+      <div class="content">
+        로그인
+      </div>
+    </h2>
+    <form class="ui large form" th:action="@{/login}" method="post">
+      <div class="ui stacked segment">
+        <div class="field">
+          <div class="ui left icon input">
+            <i class="user icon"></i>
+            <input type="text" name="username" placeholder="Username" required>
+          </div>
+        </div>
+        <div class="field">
+          <div class="ui left icon input">
+            <i class="lock icon"></i>
+            <input type="password" name="password" placeholder="Password" required>
+          </div>
+        </div>
+        <button type="submit" class="ui fluid large teal submit button">로그인</button>
+      </div>
+    </form>
+  </div>
+</div>
+<div th:replace="~{fragments/footer :: footer}"></div>
+</body>
+</html>

@@ -1,0 +1,14 @@
+<!-- src/main/resources/templates/index.html -->
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{fragments/header :: head}"></head> <!-- 매개변수 제거 -->
+<body>
+<div th:replace="~{fragments/header :: header}"></div>
+<div class="ui container">
+  <h1 class="ui header">Welcome to the Admin Page</h1>
+  <p>관리자용 페이지에 오신 것을 환영합니다.</p>
+  <a th:href="@{/login}" class="ui primary button">Login</a>
+</div>
+<div th:replace="~{fragments/footer :: footer}"></div>
+</body>
+</html>

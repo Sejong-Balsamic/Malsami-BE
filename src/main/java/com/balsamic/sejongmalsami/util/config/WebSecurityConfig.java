@@ -39,7 +39,9 @@ public class WebSecurityConfig {
 
   // 인증을 생략할 URL 패턴 목록
   private static final String[] AUTH_WHITELIST = {
-      "/", // 관리자페이지 로그인창
+      "/", // 관리자페이지 메인창
+      "/login", // 관리자페이지 로그인창
+      "/admin/**", //FIXME: 임시 관리자 페이지 전체허용
       "/api/member/signin", // 회원가입
       "/api/auth/refresh", // 리프레시 토큰
       "/api/course/subjects/faculty", // 교과목명 조회
@@ -48,7 +50,8 @@ public class WebSecurityConfig {
       "/api/test/**", // 테스트 API
       "/docs/**", // Swagger
       "/v3/api-docs/**", // Swagger
-      "/static/**", // 정적 자원
+      "/css/**", // CSS 파일
+      "/js/**", // JS 파일
       "/robots.txt", // 크롤링 허용 URL 파일
       "/sitemap.xml", // 페이지 URL 파일
       "/favicon.ico" // 아이콘 파일
@@ -78,6 +81,7 @@ public class WebSecurityConfig {
             .formLogin(AbstractHttpConfigurer::disable)
             .authorizeHttpRequests((authorize) -> authorize
                 .requestMatchers(AUTH_WHITELIST).permitAll()
+//                .requestMatchers("/admin/**").hasRole("ADMIN") //FIXME: 임시 전체허용
                 .requestMatchers(HttpMethod.POST, "/api/course/upload").hasRole("USER")
                 .requestMatchers(HttpMethod.POST, "/api/member/my-page").hasRole("USER")
                 .anyRequest().authenticated()
