@@ -5,6 +5,10 @@
 <body>
 <div th:replace="fragments/header :: header"></div>
 
+<div id="loading" class="ui active inverted dimmer">
+  <div class="ui large text loader">Loading</div>
+</div>
+
 <div class="ui stackable grid">
   <div class="column">
     <h2 class="ui header">대시보드</h2>
@@ -80,6 +84,7 @@
   </div>
 </div>
 
-<div th:replace="fragments/footer :: footer"></div>
+<div th:replace="~{fragments/token-validation :: tokenValidation}"></div>
+<div th:replace="~{fragments/footer :: footer}"></div>
 </body>
 </html>

@@ -1,0 +1,48 @@
+<!-- src/main/resources/templates/fragments/token-validation.html -->
+<div th:fragment="tokenValidation">
+  <script th:inline="javascript">
+    document.addEventListener('DOMContentLoaded', function() {
+      const accessToken = localStorage.getItem('accessToken');
+      console.log('현재 accessToken:', accessToken);
+
+      if (!accessToken) {
+        console.log('accessToken 없음. /login으로 리다이렉트.');
+        if (window.location.pathname !== '/login') {
+          window.location.href = '/login';
+        }
+        return;
+      }
+
+      const formData = new FormData();
+      formData.append('accessToken', accessToken);
+
+      fetch('/api/auth/validate', {
+        method: 'POST',
+        body: formData
+      })
+      .then(response => {
+        console.log('validate 응답 상태:', response.status);
+        return response.json().then(data => ({ status: response.status, body: data }));
+      })
+      .then(({ status, body }) => {
+        if (status === 200) {
+          console.log('accessToken 유효.');
+        } else {
+          console.log('accessToken 무효. /login으로 리다이렉트.');
+          localStorage.removeItem('accessToken');
+          if (window.location.pathname !== '/login') {
+            window.location.href = '/login';
+          }
+        }
+      })
+      .catch(error => {
+        console.error('Token validation error:', error);
+        localStorage.removeItem('accessToken');
+        if (window.location.pathname !== '/login') {
+          window.location.href = '/login';
+        }
+      });
+    });
+
+  </script>
+</div>

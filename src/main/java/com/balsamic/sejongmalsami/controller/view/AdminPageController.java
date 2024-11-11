@@ -8,7 +8,6 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 
 @Controller
-@RequestMapping("/admin")
 public class AdminPageController {
 
   @GetMapping("/")
@@ -21,17 +20,17 @@ public class AdminPageController {
     return "login";
   }
 
-  @GetMapping("/question")
+  @GetMapping("/admin/question")
   public String questionPage() {
     return "admin/question";
   }
 
-  @GetMapping("/document")
+  @GetMapping("/admin/document")
   public String documentPage() {
     return "admin/document";
   }
 
-  @GetMapping("/dashboard")
+  @GetMapping("/admin/dashboard")
   public String dashboardPage() {
     return "admin/dashboard";
   }

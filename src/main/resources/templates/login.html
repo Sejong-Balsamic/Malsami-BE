@@ -62,26 +62,32 @@
     const formData = new FormData(this);
 
     // 로그인 요청
-    fetch('/api/member/signin', {
+    console.log('로그인 폼 제출:', Object.fromEntries(formData.entries())); // 폼 데이터 로그
+
+    fetch('/api/web/auth/signin', {
       method: 'POST',
-      body: formData
+      headers: {
+        'Content-Type': 'application/x-www-form-urlencoded',
+      },
+      body: new URLSearchParams(formData)
     })
     .then(response => response.json())
     .then(data => {
-      if (data.accessToken) {
-        // 액세스 토큰 저장
+      if (data.success && data.accessToken) {
         localStorage.setItem('accessToken', data.accessToken);
         // 대시보드로 리다이렉트
         window.location.href = '/admin/dashboard';
       } else {
-        throw new Error('로그인 실패');
+        const errorDiv = document.querySelector('.ui.error.message');
+        errorDiv.textContent = data.message || '로그인에 실패했습니다.';
+        errorDiv.style.display = 'block';
       }
     })
     .catch(error => {
       console.error('Login error:', error);
       // 에러 메시지 표시
       const errorDiv = document.querySelector('.ui.error.message');
-      errorDiv.textContent = '로그인에 실패했습니다. 아이디와 비밀번호를 확인해주세요.';
+      errorDiv.textContent = '로그인 처리 중 오류가 발생했습니다.';
       errorDiv.style.display = 'block';
     });
   });

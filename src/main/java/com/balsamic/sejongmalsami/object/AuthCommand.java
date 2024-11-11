@@ -12,5 +12,6 @@ import lombok.Setter;
 @AllArgsConstructor
 public class AuthCommand {
   private String refreshToken;
+  private String accessToken;
   private UUID memberId;
 }

@@ -4,6 +4,7 @@ import com.balsamic.sejongmalsami.object.AuthCommand;
 import com.balsamic.sejongmalsami.object.AuthDto;
 import com.balsamic.sejongmalsami.object.CustomUserDetails;
 import com.balsamic.sejongmalsami.service.AuthService;
+import com.balsamic.sejongmalsami.util.JwtUtil;
 import com.balsamic.sejongmalsami.util.exception.CustomException;
 import com.balsamic.sejongmalsami.util.exception.ErrorCode;
 import com.balsamic.sejongmalsami.util.log.LogMonitoringInvocation;
@@ -13,8 +14,9 @@ import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
-import org.springframework.security.core.annotation.AuthenticationPrincipal;
+import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
@@ -29,6 +31,7 @@ import org.springframework.web.bind.annotation.RestController;
 public class AuthController implements AuthControllerDocs {
 
   private final AuthService authService;
+  private final JwtUtil jwtUtil;
 
   @PostMapping(value = "/refresh")
   @LogMonitoringInvocation
@@ -42,16 +45,27 @@ public class AuthController implements AuthControllerDocs {
     return ResponseEntity.ok(authDto);
   }
 
-  @PostMapping(value = "/validate-token")
+  @PostMapping(value = "/validate", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
   @LogMonitoringInvocation
-  @Override
-  public ResponseEntity<Void> validateToken(
-      @AuthenticationPrincipal CustomUserDetails customUserDetails) {
-    if (isValidateToken(customUserDetails)){
+  public ResponseEntity<Void> validatePageToken(
+      @ModelAttribute AuthCommand command){
+    String accessToken = command.getAccessToken();
+    System.out.println("validateToken 호출됨. accessToken: " + accessToken); // 추가 로그
+
+    if (accessToken == null || accessToken.isEmpty()) {
+      System.out.println("accessToken이 비어있음.");
+      return ResponseEntity.status(HttpStatus.BAD_REQUEST).build();
+    }
+
+    boolean isValidAccessToken = jwtUtil.validateToken(accessToken);
+    System.out.println("accessToken 유효성 검증 결과: " + isValidAccessToken); // 추가 로그
+
+    if(isValidAccessToken) {
       return ResponseEntity.ok().build();
     }
     return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
   }
+
 
   @PostMapping(value = "/logout")
   @LogMonitoringInvocation
@@ -68,7 +82,7 @@ public class AuthController implements AuthControllerDocs {
   /*
    인증된 사용자 확인
    */
-  private Boolean isValidateToken(CustomUserDetails customUserDetails){
+  private Boolean isValidateUserDetails(CustomUserDetails customUserDetails){
     return customUserDetails != null && customUserDetails.getMemberId() != null;
   }
 

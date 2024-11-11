@@ -39,9 +39,7 @@ public class WebSecurityConfig {
 
   // 인증을 생략할 URL 패턴 목록
   private static final String[] AUTH_WHITELIST = {
-      "/", // 관리자페이지 메인창
-      "/login", // 관리자페이지 로그인창
-      "/api/member/signin", // 회원가입
+      // API
       "/api/auth/refresh", // 리프레시 토큰
       "/api/course/subjects/faculty", // 교과목명 조회
       "/api/login", // 로그인
@@ -49,6 +47,12 @@ public class WebSecurityConfig {
       "/api/test/**", // 테스트 API
       "/docs/**", // Swagger
       "/v3/api-docs/**", // Swagger
+      //WEB
+      "/", // 관리자페이지 메인창
+      "/login", // 관리자페이지 로그인창
+      "/api/member/signin", // 회원가입
+      "/api/web/auth/signin", // 관리자 로그인 API
+      "/error",
       "/css/**", // CSS 파일
       "/fonts/**", // CSS 파일
       "/images/**", // 이미지 파일
@@ -57,7 +61,6 @@ public class WebSecurityConfig {
       "/sitemap.xml", // 페이지 URL 파일
       "/favicon.ico" // 아이콘 파일
   };
-
 
   // 허용된 CORS Origin 목록
   private static final String[] ALLOWED_ORIGINS = {

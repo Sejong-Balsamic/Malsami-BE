@@ -1,7 +1,7 @@
 package com.balsamic.sejongmalsami.controller;
 
+import com.balsamic.sejongmalsami.object.AuthCommand;
 import com.balsamic.sejongmalsami.object.AuthDto;
-import com.balsamic.sejongmalsami.object.CustomUserDetails;
 import com.balsamic.sejongmalsami.object.constants.Author;
 import com.balsamic.sejongmalsami.util.log.ApiChangeLog;
 import com.balsamic.sejongmalsami.util.log.ApiChangeLogs;
@@ -10,7 +10,7 @@ import io.swagger.v3.oas.annotations.Operation;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import org.springframework.http.ResponseEntity;
-import org.springframework.security.core.annotation.AuthenticationPrincipal;
+import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.PostMapping;
 
 public interface AuthControllerDocs {
@@ -85,10 +85,10 @@ public interface AuthControllerDocs {
           - **401 Unauthorized**: 토큰이 유효하지 않거나 만료됨
           """
   )
-  @PostMapping(value = "/validate-token")
+  @PostMapping(value = "/validate")
   @LogMonitoringInvocation
-  ResponseEntity<Void> validateToken(
-      @AuthenticationPrincipal CustomUserDetails customUserDetails);
+  ResponseEntity<Void> validatePageToken(
+      @ModelAttribute AuthCommand command);
 
   @ApiChangeLogs({
       @ApiChangeLog(
