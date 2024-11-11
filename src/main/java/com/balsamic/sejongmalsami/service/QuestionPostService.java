@@ -11,9 +11,11 @@ import com.balsamic.sejongmalsami.object.postgres.Course;
 import com.balsamic.sejongmalsami.object.postgres.MediaFile;
 import com.balsamic.sejongmalsami.object.postgres.Member;
 import com.balsamic.sejongmalsami.object.postgres.QuestionPost;
+import com.balsamic.sejongmalsami.object.postgres.Yeopjeon;
 import com.balsamic.sejongmalsami.repository.postgres.CourseRepository;
 import com.balsamic.sejongmalsami.repository.postgres.MemberRepository;
 import com.balsamic.sejongmalsami.repository.postgres.QuestionPostRepository;
+import com.balsamic.sejongmalsami.util.YeopjeonCalculator;
 import com.balsamic.sejongmalsami.util.exception.CustomException;
 import com.balsamic.sejongmalsami.util.exception.ErrorCode;
 import java.util.ArrayList;
@@ -39,6 +41,7 @@ public class QuestionPostService {
   private final MediaFileService mediaFileService;
   private final CourseRepository courseRepository;
   private final YeopjeonService yeopjeonService;
+  private final YeopjeonCalculator yeopjeonCalculator;
   private final ExpService expService;
 
   /**
@@ -52,7 +55,7 @@ public class QuestionPostService {
    * <p>List mediaFiles
    * <p>List questionPresetTags
    * <p>List customTags
-   * <p>Integer reward
+   * <p>Integer rewardYeopjeon
    * <p>Boolean isPrivate
    * @return
    */
@@ -66,8 +69,24 @@ public class QuestionPostService {
     if (command.getRewardYeopjeon() == null) {
       command.setRewardYeopjeon(0);
     } else if (command.getRewardYeopjeon() < 0) { // 음수 값으로 설정될 경우 오류
-      throw new CustomException(ErrorCode.QUESTION_REWARD_INVALID);
+      throw new CustomException(ErrorCode.QUESTION_INVALID_REWARD_YEOPJEON);
     }
+
+    // {질문글 등록 시 소모엽전 + 엽전 현싱금} 보다 보유 엽전량이 적을 시 오류 발생
+    Yeopjeon yeopjeon = yeopjeonService.findMemberYeopjeon(member);
+    if (yeopjeon.getYeopjeon() < command.getRewardYeopjeon() + -(yeopjeonCalculator.calculateYeopjeon(YeopjeonAction.CREATE_QUESTION_POST))) {
+      log.error("사용자: {} 의 엽전이 부족합니다.", member.getStudentId());
+      log.error("현재 보유 엽전량: {}, 질문글 등록시 필요 엽전량: {}, 엽전 현상금 설정량: {}",
+          yeopjeon.getYeopjeon(),
+          -yeopjeonCalculator.calculateYeopjeon(YeopjeonAction.CREATE_QUESTION_POST),
+          command.getRewardYeopjeon());
+      throw new CustomException(ErrorCode.INSUFFICIENT_YEOPJEON);
+    }
+    // 질문글 작성자가 등록한 엽전 현상금 만큼 엽전 수 감소
+    yeopjeonService.updateYeopjeonAndSaveYeopjeonHistory(
+        member,
+        YeopjeonAction.REWARD_YEOPJEON,
+        -command.getRewardYeopjeon());
 
     // 입력된 교과목에 따른 단과대 설정
     List<Faculty> faculties = courseRepository

@@ -10,6 +10,7 @@ import com.balsamic.sejongmalsami.object.postgres.AnswerPost;
 import com.balsamic.sejongmalsami.object.postgres.MediaFile;
 import com.balsamic.sejongmalsami.object.postgres.Member;
 import com.balsamic.sejongmalsami.object.postgres.QuestionPost;
+import com.balsamic.sejongmalsami.object.postgres.Yeopjeon;
 import com.balsamic.sejongmalsami.repository.postgres.AnswerPostRepository;
 import com.balsamic.sejongmalsami.repository.postgres.MemberRepository;
 import com.balsamic.sejongmalsami.repository.postgres.QuestionPostRepository;
@@ -88,6 +89,7 @@ public class AnswerPostService {
    * <p>1. 해당 답변글 isChaetaek true로 변경
    * <p>2. 글 작성자 - 엽전, 경험치 증가 및 내역 저장
    * <p>3. 사용자 - 엽전, 경험치 증가 및 내역 저장
+   * <p>4. 엽전현상금 - 질문 작성자 -> 답변 작성자 전달
    *
    * @param command: memberId(현재 접속중인 사용자), postId(답변 PK)
    * @return 채택 된 답변글
@@ -144,8 +146,9 @@ public class AnswerPostService {
           answerMemberYeopjeonHistory
       );
     }
+    ExpHistory curMemberExpHistory = null;
     try {
-      expService.updateExpAndSaveExpHistory(curMember, ExpAction.CHAETAEK_ACCEPT);
+      curMemberExpHistory = expService.updateExpAndSaveExpHistory(curMember, ExpAction.CHAETAEK_ACCEPT);
     } catch (Exception e) {
       expService.rollbackExpAndDeleteExpHistory(
           answerMember,
@@ -166,7 +169,48 @@ public class AnswerPostService {
 
     // 답변 채택
     answerPost.chaetaekAnswer();
-    log.info("답변글 : {} 채택되었습니다.", answerPost.getAnswerPostId());
+    log.info("답변글: {} 채택되었습니다. 해당 답변글 작성자: {}",
+        answerPost.getAnswerPostId(), answerMember.getStudentId());
+
+    // 엽전 현상금 존재 시 질문글 작성자 -> 답변글 작성자 엽전 전달
+    if (questionPost.getRewardYeopjeon() > 0) {
+      log.info("엽전 현상금이 존재합니다. 엽전 현상금: {}", questionPost.getRewardYeopjeon());
+      Yeopjeon answerMemberYeopjeon = yeopjeonService.findMemberYeopjeon(answerMember);
+
+      log.info("사용자: {} 의 엽전 현상금 지급 전 엽전량: {}",
+          answerMember.getStudentId(), answerMemberYeopjeon.getYeopjeon());
+      try {
+        yeopjeonService.updateYeopjeonAndSaveYeopjeonHistory(
+            answerMember,
+            YeopjeonAction.REWARD_YEOPJEON,
+            questionPost.getRewardYeopjeon());
+      } catch (Exception e) {
+        expService.rollbackExpAndDeleteExpHistory(
+            curMember,
+            ExpAction.CHAETAEK_ACCEPT,
+            curMemberExpHistory
+        );
+        expService.rollbackExpAndDeleteExpHistory(
+            answerMember,
+            ExpAction.CHAETAEK_CHOSEN,
+            answerMemberExpHistory
+        );
+        yeopjeonService.rollbackYeopjeonAndDeleteYeopjeonHistory(
+            curMember,
+            YeopjeonAction.CHAETAEK_ACCEPT,
+            curMemberYeopjeonHistory
+        );
+        yeopjeonService.rollbackYeopjeonAndDeleteYeopjeonHistory(
+            answerMember,
+            YeopjeonAction.CHAETAEK_CHOSEN,
+            answerMemberYeopjeonHistory
+        );
+      }
+
+      log.info("사용자: {} 의 엽전 현상금 지급 후 엽전량: {}",
+          answerMember.getStudentId(), answerMemberYeopjeon.getYeopjeon());
+
+    }
 
     // 답변 글 채택여부 true 변경
     // 변경사항 저장 및 반환
