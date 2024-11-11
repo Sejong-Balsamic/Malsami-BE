@@ -4,14 +4,20 @@ import com.balsamic.sejongmalsami.object.constants.AccountStatus;
 import com.balsamic.sejongmalsami.object.constants.Role;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+import jakarta.persistence.CollectionTable;
 import jakarta.persistence.Column;
+import jakarta.persistence.ElementCollection;
 import jakarta.persistence.Entity;
 import jakarta.persistence.EnumType;
 import jakarta.persistence.Enumerated;
+import jakarta.persistence.FetchType;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
+import jakarta.persistence.JoinColumn;
 import java.time.LocalDateTime;
+import java.util.HashSet;
+import java.util.Set;
 import java.util.UUID;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -54,9 +60,13 @@ public class Member extends BaseEntity {
   @Column(nullable = false)
   private Boolean isNotificationEnabled = true;
 
-  @Builder.Default
+  @ElementCollection(fetch = FetchType.EAGER)
   @Enumerated(EnumType.STRING)
-  private Role role = Role.ROLE_USER;
+  @CollectionTable(name = "member_roles", joinColumns = @JoinColumn(name = "member_id"))
+  @Column(name = "role")
+  @Builder.Default
+  private Set<Role> roles = new HashSet<>();
+
 
   @Builder.Default
   @Enumerated(EnumType.STRING)

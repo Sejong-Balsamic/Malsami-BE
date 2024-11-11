@@ -1,0 +1,32 @@
+/* src/main/resources/static/css/sejong-malsami.css */
+
+/* ========================= */
+/*        Font Styles        */
+/* ========================= */
+
+/* AppleSDGothicNeoM00 폰트 정의 */
+@font-face {
+  font-family: 'AppleSDGothicNeoM00';
+  src: url('/fonts/AppleSDGothicNeoM.ttf') format('truetype');
+  font-weight: normal;
+  font-style: normal;
+}
+
+/* AppleSDGothicNeoB 폰트 정의 */
+@font-face {
+  font-family: 'AppleSDGothicNeoB';
+  src: url('/fonts/AppleSDGothicNeoB.ttf') format('truetype');
+  font-weight: bold;
+  font-style: normal;
+}
+
+/* AppleSDGothicNeoM00 폰트 전역 적용 */
+body {
+  font-family: 'AppleSDGothicNeoM00', sans-serif;
+}
+
+/* 색상 변수 정의 */
+:root {
+  --malsami-green-color: #03B89E;    /* 시그니쳐 청록색 */
+  --malsami-orange-color: #F46B02;  /* 당근색 */
+}

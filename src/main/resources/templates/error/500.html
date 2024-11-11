@@ -1,0 +1,33 @@
+<!-- src/main/resources/templates/error/500.html -->
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{fragments/header :: head}"></head>
+<body>
+<div th:replace="~{fragments/header :: header}"></div>
+
+<div class="ui middle aligned center aligned grid" style="min-height: 70vh;">
+  <div class="column">
+    <div class="ui center aligned segment">
+      <h1 class="ui icon header">
+        <i class="exclamation triangle icon red"></i>
+        <div class="content">
+          서버 오류가 발생했습니다
+          <div class="sub header">잠시 후 다시 시도해주세요.</div>
+        </div>
+      </h1>
+      <div class="ui hidden divider"></div>
+      <a href="/" class="ui primary button">
+        <i class="home icon"></i>
+        홈으로 돌아가기
+      </a>
+      <a href="mailto:sejong-balsamic-official@gmail.com" class="ui button">
+        <i class="mail icon"></i>
+        관리자에게 문의하기
+      </a>
+    </div>
+  </div>
+</div>
+
+<div th:replace="~{fragments/footer :: footer}"></div>
+</body>
+</html>

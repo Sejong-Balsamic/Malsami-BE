@@ -74,7 +74,7 @@ public class JwtUtil {
         .setIssuedAt(now)
         .setExpiration(new Date(now.getTime() + expiredAt))
         .setSubject(customUserDetails.getUsername())
-        .claim(ROLE, customUserDetails.getMember().getRole())
+        .claim(ROLE, customUserDetails.getMember().getRoles())
         .signWith(getSigningKey(), SignatureAlgorithm.HS256)
         .compact();
   }

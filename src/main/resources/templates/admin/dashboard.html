@@ -1,0 +1,85 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head th:replace="fragments/header :: head(title='Dashboard')"></head>
+<body>
+<div th:replace="fragments/header :: header"></div>
+
+<div class="ui stackable grid">
+  <div class="column">
+    <h2 class="ui header">대시보드</h2>
+    <div class="ui segments">
+      <div class="ui segment">
+        <div class="ui statistics">
+          <div class="statistic">
+            <div class="value">
+              150
+            </div>
+            <div class="label">
+              질문답변게시판
+            </div>
+          </div>
+          <div class="statistic">
+            <div class="value">
+              80
+            </div>
+            <div class="label">
+              자료게시판
+            </div>
+          </div>
+          <div class="statistic">
+            <div class="value">
+              50
+            </div>
+            <div class="label">
+              교과목 관리
+            </div>
+          </div>
+          <div class="statistic">
+            <div class="value">
+              200
+            </div>
+            <div class="label">
+              회원
+            </div>
+          </div>
+          <div class="statistic">
+            <div class="value">
+              30
+            </div>
+            <div class="label">
+              공지사항
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="ui segment">
+        <h3 class="ui header">서버 상태</h3>
+        <div class="ui relaxed divided list">
+          <div class="item">
+            <i class="server icon"></i>
+            <div class="content">
+              CPU 사용률: 45%
+            </div>
+          </div>
+          <div class="item">
+            <i class="database icon"></i>
+            <div class="content">
+              메모리 사용률: 70%
+            </div>
+          </div>
+          <div class="item">
+            <i class="cloud icon"></i>
+            <div class="content">
+              네트워크 트래픽: 120MB/s
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div th:replace="~{fragments/token-validation :: tokenValidation}"></div>
+<div th:replace="~{fragments/footer :: footer}"></div>
+</body>
+</html>
