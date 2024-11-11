@@ -283,4 +283,23 @@ public class QuestionPostService {
         .questionPostsPage(posts)
         .build();
   }
+
+  //FIXME: 임시 SERVICE 코드 (관리자용)
+  public QuestionDto getAllQuestions() {
+    return QuestionDto.builder().build();
+  }
+
+  public QuestionDto getQuestionById(QuestionCommand command) {
+    return QuestionDto.builder().build();
+  }
+
+  public void saveQuestion(QuestionCommand command) {
+  }
+
+  public void deleteQuestion(QuestionCommand command) {
+  }
+
+  private QuestionDto convertToDto(QuestionPost entity) {
+    return QuestionDto.builder().build();
+  }
 }

@@ -1,0 +1,42 @@
+<!-- src/main/resources/templates/admin/status.html -->
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head th:replace="fragments/header :: head(title='서버 상태')"></head>
+<body>
+<div th:replace="fragments/header :: header"></div>
+
+<div class="ui stackable grid">
+  <div class="three wide column">
+    <div th:replace="fragments/sidebar :: sidebar"></div>
+  </div>
+  <div class="thirteen wide column">
+    <h2 class="ui header">서버 상태</h2>
+    <div class="ui segments">
+      <div class="ui segment">
+        <h3 class="ui header">CPU 사용률</h3>
+        <div class="ui indicating progress" data-percent="45">
+          <div class="bar"></div>
+          <div class="label">45% 완료</div>
+        </div>
+      </div>
+      <div class="ui segment">
+        <h3 class="ui header">메모리 사용률</h3>
+        <div class="ui indicating progress" data-percent="70">
+          <div class="bar"></div>
+          <div class="label">70% 완료</div>
+        </div>
+      </div>
+      <div class="ui segment">
+        <h3 class="ui header">네트워크 트래픽</h3>
+        <div class="ui progress" data-percent="120" data-progress="percent">
+          <div class="bar"></div>
+          <div class="label">120MB/s</div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div th:replace="fragments/footer :: footer"></div>
+</body>
+</html>

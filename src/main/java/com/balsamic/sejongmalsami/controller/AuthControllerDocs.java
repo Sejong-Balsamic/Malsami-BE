@@ -1,12 +1,17 @@
 package com.balsamic.sejongmalsami.controller;
 
+import com.balsamic.sejongmalsami.object.AuthCommand;
 import com.balsamic.sejongmalsami.object.AuthDto;
 import com.balsamic.sejongmalsami.object.constants.Author;
 import com.balsamic.sejongmalsami.util.log.ApiChangeLog;
 import com.balsamic.sejongmalsami.util.log.ApiChangeLogs;
+import com.balsamic.sejongmalsami.util.log.LogMonitoringInvocation;
 import io.swagger.v3.oas.annotations.Operation;
 import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
 import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.ModelAttribute;
+import org.springframework.web.bind.annotation.PostMapping;
 
 public interface AuthControllerDocs {
 
@@ -63,5 +68,44 @@ public interface AuthControllerDocs {
           """
   )
   ResponseEntity<AuthDto> refreshAccessToken(HttpServletRequest request);
+
+  @ApiChangeLogs({
+      @ApiChangeLog(
+          date = "2024.11.10",
+          author = Author.SUHSAECHAN,
+          description = "토큰 정상 확인 API 구현"
+      )
+  })
+  @Operation(
+      summary = "토큰 정상 확인 API",
+      description = """
+          
+          **응답 코드:**
+          - **200 OK**: 유효한 토큰
+          - **401 Unauthorized**: 토큰이 유효하지 않거나 만료됨
+          """
+  )
+  @PostMapping(value = "/validate")
+  @LogMonitoringInvocation
+  ResponseEntity<Void> validatePageToken(
+      @ModelAttribute AuthCommand command);
+
+  @ApiChangeLogs({
+      @ApiChangeLog(
+          date = "2024.11.10",
+          author = Author.SUHSAECHAN,
+          description = "로그아웃 API 구현"
+      )
+  })
+  @Operation(
+      summary = "로그아웃 API",
+      description = """
+          **참고 사항:** 
+          - 정상 삭제 했을시 200 ok 반환
+          """
+  )
+  @PostMapping(value = "/logout")
+  @LogMonitoringInvocation
+  ResponseEntity<Void> logout(HttpServletResponse response);
 }
 

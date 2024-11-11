@@ -1,0 +1,39 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{fragments/header :: head}"></head>
+<body>
+<!--<div th:replace="~{fragments/token-validation :: tokenValidation}"></div>-->
+</body>
+<script>
+  document.addEventListener('DOMContentLoaded', function() {
+    const accessToken = localStorage.getItem('accessToken');
+    console.log('현재 accessToken:', accessToken);
+
+    if (!accessToken) {
+      console.log('accessToken 없음. /login으로 리다이렉트.');
+      window.location.href = '/login';
+      return;
+    }
+
+    const formData = new FormData();
+    formData.append('accessToken', accessToken);
+
+    fetch('/api/auth/validate', {
+      method: 'POST',
+      body: formData
+    })
+    .then(response => {
+      if (response.ok) {
+        window.location.href = '/admin/dashboard';  // 토큰이 유효하면 대시보드로
+      } else {
+        throw new Error('Token validation failed');
+      }
+    })
+    .catch(error => {
+      console.error('Token validation error:', error);
+      localStorage.removeItem('accessToken');
+      window.location.href = '/login';
+    });
+  });
+</script>
+</html>

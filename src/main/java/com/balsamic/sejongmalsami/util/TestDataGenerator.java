@@ -28,11 +28,12 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.Locale;
 import java.util.Random;
+import java.util.Set;
 import lombok.RequiredArgsConstructor;
 import net.datafaker.Faker;
 import org.springframework.stereotype.Component;
 
-// TODO: ENUM 타입 랜덤으로 입력받기, course 관련정보 동적으로 input 받기 ( 서버시작시 course정보 자동 화인 및 등록 로직 필요)
+// TODO: ENUM 타입 랜덤으로 입력받기
 @Component
 @RequiredArgsConstructor
 public class TestDataGenerator {
@@ -125,7 +126,7 @@ public class TestDataGenerator {
         .enrollmentStatus(faker.options().option("재학", "휴학", "졸업")) // 재학 상태
         .profileUrl(faker.internet().image()) // 프로필 이미지 URL
         .isNotificationEnabled(faker.bool().bool()) // 알림 설정 여부
-        .role(Role.ROLE_USER) // 회원 : 고정
+        .roles(Set.of(Role.ROLE_USER)) // 회원 : 고정
         .accountStatus(AccountStatus.ACTIVE) // 계정 활성화 상태
         .lastLoginTime(LocalDateTime.now().minusDays(faker.number().numberBetween(1, 30))) // 마지막 로그인 시간
         .isFirstLogin(false) // 첫 로그인 X : 고정
