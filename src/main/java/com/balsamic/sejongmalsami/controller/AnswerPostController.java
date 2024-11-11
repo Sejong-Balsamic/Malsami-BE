@@ -17,7 +17,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 @RestController
 @RequiredArgsConstructor
-@RequestMapping("/api/answers")
+@RequestMapping("/api/answer")
 @Tag(
     name = "질문게시판 답변글 API",
     description = "답변글 관련 API 제공"
