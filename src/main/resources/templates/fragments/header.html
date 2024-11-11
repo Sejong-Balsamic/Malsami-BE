@@ -1,0 +1,59 @@
+<!-- src/main/resources/templates/fragments/header.html -->
+<!-- Head Fragment -->
+<head th:fragment="head">
+  <title>세종말싸미</title>
+  <link rel="stylesheet" th:href="@{/css/semantic.min.css}">
+  <link rel="stylesheet" th:href="@{/css/sejong-malsami.css}">
+</head>
+
+<style>
+  .ui.menu .item {
+    font-weight: 500;
+    padding: 14px 20px;
+  }
+
+  .ui.menu .item i.icon {
+    margin-right: 8px;
+  }
+
+  .ui.menu .right.menu {
+    display: flex !important;
+  }
+</style>
+
+<!-- 헤더 -->
+<!-- Header Fragment -->
+<div th:fragment="header">
+  <div class="ui fixed menu">
+    <div class="ui container" style="display: flex; justify-content: space-between; align-items: center; width: 100%;">
+      <!-- 왼쪽: 로고와 텍스트 -->
+      <a href="/" class="header item" style="display: flex; align-items: center;">
+        <img src="/images/sejong_malsami.png" alt="Sejong Malsami 브랜드 로고" class="ui mini image">
+        <span class="ui title" style="margin-left: 10px; font-weight: bold; font-size: 1.2em; color: black;">
+          Sejong Malsami Admin
+        </span>
+      </a>
+
+      <!-- 오른쪽: 메뉴 드롭다운 -->
+      <div class="right menu">
+        <div class="ui dropdown item" style="margin-left: auto;">
+          <i class="bars icon big"></i>
+          <div class="menu">
+            <a href="/admin/dashboard" class="item"><i class="dashboard icon"></i> Dashboard</a>
+            <a href="/admin/question" class="item"><i class="question circle icon"></i> 질문답변게시판</a>
+            <a href="/admin/document" class="item"><i class="file alternate icon"></i> 자료게시판</a>
+            <a href="/admin/course" class="item"><i class="book icon"></i> 교과목 관리</a>
+            <a href="/admin/member" class="item"><i class="users icon"></i> 회원 관리</a>
+            <a href="/admin/notice" class="item"><i class="bell icon"></i> 공지사항</a>
+            <a href="/admin/status" class="item"><i class="server icon"></i> 서버 상태</a>
+            <div class="divider"></div>
+            <a href="/admin/logout" class="item"><i class="sign out alternate icon"></i> Logout</a>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+  <div class="ui container" style="margin-top: 7em;">
+    <!-- 페이지별 콘텐츠 들어가는 위치 -->
+  </div>
+</div>

@@ -29,4 +29,5 @@ public class MemberDto {
   private Exp exp;
 
   private Boolean isFirstLogin;
+  private Boolean isAdmin;
 }

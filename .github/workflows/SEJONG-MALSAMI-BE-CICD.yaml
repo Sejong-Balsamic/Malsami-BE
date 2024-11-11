@@ -43,6 +43,11 @@ jobs:
         run: |
           echo "${{ secrets.EXP_YML }}" > ./src/main/resources/exp.yml
 
+      # admin.yml 파일을 빌드 전에 생성
+      - name: Create admin.yml from secret
+        run: |
+          echo "${{ secrets.ADMIN_YML }}" > ./src/main/resources/admin.yml
+
       # prod 프로파일을 활성화하여 빌드
       - name: Build with Gradle
         run: ./gradlew clean build -x test -Dspring.profiles.active=prod

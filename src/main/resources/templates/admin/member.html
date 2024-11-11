@@ -1,0 +1,52 @@
+<!-- src/main/resources/templates/admin/member.html -->
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head th:replace="fragments/header :: head(title='회원 관리')"></head>
+<body>
+<div th:replace="fragments/header :: header"></div>
+
+<div class="ui stackable grid">
+  <div class="three wide column">
+    <div th:replace="fragments/sidebar :: sidebar"></div>
+  </div>
+  <div class="thirteen wide column">
+    <h2 class="ui header">회원 관리</h2>
+    <button class="ui primary button" onclick="window.location.href='/admin/member/new'">
+      <i class="add user icon"></i> 새 회원 추가
+    </button>
+    <table class="ui celled table">
+      <thead>
+      <tr>
+        <th>ID</th>
+        <th>이름</th>
+        <th>이메일</th>
+        <th>역할</th>
+        <th>가입일</th>
+        <th>액션</th>
+      </tr>
+      </thead>
+      <tbody>
+      <!-- 예시 데이터 -->
+      <tr>
+        <td>1</td>
+        <td>홍길동</td>
+        <td>hong@example.com</td>
+        <td>ADMIN</td>
+        <td>2024-01-15</td>
+        <td>
+          <div class="ui buttons">
+            <button class="ui button">수정</button>
+            <div class="or"></div>
+            <button class="ui red button">삭제</button>
+          </div>
+        </td>
+      </tr>
+      <!-- 추가 데이터 반복 -->
+      </tbody>
+    </table>
+  </div>
+</div>
+
+<div th:replace="fragments/footer :: footer"></div>
+</body>
+</html>
