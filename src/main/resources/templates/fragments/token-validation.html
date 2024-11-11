@@ -1,15 +1,18 @@
-<!-- src/main/resources/templates/fragments/token-validation.html -->
 <div th:fragment="tokenValidation">
   <script th:inline="javascript">
     document.addEventListener('DOMContentLoaded', function() {
       const accessToken = localStorage.getItem('accessToken');
+      const currentPath = window.location.pathname;
       console.log('현재 accessToken:', accessToken);
+      console.log('현재 경로:', currentPath);
+
+      if (currentPath === '/login') {
+        return;
+      }
 
       if (!accessToken) {
         console.log('accessToken 없음. /login으로 리다이렉트.');
-        if (window.location.pathname !== '/login') {
-          window.location.href = '/login';
-        }
+        window.location.href = '/login';
         return;
       }
 
@@ -22,27 +25,15 @@
       })
       .then(response => {
         console.log('validate 응답 상태:', response.status);
-        return response.json().then(data => ({ status: response.status, body: data }));
-      })
-      .then(({ status, body }) => {
-        if (status === 200) {
-          console.log('accessToken 유효.');
-        } else {
-          console.log('accessToken 무효. /login으로 리다이렉트.');
-          localStorage.removeItem('accessToken');
-          if (window.location.pathname !== '/login') {
-            window.location.href = '/login';
-          }
+        if (!response.ok) {
+          throw new Error('Token validation failed');
         }
       })
       .catch(error => {
         console.error('Token validation error:', error);
         localStorage.removeItem('accessToken');
-        if (window.location.pathname !== '/login') {
-          window.location.href = '/login';
-        }
+        window.location.href = '/login';
       });
     });
-
   </script>
 </div>

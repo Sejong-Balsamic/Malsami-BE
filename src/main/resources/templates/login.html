@@ -76,7 +76,7 @@
       if (data.success && data.accessToken) {
         localStorage.setItem('accessToken', data.accessToken);
         // 대시보드로 리다이렉트
-        window.location.href = '/admin/dashboard';
+        window.location.href = `/admin/dashboard?accessToken=${data.accessToken}`;
       } else {
         const errorDiv = document.querySelector('.ui.error.message');
         errorDiv.textContent = data.message || '로그인에 실패했습니다.';

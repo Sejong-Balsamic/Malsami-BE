@@ -3,6 +3,7 @@ package com.balsamic.sejongmalsami.util.filter;
 import com.balsamic.sejongmalsami.object.CustomUserDetails;
 import com.balsamic.sejongmalsami.service.MemberService;
 import com.balsamic.sejongmalsami.util.JwtUtil;
+import com.balsamic.sejongmalsami.util.constants.SecurityUrls;
 import com.balsamic.sejongmalsami.util.exception.CustomException;
 import com.balsamic.sejongmalsami.util.exception.ErrorCode;
 import jakarta.servlet.FilterChain;
@@ -10,7 +11,6 @@ import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import java.io.IOException;
-import java.util.List;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.core.Authentication;
@@ -18,15 +18,24 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.util.AntPathMatcher;
 import org.springframework.web.filter.OncePerRequestFilter;
 
+/**
+ * JWT 토큰 기반 인증 필터
+ */
 @RequiredArgsConstructor
 @Slf4j
 public class TokenAuthenticationFilter extends OncePerRequestFilter {
 
-  private final JwtUtil jwtUtil;
-  private final MemberService memberService;
-  private final List<String> whitelist;
-  private static final AntPathMatcher ANT_PATH_MATCHER = new AntPathMatcher();
+  private final JwtUtil jwtUtil;                                                   // JWT 유틸리티
+  private final MemberService memberService;                                       // 회원 서비스
+  private static final AntPathMatcher ANT_PATH_MATCHER = new AntPathMatcher();    // URL 패턴 매칭 유틸리티
 
+  /**
+   * 필터 처리 메서드
+   *
+   * @param request     HTTP 요청
+   * @param response    HTTP 응답
+   * @param filterChain 필터 체인
+   */
   @Override
   protected void doFilterInternal(HttpServletRequest request,
       HttpServletResponse response,
@@ -43,72 +52,108 @@ public class TokenAuthenticationFilter extends OncePerRequestFilter {
       return;
     }
 
+    // 토큰 추출 및 검증
     String token = getAccessToken(request);
     log.debug("JWT 토큰 추출: {}", (token != null) ? "토큰 존재" : "토큰 없음");
 
     if (token != null) {
       try {
-        if (jwtUtil.validateToken(token)) {
-          log.info("JWT 토큰 유효성 검사 성공.");
-
-          // MemberService를 통해 Authentication 객체 가져오기
-          Authentication authentication = memberService.getAuthentication(token);
-          if (authentication != null && authentication.getPrincipal() instanceof CustomUserDetails) {
-            SecurityContextHolder.getContext().setAuthentication(authentication);
-            String username = ((CustomUserDetails) authentication.getPrincipal()).getUsername();
-            log.info("SecurityContext에 '{}' 회원 인증 정보 설정 완료.", username);
-          } else {
-            log.error("Authentication 객체가 null이거나 CustomUserDetails 타입이 아닙니다.");
-            throw new CustomException(ErrorCode.ACCESS_DENIED);
-          }
-        } else {
-          log.error("유효하지 않은 JWT 토큰입니다: {}", uri);
-          throw new CustomException(ErrorCode.INVALID_ACCESS_TOKEN);
+        validateAndSetAuthentication(token);
+      } catch (CustomException e) {
+        // 웹 요청인 경우 로그인 페이지로 리다이렉트
+        if (isWebRequest(uri)) {
+          response.sendRedirect("/login");
+          return;
         }
-      } catch (io.jsonwebtoken.ExpiredJwtException e) {
-        log.error("JWT 토큰이 만료되었습니다: {}", e.getMessage());
-        throw new CustomException(ErrorCode.EXPIRED_ACCESS_TOKEN);
-      } catch (io.jsonwebtoken.UnsupportedJwtException e) {
-        log.error("지원되지 않는 JWT 토큰입니다: {}", e.getMessage());
-        throw new CustomException(ErrorCode.INVALID_ACCESS_TOKEN);
-      } catch (io.jsonwebtoken.MalformedJwtException e) {
-        log.error("형식이 잘못된 JWT 토큰입니다: {}", e.getMessage());
-        throw new CustomException(ErrorCode.INVALID_ACCESS_TOKEN);
-      } catch (io.jsonwebtoken.SignatureException e) {
-        log.error("JWT 서명이 유효하지 않습니다: {}", e.getMessage());
-        throw new CustomException(ErrorCode.INVALID_ACCESS_TOKEN);
-      } catch (IllegalArgumentException e) {
-        log.error("JWT 토큰이 비어있거나 null입니다: {}", e.getMessage());
-        throw new CustomException(ErrorCode.MISSING_AUTH_TOKEN);
-      } catch (Exception e) {
-        log.error("JWT 처리 중 오류 발생: {}", e.getMessage());
-        throw new CustomException(ErrorCode.INTERNAL_SERVER_ERROR);
+        throw e;
       }
     } else {
+      if (isWebRequest(uri)) {
+        response.sendRedirect("/login");
+        return;
+      }
       log.error("Authorization 헤더에 JWT 토큰이 없습니다: {}", uri);
       throw new CustomException(ErrorCode.MISSING_AUTH_TOKEN);
     }
 
-    // 다음 필터로 요청 전달
     filterChain.doFilter(request, response);
   }
 
-  // URI가 화이트리스트에 포함되는지 확인
+  /**
+   * 토큰 검증 및 인증 정보 설정
+   *
+   * @param token JWT 토큰
+   */
+  private void validateAndSetAuthentication(String token) {
+    try {
+      if (jwtUtil.validateToken(token)) {
+        log.info("JWT 토큰 유효성 검사 성공.");
+
+        Authentication authentication = memberService.getAuthentication(token);
+        if (authentication != null && authentication.getPrincipal() instanceof CustomUserDetails) {
+          SecurityContextHolder.getContext().setAuthentication(authentication);
+          String username = ((CustomUserDetails) authentication.getPrincipal()).getUsername();
+          log.info("SecurityContext에 '{}' 회원 인증 정보 설정 완료.", username);
+        } else {
+          log.error("Authentication 객체가 null이거나 CustomUserDetails 타입이 아닙니다.");
+          throw new CustomException(ErrorCode.ACCESS_DENIED);
+        }
+      } else {
+        log.error("유효하지 않은 JWT 토큰입니다");
+        throw new CustomException(ErrorCode.INVALID_ACCESS_TOKEN);
+      }
+    } catch (io.jsonwebtoken.JwtException e) {
+      log.error("JWT 토큰 처리 중 오류 발생: {}", e.getMessage());
+      throw new CustomException(ErrorCode.INVALID_ACCESS_TOKEN);
+    }
+  }
+
+  /**
+   * URI가 화이트리스트에 포함되는지 확인
+   *
+   * @param uri 검사할 URI
+   * @return 화이트리스트 포함 여부
+   */
   private boolean isWhitelistedPath(String uri) {
-    boolean matched = whitelist.stream().anyMatch(path -> ANT_PATH_MATCHER.match(path, uri));
+    boolean matched = SecurityUrls.AUTH_WHITELIST.stream()
+        .anyMatch(path -> ANT_PATH_MATCHER.match(path, uri));
     log.debug("URI '{}'가 화이트리스트에 포함되는지: {}", uri, matched);
     return matched;
   }
 
-  // HTTP 요청에서 Authorization 헤더에서 Bearer 토큰 추출
+  /**
+   * HTTP 요청에서 Bearer 토큰 추출
+   *
+   * @param request HTTP 요청
+   * @return 추출된 토큰 또는 null
+   */
   private String getAccessToken(HttpServletRequest request) {
+    // API 요청의 경우 헤더에서 토큰 추출
     String bearerToken = request.getHeader("Authorization");
     if (bearerToken != null && bearerToken.startsWith("Bearer ")) {
       String token = bearerToken.substring(7).trim();
       log.debug("Bearer 토큰 추출 완료.");
       return token;
     }
-    log.debug("Authorization 헤더에 Bearer 토큰이 없거나 형식이 잘못되었습니다.");
+
+    // 웹 요청의 경우 파라미터에서 토큰 추출
+    String paramToken = request.getParameter("accessToken");
+    if (paramToken != null) {
+      log.debug("파라미터에서 토큰 추출 완료.");
+      return paramToken;
+    }
+
+    log.debug("토큰을 찾을 수 없습니다.");
     return null;
+  }
+
+  /**
+   * 웹 요청인지 확인
+   *
+   * @param uri 요청 URI
+   * @return 웹 요청 여부
+   */
+  private boolean isWebRequest(String uri) {
+    return uri.startsWith("/admin/") || uri.startsWith("/web/");
   }
 }
