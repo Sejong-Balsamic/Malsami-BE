@@ -1,9 +1,12 @@
 package com.balsamic.sejongmalsami.object;
 
 import com.balsamic.sejongmalsami.object.constants.ContentType;
+import io.swagger.v3.oas.annotations.media.Schema;
 import java.util.UUID;
+import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
+import lombok.NoArgsConstructor;
 import lombok.Setter;
 import lombok.ToString;
 
@@ -11,6 +14,8 @@ import lombok.ToString;
 @Getter
 @Setter
 @ToString
+@NoArgsConstructor
+@AllArgsConstructor
 public class CommentCommand {
 
   private UUID memberId;
@@ -18,4 +23,8 @@ public class CommentCommand {
   private String content;
   private ContentType contentType;
   private Boolean isPrivate;
+  @Schema(defaultValue = "0")
+  private Integer pageNumber = 0; // n번째 페이지 조회
+  @Schema(defaultValue = "30")
+  private Integer pageSize = 30; // n개의 데이터 조회
 }

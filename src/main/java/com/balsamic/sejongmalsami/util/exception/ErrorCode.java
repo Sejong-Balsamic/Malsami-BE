@@ -117,6 +117,12 @@ public enum ErrorCode {
 
   CHAETAEK_ANSWER_ALREADY_EXISTS(HttpStatus.BAD_REQUEST, "해당 질문글에 이미 채택된 답변이 존재합니다."),
 
+  // Comment
+
+  COMMENT_NOT_FOUND(HttpStatus.BAD_REQUEST, "댓글을 찾을 수 없습니다."),
+
+  COMMENT_LIKE_HISTORY_SAVE_ERROR(HttpStatus.BAD_REQUEST, "댓글 내역 저장 중 오류가 발생했습니다."),
+
   // DocumentPost
 
   DOCUMENT_POST_NOT_FOUND(HttpStatus.BAD_REQUEST, "자료 글을 찾을 수 없습니다."),
