@@ -1,0 +1,96 @@
+<!-- src/main/resources/templates/login.html -->
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{fragments/header :: head}"></head>
+<body>
+<div th:replace="~{fragments/header :: header}"></div>
+
+<div class="ui middle aligned grid container">
+  <div class="column">
+    <!-- 로고 및 타이틀 섹션 -->
+    <div class="ui center aligned very padded basic segment">
+      <div class="ui center aligned grid">
+        <div class="column">
+          <h1 class="ui massive center aligned header">
+            <div class="content">
+              <i class="cogs icon"></i>
+              SEJONG MALSAMI
+              <div class="sub header" style="margin-top: 0.5em; font-size: 0.4em;">Configuration Manager</div>
+            </div>
+          </h1>
+        </div>
+      </div>
+      <div class="ui hidden section divider"></div>
+      <p class="large text">관리자용 페이지에 오신 것을 환영합니다.</p>
+      <div class="ui hidden divider"></div>
+    </div>
+
+    <!-- 로그인 폼 섹션 -->
+    <div class="ui center aligned basic segment">
+      <div class="ui center aligned grid">
+        <div class="column" style="max-width: 450px;">
+          <form class="ui large form" id="loginForm">
+            <div class="ui stacked segment">
+              <div class="field">
+                <div class="ui left icon input">
+                  <i class="user icon"></i>
+                  <input type="text" name="sejongPortalId" placeholder="세종대학교 포털 아이디" required>
+                </div>
+              </div>
+              <div class="field">
+                <div class="ui left icon input">
+                  <i class="lock icon"></i>
+                  <input type="password" name="sejongPortalPassword" placeholder="세종대학교 포털 비밀번호" required>
+                </div>
+              </div>
+              <button type="submit" class="ui fluid large primary submit button">로그인</button>
+            </div>
+            <div class="ui error message"></div>
+          </form>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div th:replace="~{fragments/footer :: footer}"></div>
+
+<script th:inline="javascript">
+  document.getElementById('loginForm').addEventListener('submit', function(e) {
+    e.preventDefault();
+
+    const formData = new FormData(this);
+
+    // 로그인 요청
+    console.log('로그인 폼 제출:', Object.fromEntries(formData.entries())); // 폼 데이터 로그
+
+    fetch('/api/web/auth/signin', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/x-www-form-urlencoded',
+      },
+      body: new URLSearchParams(formData)
+    })
+    .then(response => response.json())
+    .then(data => {
+      if (data.success && data.accessToken) {
+        localStorage.setItem('accessToken', data.accessToken);
+        // 대시보드로 리다이렉트
+        window.location.href = `/admin/dashboard?accessToken=${data.accessToken}`;
+      } else {
+        const errorDiv = document.querySelector('.ui.error.message');
+        errorDiv.textContent = data.message || '로그인에 실패했습니다.';
+        errorDiv.style.display = 'block';
+      }
+    })
+    .catch(error => {
+      console.error('Login error:', error);
+      // 에러 메시지 표시
+      const errorDiv = document.querySelector('.ui.error.message');
+      errorDiv.textContent = '로그인 처리 중 오류가 발생했습니다.';
+      errorDiv.style.display = 'block';
+    });
+  });
+</script>
+</body>
+</html>
