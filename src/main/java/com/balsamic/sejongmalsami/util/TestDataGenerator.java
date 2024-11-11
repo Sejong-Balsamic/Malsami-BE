@@ -33,7 +33,7 @@ import lombok.RequiredArgsConstructor;
 import net.datafaker.Faker;
 import org.springframework.stereotype.Component;
 
-// TODO: ENUM 타입 랜덤으로 입력받기, course 관련정보 동적으로 input 받기 ( 서버시작시 course정보 자동 화인 및 등록 로직 필요)
+// TODO: ENUM 타입 랜덤으로 입력받기
 @Component
 @RequiredArgsConstructor
 public class TestDataGenerator {
