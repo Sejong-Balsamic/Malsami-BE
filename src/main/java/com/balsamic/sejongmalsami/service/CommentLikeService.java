@@ -107,7 +107,10 @@ public class CommentLikeService {
       expService.rollbackExpAndDeleteExpHistory(
           commentWriter, ExpAction.RECEIVE_LIKE, writerExpHistory);
       yeopjeonService.rollbackYeopjeonAndDeleteYeopjeonHistory(
-          commentWriter, YeopjeonAction.RECEIVE_LIKE, writerYeopjeonHistory);
+          commentWriter,
+          YeopjeonAction.RECEIVE_LIKE,
+          writerYeopjeonHistory
+      );
       throw new CustomException(ErrorCode.COMMENT_LIKE_HISTORY_SAVE_ERROR);
     }
   }

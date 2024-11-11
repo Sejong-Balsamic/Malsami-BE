@@ -67,7 +67,11 @@ public class CommentService {
    */
   @Transactional(readOnly = true)
   public CommentDto getAllCommentsByPostId(CommentCommand command) {
-    Pageable pageable = PageRequest.of(command.getPageNumber(), command.getPageSize(), Sort.by("createdDate").descending());
+    Pageable pageable = PageRequest.of(
+        command.getPageNumber(),
+        command.getPageSize(),
+        Sort.by("createdDate").descending()
+    );
 
     Page<Comment> commentPage = commentRepository.findByPostIdAndContentType(
         command.getPostId(),
