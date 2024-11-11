@@ -14,6 +14,7 @@ import com.balsamic.sejongmalsami.repository.postgres.ExpRepository;
 import com.balsamic.sejongmalsami.repository.postgres.MemberRepository;
 import com.balsamic.sejongmalsami.repository.postgres.YeopjeonRepository;
 import com.balsamic.sejongmalsami.util.JwtUtil;
+import com.balsamic.sejongmalsami.util.LogUtils;
 import com.balsamic.sejongmalsami.util.SejongPortalAuthenticator;
 import com.balsamic.sejongmalsami.util.config.AdminConfig;
 import com.balsamic.sejongmalsami.util.config.YeopjeonConfig;
@@ -75,6 +76,11 @@ public class MemberService implements UserDetailsService {
    */
   @Transactional
   public MemberDto signIn(MemberCommand command, HttpServletResponse response) {
+
+    boolean isFirstLogin = false;
+    boolean isAdmin = false;
+    Yeopjeon yeopjeon = null;
+
     // 인증 정보 조회
     MemberDto dto = sejongPortalAuthenticator.getMemberAuthInfos(command);
     String studentIdString = dto.getStudentIdString();
@@ -88,7 +94,7 @@ public class MemberService implements UserDetailsService {
           HashSet<Role> roles = new HashSet<>(Set.of(Role.ROLE_USER));
           if(adminConfig.isAdmin(studentIdString)){
             roles = new HashSet<>(Set.of(Role.ROLE_USER, Role.ROLE_ADMIN));
-            log.info("관리자 계정 확인: {}", studentIdString);
+            log.info("관리자 계정 등록 완료: {}", studentIdString);
           }
 
           log.info("신규 회원 등록: studentId = {}", studentId);
@@ -118,8 +124,12 @@ public class MemberService implements UserDetailsService {
           return newMember;
         });
 
-    boolean isFirstLogin = false;
-    Yeopjeon yeopjeon = null;
+    LogUtils.superLog(member);
+
+    // 관리자 확인
+    if(member.getRoles().contains(Role.ROLE_ADMIN)){
+      isAdmin = true;
+    }
 
     // 첫 로그인 여부 확인
     if (member.getIsFirstLogin()) {
@@ -197,11 +207,13 @@ public class MemberService implements UserDetailsService {
 
     log.info("리프레시 토큰 쿠키 설정 완료: 회원 = {}", member.getStudentId());
 
+
     // 액세스 토큰 반환
     return MemberDto.builder()
         .member(member)
         .accessToken(accessToken)
         .isFirstLogin(isFirstLogin)
+        .isAdmin(isAdmin)
         .yeopjeon(yeopjeon)
         .exp(expRepository.findByMember(member)
             .orElseThrow(() -> new CustomException(ErrorCode.EXP_NOT_FOUND)))

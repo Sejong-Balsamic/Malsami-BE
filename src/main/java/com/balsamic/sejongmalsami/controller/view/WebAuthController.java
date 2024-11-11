@@ -30,13 +30,20 @@ public class WebAuthController {
     try {
       MemberDto memberDto = memberService.signIn(command, response);
 
+      if(!memberDto.getIsAdmin()){ // 관리자가 아님
+        return WebLoginDto.builder()
+            .success(false)
+            .message("로그인에 실패했습니다. 관리자가 아닙니다")
+            .build();
+      }
+      // 관리자 계정
       return WebLoginDto.builder()
           .success(true)
           .accessToken(memberDto.getAccessToken())
           .build();
 
     } catch (Exception e) {
-      log.error("Login failed", e);
+      log.error("로그인 실패", e);
       return WebLoginDto.builder()
           .success(false)
           .message("로그인에 실패했습니다. 아이디와 비밀번호를 확인해주세요.")
