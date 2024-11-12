@@ -45,28 +45,6 @@ public class AuthController implements AuthControllerDocs {
     return ResponseEntity.ok(authDto);
   }
 
-  @PostMapping(value = "/validate", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
-  @LogMonitoringInvocation
-  public ResponseEntity<Void> validatePageToken(
-      @ModelAttribute AuthCommand command){
-    String accessToken = command.getAccessToken();
-    System.out.println("validateToken 호출됨. accessToken: " + accessToken); // 추가 로그
-
-    if (accessToken == null || accessToken.isEmpty()) {
-      System.out.println("accessToken이 비어있음.");
-      return ResponseEntity.status(HttpStatus.BAD_REQUEST).build();
-    }
-
-    boolean isValidAccessToken = jwtUtil.validateToken(accessToken);
-    System.out.println("accessToken 유효성 검증 결과: " + isValidAccessToken); // 추가 로그
-
-    if(isValidAccessToken) {
-      return ResponseEntity.ok().build();
-    }
-    return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
-  }
-
-
   @PostMapping(value = "/logout")
   @LogMonitoringInvocation
   @Override

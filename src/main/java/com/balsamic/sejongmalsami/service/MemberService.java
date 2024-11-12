@@ -124,8 +124,6 @@ public class MemberService implements UserDetailsService {
           return newMember;
         });
 
-    LogUtils.superLog(member);
-
     // 관리자 확인
     if(member.getRoles().contains(Role.ROLE_ADMIN)){
       isAdmin = true;
