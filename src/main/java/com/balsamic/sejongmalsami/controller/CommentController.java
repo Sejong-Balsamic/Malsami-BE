@@ -35,4 +35,13 @@ public class CommentController implements CommentControllerDocs {
     command.setMemberId(customUserDetails.getMemberId());
     return ResponseEntity.ok(commentService.addComment(command));
   }
+
+  @Override
+  @PostMapping(value = "/get/all", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
+  @LogMonitoringInvocation
+  public ResponseEntity<CommentDto> getAllCommentsByPostId(
+      @AuthenticationPrincipal CustomUserDetails customUserDetails,
+      @ModelAttribute CommentCommand command) {
+    return ResponseEntity.ok(commentService.getAllCommentsByPostId(command));
+  }
 }

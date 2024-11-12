@@ -103,7 +103,7 @@ public enum ErrorCode {
 
   QUESTION_PRESET_TAG_LIMIT_EXCEEDED(HttpStatus.BAD_REQUEST, "질문게시글 정적태그는 최대 2개까지 선택가능합니다."),
 
-  QUESTION_REWARD_INVALID(HttpStatus.BAD_REQUEST, "질문게시글 엽전 현상금에 잘못된 값이 할당되었습니다."),
+  QUESTION_INVALID_REWARD_YEOPJEON(HttpStatus.BAD_REQUEST, "질문게시글 엽전 현상금에 잘못된 값이 할당되었습니다."),
 
   // AnswerPost
 
@@ -116,6 +116,12 @@ public enum ErrorCode {
   ONLY_AUTHOR_CAN_CHAETAEK(HttpStatus.BAD_REQUEST, "오직 질문 작성자만 답변을 채택할 수 있습니다."),
 
   CHAETAEK_ANSWER_ALREADY_EXISTS(HttpStatus.BAD_REQUEST, "해당 질문글에 이미 채택된 답변이 존재합니다."),
+
+  // Comment
+
+  COMMENT_NOT_FOUND(HttpStatus.BAD_REQUEST, "댓글을 찾을 수 없습니다."),
+
+  COMMENT_LIKE_HISTORY_SAVE_ERROR(HttpStatus.BAD_REQUEST, "댓글 내역 저장 중 오류가 발생했습니다."),
 
   // DocumentPost
 
@@ -139,11 +145,13 @@ public enum ErrorCode {
 
   // Yeopjeon
 
-  INSUFFICIENT_YEOPJEON(HttpStatus.BAD_REQUEST, "사용자의 엽전이 0개 미만입니다."),
+  INSUFFICIENT_YEOPJEON(HttpStatus.BAD_REQUEST, "사용자의 엽전이 부족합니다."),
 
   YEOPJEON_SAVE_ERROR(HttpStatus.INTERNAL_SERVER_ERROR, "엽전 저장 시 오류가 발생했습니다."),
 
   YEOPJEON_HISTORY_SAVE_ERROR(HttpStatus.INTERNAL_SERVER_ERROR, "엽전 히스토리 저장 중 오류가 발생했습니다."),
+
+  YEOPJEON_HISTORY_DELETE_ERROR(HttpStatus.INTERNAL_SERVER_ERROR, "엽전 히스토리 삭제 중 오류가 발생했습니다."),
 
   // Exp
 

@@ -29,6 +29,15 @@ public class YeopjeonCalculator {
       case COPYRIGHT_VIOLATION -> yeopjeonConfig.getCopyrightViolation();
       case REPORT_REWARD -> yeopjeonConfig.getReportReward();
       case CREATE_ACCOUNT -> yeopjeonConfig.getCreateAccount();
+      case REWARD_YEOPJEON -> 0;
     };
+  }
+
+  // YeopjeonAction과 커스텀 엽전 값에 따른 엽전 변동량 계산
+  public int calculateYeopjeon(YeopjeonAction action, Integer customAmount) {
+    if (action == YeopjeonAction.REWARD_YEOPJEON && customAmount != null) {
+      return customAmount;
+    }
+    return calculateYeopjeon(action);
   }
 }

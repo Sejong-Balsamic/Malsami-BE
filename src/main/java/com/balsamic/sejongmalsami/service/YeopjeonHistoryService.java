@@ -27,21 +27,41 @@ public class YeopjeonHistoryService {
   @Transactional
   public YeopjeonHistory saveYeopjeonHistory(Member member, YeopjeonAction action) {
 
+    int yeopjeonAmount = yeopjeonCalculator.calculateYeopjeon(action);
+    return saveYeopjeonHistory(member, action, yeopjeonAmount);
+  }
+
+  // 엽전 히스토리 저장 (커스텀 엽전 값 처리)
+  @Transactional
+  public YeopjeonHistory saveYeopjeonHistory(Member member, YeopjeonAction action, Integer yeopjeonAmount) {
+
     Yeopjeon yeopjeon = yeopjeonRepository.findByMember(member)
         .orElseThrow(() -> new CustomException(ErrorCode.YEOPJEON_NOT_FOUND));
 
-    return YeopjeonHistory.builder()
+    YeopjeonHistory yeopjeonHistory = YeopjeonHistory.builder()
         .memberId(member.getMemberId())
-        .yeopjeonChange(yeopjeonCalculator.calculateYeopjeon(action))
+        .yeopjeonChange(yeopjeonAmount != null ? yeopjeonAmount : yeopjeonCalculator.calculateYeopjeon(action))
         .yeopjeonAction(action)
         .resultYeopjeon(yeopjeon.getYeopjeon())
         .build();
+
+    try {
+      return yeopjeonHistoryRepository.save(yeopjeonHistory);
+    } catch (Exception e) {
+      log.error("사용자: {}, 엽전 히스토리 저장 실패: {}", member.getStudentId(), e.getMessage());
+      throw new CustomException(ErrorCode.YEOPJEON_HISTORY_SAVE_ERROR);
+    }
   }
 
   // 엽전 히스토리 내역 삭제
   @Transactional
   public void deleteYeopjeonHistory(YeopjeonHistory yeopjeonHistory) {
-    yeopjeonHistoryRepository.delete(yeopjeonHistory);
+    try {
+      yeopjeonHistoryRepository.delete(yeopjeonHistory);
+    } catch (Exception e) {
+      log.error("엽전 히스토리 삭제 실패: {}", e.getMessage());
+      throw new CustomException(ErrorCode.YEOPJEON_HISTORY_DELETE_ERROR);
+    }
   }
 
 }
