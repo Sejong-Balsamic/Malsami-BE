@@ -1,13 +1,16 @@
+<!-- src/main/resources/templates/admin/dashboard.html -->
 <!DOCTYPE html>
 <html xmlns:th="http://www.thymeleaf.org">
-<head th:replace="fragments/header :: head(title='Dashboard')"></head>
+<head th:replace="fragments/header :: head(title='Dashboard')"><!-- 헤더 정보 포함: 타이틀 'Dashboard' 설정 --></head>
 <body>
-<div th:replace="fragments/header :: header"></div>
+<div th:replace="fragments/header :: header"><!-- 헤더 프래그먼트 포함 --></div>
 
 <div class="ui stackable grid">
   <div class="column">
-    <h2 class="ui header">대시보드</h2>
+    <h2 class="ui header">대시보드</h2> <!-- 페이지 제목 -->
+
     <div class="ui segments">
+      <!-- 통계 섹션 -->
       <div class="ui segment">
         <div class="ui statistics">
           <div class="statistic">
@@ -52,23 +55,25 @@
           </div>
         </div>
       </div>
+
+      <!-- 서버 상태 섹션 -->
       <div class="ui segment">
-        <h3 class="ui header">서버 상태</h3>
+        <h3 class="ui header">서버 상태</h3> <!-- 섹션 제목 -->
         <div class="ui relaxed divided list">
           <div class="item">
-            <i class="server icon"></i>
+            <i class="server icon"></i> <!-- 서버 아이콘 -->
             <div class="content">
               CPU 사용률: 45%
             </div>
           </div>
           <div class="item">
-            <i class="database icon"></i>
+            <i class="database icon"></i> <!-- 데이터베이스 아이콘 -->
             <div class="content">
               메모리 사용률: 70%
             </div>
           </div>
           <div class="item">
-            <i class="cloud icon"></i>
+            <i class="cloud icon"></i> <!-- 클라우드 아이콘 -->
             <div class="content">
               네트워크 트래픽: 120MB/s
             </div>
@@ -79,7 +84,6 @@
   </div>
 </div>
 
-<div th:replace="~{fragments/token-validation :: tokenValidation}"></div>
-<div th:replace="~{fragments/footer :: footer}"></div>
+<div th:replace="~{fragments/footer :: footer}"><!-- 푸터 프래그먼트 포함 --></div>
 </body>
 </html>

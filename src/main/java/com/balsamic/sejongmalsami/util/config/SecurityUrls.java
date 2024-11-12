@@ -19,7 +19,7 @@ public class SecurityUrls {
       "/api/landing/**",               // 랜딩페이지
       "/api/test/**",                  // 테스트 API
       "/api/member/signin",            // 회원가입
-      "/api/web/auth/signin",          // 관리자 로그인 API
+      "/api/web/auth/login",          // 관리자 로그인 API
 
       // Swagger
       "/docs/**",                      // Swagger UI
@@ -46,6 +46,6 @@ public class SecurityUrls {
    * 관리자 권한이 필요한 URL 패턴 목록
    */
   public static final List<String> ADMIN_PATHS = Arrays.asList(
-      "/admin/**"                      // 관리자 페이지
+      "/admin/dashboard"                      // 관리자 페이지
   );
 }

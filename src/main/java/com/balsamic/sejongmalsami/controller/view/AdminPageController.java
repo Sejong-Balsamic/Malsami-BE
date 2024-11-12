@@ -7,7 +7,6 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.RequestParam;
 
 @Controller
 @RequiredArgsConstructor
@@ -36,13 +35,8 @@ public class AdminPageController {
   }
 
   @GetMapping("/admin/dashboard")
-  public String dashboardPage(
-      @RequestParam(required = false) String accessToken) {
-    // 토큰 검증
-    if (accessToken != null && jwtUtil.validateToken(accessToken)) {
-      return "admin/dashboard";
-    }
-    return "redirect:/login";
+  public String dashboardPage() {
+    return "admin/dashboard";
   }
 
   @GetMapping("/logout")
