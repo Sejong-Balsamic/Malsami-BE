@@ -62,14 +62,16 @@ public class WebSecurityConfig {
         .formLogin(AbstractHttpConfigurer::disable)
         .authorizeHttpRequests((authorize) -> authorize
             .requestMatchers(SecurityUrls.AUTH_WHITELIST.toArray(new String[0])).permitAll()
-            .requestMatchers("/admin/**").hasRole("ADMIN")
+            .requestMatchers(SecurityUrls.ADMIN_PATHS.toArray(new String[0])).hasRole("ADMIN")
             .requestMatchers(HttpMethod.POST, "/api/course/upload").hasRole("USER")
             .requestMatchers(HttpMethod.POST, "/api/member/my-page").hasRole("USER")
             .anyRequest().authenticated()
         )
         .logout(logout -> logout
-            .logoutSuccessUrl("/")
+            .logoutUrl("/logout")
+            .logoutSuccessUrl("/login")
             .invalidateHttpSession(true)
+            .deleteCookies("refreshToken")
         )
         .sessionManagement(session ->
             session.sessionCreationPolicy(SessionCreationPolicy.STATELESS)
