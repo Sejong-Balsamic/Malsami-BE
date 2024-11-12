@@ -37,7 +37,7 @@ public class CommentController implements CommentControllerDocs {
   }
 
   @Override
-  @PostMapping(value = "/get/postId", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
+  @PostMapping(value = "/get/all", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
   @LogMonitoringInvocation
   public ResponseEntity<CommentDto> getAllCommentsByPostId(
       @AuthenticationPrincipal CustomUserDetails customUserDetails,
