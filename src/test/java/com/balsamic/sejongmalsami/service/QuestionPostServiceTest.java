@@ -14,6 +14,7 @@ import com.balsamic.sejongmalsami.object.postgres.Yeopjeon;
 import com.balsamic.sejongmalsami.repository.postgres.CourseRepository;
 import com.balsamic.sejongmalsami.repository.postgres.MemberRepository;
 import com.balsamic.sejongmalsami.repository.postgres.QuestionPostRepository;
+import com.balsamic.sejongmalsami.util.TestDataGenerator;
 import com.balsamic.sejongmalsami.util.YeopjeonCalculator;
 import com.balsamic.sejongmalsami.util.config.YeopjeonConfig;
 import com.balsamic.sejongmalsami.util.exception.CustomException;
@@ -31,12 +32,11 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.data.domain.Sort.Direction;
 import org.springframework.test.context.ActiveProfiles;
-import org.springframework.transaction.annotation.Transactional;
 
 @SpringBootTest
 @ActiveProfiles("dev")
 @Slf4j
-@Transactional
+
 class QuestionPostServiceTest {
 
   @Autowired
@@ -63,6 +63,9 @@ class QuestionPostServiceTest {
   @Autowired
   YeopjeonCalculator yeopjeonCalculator;
 
+  @Autowired
+  TestDataGenerator testDataGenerator;
+
   private static final String MEMBER_PK_BAEK = "fd168ebc-d1c6-4e8e-87f4-8ebec66973d0";
   private static final String MEMBER_PK_SUH = "094891c9-6d79-4fb5-bb80-be3c20b35767";
   private static final int REWARD_YEOPJEON = 30;
@@ -76,6 +79,14 @@ class QuestionPostServiceTest {
 //    과목_필터링();
 //    답변_채택();
     엽전_현상금_초과();
+  }
+
+  @Test
+  void 질문_Mock_데이터_저장() {
+    for (int i = 0; i < 100; i++) {
+      Member mockMember = testDataGenerator.createMockMember();
+      testDataGenerator.createMockQuestionPost(mockMember);
+    }
   }
 
   void 질문_글_저장_성공() {

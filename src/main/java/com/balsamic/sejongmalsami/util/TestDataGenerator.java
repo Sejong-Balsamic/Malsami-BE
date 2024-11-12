@@ -13,15 +13,29 @@ import static com.balsamic.sejongmalsami.object.constants.PostTier.CHEONMIN;
 import static com.balsamic.sejongmalsami.object.constants.PostTier.JUNGIN;
 import static com.balsamic.sejongmalsami.object.constants.PostTier.KING;
 import static com.balsamic.sejongmalsami.object.constants.PostTier.YANGBAN;
+import static com.balsamic.sejongmalsami.object.constants.QuestionPresetTag.BETTER_SOLUTION;
+import static com.balsamic.sejongmalsami.object.constants.QuestionPresetTag.EXAM_PREPARATION;
+import static com.balsamic.sejongmalsami.object.constants.QuestionPresetTag.OUT_OF_CLASS;
+import static com.balsamic.sejongmalsami.object.constants.QuestionPresetTag.STUDY_TIPS;
+import static com.balsamic.sejongmalsami.object.constants.QuestionPresetTag.UNKNOWN_CONCEPT;
 
 import com.balsamic.sejongmalsami.object.constants.AccountStatus;
+import com.balsamic.sejongmalsami.object.constants.Faculty;
 import com.balsamic.sejongmalsami.object.constants.Role;
+import com.balsamic.sejongmalsami.object.postgres.Course;
 import com.balsamic.sejongmalsami.object.postgres.DocumentFile;
 import com.balsamic.sejongmalsami.object.postgres.DocumentPost;
 import com.balsamic.sejongmalsami.object.postgres.Member;
+import com.balsamic.sejongmalsami.object.postgres.QuestionPost;
+import com.balsamic.sejongmalsami.repository.postgres.CourseRepository;
 import com.balsamic.sejongmalsami.repository.postgres.DocumentFileRepository;
 import com.balsamic.sejongmalsami.repository.postgres.DocumentPostRepository;
 import com.balsamic.sejongmalsami.repository.postgres.MemberRepository;
+import com.balsamic.sejongmalsami.repository.postgres.QuestionPostRepository;
+import com.fasterxml.jackson.core.type.TypeReference;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import java.io.IOException;
+import java.io.InputStream;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.Arrays;
@@ -41,9 +55,12 @@ public class TestDataGenerator {
   private final MemberRepository memberRepository;
   private final DocumentPostRepository documentPostRepository;
   private final DocumentFileRepository documentFileRepository;
+  private final QuestionPostRepository questionPostRepository;
+  private final CourseRepository courseRepository;
 
   private final Faker faker = new Faker(new Locale("ko"));
   private final Random random = new Random();
+  private final ObjectMapper objectMapper = new ObjectMapper();
 
   // 연도 범위 계산 저장
   private final int startYear = calculateStartYear();
@@ -92,6 +109,19 @@ public class TestDataGenerator {
       "글로벌조리학과"
   );
 
+  // 교과목명 정의
+  private final List<String> subjects = loadSubjectsFromJson();
+
+  // 교과목명 정의 (외부 JSON 파일에서 읽어오기)
+  private List<String> loadSubjectsFromJson() {
+    try (InputStream inputStream = getClass().getResourceAsStream("/courses/subject.json")) {
+      return objectMapper.readValue(inputStream, new TypeReference<List<String>>() {
+      });
+    } catch (IOException e) {
+      throw new RuntimeException("교과목명 로딩 실패", e);
+    }
+  }
+
   // 시작 연도 계산 (현재 년도 기준 10년 전)
   private int calculateStartYear() {
     int currentYear = LocalDate.now().getYear() % 100; // 현재 년도의 뒤 두 자리
@@ -134,6 +164,42 @@ public class TestDataGenerator {
     return memberRepository.save(member);
   }
 
+  // 질문 글 mock 데이터 생성
+  public QuestionPost createMockQuestionPost(Member member) {
+
+    String subject = subjects.get(random.nextInt(subjects.size()));
+
+    List<Faculty> faculties = courseRepository
+        .findAllBySubject(subject)
+        .stream().map(Course::getFaculty).toList();
+
+    QuestionPost post = QuestionPost.builder()
+        .member(member)
+        .title(faker.lorem().sentence()) // 임의의 제목
+        .content(faker.lorem().paragraph()) // 임의의 본문
+        .subject(subject) // 임의의 교과목명
+        .faculties(faculties)
+        .questionPresetTags(faker.options().option(
+            Arrays.asList(OUT_OF_CLASS),
+            Arrays.asList(OUT_OF_CLASS, UNKNOWN_CONCEPT),
+            Arrays.asList(BETTER_SOLUTION, EXAM_PREPARATION),
+            Arrays.asList(STUDY_TIPS, OUT_OF_CLASS),
+            Arrays.asList(UNKNOWN_CONCEPT)
+        ))
+        .viewCount(faker.number().numberBetween(0, 30000))
+        .likeCount(faker.number().numberBetween(0, 1000))
+        .answerCount(0)
+        .commentCount(0)
+        .rewardYeopjeon(faker.number().numberBetween(0, 50) * 10)
+        .dailyScore(faker.number().numberBetween(0, 300))
+        .weeklyScore(faker.number().numberBetween(0, 1000))
+        .createdDate(LocalDateTime.now().minusDays(faker.number().numberBetween(1, 10)))
+        .updatedDate(LocalDateTime.now().minusDays(faker.number().numberBetween(1, 10)))
+        .build();
+
+    return questionPostRepository.save(post);
+  }
+
   public DocumentPost createMockDocumentPost(Member member) {
     DocumentPost post = DocumentPost.builder()
         .member(member)
@@ -160,7 +226,7 @@ public class TestDataGenerator {
     return documentPostRepository.save(post);
   }
 
-  public DocumentFile createMockDocumentFile(Member uploader,DocumentPost post) {
+  public DocumentFile createMockDocumentFile(Member uploader, DocumentPost post) {
     DocumentFile file = DocumentFile.builder()
         .documentPost(post)
         .uploader(uploader)
