@@ -27,7 +27,7 @@ public class YeopjeonService {
   public YeopjeonHistory updateYeopjeonAndSaveYeopjeonHistory(Member member, YeopjeonAction action) {
     YeopjeonHistory yeopjeonHistory;
 
-    updateMemberYeopjeon(member, action);
+    updateMemberYeopjeon(member, action, null);
 
     try {
       yeopjeonHistory = yeopjeonHistoryService.saveYeopjeonHistory(member, action);
@@ -35,7 +35,27 @@ public class YeopjeonService {
     } catch (Exception e) {
       log.error("회원: {} 엽전 히스토리 저장 시 오류가 발생했습니다. 오류내용: {}", member.getStudentId(), e.getMessage());
       log.info("회원: {} 엽전 롤백을 진행합니다.", member.getStudentId());
-      rollbackYeopjeon(member, action);
+      rollbackYeopjeon(member, action, null);
+      throw new CustomException(ErrorCode.YEOPJEON_SAVE_ERROR);
+    }
+
+    return yeopjeonHistory;
+  }
+
+  // 엽전 변동 로직 및 엽전 히스토리 내역 저장 (엽전 현상금 커스텀 가능한 경우)
+  @Transactional
+  public YeopjeonHistory updateYeopjeonAndSaveYeopjeonHistory(Member member, YeopjeonAction action, Integer rewardYeopjeon) {
+    YeopjeonHistory yeopjeonHistory;
+
+    updateMemberYeopjeon(member, action, rewardYeopjeon);
+
+    try {
+      yeopjeonHistory = yeopjeonHistoryService.saveYeopjeonHistory(member, action);
+      log.info("회원: {} 엽전 히스토리 저장 성공", member.getStudentId());
+    } catch (Exception e) {
+      log.error("회원: {} 엽전 히스토리 저장 시 오류가 발생했습니다. 오류내용: {}", member.getStudentId(), e.getMessage());
+      log.info("회원: {} 엽전 롤백을 진행합니다.", member.getStudentId());
+      rollbackYeopjeon(member, action, rewardYeopjeon);
       throw new CustomException(ErrorCode.YEOPJEON_SAVE_ERROR);
     }
 
@@ -51,7 +71,24 @@ public class YeopjeonService {
     try {
       log.info("회원: {} 엽전 롤백 및 엽전 내역 삭제를 진행합니다.", member.getStudentId());
       yeopjeonHistoryService.deleteYeopjeonHistory(yeopjeonHistory);
-      rollbackYeopjeon(member, action);
+      rollbackYeopjeon(member, action, null);
+    } catch (Exception e) {
+      log.error("회원: {} 엽전 롤백 과정에서 오류가 발생했습니다.", member.getStudentId());
+      throw new CustomException(ErrorCode.INTERNAL_SERVER_ERROR);
+    }
+  }
+
+  // 엽전 및 엽전 히스토리 전체 롤백 (엽전 현상금 커스텀 가능할 경우)
+  @Transactional
+  public void rollbackYeopjeonAndDeleteYeopjeonHistory(
+      Member member,
+      YeopjeonAction action,
+      YeopjeonHistory yeopjeonHistory,
+      Integer rewardYeopjeon) {
+    try {
+      log.info("회원: {} 엽전 롤백 및 엽전 내역 삭제를 진행합니다.", member.getStudentId());
+      yeopjeonHistoryService.deleteYeopjeonHistory(yeopjeonHistory);
+      rollbackYeopjeon(member, action, rewardYeopjeon);
     } catch (Exception e) {
       log.error("회원: {} 엽전 롤백 과정에서 오류가 발생했습니다.", member.getStudentId());
       throw new CustomException(ErrorCode.INTERNAL_SERVER_ERROR);
@@ -59,12 +96,17 @@ public class YeopjeonService {
   }
 
   // 엽전 증감 로직
-  private void updateMemberYeopjeon(Member member, YeopjeonAction action) {
+  private void updateMemberYeopjeon(Member member, YeopjeonAction action, Integer rewardYeopjeon) {
 
     Yeopjeon yeopjeon = findMemberYeopjeon(member);
 
     // 엽전 개수 변동
-    int calculatedYeopjeon = yeopjeon.getYeopjeon() + yeopjeonCalculator.calculateYeopjeon(action);
+    int calculatedYeopjeon;
+    if (action.equals(YeopjeonAction.REWARD_YEOPJEON)) {
+      calculatedYeopjeon = yeopjeon.getYeopjeon() + yeopjeonCalculator.calculateYeopjeon(action, rewardYeopjeon);
+    } else {
+      calculatedYeopjeon = yeopjeon.getYeopjeon() + yeopjeonCalculator.calculateYeopjeon(action);
+    }
 
     if (calculatedYeopjeon < 0) {
       log.error("엽전이 부족합니다. {}의 엽전 개수: {}", member.getStudentId(), yeopjeon.getYeopjeon());
@@ -78,13 +120,18 @@ public class YeopjeonService {
   }
 
   // 엽전 개수 롤백
-  private void rollbackYeopjeon(Member member, YeopjeonAction action) {
+  private void rollbackYeopjeon(Member member, YeopjeonAction action, Integer rewardYeopjeon) {
 
     Yeopjeon yeopjeon = findMemberYeopjeon(member);
 
     log.info("엽전 수 롤백 전 - 회원: {}, 엽전 수: {}", member.getStudentId(), yeopjeon.getYeopjeon());
-    yeopjeon.updateYeopjeon(yeopjeon.getYeopjeon()
-                            - yeopjeonCalculator.calculateYeopjeon(action));
+
+    if (action.equals(YeopjeonAction.REWARD_YEOPJEON)) {
+      yeopjeon.updateYeopjeon(yeopjeon.getYeopjeon() - yeopjeonCalculator.calculateYeopjeon(action, rewardYeopjeon));
+    } else {
+      yeopjeon.updateYeopjeon(yeopjeon.getYeopjeon() - yeopjeonCalculator.calculateYeopjeon(action));
+    }
+
     log.info("엽전 수 롤백 후 - 회원: {}, 롤백 후 엽전 수: {}", member.getStudentId(), yeopjeon.getYeopjeon());
   }
 

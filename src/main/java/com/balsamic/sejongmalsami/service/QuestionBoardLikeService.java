@@ -40,7 +40,7 @@ public class QuestionBoardLikeService {
    * <h3>질문글 or 답변글 좋아요 로직
    * <p>해당 글 좋아요 개수 증가, 엽전 및 경험치 변동
    *
-   * @param command: memberId, postId, contentType
+   * @param command memberId, postId, contentType
    * @return 질문게시판 좋아요 내역
    */
   @Transactional
@@ -106,8 +106,10 @@ public class QuestionBoardLikeService {
       rollbackLikeCount(questionPost, answerPost);
 
       // 엽전, 경험치 및 히스토리 롤백 - C 실패시 A, B 롤백
-      expService.rollbackExpAndDeleteExpHistory(writer, ExpAction.RECEIVE_LIKE, writerExpHistory);
-      yeopjeonService.rollbackYeopjeonAndDeleteYeopjeonHistory(writer, YeopjeonAction.RECEIVE_LIKE, writerYeopjeonHistory);
+      expService.rollbackExpAndDeleteExpHistory(
+          writer, ExpAction.RECEIVE_LIKE, writerExpHistory);
+      yeopjeonService.rollbackYeopjeonAndDeleteYeopjeonHistory(
+          writer, YeopjeonAction.RECEIVE_LIKE, writerYeopjeonHistory);
       throw new CustomException(ErrorCode.QUESTION_BOARD_LIKE_SAVE_ERROR);
     }
   }
@@ -124,6 +126,10 @@ public class QuestionBoardLikeService {
   // 이미 좋아요를 누른 경우 검증 메서드
   private void isMemberAlreadyLiked(UUID postId, UUID memberId) {
     if (questionBoardLikeRepository.existsByQuestionBoardIdAndMemberId(postId, memberId)) {
+      Member curMember = memberRepository.findById(memberId)
+          .orElseThrow(() -> new CustomException(ErrorCode.MEMBER_NOT_FOUND));
+      log.error("이미 좋아요를 누른 글입니다. PostId: {}, 로그인한 사용자: {}",
+          postId, curMember.getStudentId());
       throw new CustomException(ErrorCode.ALREADY_LIKED);
     }
   }

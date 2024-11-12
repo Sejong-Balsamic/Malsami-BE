@@ -21,7 +21,8 @@ public enum YeopjeonAction {
   CHAETAEK_ACCEPT("답변 채택함"), // 답변 채택 버튼 클릭 시 엽전 획득
   COPYRIGHT_VIOLATION("저작권 신고"), // 저작권 위반 시 엽전 회수
   REPORT_REWARD("신고 보상금"), // 신고 보상금
-  CREATE_ACCOUNT("신규 회원"); // 신규회원 엽전 지급
+  CREATE_ACCOUNT("신규 회원"), // 신규회원 엽전 지급
+  REWARD_YEOPJEON("엽전 현상금"); // 엽전 현상금
 
   private final String description;
 }
