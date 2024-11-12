@@ -138,6 +138,9 @@ public class QuestionPostService {
     if (command.getMediaFiles() != null) {
       mediaFiles = mediaFileService
           .uploadMediaFiles(savedPost.getQuestionPostId(), command.getMediaFiles());
+
+      // 첫번째 이미지를 썸네일로 설정
+      questionPost.addThumbnail(mediaFiles.get(0).getFileUrl());
     }
 
     // 질문 글 등록 시 엽전 100냥 감소
