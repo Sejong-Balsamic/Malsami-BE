@@ -74,9 +74,9 @@ public class QuestionPost extends BasePost {
   @Column
   private List<QuestionPresetTag> questionPresetTags = new ArrayList<>();
 
-  // 썸네일 TODO: 추후 썸네일 로직과 연결 필요
-  @Builder.Default
-  private String thumbnail = "https://sejong-malsami.s3.ap-northeast-2.amazonaws.com/de026844-9a04-4bd8-9f69-c14c72bd910a_%E1%84%83%E1%85%A1%E1%84%8B%E1%85%AE%E1%86%AB%E1%84%85%E1%85%A9%E1%84%83%E1%85%B3.png";
+  // 썸네일
+  @Column(length = 1024)
+  private String thumbnail;
 
   // 조회 수
   @Builder.Default
@@ -134,5 +134,10 @@ public class QuestionPost extends BasePost {
   // 답변 수 동기화
   public void updateAnswerCount(Integer answerCount) {
     this.answerCount = answerCount;
+  }
+
+  // 질문 글 썸네일 설정
+  public void addThumbnail(String thumbnail) {
+    this.thumbnail = thumbnail;
   }
 }
