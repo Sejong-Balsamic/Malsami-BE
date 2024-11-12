@@ -4,6 +4,8 @@ import com.balsamic.sejongmalsami.object.constants.ContentType;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
+import jakarta.persistence.EnumType;
+import jakarta.persistence.Enumerated;
 import jakarta.persistence.FetchType;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
@@ -44,9 +46,20 @@ public class Comment extends BaseEntity{
   private Integer likeCount = 0;
 
   // 댓글이 속한 게시글의 유형
+  @Enumerated(EnumType.STRING)
   private ContentType contentType;
 
   // 닉네임 비공개 여부
   @Builder.Default
   private Boolean isPrivate = false;
+
+  // 좋아요 증가
+  public void increaseLikeCount() {
+    likeCount++;
+  }
+
+  // 좋아요 감소
+  public void rollbackLikeCount() {
+    likeCount--;
+  }
 }
