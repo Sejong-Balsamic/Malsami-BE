@@ -113,15 +113,15 @@ public class AnswerPostService {
     // 채택 가능 여부 판단
     validateChaetaekConditions(questionPost, answerPost, command);
 
-    // 엽전 변동 로직
+    // 답변 작성자 엽전 변동 및 엽전 히스토리 저장 - A
     YeopjeonHistory answerMemberYeopjeonHistory = yeopjeonService
         .updateYeopjeonAndSaveYeopjeonHistory(answerMember, YeopjeonAction.CHAETAEK_CHOSEN);
 
     YeopjeonHistory curMemberYeopjeonHistory = null;
-    try {
+    try { // 로그인 사용자 엽전 변동 및 엽전 히스토리 저장 - B
       curMemberYeopjeonHistory = yeopjeonService
           .updateYeopjeonAndSaveYeopjeonHistory(curMember, YeopjeonAction.CHAETAEK_ACCEPT);
-    } catch (Exception e) {
+    } catch (Exception e) { // B 실패시 A 롤백
       yeopjeonService.rollbackYeopjeonAndDeleteYeopjeonHistory(
           answerMember,
           YeopjeonAction.CHAETAEK_CHOSEN,
@@ -131,10 +131,10 @@ public class AnswerPostService {
 
     // 경험치 변동 로직
     ExpHistory answerMemberExpHistory = null;
-    try {
+    try { // 답변 작성자 경험치 변동 및 경험치 히스토리 저장 - C
       answerMemberExpHistory = expService
           .updateExpAndSaveExpHistory(answerMember, ExpAction.CHAETAEK_CHOSEN);
-    } catch (Exception e) {
+    } catch (Exception e) { // C 실패시 A, B 롤백
       yeopjeonService.rollbackYeopjeonAndDeleteYeopjeonHistory(
           curMember,
           YeopjeonAction.CHAETAEK_ACCEPT,
@@ -147,9 +147,9 @@ public class AnswerPostService {
       );
     }
     ExpHistory curMemberExpHistory = null;
-    try {
+    try { // 로그인 사용자 경험치 변동 및 경험치 히스토리 저장 - D
       curMemberExpHistory = expService.updateExpAndSaveExpHistory(curMember, ExpAction.CHAETAEK_ACCEPT);
-    } catch (Exception e) {
+    } catch (Exception e) { // D 실패시 A, B, C 롤백
       expService.rollbackExpAndDeleteExpHistory(
           answerMember,
           ExpAction.CHAETAEK_CHOSEN,
@@ -179,12 +179,12 @@ public class AnswerPostService {
 
       log.info("사용자: {} 의 엽전 현상금 지급 전 엽전량: {}",
           answerMember.getStudentId(), answerMemberYeopjeon.getYeopjeon());
-      try {
+      try { // 답변 작성자 엽전 변동 및 엽전 히스토리 저장 - E
         yeopjeonService.updateYeopjeonAndSaveYeopjeonHistory(
             answerMember,
             YeopjeonAction.REWARD_YEOPJEON,
             questionPost.getRewardYeopjeon());
-      } catch (Exception e) {
+      } catch (Exception e) { // E 실패시 A, B, C, D 롤백
         expService.rollbackExpAndDeleteExpHistory(
             curMember,
             ExpAction.CHAETAEK_ACCEPT,
