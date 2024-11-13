@@ -2,7 +2,9 @@
 <!DOCTYPE html>
 <html xmlns:th="http://www.thymeleaf.org">
 <head th:replace="fragments/header :: head(title='Test Page')">
+  <!-- Fireworks CSS -->
   <link href="https://cdnjs.cloudflare.com/ajax/libs/fireworks-js/2.10.7/fireworks.css" rel="stylesheet">
+  <!-- Semantic UI CSS -->
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/semantic-ui/2.4.1/semantic.min.css">
 
   <!-- 추가적인 스타일 -->
@@ -10,13 +12,22 @@
     /* 기본 컨테이너 스타일 */
     .ui.stackable.container {
       position: relative;
-      overflow: hidden;
+      overflow: visible; /* 애니메이션이 잘리지 않도록 설정 */
+      padding: 2em;
+      background: #f9f9f9;
+      border-radius: 10px;
+      box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
     }
 
     /* 메인 카드에 불타는 효과를 주기 위한 클래스 */
     .burning-border {
       position: relative;
       overflow: visible;
+      background: linear-gradient(135deg, #FFD700, #FFA500);
+      border: 2px solid #FF8C00;
+      border-radius: 15px;
+      box-shadow: 0 8px 16px rgba(0, 0, 0, 0.2);
+      transition: transform 0.3s ease, box-shadow 0.3s ease;
     }
 
     /* 메인 불꽃 효과 강화 */
@@ -27,7 +38,7 @@
       right: -40px;
       top: -80px;
       bottom: -40px;
-      background: radial-gradient(circle, rgba(255, 69, 0, 0.8) 0%, rgba(255, 140, 0, 0.6) 50%, rgba(255, 215, 0, 0.4) 100%);
+      background: radial-gradient(circle, rgba(255, 215, 0, 0.8) 0%, rgba(255, 140, 0, 0.6) 50%, rgba(255, 69, 0, 0.4) 100%);
       filter: blur(15px);
       opacity: 0;
       transform-origin: bottom;
@@ -55,9 +66,9 @@
       top: -70px;
       bottom: -35px;
       background:
-          radial-gradient(circle at 25% top, rgba(255, 0, 0, 0.9) 0%, transparent 60%),
-          radial-gradient(circle at 50% top, rgba(255, 165, 0, 0.7) 0%, transparent 60%),
-          radial-gradient(circle at 75% top, rgba(255, 0, 0, 0.9) 0%, transparent 60%);
+          radial-gradient(circle at 25% top, rgba(255, 215, 0, 0.9) 0%, transparent 60%),
+          radial-gradient(circle at 50% top, rgba(255, 140, 0, 0.7) 0%, transparent 60%),
+          radial-gradient(circle at 75% top, rgba(255, 215, 0, 0.9) 0%, transparent 60%);
       filter: blur(10px);
       opacity: 0;
       transform-origin: bottom;
@@ -76,15 +87,37 @@
       }
     }
 
-    /* 불타는 텍스트 효과 강화 */
+    /* Shake 애니메이션 추가 */
+    .burning-border.active {
+      animation: shake 0.3s ease-in-out infinite;
+    }
+
+    @keyframes shake {
+      0%, 100% { transform: translateX(0); }
+      25% { transform: translateX(-2px); }
+      75% { transform: translateX(2px); }
+    }
+
+    /* 프로필 이미지 애니메이션 */
+    .image-animate {
+      transition: transform 0.5s ease, opacity 0.5s ease;
+    }
+
+    .image-animate.fade-out-enlarge {
+      transform: scale(1.2); /* 20% 확대 */
+      opacity: 0; /* 서서히 사라짐 */
+    }
+
+    /* 불타는 텍스트 스타일 */
     #bountyAmount {
       position: relative;
       z-index: 1;
-      color: #FF4500; /* 더 강렬한 색상 */
+      color: #FFD700; /* 금색으로 변경 */
+      font-weight: bold;
       text-shadow:
-          0 0 5px rgba(255, 69, 0, 0.8),
+          0 0 5px rgba(255, 215, 0, 0.8),
           0 0 10px rgba(255, 140, 0, 0.6),
-          0 0 20px rgba(255, 215, 0, 0.4);
+          0 0 20px rgba(255, 69, 0, 0.4);
       animation: textBurnEnhanced 0.6s ease-in-out infinite alternate;
     }
 
@@ -104,9 +137,9 @@
       bottom: -15px;
       background:
           linear-gradient(to top,
-          rgba(255, 0, 0, 0.6),
-          rgba(255, 165, 0, 0.4) 50%,
-          rgba(255, 255, 0, 0.2)
+          rgba(255, 215, 0, 0.6),
+          rgba(255, 140, 0, 0.4) 50%,
+          rgba(255, 69, 0, 0.2)
           );
       filter: blur(12px);
       z-index: -1;
@@ -124,8 +157,27 @@
       }
     }
 
-    /* 추가 파티클 컨테이너 스타일 */
-    #particles-container {
+    /* 추가 디자인 요소: 엽전 이모지 플로팅 */
+    .ui.centered.card::before {
+      content: '💰'; /* 엽전 관련 이모지 추가 */
+      position: absolute;
+      top: -30px;
+      left: 50%;
+      transform: translateX(-50%);
+      font-size: 2em;
+      color: #FFD700;
+      animation: floatEmoji 2s ease-in-out infinite;
+      z-index: 1;
+    }
+
+    @keyframes floatEmoji {
+      0% { transform: translateX(-50%) translateY(0); }
+      50% { transform: translateX(-50%) translateY(-10px); }
+      100% { transform: translateX(-50%) translateY(0); }
+    }
+
+    /* Fireworks 및 Particles 컨테이너 스타일 */
+    #fireworks, #particles-container {
       position: fixed;
       top: 0;
       left: 0;
@@ -135,48 +187,36 @@
       z-index: 999; /* fireworks보다 낮은 값 */
     }
 
-    /* Fireworks 컨테이너 스타일 */
     #fireworks {
-      position: fixed;
-      top: 0;
-      left: 0;
-      width: 100%;
-      height: 100%;
-      pointer-events: none;
       z-index: 1000; /* 기존 9999에서 낮춘 값 */
     }
 
-    /* Shake 애니메이션 추가 */
-    .burning-border.active {
-      animation: shake 0.3s ease-in-out infinite;
-    }
-
-    @keyframes shake {
-      0%, 100% { transform: translateX(0); }
-      25% { transform: translateX(-2px); }
-      75% { transform: translateX(2px); }
+    #particles-container {
+      z-index: 999;
     }
   </style>
 </head>
 <body>
+<!-- 헤더 -->
 <div th:replace="fragments/header :: header"></div>
 
-<div class="ui stackable container" style="margin: 0 auto">
+<!-- 메인 컨테이너 -->
+<div class="ui stackable container">
   <h1 class="ui header">Test Page1</h1>
 
   <!-- 현상금 섹션 -->
   <div class="ui segment">
-    <div class="ui centered card burning-border" style="width: 100%; max-width: 500px; margin: 2em auto;">
+    <div class="ui centered card burning-border" style="width: 100%; max-width: 500px; margin: 2em auto; padding-top: 2em; position: relative;">
       <div class="content">
         <div class="ui grid">
           <!-- 프로필 이미지 -->
           <div class="four wide column">
-            <div class="ui circular image" style="width: 80px; height: 80px; overflow: hidden;">
-              <img src="/images/yeopjeon_hunter.png" alt="profile">
+            <div class="ui circular image image-animate" style="width: 80px; height: 80px; overflow: hidden;">
+              <img id="profileImage" class="image-animate" src="/images/yeopjeon_hunter.png" alt="profile">
             </div>
           </div>
 
-          <!-- 토글 및 제목 -->
+          <!-- 토글 및 현상금 텍스트 -->
           <div class="twelve wide column">
             <div class="ui massive toggle checkbox" style="margin-bottom: 1em;">
               <input type="checkbox" id="bountyToggle">
@@ -196,6 +236,7 @@
   <div id="particles-container"></div>
 </div>
 
+<!-- 푸터 -->
 <div th:replace="~{fragments/footer :: footer}"></div>
 
 <!-- 필수 라이브러리 로드 -->
@@ -241,7 +282,7 @@
     particlesJS("particles-container", {
       "particles": {
         "number": { "value": 80, "density": { "enable": true, "value_area": 800 } },
-        "color": { "value": "#FF4500" },
+        "color": { "value": "#FFD700" }, /* 금색으로 변경 */
         "shape": {
           "type": "circle",
           "stroke": { "width": 0, "color": "#000000" }
@@ -275,18 +316,22 @@
     const bountyToggle = $('#bountyToggle');
     const bountyAmount = $('#bountyAmount');
     const mainCard = $('.ui.centered.card');
+    const profileImage = $('#profileImage');
 
     bountyToggle.on('change', function() {
       const isChecked = $(this).is(':checked');
       if (isChecked) {
         bountyAmount.fadeIn();
-        mainCard.addClass('active'); // active 클래스 추가하여 shake 애니메이션 적용
+        mainCard.addClass('active'); // shake 애니메이션 적용
         fireworksInstance.start();
-        // Particles.js는 항상 활성화 상태로 두기
+        // 프로필 이미지 애니메이션 적용
+        profileImage.addClass('fade-out-enlarge');
       } else {
         bountyAmount.fadeOut();
-        mainCard.removeClass('active'); // active 클래스 제거하여 shake 애니메이션 제거
+        mainCard.removeClass('active'); // shake 애니메이션 제거
         fireworksInstance.stop();
+        // 프로필 이미지 애니메이션 제거
+        profileImage.removeClass('fade-out-enlarge');
       }
     });
   });
