@@ -168,7 +168,7 @@ public class AnswerPostService {
     }
 
     // 답변 채택
-    answerPost.chaetaekAnswer();
+    answerPost.markAsChaetaek();
     log.info("답변글: {} 채택되었습니다. 해당 답변글 작성자: {}",
         answerPost.getAnswerPostId(), answerMember.getStudentId());
 
@@ -179,12 +179,14 @@ public class AnswerPostService {
 
       log.info("사용자: {} 의 엽전 현상금 지급 전 엽전량: {}",
           answerMember.getStudentId(), answerMemberYeopjeon.getYeopjeon());
+
       try { // 답변 작성자 엽전 변동 및 엽전 히스토리 저장 - E
         yeopjeonService.updateYeopjeonAndSaveYeopjeonHistory(
             answerMember,
             YeopjeonAction.REWARD_YEOPJEON,
             questionPost.getRewardYeopjeon());
       } catch (Exception e) { // E 실패시 A, B, C, D 롤백
+        answerPost.rollbackChaetaek();
         expService.rollbackExpAndDeleteExpHistory(
             curMember,
             ExpAction.CHAETAEK_ACCEPT,
