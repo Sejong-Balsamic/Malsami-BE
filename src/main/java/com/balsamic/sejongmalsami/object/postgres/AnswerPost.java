@@ -72,7 +72,7 @@ public class AnswerPost extends BaseEntity {
   }
 
   // 답변 채택
-  public void chaetaekAnswer() {
+  public void markAsChaetaek() {
     isChaetaek = true;
   }
 

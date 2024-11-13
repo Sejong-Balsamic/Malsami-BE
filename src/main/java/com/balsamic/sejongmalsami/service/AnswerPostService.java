@@ -168,7 +168,7 @@ public class AnswerPostService {
     }
 
     // 답변 채택
-    answerPost.chaetaekAnswer();
+    answerPost.markAsChaetaek();
     log.info("답변글: {} 채택되었습니다. 해당 답변글 작성자: {}",
         answerPost.getAnswerPostId(), answerMember.getStudentId());
 

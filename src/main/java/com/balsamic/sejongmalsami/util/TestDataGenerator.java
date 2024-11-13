@@ -22,11 +22,13 @@ import static com.balsamic.sejongmalsami.object.constants.QuestionPresetTag.UNKN
 import com.balsamic.sejongmalsami.object.constants.AccountStatus;
 import com.balsamic.sejongmalsami.object.constants.Faculty;
 import com.balsamic.sejongmalsami.object.constants.Role;
+import com.balsamic.sejongmalsami.object.postgres.AnswerPost;
 import com.balsamic.sejongmalsami.object.postgres.Course;
 import com.balsamic.sejongmalsami.object.postgres.DocumentFile;
 import com.balsamic.sejongmalsami.object.postgres.DocumentPost;
 import com.balsamic.sejongmalsami.object.postgres.Member;
 import com.balsamic.sejongmalsami.object.postgres.QuestionPost;
+import com.balsamic.sejongmalsami.repository.postgres.AnswerPostRepository;
 import com.balsamic.sejongmalsami.repository.postgres.CourseRepository;
 import com.balsamic.sejongmalsami.repository.postgres.DocumentFileRepository;
 import com.balsamic.sejongmalsami.repository.postgres.DocumentPostRepository;
@@ -56,6 +58,7 @@ public class TestDataGenerator {
   private final DocumentPostRepository documentPostRepository;
   private final DocumentFileRepository documentFileRepository;
   private final QuestionPostRepository questionPostRepository;
+  private final AnswerPostRepository answerPostRepository;
   private final CourseRepository courseRepository;
 
   private final Faker faker = new Faker(new Locale("ko"));
@@ -164,7 +167,7 @@ public class TestDataGenerator {
     return memberRepository.save(member);
   }
 
-  // 질문 글 mock 데이터 생성
+  // 질문 글 Mock 데이터 생성
   public QuestionPost createMockQuestionPost(Member member) {
 
     String subject = subjects.get(random.nextInt(subjects.size()));
@@ -198,6 +201,24 @@ public class TestDataGenerator {
         .build();
 
     return questionPostRepository.save(post);
+  }
+
+  // 답변 글 Mock 데이터 생성
+  public AnswerPost createMockAnswerPost(Member member, QuestionPost questionPost) {
+
+    AnswerPost answerPost = AnswerPost.builder()
+        .member(member)
+        .questionPost(questionPost)
+        .content(faker.lorem().paragraph())
+        .likeCount(faker.number().numberBetween(0, 300))
+        .commentCount(0)
+        .isChaetaek(false)
+        .isPrivate(false)
+        .createdDate(LocalDateTime.now().minusDays(faker.number().numberBetween(1, 10)))
+        .updatedDate(LocalDateTime.now().minusDays(faker.number().numberBetween(1, 10)))
+        .build();
+
+    return answerPostRepository.save(answerPost);
   }
 
   public DocumentPost createMockDocumentPost(Member member) {
