@@ -1,9 +1,8 @@
 package com.balsamic.sejongmalsami.util.filter;
 
-import com.balsamic.sejongmalsami.object.CustomUserDetails;
 import com.balsamic.sejongmalsami.service.MemberService;
 import com.balsamic.sejongmalsami.util.JwtUtil;
-import com.balsamic.sejongmalsami.util.constants.SecurityUrls;
+import com.balsamic.sejongmalsami.util.config.SecurityUrls;
 import com.balsamic.sejongmalsami.util.exception.CustomException;
 import com.balsamic.sejongmalsami.util.exception.ErrorCode;
 import io.jsonwebtoken.ExpiredJwtException;
