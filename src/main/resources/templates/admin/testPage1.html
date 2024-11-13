@@ -1,0 +1,295 @@
+<!-- src/main/resources/templates/admin/testPage1.html -->
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head th:replace="fragments/header :: head(title='Test Page')">
+  <link href="https://cdnjs.cloudflare.com/ajax/libs/fireworks-js/2.10.7/fireworks.css" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/semantic-ui/2.4.1/semantic.min.css">
+
+  <!-- 추가적인 스타일 -->
+  <style>
+    /* 기본 컨테이너 스타일 */
+    .ui.stackable.container {
+      position: relative;
+      overflow: hidden;
+    }
+
+    /* 메인 카드에 불타는 효과를 주기 위한 클래스 */
+    .burning-border {
+      position: relative;
+      overflow: visible;
+    }
+
+    /* 메인 불꽃 효과 강화 */
+    .burning-border::before {
+      content: '';
+      position: absolute;
+      left: -40px;
+      right: -40px;
+      top: -80px;
+      bottom: -40px;
+      background: radial-gradient(circle, rgba(255, 69, 0, 0.8) 0%, rgba(255, 140, 0, 0.6) 50%, rgba(255, 215, 0, 0.4) 100%);
+      filter: blur(15px);
+      opacity: 0;
+      transform-origin: bottom;
+      animation: mainFlamesEnhanced 1s ease-out infinite alternate;
+      z-index: -2;
+    }
+
+    @keyframes mainFlamesEnhanced {
+      0% {
+        transform: scaleY(0.9) translateY(5px);
+        opacity: 0.8;
+      }
+      100% {
+        transform: scaleY(1.1) translateY(-5px);
+        opacity: 1;
+      }
+    }
+
+    /* 추가 불꽃 레이어 */
+    .burning-border::after {
+      content: '';
+      position: absolute;
+      left: -35px;
+      right: -35px;
+      top: -70px;
+      bottom: -35px;
+      background:
+          radial-gradient(circle at 25% top, rgba(255, 0, 0, 0.9) 0%, transparent 60%),
+          radial-gradient(circle at 50% top, rgba(255, 165, 0, 0.7) 0%, transparent 60%),
+          radial-gradient(circle at 75% top, rgba(255, 0, 0, 0.9) 0%, transparent 60%);
+      filter: blur(10px);
+      opacity: 0;
+      transform-origin: bottom;
+      animation: sparkFlamesEnhanced 0.8s ease-out infinite alternate;
+      z-index: -1;
+    }
+
+    @keyframes sparkFlamesEnhanced {
+      0% {
+        transform: scaleY(0.85) translateY(5px);
+        opacity: 0.7;
+      }
+      100% {
+        transform: scaleY(1.15) translateY(-5px);
+        opacity: 0.9;
+      }
+    }
+
+    /* 불타는 텍스트 효과 강화 */
+    #bountyAmount {
+      position: relative;
+      z-index: 1;
+      color: #FF4500; /* 더 강렬한 색상 */
+      text-shadow:
+          0 0 5px rgba(255, 69, 0, 0.8),
+          0 0 10px rgba(255, 140, 0, 0.6),
+          0 0 20px rgba(255, 215, 0, 0.4);
+      animation: textBurnEnhanced 0.6s ease-in-out infinite alternate;
+    }
+
+    @keyframes textBurnEnhanced {
+      0% { transform: scale(1) rotate(-1deg); }
+      50% { transform: scale(1.05) rotate(1deg); }
+      100% { transform: scale(1) rotate(-1deg); }
+    }
+
+    /* 불타는 텍스트 배경 */
+    #bountyAmount::before {
+      content: '';
+      position: absolute;
+      left: -20px;
+      right: -20px;
+      top: -15px;
+      bottom: -15px;
+      background:
+          linear-gradient(to top,
+          rgba(255, 0, 0, 0.6),
+          rgba(255, 165, 0, 0.4) 50%,
+          rgba(255, 255, 0, 0.2)
+          );
+      filter: blur(12px);
+      z-index: -1;
+      animation: textFlamesPulse 0.8s ease-in-out infinite alternate;
+    }
+
+    @keyframes textFlamesPulse {
+      0% {
+        transform: scaleY(0.9);
+        opacity: 0.7;
+      }
+      100% {
+        transform: scaleY(1.1);
+        opacity: 0.9;
+      }
+    }
+
+    /* 추가 파티클 컨테이너 스타일 */
+    #particles-container {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      pointer-events: none;
+      z-index: 999; /* fireworks보다 낮은 값 */
+    }
+
+    /* Fireworks 컨테이너 스타일 */
+    #fireworks {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      pointer-events: none;
+      z-index: 1000; /* 기존 9999에서 낮춘 값 */
+    }
+
+    /* Shake 애니메이션 추가 */
+    .burning-border.active {
+      animation: shake 0.3s ease-in-out infinite;
+    }
+
+    @keyframes shake {
+      0%, 100% { transform: translateX(0); }
+      25% { transform: translateX(-2px); }
+      75% { transform: translateX(2px); }
+    }
+  </style>
+</head>
+<body>
+<div th:replace="fragments/header :: header"></div>
+
+<div class="ui stackable container" style="margin: 0 auto">
+  <h1 class="ui header">Test Page1</h1>
+
+  <!-- 현상금 섹션 -->
+  <div class="ui segment">
+    <div class="ui centered card burning-border" style="width: 100%; max-width: 500px; margin: 2em auto;">
+      <div class="content">
+        <div class="ui grid">
+          <!-- 프로필 이미지 -->
+          <div class="four wide column">
+            <div class="ui circular image" style="width: 80px; height: 80px; overflow: hidden;">
+              <img src="/images/yeopjeon_hunter.png" alt="profile">
+            </div>
+          </div>
+
+          <!-- 토글 및 제목 -->
+          <div class="twelve wide column">
+            <div class="ui massive toggle checkbox" style="margin-bottom: 1em;">
+              <input type="checkbox" id="bountyToggle">
+              <label>엽전 현상금</label>
+            </div>
+            <div class="ui red massive text" id="bountyAmount" style="display: none;">
+              500 엽전
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- 불꽃 효과를 위한 컨테이너 -->
+  <div id="fireworks"></div>
+  <div id="particles-container"></div>
+</div>
+
+<div th:replace="~{fragments/footer :: footer}"></div>
+
+<!-- 필수 라이브러리 로드 -->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/semantic-ui/2.4.1/semantic.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/fireworks-js/2.10.7/fireworks.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/particles.js@2.0.0/particles.min.js"></script>
+
+<!-- Fireworks JS -->
+<script src="https://unpkg.com/fireworks-js@2.x/dist/index.umd.js"></script>
+
+<script th:inline="javascript">
+  $(document).ready(function() {
+    // Semantic UI 체크박스 초기화
+    $('.ui.checkbox').checkbox();
+
+    // Fireworks 설정
+    const container = document.querySelector('#fireworks');
+    const fireworksInstance = new Fireworks.default(container, {
+      rocketsPoint: { min: 0, max: 100 }, // 전체 화면에서 발사
+      hue: { min: 0, max: 360 }, // 다양한 색상
+      delay: { min: 15, max: 30 }, // 발사 간격
+      speed: 2, // 속도 조절
+      acceleration: 1.05, // 가속도
+      friction: 0.98, // 마찰
+      gravity: 1.5, // 중력
+      particles: 100, // 파티클 수 증가
+      trace: 3, // 트레일 길이
+      explosion: 10, // 폭발 강도
+      autoresize: true,
+      brightness: { min: 50, max: 80 },
+      flickering: 50, // 깜빡임 빈도
+      traceSpeed: 5, // 트레일 속도
+      boundaries: {
+        x: 50,
+        y: 50,
+        width: container.clientWidth - 100,
+        height: container.clientHeight - 100
+      },
+    });
+
+    // Particles.js 설정
+    particlesJS("particles-container", {
+      "particles": {
+        "number": { "value": 80, "density": { "enable": true, "value_area": 800 } },
+        "color": { "value": "#FF4500" },
+        "shape": {
+          "type": "circle",
+          "stroke": { "width": 0, "color": "#000000" }
+        },
+        "opacity": {
+          "value": 0.8,
+          "random": false,
+          "anim": { "enable": true, "speed": 1, "opacity_min": 0.5, "sync": false }
+        },
+        "size": { "value": 3, "random": true, "anim": { "enable": false } },
+        "move": {
+          "enable": true,
+          "speed": 2,
+          "direction": "none",
+          "random": true,
+          "straight": false,
+          "out_mode": "out"
+        }
+      },
+      "interactivity": {
+        "detect_on": "canvas",
+        "events": {
+          "onhover": { "enable": false },
+          "onclick": { "enable": false },
+          "resize": true
+        }
+      },
+      "retina_detect": true
+    });
+
+    const bountyToggle = $('#bountyToggle');
+    const bountyAmount = $('#bountyAmount');
+    const mainCard = $('.ui.centered.card');
+
+    bountyToggle.on('change', function() {
+      const isChecked = $(this).is(':checked');
+      if (isChecked) {
+        bountyAmount.fadeIn();
+        mainCard.addClass('active'); // active 클래스 추가하여 shake 애니메이션 적용
+        fireworksInstance.start();
+        // Particles.js는 항상 활성화 상태로 두기
+      } else {
+        bountyAmount.fadeOut();
+        mainCard.removeClass('active'); // active 클래스 제거하여 shake 애니메이션 제거
+        fireworksInstance.stop();
+      }
+    });
+  });
+</script>
+</body>
+</html>

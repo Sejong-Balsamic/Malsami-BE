@@ -39,6 +39,11 @@ public class AdminPageController {
     return "admin/dashboard";
   }
 
+  @GetMapping("/admin/testPage1")
+  public String testPage1() {
+    return "admin/testPage1";
+  }
+
   @GetMapping("/logout")
   public String logout(HttpServletResponse response) {
     // 리프레시 토큰 쿠키 삭제
