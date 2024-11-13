@@ -3,7 +3,9 @@ package com.balsamic.sejongmalsami.util;
 import com.balsamic.sejongmalsami.object.constants.FileStatus;
 import com.balsamic.sejongmalsami.object.constants.SystemType;
 import com.balsamic.sejongmalsami.object.postgres.CourseFile;
+import com.balsamic.sejongmalsami.object.postgres.Subject;
 import com.balsamic.sejongmalsami.repository.postgres.CourseFileRepository;
+import com.balsamic.sejongmalsami.repository.postgres.SubjectRepository;
 import com.balsamic.sejongmalsami.service.CourseService;
 import com.balsamic.sejongmalsami.util.exception.CustomException;
 import com.balsamic.sejongmalsami.util.exception.ErrorCode;
@@ -19,27 +21,29 @@ import java.util.List;
 import java.util.Objects;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.boot.ApplicationArguments;
-import org.springframework.boot.ApplicationRunner;
 import org.springframework.core.io.ClassPathResource;
 import org.springframework.core.io.Resource;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
 
+/**
+ * 교과목 파일과 교과목명을 초기화하는 유틸리티 클래스입니다.
+ */
 @Component
 @RequiredArgsConstructor
 @Slf4j
-public class CourseFileGenerator implements ApplicationRunner {
+public class CourseFileGenerator {
 
   private final CourseService courseService;
   private final CourseFileRepository courseFileRepository;
+  private final SubjectRepository subjectRepository;
 
-  @Override
-  public void run(ApplicationArguments args) throws Exception {
-    log.info("============== Course File Generator ==============");
+  /**
+   * 교과목 파일을 초기화합니다.
+   */
+  public void initCourse() {
+    log.info("============== Course File Generator Initialization ==============");
     log.info("Course 교과목 XLSX 파일 처리 시작 = {}", LocalDateTime.now());
-
-    //TODO: path 경로
 
     Path coursesPath;
 
@@ -103,7 +107,7 @@ public class CourseFileGenerator implements ApplicationRunner {
         } else if (addedCourses == 0) { // 패스한 파일
           passCount++;
         }
-        // addedCourses < 0 은 현재 처리 중인 파일로 간주하여 카운트하지 않음
+        // addedCourses < 0 은 현재 처리 중인 파일으로 간주하여 카운트하지 않음
       } catch (Exception e) {
         log.error("파일 처리 중 예외 발생: {}", filePath.getFileName().toString(), e);
         failCount++;
@@ -122,6 +126,45 @@ public class CourseFileGenerator implements ApplicationRunner {
     log.info("=============================================");
   }
 
+  /**
+   * 교과목명을 초기화합니다.
+   * 기존 Course 엔티티에서 중복 없는 subject 이름을 추출하여 Subject 테이블에 저장합니다.
+   */
+  public void initSubject() {
+    log.info("============== Subject Initializer ==============");
+    log.info("중복 없는 교과목명 초기화 시작 = {}", LocalDateTime.now());
+
+    // 중복 없는 교과목명 목록 조회
+    List<String> distinctSubjects = courseService.getDistinctSubjects();
+
+    int addedSubjects = 0;
+    for (String subjectName : distinctSubjects) {
+      // 이미 존재하는 교과목명인지 확인
+      if (!subjectRepository.existsByName(subjectName)) {
+        // 새로운 Subject 엔티티 생성 및 저장
+        Subject subject = Subject.builder()
+            .name(subjectName)
+            .build();
+        subjectRepository.save(subject);
+        addedSubjects++;
+        log.info("새로운 교과목 추가: {}", subjectName);
+      } else {
+        log.info("이미 존재하는 교과목명: {}", subjectName);
+      }
+    }
+
+    log.info("=========== Subject Initializer 완료 =============");
+    log.info("처리 종료 시간: {}", LocalDateTime.now());
+    log.info("추가된 교과목 수: {}", addedSubjects);
+    log.info("=============================================");
+  }
+
+  /**
+   * 파일을 처리하여 Course 엔티티에 저장합니다.
+   *
+   * @param filePath 처리할 파일 경로
+   * @return 추가된 교과목 수
+   */
   @Transactional
   public int processFile(Path filePath) {
     File file = filePath.toFile();
