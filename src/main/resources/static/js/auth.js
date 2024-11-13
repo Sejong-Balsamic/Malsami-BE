@@ -6,34 +6,52 @@ const Auth = {
    * @param {string} url - 이동할 URL
    */
   navigate: function(url) {
-    const accessToken = localStorage.getItem('accessToken');
-    if (!accessToken) {
-      window.location.href = '/login'; // accessToken 없으면 로그인 페이지로 이동
+    // 로그아웃 처리
+    if (url === '/logout') {
+      this.logout();
       return;
     }
 
-    // admin 페이지로 이동할 때 accessToken 추가
+    const accessToken = localStorage.getItem('accessToken');
+
+    // admin 페이지 접근 시 토큰 체크
     if (url.startsWith('/admin/')) {
+      if (!accessToken) {
+        window.location.href = '/error/403';
+        return;
+      }
       url = url + (url.includes('?') ? '&' : '?') + `accessToken=${accessToken}`;
     }
+
     window.location.href = url;
   },
 
   /**
-   * 로그아웃: accessToken 제거 후 로그인 페이지로 이동
+   * 로그아웃: localStorage 클리어 후 로그인 페이지로 이동
    */
   logout: function() {
-    localStorage.removeItem('accessToken'); // accessToken 제거
-    window.location.href = '/login'; // 로그인 페이지로 이동
+    localStorage.clear();
+    window.location.href = '/login';
   },
 
   /**
-   * accessToken 확인: 없으면 로그인 페이지로 리다이렉트
+   * accessToken 확인
    */
   checkAccessToken: function() {
-    const accessToken = localStorage.getItem('accessToken');
-    if (!accessToken) {
-      window.location.href = '/login'; // accessToken 없으면 로그인 페이지로 이동
+    const currentPath = window.location.pathname;
+
+    // 예외 URL 목록
+    const publicUrls = ['/login', '/error/403', '/error/404', '/error/500'];
+    if (publicUrls.includes(currentPath)) {
+      return;
+    }
+
+    // admin 페이지 접근 시 토큰 체크
+    if (currentPath.startsWith('/admin/')) {
+      const accessToken = localStorage.getItem('accessToken');
+      if (!accessToken) {
+        window.location.href = '/error/403';
+      }
     }
   }
 };
