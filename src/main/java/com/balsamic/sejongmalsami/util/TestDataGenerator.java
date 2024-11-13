@@ -40,11 +40,13 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Locale;
 import java.util.Random;
 import java.util.Set;
+import java.util.stream.Collectors;
 import lombok.RequiredArgsConstructor;
 import net.datafaker.Faker;
 import org.springframework.stereotype.Component;
@@ -174,7 +176,8 @@ public class TestDataGenerator {
 
     List<Faculty> faculties = courseRepository
         .findAllBySubject(subject)
-        .stream().map(Course::getFaculty).toList();
+        .stream().map(Course::getFaculty)
+        .collect(Collectors.toList());
 
     QuestionPost post = QuestionPost.builder()
         .member(member)
@@ -182,12 +185,12 @@ public class TestDataGenerator {
         .content(faker.lorem().paragraph()) // 임의의 본문
         .subject(subject) // 임의의 교과목명
         .faculties(faculties)
-        .questionPresetTags(faker.options().option(
-            Arrays.asList(OUT_OF_CLASS),
-            Arrays.asList(OUT_OF_CLASS, UNKNOWN_CONCEPT),
-            Arrays.asList(BETTER_SOLUTION, EXAM_PREPARATION),
-            Arrays.asList(STUDY_TIPS, OUT_OF_CLASS),
-            Arrays.asList(UNKNOWN_CONCEPT)
+        .questionPresetTags(new ArrayList<>(faker.options().option(
+            List.of(OUT_OF_CLASS),
+            List.of(OUT_OF_CLASS, UNKNOWN_CONCEPT),
+            List.of(BETTER_SOLUTION, EXAM_PREPARATION),
+            List.of(STUDY_TIPS, OUT_OF_CLASS),
+            List.of(UNKNOWN_CONCEPT))
         ))
         .viewCount(faker.number().numberBetween(0, 30000))
         .likeCount(faker.number().numberBetween(0, 1000))

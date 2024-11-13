@@ -5,7 +5,6 @@ import com.balsamic.sejongmalsami.object.MemberDto;
 import com.balsamic.sejongmalsami.object.WebLoginDto;
 import com.balsamic.sejongmalsami.service.MemberService;
 import com.balsamic.sejongmalsami.util.JwtUtil;
-import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -32,7 +31,7 @@ public class WebAuthController {
       MemberDto memberDto = memberService.signIn(command, response);
       log.info("로그인 결과: isAdmin={}, accessToken={}", memberDto.getIsAdmin(), memberDto.getAccessToken());
 
-      if(!memberDto.getIsAdmin()){
+      if (!memberDto.getIsAdmin()) {
         log.warn("관리자 권한 없음: {}", command.getSejongPortalId());
         return WebLoginDto.builder()
             .success(false)
