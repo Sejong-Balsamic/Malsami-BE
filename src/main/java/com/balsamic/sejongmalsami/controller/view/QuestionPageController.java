@@ -25,7 +25,7 @@ public class QuestionPageController {
     return "admin/question";
   }
 
-  @PostMapping(value= "/save", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
+  @PostMapping(value = "/save", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
   public String saveQuestion(@ModelAttribute QuestionCommand command) {
     questionPostService.saveQuestion(command);
     return "redirect:/admin/question";
@@ -35,7 +35,7 @@ public class QuestionPageController {
   public String editQuestionForm(
       Model model,
       @ModelAttribute QuestionCommand command) {
-    QuestionDto dto= questionPostService.getQuestionById(command);
+    QuestionDto dto = questionPostService.getQuestionById(command);
     model.addAttribute("dto", dto);
     return "admin/question-form";
   }

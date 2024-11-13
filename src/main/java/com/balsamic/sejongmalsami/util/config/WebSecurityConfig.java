@@ -1,8 +1,7 @@
-package com.balsamic.sejongmalsami.config;
+package com.balsamic.sejongmalsami.util.config;
 
 import com.balsamic.sejongmalsami.service.MemberService;
 import com.balsamic.sejongmalsami.util.JwtUtil;
-import com.balsamic.sejongmalsami.util.constants.SecurityUrls;
 import com.balsamic.sejongmalsami.util.filter.TokenAuthenticationFilter;
 import java.util.Arrays;
 import java.util.Collections;

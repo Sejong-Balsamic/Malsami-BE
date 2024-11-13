@@ -67,6 +67,9 @@ class QuestionPostServiceTest {
   @Autowired
   TestDataGenerator testDataGenerator;
 
+  @Autowired
+  TestService testService;
+
   private static final String MEMBER_PK_BAEK = "fd168ebc-d1c6-4e8e-87f4-8ebec66973d0";
   private static final String MEMBER_PK_SUH = "094891c9-6d79-4fb5-bb80-be3c20b35767";
   private static final int REWARD_YEOPJEON = 30;
@@ -79,15 +82,12 @@ class QuestionPostServiceTest {
 //    아직_답변이_없는글_단과대_필터링();
 //    과목_필터링();
 //    답변_채택();
-    엽전_현상금_초과();
+//    엽전_현상금_초과();
   }
 
   @Test
   void 질문_Mock_데이터_저장() {
-    for (int i = 0; i < 100; i++) {
-      Member mockMember = testDataGenerator.createMockMember();
-      testDataGenerator.createMockQuestionPost(mockMember);
-    }
+    testService.createMockQuestionPostAndAnswerPost(50);
   }
 
   void 질문_글_저장_성공() {
