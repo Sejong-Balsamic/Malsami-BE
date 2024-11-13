@@ -13,15 +13,16 @@ const Auth = {
     }
 
     const accessToken = localStorage.getItem('accessToken');
-    if (!accessToken) {
-      window.location.href = '/login';
-      return;
-    }
 
-    // admin 페이지로 이동할 때 accessToken 추가
+    // admin 페이지 접근 시 토큰 체크
     if (url.startsWith('/admin/')) {
+      if (!accessToken) {
+        window.location.href = '/error/403';
+        return;
+      }
       url = url + (url.includes('?') ? '&' : '?') + `accessToken=${accessToken}`;
     }
+
     window.location.href = url;
   },
 
@@ -37,15 +38,20 @@ const Auth = {
    * accessToken 확인
    */
   checkAccessToken: function() {
-    // 로그인 페이지에서는 토큰 삭제
-    if (window.location.pathname === '/login') {
-      localStorage.clear();
+    const currentPath = window.location.pathname;
+
+    // 예외 URL 목록
+    const publicUrls = ['/login', '/error/403', '/error/404', '/error/500'];
+    if (publicUrls.includes(currentPath)) {
       return;
     }
 
-    const accessToken = localStorage.getItem('accessToken');
-    if (!accessToken) {
-      window.location.href = '/login';
+    // admin 페이지 접근 시 토큰 체크
+    if (currentPath.startsWith('/admin/')) {
+      const accessToken = localStorage.getItem('accessToken');
+      if (!accessToken) {
+        window.location.href = '/error/403';
+      }
     }
   }
 };

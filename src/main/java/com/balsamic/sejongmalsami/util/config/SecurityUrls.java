@@ -28,7 +28,7 @@ public class SecurityUrls {
       // WEB
       "/",                             // 관리자페이지 메인창
       "/login",                        // 관리자페이지 로그인창
-      "/error",                        // 에러 페이지
+      "/error/**",                        // 에러 페이지
 
       // Static Resources
       "/css/**",                       // CSS 파일
