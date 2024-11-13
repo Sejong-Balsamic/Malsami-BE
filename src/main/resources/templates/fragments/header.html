@@ -6,25 +6,24 @@
   <link rel="stylesheet" th:href="@{/css/semantic.min.css}"> <!-- Semantic UI 스타일 시트 -->
   <link rel="stylesheet" th:href="@{/css/sejong-malsami.css}"> <!-- 프로젝트 전용 스타일 시트 -->
   <script th:src="@{/js/auth.js}"></script> <!-- 인증 관련 스크립트 -->
+  <style>
+    /* 메뉴 아이템 스타일: 폰트 두께와 패딩 설정 */
+    .ui.menu .item {
+      font-weight: 500;
+      padding: 14px 20px;
+    }
+
+    /* 메뉴 아이템 아이콘 간격: 아이콘과 텍스트 사이 마진 설정 */
+    .ui.menu .item i.icon {
+      margin-right: 8px;
+    }
+
+    /* 오른쪽 메뉴 스타일: Flexbox 사용 */
+    .ui.menu .right.menu {
+      display: flex !important;
+    }
+  </style>
 </head>
-
-<style>
-  /* 메뉴 아이템 스타일: 폰트 두께와 패딩 설정 */
-  .ui.menu .item {
-    font-weight: 500;
-    padding: 14px 20px;
-  }
-
-  /* 메뉴 아이템 아이콘 간격: 아이콘과 텍스트 사이 마진 설정 */
-  .ui.menu .item i.icon {
-    margin-right: 8px;
-  }
-
-  /* 오른쪽 메뉴 스타일: Flexbox 사용 */
-  .ui.menu .right.menu {
-    display: flex !important;
-  }
-</style>
 
 <!-- Header Fragment: 상단 고정 메뉴 포함 -->
 <div th:fragment="header">

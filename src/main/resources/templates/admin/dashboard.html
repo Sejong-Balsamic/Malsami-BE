@@ -1,83 +1,126 @@
 <!-- src/main/resources/templates/admin/dashboard.html -->
 <!DOCTYPE html>
 <html xmlns:th="http://www.thymeleaf.org">
-<head th:replace="fragments/header :: head(title='Dashboard')"><!-- 헤더 정보 포함: 타이틀 'Dashboard' 설정 --></head>
+<head th:replace="fragments/header :: head(title='Dashboard')">
+  <!-- 헤더 정보 포함: 타이틀 'Dashboard' 설정 -->
+</head>
 <body>
 <div th:replace="fragments/header :: header"><!-- 헤더 프래그먼트 포함 --></div>
 
-<div class="ui stackable grid">
-  <div class="column">
-    <h2 class="ui header">대시보드</h2> <!-- 페이지 제목 -->
+<div class="ui stackable container" style="margin: 0 auto">
+  <h1 class="ui header">대시보드</h1>
 
-    <div class="ui segments">
-      <!-- 통계 섹션 -->
-      <div class="ui segment">
-        <div class="ui statistics">
-          <div class="statistic">
-            <div class="value">
-              150
+  <!-- 통계 섹션 -->
+  <div class="ui segment">
+    <div class="ui five cards">
+      <!-- 통계 로딩 플레이스홀더 -->
+      <div class="card" id="statistics-placeholder">
+        <div class="content">
+          <div class="ui placeholder">
+            <div class="header">
+              <div class="line"></div>
             </div>
-            <div class="label">
-              질문답변게시판
-            </div>
-          </div>
-          <div class="statistic">
-            <div class="value">
-              80
-            </div>
-            <div class="label">
-              자료게시판
-            </div>
-          </div>
-          <div class="statistic">
-            <div class="value">
-              50
-            </div>
-            <div class="label">
-              교과목 관리
-            </div>
-          </div>
-          <div class="statistic">
-            <div class="value">
-              200
-            </div>
-            <div class="label">
-              회원
-            </div>
-          </div>
-          <div class="statistic">
-            <div class="value">
-              30
-            </div>
-            <div class="label">
-              공지사항
+            <div class="paragraph">
+              <div class="line"></div>
             </div>
           </div>
         </div>
       </div>
 
-      <!-- 서버 상태 섹션 -->
-      <div class="ui segment">
-        <h3 class="ui header">서버 상태</h3> <!-- 섹션 제목 -->
-        <div class="ui relaxed divided list">
-          <div class="item">
-            <i class="server icon"></i> <!-- 서버 아이콘 -->
-            <div class="content">
-              CPU 사용률: 45%
+      <!-- 실제 통계 데이터 -->
+      <div class="card" id="statistics-data" style="display: none;">
+        <div class="content">
+          <div class="ui statistics">
+            <div class="statistic">
+              <div class="value" id="qnaCount">0</div>
+              <div class="label">질문답변게시판</div>
+            </div>
+            <div class="statistic">
+              <div class="value" id="resourceCount">0</div>
+              <div class="label">자료게시판</div>
+            </div>
+            <div class="statistic">
+              <div class="value" id="courseCount">0</div>
+              <div class="label">교과목 관리</div>
+            </div>
+            <div class="statistic">
+              <div class="value" id="memberCount">0</div>
+              <div class="label">회원</div>
+            </div>
+            <div class="statistic">
+              <div class="value" id="noticeCount">0</div>
+              <div class="label">공지사항</div>
             </div>
           </div>
-          <div class="item">
-            <i class="database icon"></i> <!-- 데이터베이스 아이콘 -->
-            <div class="content">
-              메모리 사용률: 70%
-            </div>
-          </div>
-          <div class="item">
-            <i class="cloud icon"></i> <!-- 클라우드 아이콘 -->
-            <div class="content">
-              네트워크 트래픽: 120MB/s
-            </div>
-          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- 네비게이션 버튼 섹션 -->
+  <div class="ui five column stackable grid">
+    <div class="column">
+      <a href="/admin/members" class="ui fluid large blue icon labeled button">
+        <i class="users icon"></i>
+        회원 관리
+      </a>
+    </div>
+    <div class="column">
+      <a href="/admin/courses" class="ui fluid large green icon labeled button">
+        <i class="book icon"></i>
+        교과목 관리
+      </a>
+    </div>
+    <div class="column">
+      <a href="/admin/qna" class="ui fluid large orange icon labeled button">
+        <i class="question circle icon"></i>
+        Q&A 관리
+      </a>
+    </div>
+    <div class="column">
+      <a href="/admin/resources" class="ui fluid large purple icon labeled button">
+        <i class="file alternate icon"></i>
+        자료실 관리
+      </a>
+    </div>
+    <div class="column">
+      <a href="/admin/notices" class="ui fluid large red icon labeled button">
+        <i class="announcement icon"></i>
+        공지사항 관리
+      </a>
+    </div>
+  </div>
+
+  <!-- 서버 상태 섹션 -->
+  <div class="ui segment">
+    <h3 class="ui header">서버 상태</h3>
+    <!-- 서버 상태 로딩 플레이스홀더 -->
+    <div class="ui placeholder" id="server-status-placeholder">
+      <div class="paragraph">
+        <div class="line"></div>
+        <div class="line"></div>
+        <div class="line"></div>
+      </div>
+    </div>
+
+    <!-- 실제 서버 상태 데이터 -->
+    <div class="ui three column divided grid" id="server-status-data" style="display: none;">
+      <div class="column">
+        <div class="ui small statistic">
+          <div class="value" id="cpuUsage">0%</div>
+          <div class="label">CPU 사용률</div>
+        </div>
+      </div>
+      <div class="column">
+        <div class="ui small statistic">
+          <div class="value" id="memoryUsage">0%</div>
+          <div class="label">메모리 사용률</div>
+        </div>
+      </div>
+      <div class="column">
+        <div class="ui small statistic">
+          <div class="value" id="networkTraffic">0MB/s</div>
+          <div class="label">네트워크 트래픽</div>
         </div>
       </div>
     </div>
@@ -86,4 +129,57 @@
 
 <div th:replace="~{fragments/footer :: footer}"><!-- 푸터 프래그먼트 포함 --></div>
 </body>
+<script th:inline="javascript">
+  $(document).ready(function() {
+    // 통계 데이터 로드
+    $.ajax({
+      url: '/api/admin/statistics',
+      method: 'GET',
+      headers: {
+        'Authorization': 'Bearer ' + localStorage.getItem('accessToken')
+      },
+      success: function(response) {
+        // 데이터 업데이트
+        $('#qnaCount').text(response.qnaCount);
+        $('#resourceCount').text(response.resourceCount);
+        $('#courseCount').text(response.courseCount);
+        $('#memberCount').text(response.memberCount);
+        $('#noticeCount').text(response.noticeCount);
+
+        // 플레이스홀더 숨기고 데이터 표시
+        $('#statistics-placeholder').hide();
+        $('#statistics-data').show();
+      },
+      error: function(xhr, status, error) {
+        console.error('Error fetching statistics:', error);
+        // 필요한 경우 에러 메시지 표시
+      }
+    });
+
+    // 서버 상태 데이터 로드
+    $.ajax({
+      url: '/api/admin/server-status',
+      method: 'GET',
+      headers: {
+        'Authorization': 'Bearer ' + localStorage.getItem('accessToken')
+      },
+      success: function(response) {
+        $('#cpuUsage').text(response.cpuUsage + '%');
+        $('#memoryUsage').text(response.memoryUsage + '%');
+        $('#networkTraffic').text(response.networkTraffic + 'MB/s');
+
+        $('#server-status-placeholder').hide();
+        $('#server-status-data').show();
+      },
+      error: function(xhr, status, error) {
+        console.error('Error fetching server status:', error);
+        if (xhr.status === 401) {
+          // 인증 오류시 토큰 삭제하고 로그인 페이지로
+          localStorage.clear();
+          window.location.href = '/login';
+        }
+      }
+    });
+  });
+</script>
 </html>
