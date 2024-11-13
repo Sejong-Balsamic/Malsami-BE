@@ -1,13 +1,14 @@
 <!-- src/main/resources/templates/login.html -->
 <!DOCTYPE html>
 <html xmlns:th="http://www.thymeleaf.org">
-<head th:replace="~{fragments/header :: head}"></head>
+<head th:replace="~{fragments/header :: head}"><!-- 헤더 프래그먼트 포함 --></head>
 <body>
-<div th:replace="~{fragments/header :: header}"></div>
+<div th:replace="~{fragments/header :: header}"><!-- 헤더 프래그먼트 포함 --></div>
 
 <div class="ui middle aligned grid container">
   <div class="column">
-    <!-- 로고 및 타이틀 섹션 -->
+
+    <!-- 로고 및 타이틀 섹션: 관리자용 페이지 로고와 타이틀 표시 -->
     <div class="ui center aligned very padded basic segment">
       <div class="ui center aligned grid">
         <div class="column">
@@ -25,7 +26,7 @@
       <div class="ui hidden divider"></div>
     </div>
 
-    <!-- 로그인 폼 섹션 -->
+    <!-- 로그인 폼 섹션: 사용자 로그인 입력 폼 -->
     <div class="ui center aligned basic segment">
       <div class="ui center aligned grid">
         <div class="column" style="max-width: 450px;">
@@ -34,18 +35,18 @@
               <div class="field">
                 <div class="ui left icon input">
                   <i class="user icon"></i>
-                  <input type="text" name="sejongPortalId" placeholder="세종대학교 포털 아이디" required>
+                  <input type="text" name="sejongPortalId" placeholder="세종대학교 포털 아이디" required><!-- 포털 ID 입력 -->
                 </div>
               </div>
               <div class="field">
                 <div class="ui left icon input">
                   <i class="lock icon"></i>
-                  <input type="password" name="sejongPortalPassword" placeholder="세종대학교 포털 비밀번호" required>
+                  <input type="password" name="sejongPortalPassword" placeholder="세종대학교 포털 비밀번호" required><!-- 포털 비밀번호 입력 -->
                 </div>
               </div>
-              <button type="submit" class="ui fluid large primary submit button">로그인</button>
+              <button type="submit" class="ui fluid large primary submit button">로그인</button><!-- 로그인 버튼 -->
             </div>
-            <div class="ui error message"></div>
+            <div class="ui error message"></div><!-- 에러 메시지 표시 영역 -->
           </form>
         </div>
       </div>
@@ -53,42 +54,35 @@
   </div>
 </div>
 
-<div th:replace="~{fragments/footer :: footer}"></div>
+<div th:replace="~{fragments/footer :: footer}"><!-- 푸터 프래그먼트 포함 --></div>
 
 <script th:inline="javascript">
   document.getElementById('loginForm').addEventListener('submit', function(e) {
-    e.preventDefault();
-
+    e.preventDefault(); // 폼 기본 제출 방지
     const formData = new FormData(this);
 
-    // 로그인 요청
-    console.log('로그인 폼 제출:', Object.fromEntries(formData.entries())); // 폼 데이터 로그
-
-    fetch('/api/web/auth/signin', {
+    fetch('/api/web/auth/login', {
       method: 'POST',
-      headers: {
-        'Content-Type': 'application/x-www-form-urlencoded',
-      },
-      body: new URLSearchParams(formData)
+      body: formData
     })
     .then(response => response.json())
     .then(data => {
       if (data.success && data.accessToken) {
-        localStorage.setItem('accessToken', data.accessToken);
-        // 대시보드로 리다이렉트
-        window.location.href = `/admin/dashboard?accessToken=${data.accessToken}`;
+        localStorage.setItem('accessToken', data.accessToken); // accessToken 저장
+        console.log('accessToken 저장됨:', data.accessToken); // accessToken 저장 로그
+        window.location.href = '/admin/dashboard?accessToken=' + data.accessToken; // 대시보드로 리다이렉트
       } else {
         const errorDiv = document.querySelector('.ui.error.message');
-        errorDiv.textContent = data.message || '로그인에 실패했습니다.';
-        errorDiv.style.display = 'block';
+        errorDiv.textContent = data.message || '로그인에 실패했습니다.'; // 에러 메시지 설정
+        errorDiv.style.display = 'block'; // 에러 메시지 표시
+        console.log('로그인 실패:', data.message); // 로그인 실패 로그
       }
     })
     .catch(error => {
-      console.error('Login error:', error);
-      // 에러 메시지 표시
       const errorDiv = document.querySelector('.ui.error.message');
-      errorDiv.textContent = '로그인 처리 중 오류가 발생했습니다.';
-      errorDiv.style.display = 'block';
+      errorDiv.textContent = '로그인 처리 중 오류가 발생했습니다.'; // 에러 메시지 설정
+      errorDiv.style.display = 'block'; // 에러 메시지 표시
+      console.error('로그인 처리 오류:', error); // 에러 로그
     });
   });
 </script>

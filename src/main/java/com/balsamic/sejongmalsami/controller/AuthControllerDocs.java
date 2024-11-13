@@ -73,27 +73,6 @@ public interface AuthControllerDocs {
       @ApiChangeLog(
           date = "2024.11.10",
           author = Author.SUHSAECHAN,
-          description = "토큰 정상 확인 API 구현"
-      )
-  })
-  @Operation(
-      summary = "토큰 정상 확인 API",
-      description = """
-          
-          **응답 코드:**
-          - **200 OK**: 유효한 토큰
-          - **401 Unauthorized**: 토큰이 유효하지 않거나 만료됨
-          """
-  )
-  @PostMapping(value = "/validate")
-  @LogMonitoringInvocation
-  ResponseEntity<Void> validatePageToken(
-      @ModelAttribute AuthCommand command);
-
-  @ApiChangeLogs({
-      @ApiChangeLog(
-          date = "2024.11.10",
-          author = Author.SUHSAECHAN,
           description = "로그아웃 API 구현"
       )
   })

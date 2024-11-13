@@ -1,59 +1,67 @@
 <!-- src/main/resources/templates/fragments/header.html -->
-<!-- Head Fragment -->
+
+<!-- Head Fragment: 페이지의 헤더 정보 포함 -->
 <head th:fragment="head">
   <title>세종말싸미</title>
-  <link rel="stylesheet" th:href="@{/css/semantic.min.css}">
-  <link rel="stylesheet" th:href="@{/css/sejong-malsami.css}">
+  <link rel="stylesheet" th:href="@{/css/semantic.min.css}"> <!-- Semantic UI 스타일 시트 -->
+  <link rel="stylesheet" th:href="@{/css/sejong-malsami.css}"> <!-- 프로젝트 전용 스타일 시트 -->
+  <script th:src="@{/js/auth.js}"></script> <!-- 인증 관련 스크립트 -->
 </head>
 
 <style>
+  /* 메뉴 아이템 스타일: 폰트 두께와 패딩 설정 */
   .ui.menu .item {
     font-weight: 500;
     padding: 14px 20px;
   }
 
+  /* 메뉴 아이템 아이콘 간격: 아이콘과 텍스트 사이 마진 설정 */
   .ui.menu .item i.icon {
     margin-right: 8px;
   }
 
+  /* 오른쪽 메뉴 스타일: Flexbox 사용 */
   .ui.menu .right.menu {
     display: flex !important;
   }
 </style>
 
-<!-- 헤더 -->
-<!-- Header Fragment -->
+<!-- Header Fragment: 상단 고정 메뉴 포함 -->
 <div th:fragment="header">
+  <!-- 고정된 상단 메뉴: 로고 및 네비게이션 포함 -->
   <div class="ui fixed menu">
     <div class="ui container" style="display: flex; justify-content: space-between; align-items: center; width: 100%;">
+
       <!-- 왼쪽: 로고와 텍스트 -->
       <a href="/" class="header item" style="display: flex; align-items: center;">
-        <img src="/images/sejong_malsami.png" alt="Sejong Malsami 브랜드 로고" class="ui mini image">
+        <img src="/images/sejong_malsami.png" alt="Sejong Malsami 브랜드 로고" class="ui mini image"> <!-- 로고 이미지 -->
         <span class="ui title" style="margin-left: 10px; font-weight: bold; font-size: 1.2em; color: black;">
-          Sejong Malsami Admin
+          Sejong Malsami Admin <!-- 관리자 페이지 타이틀 -->
         </span>
       </a>
 
       <!-- 오른쪽: 메뉴 드롭다운 -->
       <div class="right menu">
         <div class="ui dropdown item" style="margin-left: auto;">
-          <i class="bars icon big"></i>
+          <i class="bars icon big"></i> <!-- 드롭다운 아이콘 -->
           <div class="menu">
-            <a href="/admin/dashboard" class="item"><i class="dashboard icon"></i> Dashboard</a>
-            <a href="/admin/question" class="item"><i class="question circle icon"></i> 질문답변게시판</a>
-            <a href="/admin/document" class="item"><i class="file alternate icon"></i> 자료게시판</a>
-            <a href="/admin/course" class="item"><i class="book icon"></i> 교과목 관리</a>
-            <a href="/admin/member" class="item"><i class="users icon"></i> 회원 관리</a>
-            <a href="/admin/notice" class="item"><i class="bell icon"></i> 공지사항</a>
-            <a href="/admin/status" class="item"><i class="server icon"></i> 서버 상태</a>
-            <div class="divider"></div>
-            <a href="/admin/logout" class="item"><i class="sign out alternate icon"></i> Logout</a>
+            <!-- 메뉴 항목: 대시보드, 질문답변게시판 등 -->
+            <a href="javascript:Auth.navigate('/admin/dashboard')" class="item"><i class="dashboard icon"></i> Dashboard</a>
+            <a href="javascript:Auth.navigate('/admin/question')" class="item"><i class="question circle icon"></i> 질문답변게시판</a>
+            <a href="javascript:Auth.navigate('/admin/document')" class="item"><i class="file alternate icon"></i> 자료게시판</a>
+            <a href="javascript:Auth.navigate('/admin/course')" class="item"><i class="book icon"></i> 교과목 관리</a>
+            <a href="javascript:Auth.navigate('/admin/member')" class="item"><i class="users icon"></i> 회원 관리</a>
+            <a href="javascript:Auth.navigate('/admin/notice')" class="item"><i class="bell icon"></i> 공지사항</a>
+            <a href="javascript:Auth.navigate('/admin/status')" class="item"><i class="server icon"></i> 서버 상태</a>
+            <div class="divider"></div> <!-- 메뉴 구분선 -->
+            <a href="javascript:Auth.navigate('/logout')" class="item"><i class="sign out alternate icon"></i> Logout</a> <!-- 로그아웃 메뉴 -->
           </div>
         </div>
       </div>
     </div>
   </div>
+
   <div class="ui container" style="margin-top: 7em;">
-    <!-- 페이지별 콘텐츠 들어가는 위치 -->
+    <!-- 페이지별 콘텐츠 영역 -->
   </div>
 </div>
