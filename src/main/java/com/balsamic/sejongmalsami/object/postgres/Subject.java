@@ -12,7 +12,7 @@ import lombok.ToString;
 import lombok.experimental.SuperBuilder;
 
 /**
- * 교과목명을 별도 관리
+ * 교과목명
  */
 @Entity
 @Getter
@@ -28,4 +28,16 @@ public class Subject extends BaseEntity {
 
   @Column(unique = true, nullable = false)
   private String name; // 교과목명
+
+  // 일간 자료게시글 개수
+  private Long dailyDocumentScore;
+
+  // 주간 자료게시글 개수
+  private Long weeklyDocumentScore;
+
+  // 달간 자료게시글 개수
+  private Long monthlyDocumentScore;
+
+  // 전체 자료게시글 개수
+  private Long totalDocumentScore;
 }
