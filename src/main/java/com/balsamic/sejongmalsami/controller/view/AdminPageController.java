@@ -1,6 +1,7 @@
 package com.balsamic.sejongmalsami.controller.view;
 
 import com.balsamic.sejongmalsami.util.JwtUtil;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
@@ -10,6 +11,10 @@ import org.springframework.web.bind.annotation.GetMapping;
 
 @Controller
 @RequiredArgsConstructor
+@Tag(
+    name = "관리자 WEB 페이지 API",
+    description = "관리자 WEB 페이지 API 제공"
+)
 public class AdminPageController {
 
   private final JwtUtil jwtUtil;
@@ -37,6 +42,11 @@ public class AdminPageController {
   @GetMapping("/admin/dashboard")
   public String dashboardPage() {
     return "admin/dashboard";
+  }
+
+  @GetMapping("/admin/testPage1")
+  public String testPage1() {
+    return "admin/testPage1";
   }
 
   @GetMapping("/logout")

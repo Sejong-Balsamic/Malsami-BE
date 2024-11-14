@@ -17,16 +17,16 @@ import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 public abstract class BasePost extends BaseEntity{
 
   // 일간 인기글 점수
-  private Integer dailyScore;
+  private Long dailyScore;
 
   // 주간 인기글 점수
-  private Integer weeklyScore;
+  private Long weeklyScore;
 
-  public void updateDailyScore(Integer dailyScore) {
+  public void updateDailyScore(Long dailyScore) {
     this.dailyScore = dailyScore;
   }
 
-  public void updateWeeklyScore(Integer weeklyScore) {
+  public void updateWeeklyScore(Long weeklyScore) {
     this.weeklyScore = weeklyScore;
   }
 }
