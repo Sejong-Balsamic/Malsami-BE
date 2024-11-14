@@ -1,4 +1,4 @@
-package com.balsamic.sejongmalsami.controller.view;
+package com.balsamic.sejongmalsami.controller;
 
 import com.balsamic.sejongmalsami.object.MemberCommand;
 import com.balsamic.sejongmalsami.object.WebLoginDto;
@@ -20,7 +20,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
     name = "관리자 WEB  페이지 API",
     description = "관리자 WEB 에러 페이지 API 제공"
 )
-public class WebAuthController {
+public class AdminAuthController {
 
   private final AuthService authService;
 
