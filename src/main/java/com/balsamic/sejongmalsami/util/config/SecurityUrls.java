@@ -19,7 +19,7 @@ public class SecurityUrls {
       "/api/landing/**",               // 랜딩페이지
       "/api/test/**",                  // 테스트 API
       "/api/member/signin",            // 회원가입
-      "/api/web/auth/login",          // 관리자 로그인 API
+      "/admin/auth/login",          // 관리자 로그인 API
 
       // Swagger
       "/docs/**",                      // Swagger UI
