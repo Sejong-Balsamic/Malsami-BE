@@ -1,9 +1,13 @@
 package com.balsamic.sejongmalsami.service;
 
 import com.balsamic.sejongmalsami.object.postgres.AnswerPost;
+import com.balsamic.sejongmalsami.object.postgres.DocumentFile;
+import com.balsamic.sejongmalsami.object.postgres.DocumentPost;
 import com.balsamic.sejongmalsami.object.postgres.Member;
 import com.balsamic.sejongmalsami.object.postgres.QuestionPost;
 import com.balsamic.sejongmalsami.repository.postgres.AnswerPostRepository;
+import com.balsamic.sejongmalsami.repository.postgres.DocumentFileRepository;
+import com.balsamic.sejongmalsami.repository.postgres.DocumentPostRepository;
 import com.balsamic.sejongmalsami.repository.postgres.QuestionPostRepository;
 import com.balsamic.sejongmalsami.util.TestDataGenerator;
 import java.util.ArrayList;
@@ -22,6 +26,10 @@ public class TestService {
   private final TestDataGenerator testDataGenerator;
   private final QuestionPostRepository questionPostRepository;
   private final AnswerPostRepository answerPostRepository;
+  private final DocumentPostRepository documentPostRepository;
+  private final DocumentFileRepository documentFileRepository;
+
+  private final Random random = new Random();
 
   /**
    * <h3>질문 글 Mock 데이터 생성 및 답변 글 동시 생성</h3>
@@ -88,5 +96,64 @@ public class TestService {
 
     log.info("총 {} 명의 mock 유저가 {} 개의 mock 질문글을 생성했습니다.",
         userCount, questionTotalCreated);
+  }
+
+    /**
+    * <h3>DocumentPost 및 관련 DocumentFile Mock 데이터 생성</h3>
+      * <p>지정된 개수만큼의 DocumentPost를 생성하고, 각 DocumentPost에 대해 0개에서 5개 사이의 DocumentFile을 생성합니다.
+      * 회원 풀을 미리 생성하여 게시물 작성 시 이들 중에서 랜덤으로 선택합니다.</p>
+      *
+      * @param postCount 생성할 DocumentPost의 총 개수
+     */
+  @Transactional
+  public void createMockDocumentPostAndDocumentFiles(Integer postCount) {
+    // 잘못된 값 입력 시 기본 30개 설정
+    if (postCount == null || postCount <= 0) {
+      log.warn("잘못된 작성 개수가 입력되었습니다. {} 기본 값 30개로 설정합니다.", postCount);
+      postCount = 30;
+    }
+
+    // 1. 회원 풀 생성 (postCount보다 작게, 예: 50명 또는 postCount의 10%)
+    int memberPoolSize = Math.min(50, Math.max(10, postCount / 10));
+    List<Member> memberPool = new ArrayList<>();
+    for (int i = 0; i < memberPoolSize; i++) {
+      Member member = testDataGenerator.createMockMember();
+      memberPool.add(member);
+    }
+    log.info("회원 풀 생성 완료: {}명", memberPool.size());
+
+    int documentPostTotalCreated = 0;
+    int userCount = memberPool.size();
+
+    while (documentPostTotalCreated < postCount) {
+      // 2. 생성할 DocumentPost 수 결정 (1 ~ 10개)
+      int documentRemaining = postCount - documentPostTotalCreated;
+      int numDocuments = random.nextInt(10) + 1; // 1 ~ 10
+      numDocuments = Math.min(numDocuments, documentRemaining); // 남은 수보다 많지 않도록 조정
+
+      // 3. DocumentPost 생성 및 관련 DocumentFile 생성
+      for (int i = 0; i < numDocuments; i++) {
+        // 3.1 회원 풀에서 랜덤으로 작성자 선택
+        Member member = memberPool.get(random.nextInt(memberPool.size()));
+
+        // 3.2 DocumentPost 생성
+        DocumentPost documentPost = testDataGenerator.createMockDocumentPost(member);
+        documentPostTotalCreated++;
+
+        // 3.3 DocumentFile 생성 (0 ~ 5개)
+        int numFiles = random.nextInt(6); // 0 ~ 5
+        List<DocumentFile> documentFiles = new ArrayList<>();
+
+        for (int j = 0; j < numFiles; j++) {
+          // 파일 업로더는 회원 풀에서 랜덤으로 선택
+          Member uploader = memberPool.get(random.nextInt(memberPool.size()));
+          DocumentFile documentFile = testDataGenerator.createMockDocumentFile(uploader, documentPost);
+          documentFiles.add(documentFile);
+        }
+      }
+    }
+
+    log.info("총 {} 명의 mock 유저가 {} 개의 mock DocumentPost를 생성했습니다.",
+        userCount, documentPostTotalCreated);
   }
 }
