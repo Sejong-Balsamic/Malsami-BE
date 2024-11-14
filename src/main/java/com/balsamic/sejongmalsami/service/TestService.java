@@ -11,7 +11,6 @@ import java.util.List;
 import java.util.Random;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -31,7 +30,6 @@ public class TestService {
    *
    * @param questionPostCount 생성할 질문 글의 총 개수
    */
-  @Async
   @Transactional
   public void createMockQuestionPostAndAnswerPost(Integer questionPostCount) {
 
