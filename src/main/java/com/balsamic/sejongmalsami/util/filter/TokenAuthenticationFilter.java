@@ -79,8 +79,12 @@ public class TokenAuthenticationFilter extends OncePerRequestFilter {
 
       // 토큰 없거나 유효하지 않음
       if (isApiRequest) {
-        // API 요청 : 예외 던짐
-        throw new CustomException(ErrorCode.INVALID_ACCESS_TOKEN);
+        // 토큰없음
+        if (token == null) {
+          throw new CustomException(ErrorCode.MISSING_AUTH_TOKEN);
+        } else { // 유효안함
+          throw new CustomException(ErrorCode.INVALID_ACCESS_TOKEN);
+        }
       } else if (isAdminPage) {
         // 관리자 페이지 : 로그인 페이지로 리다이렉트
         response.sendRedirect("/login");
