@@ -1,6 +1,5 @@
 package com.balsamic.sejongmalsami.util.config;
 
-import com.balsamic.sejongmalsami.util.LogUtils;
 import jakarta.annotation.PostConstruct;
 import java.util.HashSet;
 import java.util.List;

@@ -1,4 +1,4 @@
-package com.balsamic.sejongmalsami.util.constants;
+package com.balsamic.sejongmalsami.util.config;
 
 import java.util.Arrays;
 import java.util.List;
