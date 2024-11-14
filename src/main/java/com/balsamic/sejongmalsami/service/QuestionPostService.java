@@ -112,8 +112,8 @@ public class QuestionPostService {
         .answerCount(0)
         .commentCount(0)
         .rewardYeopjeon(command.getRewardYeopjeon())
-        .dailyScore(0)
-        .weeklyScore(0)
+        .dailyScore(0L)
+        .weeklyScore(0L)
         .isPrivate(command.getIsPrivate() != null ? command.getIsPrivate() : false)
         .build();
 

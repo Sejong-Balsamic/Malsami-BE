@@ -69,8 +69,8 @@ public class DocumentPostService {
         .commentCount(0)
         .viewCount(0)
         .isDepartmentPrivate(Boolean.TRUE.equals(command.getIsDepartmentPrivate()))
-        .dailyScore(0)
-        .weeklyScore(0)
+        .dailyScore(0L)
+        .weeklyScore(0L)
         .build());
     log.info("자료 게시글 저장 완료: 제목={} id={}", command.getTitle(), savedDocument.getDocumentPostId());
 
