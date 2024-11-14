@@ -64,8 +64,6 @@ public class WebSecurityConfig {
             .requestMatchers(SecurityUrls.ADMIN_PATHS.toArray(new String[0])).hasRole("ADMIN")
             .requestMatchers(HttpMethod.POST, "/api/course/upload").hasRole("USER")
             .requestMatchers(HttpMethod.POST, "/api/member/my-page").hasRole("USER")
-            .requestMatchers(HttpMethod.POST, "/api/course/upload").hasRole("USER")
-            .requestMatchers(HttpMethod.POST, "/api/member/my-page").hasRole("USER")
             .requestMatchers(HttpMethod.POST, "/api/question/post").hasRole("USER")
             .requestMatchers(HttpMethod.POST, "/api/question/get").hasRole("USER")
             .requestMatchers(HttpMethod.POST, "/api/question/get/all").hasRole("USER")

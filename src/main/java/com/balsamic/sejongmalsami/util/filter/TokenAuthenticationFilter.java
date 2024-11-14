@@ -3,8 +3,9 @@ package com.balsamic.sejongmalsami.util.filter;
 import com.balsamic.sejongmalsami.service.MemberService;
 import com.balsamic.sejongmalsami.util.JwtUtil;
 import com.balsamic.sejongmalsami.util.config.SecurityUrls;
-import com.balsamic.sejongmalsami.util.exception.CustomException;
 import com.balsamic.sejongmalsami.util.exception.ErrorCode;
+import com.balsamic.sejongmalsami.util.exception.ErrorResponse;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import io.jsonwebtoken.ExpiredJwtException;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
@@ -13,6 +14,7 @@ import jakarta.servlet.http.HttpServletResponse;
 import java.io.IOException;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.http.MediaType;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.util.AntPathMatcher;
@@ -81,30 +83,54 @@ public class TokenAuthenticationFilter extends OncePerRequestFilter {
       if (isApiRequest) {
         // 토큰없음
         if (token == null) {
-          throw new CustomException(ErrorCode.MISSING_AUTH_TOKEN);
+          sendErrorResponse(response, ErrorCode.MISSING_AUTH_TOKEN);
         } else { // 유효안함
-          throw new CustomException(ErrorCode.INVALID_ACCESS_TOKEN);
+          sendErrorResponse(response, ErrorCode.INVALID_ACCESS_TOKEN);
         }
+        return; // 필터 체인 진행하지 않음
       } else if (isAdminPage) {
         // 관리자 페이지 : 로그인 페이지로 리다이렉트
         response.sendRedirect("/login");
+        return;
       }
 
     } catch (ExpiredJwtException e) {
       // 토큰 만료 예외 처리
       if (isApiRequest) {
-        throw new CustomException(ErrorCode.EXPIRED_ACCESS_TOKEN);
+        sendErrorResponse(response, ErrorCode.EXPIRED_ACCESS_TOKEN);
       } else {
         response.sendRedirect("/login");
       }
+      return;
     } catch (Exception e) {
       // 기타 예외 처리
       if (isApiRequest) {
-        throw new CustomException(ErrorCode.INVALID_ACCESS_TOKEN);
+        sendErrorResponse(response, ErrorCode.INVALID_ACCESS_TOKEN);
       } else {
         response.sendRedirect("/login");
       }
+      return;
     }
+
+    // 필터 체인 계속 진행
+    filterChain.doFilter(request, response);
+  }
+
+  /**
+   * 에러 응답을 JSON 형태로 클라이언트에 전송
+   *
+   * @param response   HttpServletResponse 객체
+   * @param errorCode  발생한 에러 코드
+   * @throws IOException
+   */
+  private void sendErrorResponse(HttpServletResponse response, ErrorCode errorCode) throws IOException {
+    response.setContentType(MediaType.APPLICATION_JSON_VALUE);
+    response.setStatus(errorCode.getStatus().value());
+
+    ErrorResponse errorResponse = new ErrorResponse(errorCode, errorCode.getMessage());
+
+    ObjectMapper mapper = new ObjectMapper();
+    mapper.writeValue(response.getWriter(), errorResponse);
   }
 
   /**
