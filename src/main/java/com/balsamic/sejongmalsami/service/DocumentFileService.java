@@ -1,6 +1,7 @@
 package com.balsamic.sejongmalsami.service;
 
 import com.balsamic.sejongmalsami.object.DocumentCommand;
+import com.balsamic.sejongmalsami.object.constants.ContentType;
 import com.balsamic.sejongmalsami.object.constants.MimeType;
 import com.balsamic.sejongmalsami.object.constants.UploadType;
 import com.balsamic.sejongmalsami.object.postgres.DocumentFile;
@@ -43,7 +44,7 @@ public class DocumentFileService {
    * @return 저장된 DocumentFile 객체
    */
   public DocumentFile saveFile(DocumentCommand command, UploadType uploadType, MultipartFile file) {
-    String thumbnailUrl = generateThumbnailUrl(file, uploadType);
+    String thumbnailUrl = generateThumbnailUrl(ContentType.DOCUMENT, file, uploadType);
     String uploadFileName = FileUtil.generateUploadFileName(file);
 
     DocumentPost documentPost = documentPostRepository.findByDocumentPostId(command.getDocumentPostId())
@@ -115,9 +116,9 @@ public class DocumentFileService {
    * @param uploadType 업로드 타입
    * @return 썸네일 URL
    */
-  private String generateThumbnailUrl(MultipartFile file, UploadType uploadType) {
+  private String generateThumbnailUrl(ContentType contentType, MultipartFile file, UploadType uploadType) {
 
-    String thumbnailFileName = generateThumbnailFileName(file.getOriginalFilename());
+    String thumbnailFileName = generateThumbnailFileName(contentType, file.getOriginalFilename());
     String thumbnailUrl = "";
 
     if (file.isEmpty()) {
@@ -188,10 +189,10 @@ public class DocumentFileService {
    * @param originalFileName 원본 파일명
    * @return 생성된 썸네일 파일명
    */
-  private String generateThumbnailFileName(String originalFileName) {
+  private String generateThumbnailFileName(ContentType contentType , String originalFileName) {
     String curTimeStr = TimeUtil.formatLocalDateTimeNowForFileName();
     String baseName = FileUtil.getBaseName(originalFileName);
     String thumbnailExtension = thumbnailGenerator.getOutputThumbnailFormat(); // JPG, WEBP
-    return String.format("%s_%s.%s", curTimeStr, baseName, thumbnailExtension);
+    return String.format("%s_%s_%s.%s", contentType.name(), curTimeStr, baseName, thumbnailExtension);
   }
 }
