@@ -197,8 +197,8 @@ public class TestDataGenerator {
         .answerCount(0)
         .commentCount(0)
         .rewardYeopjeon(faker.number().numberBetween(0, 50) * 10)
-        .dailyScore(faker.number().numberBetween(0, 300))
-        .weeklyScore(faker.number().numberBetween(0, 1000))
+        .dailyScore((long)faker.number().numberBetween(0, 300))
+        .weeklyScore((long)faker.number().numberBetween(0, 1000))
         .createdDate(LocalDateTime.now().minusDays(faker.number().numberBetween(1, 10)))
         .updatedDate(LocalDateTime.now().minusDays(faker.number().numberBetween(1, 10)))
         .build();
@@ -234,8 +234,8 @@ public class TestDataGenerator {
         .likeCount(faker.number().numberBetween(0, 1000)) // 임의의 좋아요 수
         .viewCount(faker.number().numberBetween(0, 30000)) // 임의의 조회 수
         .isDepartmentPrivate(faker.bool().bool()) // 학과 비공개 여부
-        .dailyScore(faker.number().numberBetween(0, 300)) // 임의의 일간 점수
-        .weeklyScore(faker.number().numberBetween(0, 1000)) // 임의의 주간 점수
+        .dailyScore((long)faker.number().numberBetween(0, 300)) // 임의의 일간 점수
+        .weeklyScore((long)faker.number().numberBetween(0, 1000)) // 임의의 주간 점수
         .createdDate(LocalDateTime.now().minusDays(faker.number().numberBetween(1, 10))) // 작성일
         .updatedDate(LocalDateTime.now().minusDays(faker.number().numberBetween(1, 10))) // 수정일
         .isEdited(faker.bool().bool()) // 수정 여부

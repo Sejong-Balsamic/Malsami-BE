@@ -13,32 +13,32 @@ public class ScoreCalculator {
   private final ScoreConfig scoreConfig;
 
   // 질문 글 일간 점수 로직
-  public int calculateQuestionPostDailyScore(QuestionPost post) {
-    return post.getViewCount() * scoreConfig.getQuestionDailyViewCountWeight()
-        + post.getLikeCount() * scoreConfig.getQuestionDailyLikeCountWeight()
-        + post.getAnswerCount() * scoreConfig.getQuestionDailyAnswerCountWeight();
+  public long calculateQuestionPostDailyScore(QuestionPost post) {
+    return (long) post.getViewCount() * scoreConfig.getQuestionDailyViewCountWeight()
+        + (long) post.getLikeCount() * scoreConfig.getQuestionDailyLikeCountWeight()
+        + (long) post.getAnswerCount() * scoreConfig.getQuestionDailyAnswerCountWeight();
   }
 
   // 질문 글 주간 점수 로직
-  public int calculateQuestionPostWeeklyScore(QuestionPost post) {
-    return post.getViewCount() * scoreConfig.getQuestionWeeklyViewCountWeight()
-        + post.getLikeCount() * scoreConfig.getQuestionWeeklyLikeCountWeight()
-        + post.getAnswerCount() * scoreConfig.getQuestionWeeklyAnswerCountWeight();
+  public long calculateQuestionPostWeeklyScore(QuestionPost post) {
+    return (long) post.getViewCount() * scoreConfig.getQuestionWeeklyViewCountWeight()
+        + (long) post.getLikeCount() * scoreConfig.getQuestionWeeklyLikeCountWeight()
+        + (long) post.getAnswerCount() * scoreConfig.getQuestionWeeklyAnswerCountWeight();
   }
 
   // 자료 글 일간 점수 로직
   // TODO: 자료 다운로드 수 로직에 추가해야 합니다.
-  public int calculateDocumentPostDailyScore(DocumentPost post) {
-    return post.getViewCount() * scoreConfig.getDocumentDailyViewCountWeight()
-        + post.getLikeCount() * scoreConfig.getDocumentDailyLikeCountWeight()
-        + post.getDislikeCount() * scoreConfig.getDocumentDailyDislikeCountWeight();
+  public long calculateDocumentPostDailyScore(DocumentPost post) {
+    return (long) post.getViewCount() * scoreConfig.getDocumentDailyViewCountWeight()
+        + (long) post.getLikeCount() * scoreConfig.getDocumentDailyLikeCountWeight()
+        + (long) post.getDislikeCount() * scoreConfig.getDocumentDailyDislikeCountWeight();
   }
 
   // 자료 글 주간 점수 로직
   // TODO: 자료 다운로드 수 로직에 추가해야 합니다.
-  public int calculateDocumentPostWeeklyScore(DocumentPost post) {
-    return post.getViewCount() * scoreConfig.getDocumentWeeklyViewCountWeight()
-        + post.getLikeCount() * scoreConfig.getDocumentWeeklyLikeCountWeight()
-        + post.getDislikeCount() * scoreConfig.getDocumentWeeklyDislikeCountWeight();
+  public long calculateDocumentPostWeeklyScore(DocumentPost post) {
+    return (long) post.getViewCount() * scoreConfig.getDocumentWeeklyViewCountWeight()
+        + (long) post.getLikeCount() * scoreConfig.getDocumentWeeklyLikeCountWeight()
+        + (long) post.getDislikeCount() * scoreConfig.getDocumentWeeklyDislikeCountWeight();
   }
 }

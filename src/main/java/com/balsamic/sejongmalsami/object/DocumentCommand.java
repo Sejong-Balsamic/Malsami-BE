@@ -28,8 +28,8 @@ public class DocumentCommand {
   private UUID documentPostId;
   private Member member;
 
-  private Integer pageNumber;
-  private Integer pageSize;
+  private Integer pageNumber = 0;
+  private Integer pageSize = 30;
   private String sort; // 최신순, 좋아요순
 
 

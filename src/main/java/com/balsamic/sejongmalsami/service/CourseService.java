@@ -11,7 +11,9 @@ import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.nio.file.Files;
+import java.util.List;
 import java.util.Objects;
+import java.util.stream.Collectors;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.poi.ss.usermodel.Row;
@@ -138,5 +140,18 @@ public class CourseService {
   public void deleteCoursesByYearAndSemester(Integer year, Integer semester) {
     courseRepository.deleteByYearAndSemester(year, semester);
     log.info("{}년도  {}학기 의 모든 교과목 삭제됨", year, semester);
+  }
+
+  /**
+   * Course -> 중복 없는 교과목명 목록을 조회합니다.
+   */
+  @Transactional(readOnly = true)
+  public List<String> getDistinctSubjects() {
+    // 모든 Course 엔티티에서 중복 없는 subject 이름을 추출
+    return courseRepository.findAll()
+        .stream()
+        .map(Course::getSubject)
+        .distinct()
+        .collect(Collectors.toList());
   }
 }
