@@ -29,8 +29,7 @@ public class MemberController implements MemberControllerDocs {
   @Override
   @PostMapping(value = "/signin", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
   public ResponseEntity<MemberDto> signIn(
-      @ModelAttribute MemberCommand command,
-      HttpServletResponse response) {
+      @ModelAttribute MemberCommand command, HttpServletResponse response) {
     return ResponseEntity.ok(memberService.signIn(command, response));
   }
 

@@ -3,16 +3,19 @@ package com.balsamic.sejongmalsami.service;
 import com.balsamic.sejongmalsami.object.AuthCommand;
 import com.balsamic.sejongmalsami.object.AuthDto;
 import com.balsamic.sejongmalsami.object.CustomUserDetails;
+import com.balsamic.sejongmalsami.object.MemberCommand;
+import com.balsamic.sejongmalsami.object.MemberDto;
+import com.balsamic.sejongmalsami.object.WebLoginDto;
 import com.balsamic.sejongmalsami.object.mongo.RefreshToken;
 import com.balsamic.sejongmalsami.repository.mongo.RefreshTokenRepository;
 import com.balsamic.sejongmalsami.util.JwtUtil;
 import com.balsamic.sejongmalsami.util.exception.CustomException;
 import com.balsamic.sejongmalsami.util.exception.ErrorCode;
 import io.jsonwebtoken.Claims;
+import jakarta.servlet.http.HttpServletResponse;
 import java.time.LocalDateTime;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -22,8 +25,8 @@ import org.springframework.transaction.annotation.Transactional;
 public class AuthService {
 
   private final MemberService memberService;
-  private final RefreshTokenRepository refreshTokenRepository;
   private final JwtUtil jwtUtil;
+  private final RefreshTokenRepository refreshTokenRepository;
 
   /**
    * 리프레시 토큰을 사용하여 새로운 액세스 토큰 발급
@@ -67,5 +70,41 @@ public class AuthService {
     return AuthDto.builder()
         .accessToken(newAccessToken)
         .build();
+  }
+
+  /**
+   * 관리자 페이지 로그인
+   */
+  public WebLoginDto webLogin(MemberCommand command, HttpServletResponse response) {
+    log.info("관리자 로그인 시도: {}", command.getSejongPortalId());
+    try {
+      // 회원 로그인 사용
+      MemberDto memberDto = memberService.signIn(command, response);
+      log.info("로그인 결과: isAdmin={}, studentID={}", memberDto.getIsAdmin(), memberDto.getMember().getStudentId());
+
+      // 관리자가 아닐시
+      if(!memberDto.getIsAdmin()){
+        log.warn("관리자 권한 없음: {}", command.getSejongPortalId());
+        return WebLoginDto.builder()
+            .success(false)
+            .message("로그인에 실패했습니다. 관리자가 아닙니다")
+            .build();
+      }
+
+      // 관리자인 경우
+      log.info("관리자 로그인 성공: {}", command.getSejongPortalId());
+      return WebLoginDto.builder()
+          .success(true)
+          .accessToken(memberDto.getAccessToken())
+          .build();
+
+    } catch (Exception e) {
+      // 세종 로그인 실패
+      log.error("로그인 실패: {}", command.getSejongPortalId(), e);
+      return WebLoginDto.builder()
+          .success(false)
+          .message("로그인에 실패했습니다. 아이디와 비밀번호를 확인해주세요.")
+          .build();
+    }
   }
 }
