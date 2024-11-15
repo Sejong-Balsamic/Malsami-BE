@@ -199,6 +199,7 @@ public class TestDataGenerator {
         .rewardYeopjeon(faker.number().numberBetween(0, 50) * 10)
         .dailyScore((long)faker.number().numberBetween(0, 300))
         .weeklyScore((long)faker.number().numberBetween(0, 1000))
+        .isChaetaek(faker.options().option(false, true))
         .createdDate(LocalDateTime.now().minusDays(faker.number().numberBetween(1, 10)))
         .updatedDate(LocalDateTime.now().minusDays(faker.number().numberBetween(1, 10)))
         .build();

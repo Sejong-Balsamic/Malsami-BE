@@ -41,6 +41,7 @@ public class QuestionPostController implements QuestionPostControllerDocs {
   @Override
   @PostMapping(value = "/get", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
   public ResponseEntity<QuestionDto> getQuestionPost(
+      @AuthenticationPrincipal CustomUserDetails customUserDetails,
       @ModelAttribute QuestionCommand command) {
     return ResponseEntity.ok(questionPostService.getQuestionPost(command));
   }

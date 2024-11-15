@@ -46,16 +46,18 @@ public class QuestionPostService {
   private final QuestionPostCustomTagService questionPostCustomTagService;
   private final MediaFileService mediaFileService;
   private final CourseRepository courseRepository;
+  private final QuestionBoardLikeRepository questionBoardLikeRepository;
   private final YeopjeonService yeopjeonService;
   private final YeopjeonCalculator yeopjeonCalculator;
   private final ExpService expService;
   private final QuestionPostCustomTagRepository questionPostCustomTagRepository;
-  private final QuestionBoardLikeRepository questionBoardLikeRepository;
+
 
 
   //FIXME: 임시 사용 : MOCK CUSTOM TAGS 생성
   private final Faker faker = new Faker(new Locale("ko"));
   private final AnswerPostRepository answerPostRepository;
+  private final QuestionBoardLikeService questionBoardLikeService;
 
   /**
    * <h3>질문 글 등록 로직
@@ -173,7 +175,6 @@ public class QuestionPostService {
   /* 특정 질문 글 조회 로직 (해당 글 조회 수 증가) */
   @Transactional
   public QuestionDto getQuestionPost(QuestionCommand command) {
-
     // 질문 게시글 조회
     QuestionPost questionPost = questionPostRepository.findById(command.getPostId())
         .orElseThrow(() -> new CustomException(ErrorCode.QUESTION_POST_NOT_FOUND));
@@ -201,12 +202,13 @@ public class QuestionPostService {
     //TODO: 커스텀 태그 조회
 
     // 좋아요 누른 회원인지 확인
-
+    Boolean isLiked = questionBoardLikeRepository.existsByQuestionBoardIdAndMemberId(command.getQuestionPostId(), command.getMemberId());
 
     return QuestionDto.builder()
         .questionPost(questionPost)
         .answerPosts(answerPost)
-        .customTags(customTags)
+        .customTags(customTags )
+        .isLiked(isLiked)
         .build();
   }
 

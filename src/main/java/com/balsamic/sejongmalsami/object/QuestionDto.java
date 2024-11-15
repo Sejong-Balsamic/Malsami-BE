@@ -23,6 +23,8 @@ public class QuestionDto {
 
   private List<AnswerPost> answerPosts; // 답변
 
+  private Boolean isLiked;
+
   // 첨부파일
   private List<MediaFile> mediaFiles; // 질문, 답변
 
