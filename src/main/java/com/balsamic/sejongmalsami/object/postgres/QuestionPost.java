@@ -75,6 +75,7 @@ public class QuestionPost extends BasePost {
   private List<QuestionPresetTag> questionPresetTags = new ArrayList<>();
 
   // 썸네일
+  //FIXME: 썸네일 변수이름 수정
   @Column(length = 1024)
   private String thumbnail;
 
@@ -110,6 +111,11 @@ public class QuestionPost extends BasePost {
   // 좋아요 증가
   public void increaseLikeCount() {
     likeCount++;
+  }
+
+  // 댓글 수 증가
+  public void increaseCommentCount() {
+    commentCount++;
   }
 
   // 좋아요 감소 (롤백)
