@@ -42,7 +42,7 @@ public class QuestionPostController implements QuestionPostControllerDocs {
   @PostMapping(value = "/get", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
   public ResponseEntity<QuestionDto> getQuestionPost(
       @ModelAttribute QuestionCommand command) {
-    return ResponseEntity.ok(questionPostService.findQuestionPost(command));
+    return ResponseEntity.ok(questionPostService.getQuestionPost(command));
   }
 
   @Override

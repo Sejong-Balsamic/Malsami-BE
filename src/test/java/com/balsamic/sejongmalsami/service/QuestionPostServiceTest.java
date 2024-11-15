@@ -147,7 +147,7 @@ class QuestionPostServiceTest {
     QuestionCommand newCommand = new QuestionCommand();
     newCommand.setPostId(dto.getQuestionPost().getQuestionPostId());
 
-    questionPostService.findQuestionPost(newCommand);
+    questionPostService.getQuestionPost(newCommand);
     log.info("요청 후 조회 수: {}", findPost.getViewCount());
   }
 
