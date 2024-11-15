@@ -95,6 +95,7 @@ public class TokenAuthenticationFilter extends OncePerRequestFilter {
       }
 
     } catch (ExpiredJwtException e) {
+      log.warn("토큰 만료 처리: {}", e.getMessage());
       // 토큰 만료 예외 처리
       if (isApiRequest) {
         sendErrorResponse(response, ErrorCode.EXPIRED_ACCESS_TOKEN);
@@ -126,6 +127,7 @@ public class TokenAuthenticationFilter extends OncePerRequestFilter {
   private void sendErrorResponse(HttpServletResponse response, ErrorCode errorCode) throws IOException {
     response.setContentType(MediaType.APPLICATION_JSON_VALUE);
     response.setStatus(errorCode.getStatus().value());
+    response.setCharacterEncoding("UTF-8");
 
     ErrorResponse errorResponse = new ErrorResponse(errorCode, errorCode.getMessage());
 
