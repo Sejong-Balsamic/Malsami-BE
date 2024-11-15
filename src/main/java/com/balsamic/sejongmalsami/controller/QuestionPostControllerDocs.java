@@ -102,6 +102,11 @@ public interface QuestionPostControllerDocs {
 
   @ApiChangeLogs({
       @ApiChangeLog(
+          date = "2024.11.15",
+          author = Author.SUHSAECHAN,
+          description = "답변 반환 로직 추가, 가짜 CUSTOM TAG 반환 로직 추가"
+      ),
+      @ApiChangeLog(
           date = "2024.10.21",
           author = Author.BAEKJIHOON,
           description = "특정 질문 글 조회"
