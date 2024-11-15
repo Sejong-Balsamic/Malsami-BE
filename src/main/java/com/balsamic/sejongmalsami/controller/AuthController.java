@@ -46,11 +46,14 @@ public class AuthController implements AuthControllerDocs {
   @LogMonitoringInvocation
   @Override
   public ResponseEntity<Void> logout(HttpServletResponse response) {
+
     // 리프레시 토큰 쿠키 삭제
     Cookie cookie = new Cookie("refreshToken", null);
     cookie.setMaxAge(0);
     cookie.setPath("/");
     response.addCookie(cookie);
+
+    //TODO: 리프레시 토큰 삭제로직 필요
 
     // AccessToken 삭제
     response.setHeader("Authorization", "Bearer ");
