@@ -1,5 +1,6 @@
 package com.balsamic.sejongmalsami.service;
 
+import com.balsamic.sejongmalsami.object.DocumentCommand;
 import com.balsamic.sejongmalsami.object.DocumentDto;
 import com.balsamic.sejongmalsami.object.QuestionCommand;
 import com.balsamic.sejongmalsami.object.QuestionDto;
@@ -8,6 +9,7 @@ import com.balsamic.sejongmalsami.object.postgres.QuestionPost;
 import com.balsamic.sejongmalsami.repository.postgres.DocumentPostRepository;
 import com.balsamic.sejongmalsami.repository.postgres.QuestionPostRepository;
 import com.balsamic.sejongmalsami.util.ScoreCalculator;
+import com.balsamic.sejongmalsami.util.TestDataGenerator;
 import java.time.LocalDateTime;
 import java.util.List;
 import lombok.RequiredArgsConstructor;
@@ -35,6 +37,8 @@ public class PopularPostService {
   private final ScoreCalculator scoreCalculator;
   // 클래스 내부에서 @Cacheable 메서드를 호출하기 위해 ApplicationContext 사용
   private final ApplicationContext applicationContext;
+  //FIXME: 임의값 전송
+  private final TestDataGenerator testDataGenerator;
 
   private static final long DAILY_SCHEDULED_RATE = 30 * 60 * 1000L;
   private static final long WEEKLY_SCHEDULED_RATE = 6 * 60 * 60 * 1000L;
@@ -117,8 +121,7 @@ public class PopularPostService {
    * 캐시된 일간 인기 질문글 조회 로직
    *
    * @param command <br>
-   * Integer pageSize : 조회하고 싶은 일간 인기 질문글 개수 (default = 30)
-   *
+   *                Integer pageSize : 조회하고 싶은 일간 인기 질문글 개수 (default = 30)
    * @return
    */
   @Transactional(readOnly = true)
@@ -147,8 +150,7 @@ public class PopularPostService {
    * 캐시된 주간 인기 질문글 조회 로직
    *
    * @param command <br>
-   * Integer pageSize : 조회하고 싶은 주간 인기 질문글 개수 (default = 30)
-   *
+   *                Integer pageSize : 조회하고 싶은 주간 인기 질문글 개수 (default = 30)
    * @return
    */
   @Transactional(readOnly = true)
@@ -173,25 +175,46 @@ public class PopularPostService {
         .build();
   }
 
-  // 캐시된 일간 자료 인기글 가져오기 TODO: 인기 자료글 로직 수정
+  // 캐시된 일간 자료 인기글 가져오기
   @Transactional(readOnly = true)
   @Cacheable(value = DOCUMENT_POST_CACHE_VALUE, key = DAILY_DOCUMENT_POSTS_KEY)
-  public DocumentDto getDailyPopularDocumentPosts() {
-    LocalDateTime yesterday = LocalDateTime.now().minusDays(1);
+  public DocumentDto getDailyPopularDocumentPosts(DocumentCommand command) {
+
+    Pageable pageable = PageRequest.of(
+        command.getPageNumber(),
+        command.getPageSize(),
+        Sort.by("dailyScore").descending()
+    );
+
+    Page<DocumentPost> documentPostsPage = documentPostRepository.findByCreatedDateAfterOrderByDailyScoreDesc(
+//        LocalDateTime.now().minusDays(1),
+        LocalDateTime.now().minusYears(5), // 서버에 과부하 대비 코드
+        pageable
+    );
+
     return DocumentDto.builder()
-        .documentPosts(documentPostRepository
-            .findTop30ByOrderByDailyScoreDescAndCreatedDateAfter(yesterday))
+        .documentPostsPage(documentPostsPage)
         .build();
   }
 
-  // 캐시된 주간 자료 인기글 가져오기 TODO: 인기 자료글 로직 수정
+  // 캐시된 주간 자료 인기글 가져오기
   @Transactional(readOnly = true)
   @Cacheable(value = DOCUMENT_POST_CACHE_VALUE, key = WEEKLY_DOCUMENT_POSTS_KEY)
-  public DocumentDto getWeeklyPopularDocumentPosts() {
-    LocalDateTime lastWeek = LocalDateTime.now().minusWeeks(1);
+  public DocumentDto getWeeklyPopularDocumentPosts(DocumentCommand command) {
+    Pageable pageable = PageRequest.of(
+        command.getPageNumber(),
+        command.getPageSize(),
+        Sort.by("weeklyScore").descending()
+    );
+
+    Page<DocumentPost> documentPostsPage = documentPostRepository.findByCreatedDateAfterOrderByWeeklyScoreDesc(
+//        LocalDateTime.now().minusDays(1),
+        LocalDateTime.now().minusYears(5), // 서버에 과부하 대비 코드
+        pageable
+    );
+
     return DocumentDto.builder()
-        .documentPosts(documentPostRepository
-            .findTop30ByOrderByWeeklyScoreDescAndCreatedDateAfter(lastWeek))
+        .documentPostsPage(documentPostsPage)
         .build();
   }
 

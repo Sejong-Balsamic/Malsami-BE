@@ -10,7 +10,6 @@ import java.util.UUID;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
-import lombok.NoArgsConstructor;
 import lombok.Setter;
 import lombok.ToString;
 import org.springframework.web.multipart.MultipartFile;
@@ -19,9 +18,13 @@ import org.springframework.web.multipart.MultipartFile;
 @Getter
 @Setter
 @ToString
-@NoArgsConstructor
 @AllArgsConstructor
 public class QuestionCommand {
+  // 2024.11.15 : SUHSAECHAN : 페이지 기본갑 성정
+  public QuestionCommand() {
+    this.pageNumber = 0;
+    this.pageSize = 30;
+  }
 
   private UUID postId; // 질문, 답변
   private UUID memberId; // 질문, 답변
@@ -36,9 +39,9 @@ public class QuestionCommand {
   private ContentType contentType;
   private Boolean isPrivate; // 질문, 답변
   @Schema(defaultValue = "0")
-  private Integer pageNumber = 0; // n번째 페이지 조회
+  private Integer pageNumber;
   @Schema(defaultValue = "30")
-  private Integer pageSize = 30; // n개의 데이터 조회
+  private Integer pageSize;
 
   // 핕터링 파라미터
   private Faculty faculty; // 단과대별 조회 (필터링)
