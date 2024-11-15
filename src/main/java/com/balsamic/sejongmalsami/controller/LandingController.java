@@ -47,13 +47,14 @@ public class LandingController implements LandingControllerDocs {
   @LogMonitoringInvocation
   public ResponseEntity<DocumentDto> getDailyPopularDocumentPost(
       @ModelAttribute DocumentCommand command) {
-    return ResponseEntity.ok(popularPostService.getDailyPopularDocumentPosts());
+    return ResponseEntity.ok(popularPostService.getDailyPopularDocumentPosts(command));
   }
 
   @Override
   @PostMapping(value = "/popular/document/weekly", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
   @LogMonitoringInvocation
-  public ResponseEntity<DocumentDto> getWeeklyPopularDocumentPost(DocumentCommand command) {
-    return ResponseEntity.ok(popularPostService.getWeeklyPopularDocumentPosts());
+  public ResponseEntity<DocumentDto> getWeeklyPopularDocumentPost(
+      @ModelAttribute DocumentCommand command) {
+    return ResponseEntity.ok(popularPostService.getWeeklyPopularDocumentPosts(command));
   }
 }

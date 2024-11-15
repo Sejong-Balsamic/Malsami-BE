@@ -18,13 +18,11 @@ public interface DocumentPostRepository extends JpaRepository<DocumentPost, UUID
   @Query("SELECT p FROM DocumentPost p WHERE p.createdDate >= :startDate")
   List<DocumentPost> findDocumentPostsAfter(LocalDateTime startDate);
 
-  // 일간 인기글 상위 30개 조회
-  @Query("SELECT d FROM DocumentPost d WHERE d.createdDate > :yesterday ORDER BY d.dailyScore DESC")
-  List<DocumentPost> findTop30ByOrderByDailyScoreDescAndCreatedDateAfter(@Param("yesterday") LocalDateTime yesterday);
+  // 일간 인기글 페이징 조회 (dailyScore 기준 내림차순)
+  Page<DocumentPost> findByCreatedDateAfterOrderByDailyScoreDesc(LocalDateTime startDate, Pageable pageable);
 
-  // 주간 인기글 상위 30개 조회
-  @Query("SELECT d FROM DocumentPost d WHERE d.createdDate > :lastWeek ORDER BY d.weeklyScore DESC")
-  List<DocumentPost> findTop30ByOrderByWeeklyScoreDescAndCreatedDateAfter(@Param("lastWeek") LocalDateTime lastWeek);
+  // 주간 인기글 페이징 조회 (weeklyScore 기준 내림차순)
+  Page<DocumentPost> findByCreatedDateAfterOrderByWeeklyScoreDesc(LocalDateTime startDate, Pageable pageable);
 
 //  @Query(
 //      value = "SELECT DISTINCT p.* FROM document_post p " +
