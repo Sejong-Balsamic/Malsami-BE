@@ -40,4 +40,16 @@ public class Subject extends BaseEntity {
 
   // 전체 자료게시글 개수
   private Long totalDocumentScore;
+
+  // 일간 질문게시글 개수
+  private Long dailyQuestionScore;
+
+  // 주간 질문게시글 개수
+  private Long weeklyQuestionScore;
+
+  // 달간 질문게시글 개수
+  private Long monthlyQuestionScore;
+
+  // 전체 질문게시글 개수
+  private Long totalQuestionScore;
 }
