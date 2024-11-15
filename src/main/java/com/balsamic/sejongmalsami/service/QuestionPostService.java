@@ -52,16 +52,14 @@ public class QuestionPostService {
   private final YeopjeonCalculator yeopjeonCalculator;
   private final ExpService expService;
   private final QuestionPostCustomTagRepository questionPostCustomTagRepository;
-
-
-
-  //FIXME: 임시 사용 : MOCK CUSTOM TAGS 생성
-  private final Faker faker = new Faker(new Locale("ko"));
   private final AnswerPostRepository answerPostRepository;
   private final QuestionBoardLikeService questionBoardLikeService;
 
+  //FIXME: 임시 사용 : MOCK CUSTOM TAGS 생성
+  private final Faker faker = new Faker(new Locale("ko"));
+
   /**
-   * <h3>질문 글 등록 로직
+   * <h3>질문 글 등록 로직</h3>
    * <p>작성자 엽전 100냥 감소
    * <p>작성자 경험치 증가
    * @param command
@@ -88,9 +86,10 @@ public class QuestionPostService {
       throw new CustomException(ErrorCode.QUESTION_INVALID_REWARD_YEOPJEON);
     }
 
-    // {질문글 등록 시 소모엽전 + 엽전 현싱금} 보다 보유 엽전량이 적을 시 오류 발생
+    // {질문글 등록 시 소모엽전 + 엽전 현상금} 보다 보유 엽전량이 적을 시 오류 발생
     Yeopjeon yeopjeon = yeopjeonService.findMemberYeopjeon(member);
-    if (yeopjeon.getYeopjeon() < command.getRewardYeopjeon() + -(yeopjeonCalculator.calculateYeopjeon(YeopjeonAction.CREATE_QUESTION_POST))) {
+    if (yeopjeon.getYeopjeon() < command.getRewardYeopjeon()
+        + -yeopjeonCalculator.calculateYeopjeon(YeopjeonAction.CREATE_QUESTION_POST)) {
       log.error("사용자: {} 의 엽전이 부족합니다.", member.getStudentId());
       log.error("현재 보유 엽전량: {}, 질문글 등록시 필요 엽전량: {}, 엽전 현상금 설정량: {}",
           yeopjeon.getYeopjeon(),
@@ -157,7 +156,9 @@ public class QuestionPostService {
           .uploadMediaFiles(savedPost.getQuestionPostId(), command.getMediaFiles());
 
       // 첫번째 이미지를 썸네일로 설정
-      questionPost.addThumbnail(mediaFiles.get(0).getFileUrl());
+      if (!mediaFiles.isEmpty()) {
+        questionPost.addThumbnail(mediaFiles.get(0).getFileUrl());
+      }
     }
 
     // 질문 글 등록 시 엽전 100냥 감소
@@ -196,7 +197,10 @@ public class QuestionPostService {
 
     for (int i = 0; i < tagCount; i++) {
       // 특수문자를 제거한 후, 10자 이하인 문장만 추가
-      String sentence = faker.lorem().sentence().substring(0,10);
+      String sentence = faker.lorem().sentence();
+      if (sentence.length() > 10) {
+        sentence = sentence.substring(0, 10);
+      }
       String cleanedSentence = sentence.replaceAll("[^\\p{IsAlphabetic}\\p{IsDigit}\\s]", "").trim();
       customTags.add(cleanedSentence);
     }
@@ -260,25 +264,23 @@ public class QuestionPostService {
   }
 
   /**
-   * <h3>질문글 필터링 로직
+   * <h3>질문글 필터링 로직</h3>
    * <p>1. 교과목명 기준 필터링 - String subject (ex. 컴퓨터구조, 인터렉티브 디자인)
    * <p>3. 정적 태그 필터링 - QuestionPresetTag (최대 2개)
    * <p>4. 단과대별 필터링 - Faculty (ex. 공과대학, 예체는대학)
    * <p>5. 채택 상태 필터링 - ChaetaekStatus (전체, 채택, 미채택)
    * <br><br>
-   * <h3>정렬 로직 (SortType)
+   * <h3>정렬 로직 (SortType)</h3>
    * <p>최신순, 좋아요순, 엽전 현상금순, 조회순
    *
    * @param command
    * <p>String subject
-   * <p>Integer minYeopjeon
-   * <p>Integer maxYeopjeon
    * <p>List<QuestionPresetTag> questionPresetTags
    * <p>Faculty
    * <p>ChaetaekStatus
    * <p>SortType
    *
-   * @return Page questionPosts
+   * @return Page<QuestionPost> questionPosts
    */
   @Transactional(readOnly = true)
   public QuestionDto filteredQuestions(QuestionCommand command) {
@@ -298,6 +300,8 @@ public class QuestionPostService {
     if (command.getChaetaekStatus() == null) {
       chaetaekStatus = ChaetaekStatus.ALL;
       log.info("chaetaekStatus가 null이므로 기본값인 ALL로 설정합니다.");
+    } else {
+      chaetaekStatus = command.getChaetaekStatus();
     }
 
     // 정렬 기준 (default: 최신순)
@@ -314,11 +318,12 @@ public class QuestionPostService {
 
     Pageable pageable = PageRequest.of(command.getPageNumber(), command.getPageSize(), sort);
 
+    // chaetaekStatus를 String으로 변환하여 전달
     Page<QuestionPost> posts = questionPostRepository.findFilteredQuestions(
         command.getSubject(),
         command.getFaculty(),
         command.getQuestionPresetTags(),
-        command.getChaetaekStatus(),
+        chaetaekStatus.name(), // Enum을 String으로 변환하여 전달
         pageable
     );
 
