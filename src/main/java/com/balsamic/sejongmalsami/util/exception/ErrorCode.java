@@ -25,7 +25,7 @@ public enum ErrorCode {
 
   SEJONG_AUTH_DATA_FETCH_ERROR(HttpStatus.FORBIDDEN, "세종대학교 학생 데이터를 가져오는 데 실패했습니다."),
 
-  MISSING_REFRESH_TOKEN(HttpStatus.BAD_REQUEST, "쿠키에서 리프레시 토큰을 찾을 수 없습니다."),
+  MISSING_REFRESH_TOKEN(HttpStatus.FORBIDDEN, "쿠키에서 리프레시 토큰을 찾을 수 없습니다."),
 
   INVALID_REFRESH_TOKEN(HttpStatus.UNAUTHORIZED, "리프레시 토큰이 유효하지 않거나 만료되었습니다."),
 
