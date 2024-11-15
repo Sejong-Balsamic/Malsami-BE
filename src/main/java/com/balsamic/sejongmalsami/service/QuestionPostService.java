@@ -2,6 +2,7 @@ package com.balsamic.sejongmalsami.service;
 
 import com.balsamic.sejongmalsami.object.QuestionCommand;
 import com.balsamic.sejongmalsami.object.QuestionDto;
+import com.balsamic.sejongmalsami.object.constants.ChaetaekStatus;
 import com.balsamic.sejongmalsami.object.constants.ExpAction;
 import com.balsamic.sejongmalsami.object.constants.Faculty;
 import com.balsamic.sejongmalsami.object.constants.QuestionPresetTag;
@@ -261,10 +262,9 @@ public class QuestionPostService {
   /**
    * <h3>질문글 필터링 로직
    * <p>1. 교과목명 기준 필터링 - String subject (ex. 컴퓨터구조, 인터렉티브 디자인)
-   * <p>2. 엽전 현상금 범위 필터링 - Integer minYeopjeon, Integer maxYeopjeon
    * <p>3. 정적 태그 필터링 - QuestionPresetTag (최대 2개)
    * <p>4. 단과대별 필터링 - Faculty (ex. 공과대학, 예체는대학)
-   * <p>5. 아직 채택되지 않은 질문 글 필터링 - Boolean viewNotChaetaek
+   * <p>5. 채택 상태 필터링 - ChaetaekStatus (전체, 채택, 미채택)
    * <br><br>
    * <h3>정렬 로직 (SortType)
    * <p>최신순, 좋아요순, 엽전 현상금순, 조회순
@@ -275,22 +275,29 @@ public class QuestionPostService {
    * <p>Integer maxYeopjeon
    * <p>List<QuestionPresetTag> questionPresetTags
    * <p>Faculty
-   * <p>Boolean viewNotChaetaek
+   * <p>ChaetaekStatus
    * <p>SortType
    *
    * @return Page questionPosts
    */
-  @Transactional
+  @Transactional(readOnly = true)
   public QuestionDto filteredQuestions(QuestionCommand command) {
 
-    // 과목명이 비어있는경우 null 설정 (비어있는 경우 쿼리문에서 오류 발생)
-    if (command.getSubject().isEmpty()) {
+    // 과목명이 비어있는 경우 null 설정 (비어있는 경우 쿼리문에서 오류 발생)
+    if (command.getSubject() != null && command.getSubject().isEmpty()) {
       command.setSubject(null);
     }
 
-    // 정적태그 List 사이즈가 0인경우 null로 설정 (비어있는 list의 경우 쿼리문에서 오류 발생)
-    if (command.getQuestionPresetTags().isEmpty()) {
+    // 정적태그 List 사이즈가 0인 경우 null로 설정 (비어있는 list의 경우 쿼리문에서 오류 발생)
+    if (command.getQuestionPresetTags() != null && command.getQuestionPresetTags().isEmpty()) {
       command.setQuestionPresetTags(null);
+    }
+
+    // ChaetaekStatus 기본값 ALL 처리
+    ChaetaekStatus chaetaekStatus;
+    if (command.getChaetaekStatus() == null) {
+      chaetaekStatus = ChaetaekStatus.ALL;
+      log.info("chaetaekStatus가 null이므로 기본값인 ALL로 설정합니다.");
     }
 
     // 정렬 기준 (default: 최신순)
@@ -307,14 +314,13 @@ public class QuestionPostService {
 
     Pageable pageable = PageRequest.of(command.getPageNumber(), command.getPageSize(), sort);
 
-    Page<QuestionPost> posts = questionPostRepository
-        .findFilteredQuestions(command.getSubject(),
-            command.getMinYeopjeon(),
-            command.getMaxYeopjeon(),
-            command.getFaculty(),
-            command.getQuestionPresetTags(),
-            command.getViewNotChaetaek(),
-            pageable);
+    Page<QuestionPost> posts = questionPostRepository.findFilteredQuestions(
+        command.getSubject(),
+        command.getFaculty(),
+        command.getQuestionPresetTags(),
+        command.getChaetaekStatus(),
+        pageable
+    );
 
     return QuestionDto.builder()
         .questionPostsPage(posts)

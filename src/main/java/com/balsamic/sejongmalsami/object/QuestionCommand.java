@@ -1,5 +1,6 @@
 package com.balsamic.sejongmalsami.object;
 
+import com.balsamic.sejongmalsami.object.constants.ChaetaekStatus;
 import com.balsamic.sejongmalsami.object.constants.ContentType;
 import com.balsamic.sejongmalsami.object.constants.Faculty;
 import com.balsamic.sejongmalsami.object.constants.QuestionPresetTag;
@@ -48,5 +49,9 @@ public class QuestionCommand {
   private Integer minYeopjeon; // 최소 엽전 (필터링)
   private Integer maxYeopjeon; // 최대 엽전 (필터링)
   private SortType sortType; // 정렬 타입 (최신순, 좋아요순, 엽전현상금순, 조회순)
-  private Boolean viewNotChaetaek; // 채택 안된 글
+  private ChaetaekStatus chaetaekStatus; // 채택여부 (전체, 채갵, 미채택)
+
+  //FIXME: 삭제되어야할 필터링 파라미터
+//  private Boolean viewNotChaetaek; // 채택 안된 글
+
 }
