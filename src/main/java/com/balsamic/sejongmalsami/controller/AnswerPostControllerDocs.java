@@ -68,6 +68,11 @@ public interface AnswerPostControllerDocs {
 
   @ApiChangeLogs({
       @ApiChangeLog(
+          date = "2024.11.16",
+          author = Author.SUHSAECHAN,
+          description = "질문 게시글도 채택여부 업데이트 및 수정 저장"
+      ),
+      @ApiChangeLog(
           date = "2024.10.29",
           author = Author.BAEKJIHOON,
           description = "답변 채택"
