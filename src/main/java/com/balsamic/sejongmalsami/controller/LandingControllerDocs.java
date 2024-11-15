@@ -126,6 +126,11 @@ public interface LandingControllerDocs {
 
   @ApiChangeLogs({
       @ApiChangeLog(
+          date = "2024.11.15",
+          author = Author.SUHSAECHAN,
+          description = "자료 게시글 최근 5년간 글중에 dailyScore 큰 순으로 Pageable 반환으로 수정"
+      ),
+      @ApiChangeLog(
           date = "2024.10.22",
           author = Author.BAEKJIHOON,
           description = "랜딩페이지 인기글 init"
@@ -158,6 +163,11 @@ public interface LandingControllerDocs {
       DocumentCommand command);
 
   @ApiChangeLogs({
+      @ApiChangeLog(
+          date = "2024.11.15",
+          author = Author.SUHSAECHAN,
+          description = "json형식 버그 수정, 자료 게시글 최근 5년간 글중에 weeklyScore 큰 순으로 Pageable 반환으로 수정"
+      ),
       @ApiChangeLog(
           date = "2024.10.22",
           author = Author.BAEKJIHOON,

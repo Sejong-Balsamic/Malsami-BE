@@ -2,11 +2,11 @@ package com.balsamic.sejongmalsami.object;
 
 import com.balsamic.sejongmalsami.object.constants.DocumentType;
 import com.balsamic.sejongmalsami.object.postgres.Member;
+import io.swagger.v3.oas.annotations.media.Schema;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
 import lombok.Getter;
-import lombok.NoArgsConstructor;
 import lombok.Setter;
 import lombok.ToString;
 import org.springframework.web.multipart.MultipartFile;
@@ -14,8 +14,12 @@ import org.springframework.web.multipart.MultipartFile;
 @ToString
 @Getter
 @Setter
-@NoArgsConstructor
 public class DocumentCommand {
+  // 2024.11.15 : SUHSAECHAN : 페이지 기본갑 성정
+  public DocumentCommand() {
+    this.pageNumber = 0;
+    this.pageSize = 30;
+  }
 
   private UUID memberId; // 자료, 자료 요청
   private String title; // 자료, 자료 요청
@@ -28,8 +32,10 @@ public class DocumentCommand {
   private UUID documentPostId;
   private Member member;
 
-  private Integer pageNumber = 0;
-  private Integer pageSize = 30;
+  @Schema(defaultValue = "0")
+  private Integer pageNumber;
+  @Schema(defaultValue = "30")
+  private Integer pageSize;
   private String sort; // 최신순, 좋아요순
 
 

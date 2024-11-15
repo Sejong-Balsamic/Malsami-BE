@@ -90,6 +90,11 @@ public interface DocumentPostControllerDocs {
 
   @ApiChangeLogs({
       @ApiChangeLog(
+          date = "2024.11.15",
+          author = Author.SUHSAECHAN,
+          description = "자료 게시글 최근 5년간 글중에 dailyScore 큰 순으로 Pageable 반환으로 수정"
+      ),
+      @ApiChangeLog(
           date = "2024.10.15",
           author = Author.BAEKJIHOON,
           description = "dto 필드 변경에 따른 반환값 수정"
@@ -127,6 +132,11 @@ public interface DocumentPostControllerDocs {
       DocumentCommand command);
 
   @ApiChangeLogs({
+      @ApiChangeLog(
+          date = "2024.11.15",
+          author = Author.SUHSAECHAN,
+          description = "자료 게시글 최근 5년간 글중에 weeklyScore 큰 순으로 Pageable 반환으로 수정"
+      ),
       @ApiChangeLog(
           date = "2024.10.15",
           author = Author.BAEKJIHOON,
