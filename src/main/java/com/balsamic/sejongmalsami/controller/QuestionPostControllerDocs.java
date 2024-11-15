@@ -13,6 +13,11 @@ public interface QuestionPostControllerDocs {
 
   @ApiChangeLogs({
       @ApiChangeLog(
+          date = "2024.11.15",
+          author = Author.SUHSAECHAN,
+          description = "(임시) ContentType 고려안함. QuestionPost의 comment 수 증가"
+      ),
+      @ApiChangeLog(
           date = "2024.10.15",
           author = Author.BAEKJIHOON,
           description = "dto 필드 변경에 따른 반환값 수정"
