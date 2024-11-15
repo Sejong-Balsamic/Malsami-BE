@@ -1,5 +1,10 @@
 package com.balsamic.sejongmalsami.service;
 
+import static com.balsamic.sejongmalsami.util.LogUtils.lineLog;
+import static com.balsamic.sejongmalsami.util.LogUtils.lineLogDebug;
+import static com.balsamic.sejongmalsami.util.LogUtils.superLog;
+import static com.balsamic.sejongmalsami.util.LogUtils.superLogDebug;
+
 import com.balsamic.sejongmalsami.object.QuestionCommand;
 import com.balsamic.sejongmalsami.object.QuestionDto;
 import com.balsamic.sejongmalsami.object.constants.ExpAction;
@@ -302,12 +307,14 @@ public class QuestionPostService {
             pageable);
 
     // TODO: 로그 추후 이쁘게 변경할 예정
-    log.info("!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!");
+    lineLog(null);
     log.info("개수: {}", posts.getNumberOfElements());
-    log.info("테스트 결과: {}", posts.getContent()
-        .stream().map(QuestionPost::getTitle)
-        .toList());
-    log.info("!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!");
+    superLog(posts);
+    lineLogDebug(null);
+    superLogDebug(posts);
+
+
+    lineLog(null);
 
     return QuestionDto.builder()
         .questionPostsPage(posts)
