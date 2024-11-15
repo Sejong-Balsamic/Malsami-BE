@@ -7,11 +7,14 @@ import com.balsamic.sejongmalsami.object.constants.Faculty;
 import com.balsamic.sejongmalsami.object.constants.QuestionPresetTag;
 import com.balsamic.sejongmalsami.object.constants.SortType;
 import com.balsamic.sejongmalsami.object.constants.YeopjeonAction;
+import com.balsamic.sejongmalsami.object.postgres.AnswerPost;
 import com.balsamic.sejongmalsami.object.postgres.Course;
 import com.balsamic.sejongmalsami.object.postgres.MediaFile;
 import com.balsamic.sejongmalsami.object.postgres.Member;
 import com.balsamic.sejongmalsami.object.postgres.QuestionPost;
 import com.balsamic.sejongmalsami.object.postgres.Yeopjeon;
+import com.balsamic.sejongmalsami.repository.mongo.QuestionPostCustomTagRepository;
+import com.balsamic.sejongmalsami.repository.postgres.AnswerPostRepository;
 import com.balsamic.sejongmalsami.repository.postgres.CourseRepository;
 import com.balsamic.sejongmalsami.repository.postgres.MemberRepository;
 import com.balsamic.sejongmalsami.repository.postgres.QuestionPostRepository;
@@ -20,8 +23,10 @@ import com.balsamic.sejongmalsami.util.exception.CustomException;
 import com.balsamic.sejongmalsami.util.exception.ErrorCode;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Locale;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import net.datafaker.Faker;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
@@ -43,6 +48,12 @@ public class QuestionPostService {
   private final YeopjeonService yeopjeonService;
   private final YeopjeonCalculator yeopjeonCalculator;
   private final ExpService expService;
+  private final QuestionPostCustomTagRepository questionPostCustomTagRepository;
+
+
+  //FIXME: 임시 사용 : MOCK CUSTOM TAGS 생성
+  private final Faker faker = new Faker(new Locale("ko"));
+  private final AnswerPostRepository answerPostRepository;
 
   /**
    * <h3>질문 글 등록 로직
@@ -164,9 +175,25 @@ public class QuestionPostService {
         .orElseThrow(() -> new CustomException(ErrorCode.QUESTION_POST_NOT_FOUND));
     questionPost.increaseViewCount();
     log.info("제목: {}, 조회수: {}", questionPost.getTitle(), questionPost.getViewCount());
+    questionPostRepository.save(questionPost);
+
+    List<AnswerPost> answerPost = answerPostRepository.findAllByQuestionPost(questionPost).orElse(null);
+
+    //FIXME : 임시 커스텀 태그 생성 : DB 에서 불러와야합니다
+    List<String> customTags = new ArrayList<>();
+    int tagCount = faker.number().numberBetween(1, 5);
+
+    for (int i = 0; i < tagCount; i++) {
+      // 특수문자를 제거한 후, 10자 이하인 문장만 추가
+      String sentence = faker.lorem().sentence().substring(0,10);
+      String cleanedSentence = sentence.replaceAll("[^\\p{IsAlphabetic}\\p{IsDigit}\\s]", "").trim();
+      customTags.add(cleanedSentence);
+    }
 
     return QuestionDto.builder()
-        .questionPost(questionPostRepository.save(questionPost))
+        .questionPost(questionPost)
+        .answerPosts(answerPost)
+        .customTags(customTags)
         .build();
   }
 
