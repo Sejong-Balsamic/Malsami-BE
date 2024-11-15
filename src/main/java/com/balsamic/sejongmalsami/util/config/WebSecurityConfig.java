@@ -62,15 +62,30 @@ public class WebSecurityConfig {
         .authorizeHttpRequests((authorize) -> authorize
             .requestMatchers(SecurityUrls.AUTH_WHITELIST.toArray(new String[0])).permitAll()
             .requestMatchers(SecurityUrls.ADMIN_PATHS.toArray(new String[0])).hasRole("ADMIN")
-            .requestMatchers(HttpMethod.POST, "/api/course/upload").hasRole("USER")
-            .requestMatchers(HttpMethod.POST, "/api/member/my-page").hasRole("USER")
-            .requestMatchers(HttpMethod.POST, "/api/question/post").hasRole("USER")
-            .requestMatchers(HttpMethod.POST, "/api/question/get").hasRole("USER")
-            .requestMatchers(HttpMethod.POST, "/api/question/get/all").hasRole("USER")
-            .requestMatchers(HttpMethod.POST, "/api/question/get/unanswered").hasRole("USER")
-            .requestMatchers(HttpMethod.POST, "/api/question/get/filtered-posts").hasRole("USER")
-            .requestMatchers(HttpMethod.POST, "/api/question/popular/daily").hasRole("USER")
-            .requestMatchers(HttpMethod.POST, "/api/question/popular/weekly").hasRole("USER")
+            // 회원
+            .requestMatchers(HttpMethod.POST, "/api/member/my-page").hasAnyRole("ADMIN", "MEMBER")
+            // 교과목명
+            .requestMatchers(HttpMethod.POST, "/api/course/upload").hasAnyRole("ADMIN", "MEMBER")
+            // 질문
+            .requestMatchers(HttpMethod.POST, "/api/question/post").hasAnyRole("ADMIN", "MEMBER")
+            .requestMatchers(HttpMethod.POST, "/api/question/get").hasAnyRole("ADMIN", "MEMBER")
+            .requestMatchers(HttpMethod.POST, "/api/question/get/all").hasAnyRole("ADMIN", "MEMBER")
+            .requestMatchers(HttpMethod.POST, "/api/question/get/unanswered").hasAnyRole("ADMIN", "MEMBER")
+            .requestMatchers(HttpMethod.POST, "/api/question/get/filtered-posts").hasAnyRole("ADMIN", "MEMBER")
+            .requestMatchers(HttpMethod.POST, "/api/question/popular/daily").hasAnyRole("ADMIN", "MEMBER")
+            .requestMatchers(HttpMethod.POST, "/api/question/popular/weekly").hasAnyRole("ADMIN", "MEMBER")
+            // 자료
+            .requestMatchers(HttpMethod.POST, "/api/document/post").hasAnyRole("ADMIN", "MEMBER")
+            .requestMatchers(HttpMethod.POST, "/api/document/popular/daily").hasAnyRole("ADMIN", "MEMBER")
+            .requestMatchers(HttpMethod.POST, "/api/document/popular/weekly").hasAnyRole("ADMIN", "MEMBER")
+            .requestMatchers(HttpMethod.POST, "/api/document/filter").hasAnyRole("ADMIN", "MEMBER")
+            // 댓글
+            .requestMatchers(HttpMethod.POST, "/api/comment/post").hasAnyRole("ADMIN", "MEMBER")
+            .requestMatchers(HttpMethod.POST, "/api/comment/get/all").hasAnyRole("ADMIN", "MEMBER")
+            // 좋아요
+            .requestMatchers(HttpMethod.POST, "/api/question/board/like").hasAnyRole("ADMIN", "MEMBER")
+            .requestMatchers(HttpMethod.POST, "/api/likes/comment").hasAnyRole("ADMIN", "MEMBER")
+            .requestMatchers(HttpMethod.POST, "/api/likes/question/board").hasAnyRole("ADMIN", "MEMBER")
             .anyRequest().authenticated()
         )
         .logout(logout -> logout
