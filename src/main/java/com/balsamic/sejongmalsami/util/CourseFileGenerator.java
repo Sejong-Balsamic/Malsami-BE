@@ -1,5 +1,7 @@
 package com.balsamic.sejongmalsami.util;
 
+import static com.balsamic.sejongmalsami.util.LogUtils.lineLog;
+
 import com.balsamic.sejongmalsami.object.constants.FileStatus;
 import com.balsamic.sejongmalsami.object.constants.SystemType;
 import com.balsamic.sejongmalsami.object.postgres.CourseFile;
@@ -42,7 +44,7 @@ public class CourseFileGenerator {
    * 교과목 파일을 초기화합니다.
    */
   public void initCourse() {
-    log.info("============== Course File Generator Initialization ==============");
+    lineLog("Course 초기화 시작");
     log.info("Course 교과목 XLSX 파일 처리 시작 = {}", LocalDateTime.now());
 
     Path coursesPath;
@@ -116,14 +118,14 @@ public class CourseFileGenerator {
 
     LocalDateTime endTime = LocalDateTime.now();
     Duration overallDuration = Duration.between(overallStartTime, endTime);
-    log.info("=========== Course File 처리 완료 =============");
+    lineLog("Course 실행 결과");
     log.info("처리 종료 시간: {}", endTime);
     log.info("총 소요 시간: {}초", overallDuration.getSeconds());
     log.info("성공적으로 처리된 파일 수: {}", successCount);
     log.info("실패한 파일 수: {}", failCount);
     log.info("패스한 파일 수: {}", passCount);
     log.info("추가된 교과목 수: {}", totalAddedCourses);
-    log.info("=============================================");
+    lineLog("Course 처리 완료");
   }
 
   /**
@@ -131,7 +133,7 @@ public class CourseFileGenerator {
    * 기존 Course 엔티티에서 중복 없는 subject 이름을 추출하여 Subject 테이블에 저장합니다.
    */
   public void initSubject() {
-    log.info("============== Subject Initializer ==============");
+    lineLog("Subject 확인 시작");
     log.info("중복 없는 교과목명 초기화 시작 = {}", LocalDateTime.now());
 
     // 중복 없는 교과목명 목록 조회
@@ -153,10 +155,10 @@ public class CourseFileGenerator {
       }
     }
 
-    log.info("=========== Subject Initializer 완료 =============");
+    lineLog("Subject 실행 결과");
     log.info("처리 종료 시간: {}", LocalDateTime.now());
     log.info("추가된 교과목 수: {}", addedSubjects);
-    log.info("=============================================");
+    lineLog("Subject 확인 종료");
   }
 
   /**
