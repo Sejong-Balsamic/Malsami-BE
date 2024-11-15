@@ -1,6 +1,5 @@
 package com.balsamic.sejongmalsami.repository.postgres;
 
-import com.balsamic.sejongmalsami.object.constants.ChaetaekStatus;
 import com.balsamic.sejongmalsami.object.constants.Faculty;
 import com.balsamic.sejongmalsami.object.constants.QuestionPresetTag;
 import com.balsamic.sejongmalsami.object.postgres.AnswerPost;
@@ -35,16 +34,16 @@ public interface QuestionPostRepository extends JpaRepository<QuestionPost, UUID
 
   // 아직 답변하지 않은 질문글 조회 및 단과대 필터링 (최신순)
   @Query("""
-      select q
-      from QuestionPost q
-      where (:faculty is null or :faculty member of q.faculties)
-      and (q.answerCount = 0)
-      """)
+        select q
+        from QuestionPost q
+        where (:faculty is null or :faculty member of q.faculties)
+        and (q.answerCount = 0)
+        """)
   Page<QuestionPost> findFilteredNotAnsweredQuestion(
       @Param("faculty") Faculty faculty,
       Pageable pageable);
 
-  // 과목 필터링 및 채택 상태 필터링
+  // 과목 및 채택 상태 필터링
   @Query("""
         select q
         from QuestionPost q
@@ -63,6 +62,6 @@ public interface QuestionPostRepository extends JpaRepository<QuestionPost, UUID
       @Param("subject") String subject,
       @Param("faculty") Faculty faculty,
       @Param("questionPresetTags") List<QuestionPresetTag> questionPresetTags,
-      @Param("chaetaekStatus") ChaetaekStatus chaetaekStatus,
+      @Param("chaetaekStatus") String chaetaekStatus,
       Pageable pageable);
 }
