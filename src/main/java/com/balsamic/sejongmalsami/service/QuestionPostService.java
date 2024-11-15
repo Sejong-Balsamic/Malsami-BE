@@ -125,6 +125,7 @@ public class QuestionPostService {
         .answerCount(0)
         .commentCount(0)
         .rewardYeopjeon(command.getRewardYeopjeon())
+        .isChaetaek(false)
         .dailyScore(0L)
         .weeklyScore(0L)
         .isPrivate(command.getIsPrivate() != null ? command.getIsPrivate() : false)
