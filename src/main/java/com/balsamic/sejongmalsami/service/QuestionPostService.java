@@ -1,10 +1,5 @@
 package com.balsamic.sejongmalsami.service;
 
-import static com.balsamic.sejongmalsami.util.LogUtils.lineLog;
-import static com.balsamic.sejongmalsami.util.LogUtils.lineLogDebug;
-import static com.balsamic.sejongmalsami.util.LogUtils.superLog;
-import static com.balsamic.sejongmalsami.util.LogUtils.superLogDebug;
-
 import com.balsamic.sejongmalsami.object.QuestionCommand;
 import com.balsamic.sejongmalsami.object.QuestionDto;
 import com.balsamic.sejongmalsami.object.constants.ExpAction;
@@ -18,6 +13,7 @@ import com.balsamic.sejongmalsami.object.postgres.MediaFile;
 import com.balsamic.sejongmalsami.object.postgres.Member;
 import com.balsamic.sejongmalsami.object.postgres.QuestionPost;
 import com.balsamic.sejongmalsami.object.postgres.Yeopjeon;
+import com.balsamic.sejongmalsami.repository.mongo.QuestionBoardLikeRepository;
 import com.balsamic.sejongmalsami.repository.mongo.QuestionPostCustomTagRepository;
 import com.balsamic.sejongmalsami.repository.postgres.AnswerPostRepository;
 import com.balsamic.sejongmalsami.repository.postgres.CourseRepository;
@@ -54,6 +50,7 @@ public class QuestionPostService {
   private final YeopjeonCalculator yeopjeonCalculator;
   private final ExpService expService;
   private final QuestionPostCustomTagRepository questionPostCustomTagRepository;
+  private final QuestionBoardLikeRepository questionBoardLikeRepository;
 
 
   //FIXME: 임시 사용 : MOCK CUSTOM TAGS 생성
@@ -128,6 +125,7 @@ public class QuestionPostService {
         .answerCount(0)
         .commentCount(0)
         .rewardYeopjeon(command.getRewardYeopjeon())
+        .isChaetaek(false)
         .dailyScore(0L)
         .weeklyScore(0L)
         .isPrivate(command.getIsPrivate() != null ? command.getIsPrivate() : false)
@@ -174,14 +172,20 @@ public class QuestionPostService {
 
   /* 특정 질문 글 조회 로직 (해당 글 조회 수 증가) */
   @Transactional
-  public QuestionDto findQuestionPost(QuestionCommand command) {
+  public QuestionDto getQuestionPost(QuestionCommand command) {
 
+    // 질문 게시글 조회
     QuestionPost questionPost = questionPostRepository.findById(command.getPostId())
         .orElseThrow(() -> new CustomException(ErrorCode.QUESTION_POST_NOT_FOUND));
+
+    // 조회수 증가
     questionPost.increaseViewCount();
     log.info("제목: {}, 조회수: {}", questionPost.getTitle(), questionPost.getViewCount());
+
+    // 변경사항 저장
     questionPostRepository.save(questionPost);
 
+    // 답변 조회 (없으면 null 반환)
     List<AnswerPost> answerPost = answerPostRepository.findAllByQuestionPost(questionPost).orElse(null);
 
     //FIXME : 임시 커스텀 태그 생성 : DB 에서 불러와야합니다
@@ -194,6 +198,10 @@ public class QuestionPostService {
       String cleanedSentence = sentence.replaceAll("[^\\p{IsAlphabetic}\\p{IsDigit}\\s]", "").trim();
       customTags.add(cleanedSentence);
     }
+    //TODO: 커스텀 태그 조회
+
+    // 좋아요 누른 회원인지 확인
+
 
     return QuestionDto.builder()
         .questionPost(questionPost)
@@ -305,16 +313,6 @@ public class QuestionPostService {
             command.getQuestionPresetTags(),
             command.getViewNotChaetaek(),
             pageable);
-
-    // TODO: 로그 추후 이쁘게 변경할 예정
-    lineLog(null);
-    log.info("개수: {}", posts.getNumberOfElements());
-    superLog(posts);
-    lineLogDebug(null);
-    superLogDebug(posts);
-
-
-    lineLog(null);
 
     return QuestionDto.builder()
         .questionPostsPage(posts)

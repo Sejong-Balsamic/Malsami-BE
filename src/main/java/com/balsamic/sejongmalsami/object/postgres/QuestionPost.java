@@ -99,6 +99,10 @@ public class QuestionPost extends BasePost {
   @Builder.Default
   private Integer rewardYeopjeon = 0;
 
+  // 게시글 답변 채택 여부
+  @Builder.Default
+  private Boolean isChaetaek = false;
+
   // 내 정보 비공개 여부
   @Builder.Default
   private Boolean isPrivate = false;
@@ -145,5 +149,10 @@ public class QuestionPost extends BasePost {
   // 질문 글 썸네일 설정
   public void addThumbnail(String thumbnail) {
     this.thumbnail = thumbnail;
+  }
+
+  // 답변 채택
+  public void markAsChaetaek() {
+    isChaetaek = true;
   }
 }

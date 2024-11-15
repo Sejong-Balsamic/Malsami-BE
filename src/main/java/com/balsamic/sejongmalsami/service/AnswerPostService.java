@@ -167,7 +167,7 @@ public class AnswerPostService {
       );
     }
 
-    // 답변 채택
+    // 답변 채택 true 변경
     answerPost.markAsChaetaek();
     log.info("답변글: {} 채택되었습니다. 해당 답변글 작성자: {}",
         answerPost.getAnswerPostId(), answerMember.getStudentId());
@@ -214,10 +214,16 @@ public class AnswerPostService {
 
     }
 
-    // 답변 글 채택여부 true 변경
-    // 변경사항 저장 및 반환
+    // 질문 채택여부 true 수정
+    questionPost.markAsChaetaek();
+
+    // 질문게시글, 채택된 답변 저장
+    AnswerPost updatedPost = answerPostRepository.save(answerPost);
+    QuestionPost updatedQuestionPost = questionPostRepository.save(questionPost);
+
     return QuestionDto.builder()
-        .answerPost(answerPostRepository.save(answerPost))
+        .questionPost(updatedQuestionPost)
+        .answerPost(updatedPost)
         .build();
   }
 
