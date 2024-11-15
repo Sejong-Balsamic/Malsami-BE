@@ -107,6 +107,11 @@ public interface QuestionPostControllerDocs {
 
   @ApiChangeLogs({
       @ApiChangeLog(
+          date = "2024.11.16",
+          author = Author.SUHSAECHAN,
+          description = "게시글 조회시 isChaetaek"
+      ),
+      @ApiChangeLog(
           date = "2024.11.15",
           author = Author.SUHSAECHAN,
           description = "답변 반환 로직 추가, 가짜 CUSTOM TAG 반환 로직 추가"
@@ -143,6 +148,7 @@ public interface QuestionPostControllerDocs {
           """
   )
   ResponseEntity<QuestionDto> getQuestionPost(
+      CustomUserDetails customUserDetails,
       QuestionCommand command);
 
   @ApiChangeLogs({
