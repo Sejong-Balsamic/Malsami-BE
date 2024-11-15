@@ -244,6 +244,11 @@ public interface QuestionPostControllerDocs {
   @ApiChangeLogs({
       @ApiChangeLog(
           date = "2024.11.6",
+          author = Author.SUHSAECHAN,
+          description = "필터링 로직 수정, 현상금 범위 삭제, 채택여부 로직 변경"
+      ),
+      @ApiChangeLog(
+          date = "2024.11.6",
           author = Author.BAEKJIHOON,
           description = "파라미터 수정"
       ),
@@ -263,10 +268,6 @@ public interface QuestionPostControllerDocs {
           **입력 파라미터 값:**
           
           - **String subject**: 교과목명 필터링 [선택]
-          
-          - **Integer minYeopjeon**: 엽전 현상금 최소 개수 [선택]
-          
-          - **Integer maxYeopjeon**: 엽전 현상금 최대 개수 [선택]
           
           - **List<QuestionPresetTag> questionPresetTags**: 정적 태그 필터링 [선택]
           
@@ -303,7 +304,21 @@ public interface QuestionPostControllerDocs {
           - **MOST_LIKED** (좋아요순)
           - **YEOPJEON_REWARD** (엽전 현상금 순)
           - **VIEW_COUNT** (조회수 순)
+          
+          **채택 여부**
+          - ALL (전체)
+          - CHAETAEK (채택)
+          - NO_CHAETAEK (미채택)
 
+          * <h3>질문글 필터링 로직
+          * <p>1. 교과목명 기준 필터링 - String subject (ex. 컴퓨터구조, 인터렉티브 디자인)
+          * <p>3. 정적 태그 필터링 - QuestionPresetTag (최대 2개)
+          * <p>4. 단과대별 필터링 - Faculty (ex. 공과대학, 예체는대학)
+          * <p>5. 채택 상태 필터링 - ChaetaekStatus (전체, 채택, 미채택)
+          * <br><br>
+          * <h3>정렬 로직 (SortType)
+          * <p>최신순, 좋아요순, 엽전 현상금순, 조회순
+   
           **참고 사항:**
 
           - 이 API를 통해 사용자는 질문 게시판에 작성된 글을 필터링하여 조회할 수 있습니다.

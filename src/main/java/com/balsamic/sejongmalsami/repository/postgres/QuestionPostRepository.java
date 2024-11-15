@@ -1,5 +1,6 @@
 package com.balsamic.sejongmalsami.repository.postgres;
 
+import com.balsamic.sejongmalsami.object.constants.ChaetaekStatus;
 import com.balsamic.sejongmalsami.object.constants.Faculty;
 import com.balsamic.sejongmalsami.object.constants.QuestionPresetTag;
 import com.balsamic.sejongmalsami.object.postgres.AnswerPost;
@@ -43,33 +44,25 @@ public interface QuestionPostRepository extends JpaRepository<QuestionPost, UUID
       @Param("faculty") Faculty faculty,
       Pageable pageable);
 
-  // 과목 필터링
+  // 과목 필터링 및 채택 상태 필터링
   @Query("""
-      select q
-      from QuestionPost q
-      join q.questionPresetTags qt
-      where
-          (:subject is null or q.subject = :subject)
-          and (:minYeopjeon is null or q.rewardYeopjeon >= :minYeopjeon)
-          and (:maxYeopjeon is null or q.rewardYeopjeon <= :maxYeopjeon)
-          and (:faculty is null or :faculty member of q.faculties)
-          and (:questionPresetTags is null or qt in :questionPresetTags)
-          AND (
-              (:viewNotChaetaek = TRUE AND NOT EXISTS (
-                  SELECT 1
-                  FROM AnswerPost a
-                  WHERE a.questionPost = q AND a.isChaetaek = TRUE
-              ))
-              OR
-              (:viewNotChaetaek IS NULL OR :viewNotChaetaek = FALSE)
-          )
-      """)
+        select q
+        from QuestionPost q
+        join q.questionPresetTags qt
+        where
+            (:subject is null or q.subject = :subject)
+            and (:faculty is null or :faculty member of q.faculties)
+            and (:questionPresetTags is null or qt in :questionPresetTags)
+            and (
+                :chaetaekStatus = 'ALL' 
+                or (:chaetaekStatus = 'CHAETAEK' and q.isChaetaek = true)
+                or (:chaetaekStatus = 'NO_CHAETAEK' and q.isChaetaek = false)
+            )
+        """)
   Page<QuestionPost> findFilteredQuestions(
       @Param("subject") String subject,
-      @Param("minYeopjeon") Integer minYeopjeon,
-      @Param("maxYeopjeon") Integer maxYeopjeon,
       @Param("faculty") Faculty faculty,
       @Param("questionPresetTags") List<QuestionPresetTag> questionPresetTags,
-      @Param("viewNotChaetaek") Boolean viewNotChaeteak,
+      @Param("chaetaekStatus") ChaetaekStatus chaetaekStatus,
       Pageable pageable);
 }
