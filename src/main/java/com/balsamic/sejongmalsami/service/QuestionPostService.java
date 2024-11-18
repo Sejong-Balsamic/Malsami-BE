@@ -58,15 +58,15 @@ public class QuestionPostService {
    * <h3>질문 글 등록 로직</h3>
    * <p>작성자 엽전 100냥 감소
    * <p>작성자 경험치 증가
-   * @param command
-   * <p>String title
-   * <p>String content
-   * <p>String subject
-   * <p>List mediaFiles
-   * <p>List questionPresetTags
-   * <p>List customTags
-   * <p>Integer rewardYeopjeon
-   * <p>Boolean isPrivate
+   *
+   * @param command <p>String title
+   *                <p>String content
+   *                <p>String subject
+   *                <p>List mediaFiles
+   *                <p>List questionPresetTags
+   *                <p>List customTags
+   *                <p>Integer rewardYeopjeon
+   *                <p>Boolean isPrivate
    * @return
    */
   @Transactional
@@ -85,7 +85,7 @@ public class QuestionPostService {
     // {질문글 등록 시 소모엽전 + 엽전 현상금} 보다 보유 엽전량이 적을 시 오류 발생
     Yeopjeon yeopjeon = yeopjeonService.findMemberYeopjeon(member);
     if (yeopjeon.getYeopjeon() < command.getRewardYeopjeon()
-        + -yeopjeonCalculator.calculateYeopjeon(YeopjeonAction.CREATE_QUESTION_POST)) {
+                                 + -yeopjeonCalculator.calculateYeopjeon(YeopjeonAction.CREATE_QUESTION_POST)) {
       log.error("사용자: {} 의 엽전이 부족합니다.", member.getStudentId());
       log.error("현재 보유 엽전량: {}, 질문글 등록시 필요 엽전량: {}, 엽전 현상금 설정량: {}",
           yeopjeon.getYeopjeon(),
@@ -173,6 +173,7 @@ public class QuestionPostService {
   /**
    * <h3>특정 질문 글 조회 로직</h3>
    * <p>해당 글 조회 수 증가</p>
+   *
    * @param command postId
    * @return
    */
@@ -194,10 +195,13 @@ public class QuestionPostService {
         .findAllByQuestionPost(questionPost).orElse(null);
 
     // 커스텀 태그 조회 (없으면 null 반환)
-    List<String> customTags = questionPostCustomTagRepository
-        .findAllByQuestionPostId(command.getPostId()).orElse(null)
-        .stream().map(QuestionPostCustomTag::getCustomTag)
-        .collect(Collectors.toList());
+    List<String> customTags = null;
+    if (questionPostCustomTagRepository.existsByQuestionPostId(command.getQuestionPostId())) {
+      customTags = questionPostCustomTagRepository
+          .findAllByQuestionPostId(command.getPostId())
+          .stream().map(QuestionPostCustomTag::getCustomTag)
+          .collect(Collectors.toList());
+    }
 
     // 좋아요 누른 회원인지 확인
     Boolean isLiked = questionBoardLikeRepository
@@ -213,10 +217,8 @@ public class QuestionPostService {
 
   /**
    * 전체 질문 글 조회 (최신순)
-   * @param command <br>
-   * Integer pageNumber <br>
-   * Integer PageSize <br>
    *
+   * @param command pageNumber, PageSize
    * @return
    */
   @Transactional(readOnly = true)
@@ -235,11 +237,10 @@ public class QuestionPostService {
 
   /**
    * 아직 답변 안된 글 조회 로직 + 단과대 필터링 (정렬: 최신순)
-   * @param command
-   * <p>Faculty faculty
-   * <p>Integer pageNumber
-   * <p>Integer pageSize
    *
+   * @param command <p>Faculty faculty
+   *                <p>Integer pageNumber
+   *                <p>Integer pageSize
    * @return
    */
   @Transactional(readOnly = true)
@@ -267,13 +268,11 @@ public class QuestionPostService {
    * <h3>정렬 로직 (SortType)</h3>
    * <p>최신순, 좋아요순, 엽전 현상금순, 조회순
    *
-   * @param command
-   * <p>String subject
-   * <p>List<QuestionPresetTag> questionPresetTags
-   * <p>Faculty
-   * <p>ChaetaekStatus
-   * <p>SortType
-   *
+   * @param command <p>String subject
+   *                <p>List<QuestionPresetTag> questionPresetTags
+   *                <p>Faculty
+   *                <p>ChaetaekStatus
+   *                <p>SortType
    * @return Page<QuestionPost> questionPosts
    */
   @Transactional(readOnly = true)
