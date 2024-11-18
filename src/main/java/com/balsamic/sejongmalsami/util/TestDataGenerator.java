@@ -185,7 +185,6 @@ public class TestDataGenerator {
         .subject(subject) // 임의의 교과목명
         .faculties(faculties)
         .questionPresetTags(new ArrayList<>(faker.options().option(
-            null,
             List.of(OUT_OF_CLASS),
             List.of(OUT_OF_CLASS, UNKNOWN_CONCEPT),
             List.of(BETTER_SOLUTION, EXAM_PREPARATION),
