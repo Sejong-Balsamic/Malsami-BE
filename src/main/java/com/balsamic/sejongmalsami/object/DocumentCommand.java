@@ -1,6 +1,7 @@
 package com.balsamic.sejongmalsami.object;
 
 import com.balsamic.sejongmalsami.object.constants.DocumentType;
+import com.balsamic.sejongmalsami.object.constants.Faculty;
 import com.balsamic.sejongmalsami.object.postgres.Member;
 import io.swagger.v3.oas.annotations.media.Schema;
 import java.util.ArrayList;
@@ -24,7 +25,8 @@ public class DocumentCommand {
   private UUID memberId; // 자료, 자료 요청
   private String title; // 자료, 자료 요청
   private String content; // 자료, 자료 요청
-  private String subject; // 자료, 자료 요청
+  private String subject; // 자료
+  private Faculty faculty; // 자료 요청
   private List<DocumentType> documentTypes; // 자료, 자료 요청
   private Boolean isDepartmentPrivate; // 자료
   private Boolean isPrivate; // 자료 요청
