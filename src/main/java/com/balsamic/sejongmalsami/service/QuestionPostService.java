@@ -153,7 +153,7 @@ public class QuestionPostService {
 
       // 첫번째 이미지를 썸네일로 설정
       if (!mediaFiles.isEmpty()) {
-        questionPost.addThumbnail(mediaFiles.get(0).getFileUrl());
+        questionPost.addThumbnailUrl(mediaFiles.get(0).getFileUrl());
       }
     }
 

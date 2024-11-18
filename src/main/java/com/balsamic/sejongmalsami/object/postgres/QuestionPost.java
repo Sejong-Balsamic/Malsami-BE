@@ -146,7 +146,7 @@ public class QuestionPost extends BasePost {
   }
 
   // 질문 글 썸네일 설정
-  public void addThumbnail(String thumbnailUrl) {
+  public void addThumbnailUrl(String thumbnailUrl) {
     this.thumbnailUrl = thumbnailUrl;
   }
 
