@@ -7,6 +7,7 @@ import com.balsamic.sejongmalsami.object.DocumentCommand;
 import com.balsamic.sejongmalsami.object.DocumentDto;
 import com.balsamic.sejongmalsami.object.constants.DocumentType;
 import com.balsamic.sejongmalsami.object.constants.Faculty;
+import com.balsamic.sejongmalsami.object.constants.SortType;
 import com.balsamic.sejongmalsami.object.postgres.Course;
 import com.balsamic.sejongmalsami.object.postgres.DocumentRequestPost;
 import com.balsamic.sejongmalsami.object.postgres.Member;
@@ -20,6 +21,11 @@ import java.util.List;
 import java.util.stream.Collectors;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
+import org.springframework.data.domain.Sort.Direction;
 import org.springframework.stereotype.Service;
 
 @Service
@@ -103,4 +109,53 @@ public class DocumentRequestPostService {
         .build();
   }
 
+  /**
+   * <h3>자료요청글 필터링 로직</h3>
+   * <p>1. 교과목명 기준 검색 - String subject (ex.컴퓨터구조, 인터렉티브 디자인)
+   * <p>2. 학부 기준 검색 - Faculty (ex.대양휴머니티칼리지)</p>
+   * <p>3. 카테고리 검색 - DocumentType (ex.DocumentType.SOLUTION)</p>
+   * <br>
+   * <h3>정렬 타입 (SortType)</h3>
+   * <p>최신순, 좋아요순, 댓글순, 조회순</p>
+   *
+   * @param command subject, faculty, documentType, sortType
+   * @return
+   */
+  public DocumentDto filteredDocumentRequests(DocumentCommand command) {
+
+    // 과목명이 비어있는 경우 null 설정 (비어있는 경우 쿼리문에서 오류 발생)
+    if (command.getSubject() != null && command.getSubject().isEmpty()) {
+      command.setSubject(null);
+    }
+
+    // 카테고리 List 사이즈가 0인 경우 null로 설정 (비어있는 list의 경우 쿼리문에서 오류 발생)
+    if (command.getDocumentTypes() != null && command.getDocumentTypes().isEmpty()) {
+      command.setDocumentTypes(null);
+    }
+
+    // 정렬 기준 (default: 최신순)
+    SortType sortType = (command.getSortType() != null) ? command.getSortType() : SortType.LATEST;
+
+    Sort sort;
+    switch (sortType) {
+      case LATEST -> sort = Sort.by(Direction.DESC, "createdDate");
+      case MOST_LIKED -> sort = Sort.by(Direction.DESC, "likeCount");
+      case COMMENT_COUNT -> sort = Sort.by(Direction.DESC, "commentCount");
+      case VIEW_COUNT -> sort = Sort.by(Direction.DESC, "viewCount");
+      default -> sort = Sort.by(Direction.DESC, "createdDate");
+    }
+
+    Pageable pageable = PageRequest.of(command.getPageNumber(), command.getPageSize(), sort);
+
+    Page<DocumentRequestPost> posts = documentRequestPostRepository.findFilteredDocumentRequestPost(
+        command.getSubject(),
+        command.getFaculty(),
+        command.getDocumentTypes(),
+        pageable
+    );
+
+    return DocumentDto.builder()
+        .documentRequestPostsPage(posts)
+        .build();
+  }
 }
