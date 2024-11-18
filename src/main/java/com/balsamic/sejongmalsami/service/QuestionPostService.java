@@ -15,7 +15,6 @@ import com.balsamic.sejongmalsami.object.postgres.Member;
 import com.balsamic.sejongmalsami.object.postgres.QuestionPost;
 import com.balsamic.sejongmalsami.object.postgres.Yeopjeon;
 import com.balsamic.sejongmalsami.repository.mongo.QuestionBoardLikeRepository;
-import com.balsamic.sejongmalsami.repository.mongo.QuestionPostCustomTagRepository;
 import com.balsamic.sejongmalsami.repository.postgres.AnswerPostRepository;
 import com.balsamic.sejongmalsami.repository.postgres.CourseRepository;
 import com.balsamic.sejongmalsami.repository.postgres.MemberRepository;
@@ -51,9 +50,7 @@ public class QuestionPostService {
   private final YeopjeonService yeopjeonService;
   private final YeopjeonCalculator yeopjeonCalculator;
   private final ExpService expService;
-  private final QuestionPostCustomTagRepository questionPostCustomTagRepository;
   private final AnswerPostRepository answerPostRepository;
-  private final QuestionBoardLikeService questionBoardLikeService;
 
   //FIXME: 임시 사용 : MOCK CUSTOM TAGS 생성
   private final Faker faker = new Faker(new Locale("ko"));
