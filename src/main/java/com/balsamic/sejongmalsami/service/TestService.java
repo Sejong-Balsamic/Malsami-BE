@@ -84,6 +84,9 @@ public class TestService {
           if (chaetaekIndex % 2 != 0) {
             AnswerPost chaetaekAnswer = answerPosts.get(chaetaekIndex);
             chaetaekAnswer.markAsChaetaek();
+            // 답변이 채택된 질문글도 chaetaekStatus true로 변경
+            questionPost.markAsChaetaek();
+            questionPostRepository.save(questionPost);
             answerPostRepository.save(chaetaekAnswer);
           }
         }

@@ -140,8 +140,7 @@ public class TestDataGenerator {
   }
 
   /**
-   * 학생 ID 생성 메서드
-   * 연도는 현재 년도에서 10년 전부터 현재 년도까지, 뒤의 6자리는 랜덤 숫자
+   * 학생 ID 생성 메서드 연도는 현재 년도에서 10년 전부터 현재 년도까지, 뒤의 6자리는 랜덤 숫자
    */
   private String generateStudentId() {
     // 연도 (startYear ~ endYear)
@@ -155,7 +154,7 @@ public class TestDataGenerator {
     Member member = Member.builder()
         .studentId(Long.parseLong(generateStudentId())) // 임의의 8자리 학생 ID
         .studentName(faker.name().fullName().replace(" ", "").trim()) // 임의의 학생 이름 (한국어)
-        .uuidNickname(faker.internet().uuid().substring(0,8)) // 임의의 UUID 닉네임
+        .uuidNickname(faker.internet().uuid().substring(0, 8)) // 임의의 UUID 닉네임
         .major(majors.get(random.nextInt(majors.size()))) // 미리 정의한 전공 목록에서 선택
         .academicYear(faker.options().option("1", "2", "3", "4", "초과학기")) // 학년
         .enrollmentStatus(faker.options().option("재학", "휴학", "졸업")) // 재학 상태
@@ -197,9 +196,9 @@ public class TestDataGenerator {
         .answerCount(0)
         .commentCount(0)
         .rewardYeopjeon(faker.number().numberBetween(0, 50) * 10)
-        .dailyScore((long)faker.number().numberBetween(0, 300))
-        .weeklyScore((long)faker.number().numberBetween(0, 1000))
-        .chaetaekStatus(faker.options().option(false, true))
+        .dailyScore((long) faker.number().numberBetween(0, 300))
+        .weeklyScore((long) faker.number().numberBetween(0, 1000))
+        .chaetaekStatus(false)
         .createdDate(LocalDateTime.now().minusDays(faker.number().numberBetween(1, 10)))
         .updatedDate(LocalDateTime.now().minusDays(faker.number().numberBetween(1, 10)))
         .build();
@@ -235,8 +234,8 @@ public class TestDataGenerator {
         .likeCount(faker.number().numberBetween(0, 1000)) // 임의의 좋아요 수
         .viewCount(faker.number().numberBetween(0, 30000)) // 임의의 조회 수
         .isDepartmentPrivate(faker.bool().bool()) // 학과 비공개 여부
-        .dailyScore((long)faker.number().numberBetween(0, 300)) // 임의의 일간 점수
-        .weeklyScore((long)faker.number().numberBetween(0, 1000)) // 임의의 주간 점수
+        .dailyScore((long) faker.number().numberBetween(0, 300)) // 임의의 일간 점수
+        .weeklyScore((long) faker.number().numberBetween(0, 1000)) // 임의의 주간 점수
         .createdDate(LocalDateTime.now().minusDays(faker.number().numberBetween(1, 10))) // 작성일
         .updatedDate(LocalDateTime.now().minusDays(faker.number().numberBetween(1, 10))) // 수정일
         .isEdited(faker.bool().bool()) // 수정 여부

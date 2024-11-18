@@ -154,4 +154,9 @@ public class QuestionPost extends BasePost {
   public void markAsChaetaek() {
     chaetaekStatus = true;
   }
+
+  // 답변 채택 rollback
+  public void rollbackChaetaek() {
+    chaetaekStatus = false;
+  }
 }
