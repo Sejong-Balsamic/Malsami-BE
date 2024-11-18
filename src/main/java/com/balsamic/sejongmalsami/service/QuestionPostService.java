@@ -271,7 +271,7 @@ public class QuestionPostService {
    * @param command <p>String subject
    *                <p>List<QuestionPresetTag> questionPresetTags
    *                <p>Faculty
-   *                <p>ChaetaekStatus
+   *                <p>Boolean chaetaekStatus
    *                <p>SortType
    * @return Page<QuestionPost> questionPosts
    */

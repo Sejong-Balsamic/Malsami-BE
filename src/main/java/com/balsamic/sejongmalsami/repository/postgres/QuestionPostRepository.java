@@ -45,9 +45,9 @@ public interface QuestionPostRepository extends JpaRepository<QuestionPost, UUID
 
   // 과목 및 채택 상태 필터링
   @Query("""
-        select q
+        select distinct q
         from QuestionPost q
-        join q.questionPresetTags qt
+        left join q.questionPresetTags qt
         where
             (:subject is null or q.subject = :subject)
             and (:faculty is null or :faculty member of q.faculties)
