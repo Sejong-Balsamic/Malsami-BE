@@ -2,6 +2,7 @@ package com.balsamic.sejongmalsami.object;
 
 import com.balsamic.sejongmalsami.object.constants.DocumentType;
 import com.balsamic.sejongmalsami.object.constants.Faculty;
+import com.balsamic.sejongmalsami.object.constants.SortType;
 import com.balsamic.sejongmalsami.object.postgres.Member;
 import io.swagger.v3.oas.annotations.media.Schema;
 import java.util.ArrayList;
@@ -16,7 +17,7 @@ import org.springframework.web.multipart.MultipartFile;
 @Getter
 @Setter
 public class DocumentCommand {
-  // 2024.11.15 : SUHSAECHAN : 페이지 기본갑 성정
+  // 2024.11.15 : SUHSAECHAN : 페이지 기본갑 설정
   public DocumentCommand() {
     this.pageNumber = 0;
     this.pageSize = 30;
@@ -38,7 +39,7 @@ public class DocumentCommand {
   private Integer pageNumber;
   @Schema(defaultValue = "30")
   private Integer pageSize;
-  private String sort; // 최신순, 좋아요순
+  private SortType sortType; // 최신순, 좋아요순
 
 
   private List<MultipartFile> attachmentFiles = new ArrayList<>(); // 첨부된 파일들
