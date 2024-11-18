@@ -75,9 +75,8 @@ public class QuestionPost extends BasePost {
   private List<QuestionPresetTag> questionPresetTags = new ArrayList<>();
 
   // 썸네일
-  //FIXME: 썸네일 변수이름 수정
   @Column(length = 1024)
-  private String thumbnail;
+  private String thumbnailUrl;
 
   // 조회 수
   @Builder.Default
@@ -101,7 +100,7 @@ public class QuestionPost extends BasePost {
 
   // 게시글 답변 채택 여부
   @Builder.Default
-  private Boolean isChaetaek = false;
+  private Boolean chaetaekStatus = false;
 
   // 내 정보 비공개 여부
   @Builder.Default
@@ -147,12 +146,12 @@ public class QuestionPost extends BasePost {
   }
 
   // 질문 글 썸네일 설정
-  public void addThumbnail(String thumbnail) {
-    this.thumbnail = thumbnail;
+  public void addThumbnailUrl(String thumbnailUrl) {
+    this.thumbnailUrl = thumbnailUrl;
   }
 
   // 답변 채택
   public void markAsChaetaek() {
-    isChaetaek = true;
+    chaetaekStatus = true;
   }
 }
