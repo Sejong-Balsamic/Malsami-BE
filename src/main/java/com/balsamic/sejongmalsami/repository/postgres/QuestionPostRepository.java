@@ -53,9 +53,9 @@ public interface QuestionPostRepository extends JpaRepository<QuestionPost, UUID
             and (:faculty is null or :faculty member of q.faculties)
             and (:questionPresetTags is null or qt in :questionPresetTags)
             and (
-                :chaetaekStatus = 'ALL' 
-                or (:chaetaekStatus = 'CHAETAEK' and q.isChaetaek = true)
-                or (:chaetaekStatus = 'NO_CHAETAEK' and q.isChaetaek = false)
+                :chaetaekStatus = 'ALL'
+                or (:chaetaekStatus = 'CHAETAEK' and q.chaetaekStatus = true)
+                or (:chaetaekStatus = 'NO_CHAETAEK' and q.chaetaekStatus = false)
             )
         """)
   Page<QuestionPost> findFilteredQuestions(

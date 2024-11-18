@@ -30,9 +30,9 @@ public interface CommentControllerDocs {
           - **String content**: 댓글 내용 [필수]
 
           - **String postId**: 댓글이 속한 게시글의 ID [필수]
-           \s
+
           - **Enum ContentType**: 댓글이 속한 게시글의 유형 [필수]
-           \s
+
           - **Boolean isPrivate**: 내 정보 비공개 여부 (default = false) [선택]
 
             _기본값은 false입니다. true로 요청할 시 댓글에 내 정보가 비공개 처리됩니다._
@@ -96,7 +96,7 @@ public interface CommentControllerDocs {
 
           **참고 사항:**
 
-          - 이 API를 통해 사용자는 특정 글에 작성된 모든 댓글을 조회할 수 있습니다.
+          - 이 API를 통해 사용자는 특정 글 or 답변에 작성된 모든 댓글을 조회할 수 있습니다.
           - 댓글은 최신순으로 정렬 후 반환됩니다.
           - Swagger에서 테스트 시 mediaFiles에 있는 "Send empty value" 체크박스 해제해야합니다.
           - pageNumber = 3, pageSize = 10 입력시 4페이지에 해당하는 10개의 댓글을 반환합니다. (31번째 댓글 ~ 40번째 댓글 반환)
