@@ -36,6 +36,7 @@ public class CommentService {
   /**
    * <h3>댓글 작성 로직
    * <p>작성자 경험치 증가 및 경험치 내역 저장
+   * <p>댓글 작성 시 해당 글 or 답변 댓글 수 증가
    *
    * @param command memberId, content, postId, contentType, isPrivate
    * @return
@@ -66,6 +67,11 @@ public class CommentService {
 
     // 댓글 작성자 경험치 증가 및 경험치 히스토리 저장
     expService.updateExpAndSaveExpHistory(member, ExpAction.CREATE_COMMENT);
+
+    // 해당 글 or 답변 댓글 수 증가 TODO: ContentType 에 따른 처리 로직 필요
+    questionPost.increaseCommentCount();
+    questionPostRepository.save(questionPost);
+
 
     // 댓글 생성 저장
     Comment comment = commentRepository.save(Comment.builder()
