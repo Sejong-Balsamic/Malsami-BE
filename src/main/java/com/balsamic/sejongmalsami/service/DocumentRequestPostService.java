@@ -99,7 +99,7 @@ public class DocumentRequestPostService {
     lineLog(null);
 
     return DocumentDto.builder()
-        .documentRequestPost(documentRequestPost)
+        .documentRequestPost(documentRequestPostRepository.save(documentRequestPost))
         .build();
   }
 
