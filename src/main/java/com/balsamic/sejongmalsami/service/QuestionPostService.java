@@ -8,6 +8,7 @@ import com.balsamic.sejongmalsami.object.constants.Faculty;
 import com.balsamic.sejongmalsami.object.constants.QuestionPresetTag;
 import com.balsamic.sejongmalsami.object.constants.SortType;
 import com.balsamic.sejongmalsami.object.constants.YeopjeonAction;
+import com.balsamic.sejongmalsami.object.mongo.QuestionPostCustomTag;
 import com.balsamic.sejongmalsami.object.postgres.AnswerPost;
 import com.balsamic.sejongmalsami.object.postgres.Course;
 import com.balsamic.sejongmalsami.object.postgres.MediaFile;
@@ -15,6 +16,7 @@ import com.balsamic.sejongmalsami.object.postgres.Member;
 import com.balsamic.sejongmalsami.object.postgres.QuestionPost;
 import com.balsamic.sejongmalsami.object.postgres.Yeopjeon;
 import com.balsamic.sejongmalsami.repository.mongo.QuestionBoardLikeRepository;
+import com.balsamic.sejongmalsami.repository.mongo.QuestionPostCustomTagRepository;
 import com.balsamic.sejongmalsami.repository.postgres.AnswerPostRepository;
 import com.balsamic.sejongmalsami.repository.postgres.CourseRepository;
 import com.balsamic.sejongmalsami.repository.postgres.MemberRepository;
@@ -24,10 +26,9 @@ import com.balsamic.sejongmalsami.util.exception.CustomException;
 import com.balsamic.sejongmalsami.util.exception.ErrorCode;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Locale;
+import java.util.stream.Collectors;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import net.datafaker.Faker;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
@@ -51,9 +52,7 @@ public class QuestionPostService {
   private final YeopjeonCalculator yeopjeonCalculator;
   private final ExpService expService;
   private final AnswerPostRepository answerPostRepository;
-
-  //FIXME: 임시 사용 : MOCK CUSTOM TAGS 생성
-  private final Faker faker = new Faker(new Locale("ko"));
+  private final QuestionPostCustomTagRepository questionPostCustomTagRepository;
 
   /**
    * <h3>질문 글 등록 로직</h3>
@@ -124,7 +123,7 @@ public class QuestionPostService {
         .answerCount(0)
         .commentCount(0)
         .rewardYeopjeon(command.getRewardYeopjeon())
-        .isChaetaek(false)
+        .chaetaekStatus(false)
         .dailyScore(0L)
         .weeklyScore(0L)
         .isPrivate(command.getIsPrivate() != null ? command.getIsPrivate() : false)
@@ -171,7 +170,12 @@ public class QuestionPostService {
         .build();
   }
 
-  /* 특정 질문 글 조회 로직 (해당 글 조회 수 증가) */
+  /**
+   * <h3>특정 질문 글 조회 로직</h3>
+   * <p>해당 글 조회 수 증가</p>
+   * @param command postId
+   * @return
+   */
   @Transactional
   public QuestionDto getQuestionPost(QuestionCommand command) {
     // 질문 게시글 조회
@@ -186,30 +190,23 @@ public class QuestionPostService {
     questionPostRepository.save(questionPost);
 
     // 답변 조회 (없으면 null 반환)
-    List<AnswerPost> answerPost = answerPostRepository.findAllByQuestionPost(questionPost).orElse(null);
+    List<AnswerPost> answerPost = answerPostRepository
+        .findAllByQuestionPost(questionPost).orElse(null);
 
-    //FIXME : 임시 커스텀 태그 생성 : DB 에서 불러와야합니다
-    List<String> customTags = new ArrayList<>();
-    int tagCount = faker.number().numberBetween(1, 5);
-
-    for (int i = 0; i < tagCount; i++) {
-      // 특수문자를 제거한 후, 10자 이하인 문장만 추가
-      String sentence = faker.lorem().sentence();
-      if (sentence.length() > 10) {
-        sentence = sentence.substring(0, 10);
-      }
-      String cleanedSentence = sentence.replaceAll("[^\\p{IsAlphabetic}\\p{IsDigit}\\s]", "").trim();
-      customTags.add(cleanedSentence);
-    }
-    //TODO: 커스텀 태그 조회
+    // 커스텀 태그 조회 (없으면 null 반환)
+    List<String> customTags = questionPostCustomTagRepository
+        .findAllByQuestionPostId(command.getPostId()).orElse(null)
+        .stream().map(QuestionPostCustomTag::getCustomTag)
+        .collect(Collectors.toList());
 
     // 좋아요 누른 회원인지 확인
-    Boolean isLiked = questionBoardLikeRepository.existsByQuestionBoardIdAndMemberId(command.getQuestionPostId(), command.getMemberId());
+    Boolean isLiked = questionBoardLikeRepository
+        .existsByQuestionBoardIdAndMemberId(command.getQuestionPostId(), command.getMemberId());
 
     return QuestionDto.builder()
         .questionPost(questionPost)
         .answerPosts(answerPost)
-        .customTags(customTags )
+        .customTags(customTags)
         .isLiked(isLiked)
         .build();
   }
@@ -264,7 +261,7 @@ public class QuestionPostService {
    * <h3>질문글 필터링 로직</h3>
    * <p>1. 교과목명 기준 필터링 - String subject (ex. 컴퓨터구조, 인터렉티브 디자인)
    * <p>3. 정적 태그 필터링 - QuestionPresetTag (최대 2개)
-   * <p>4. 단과대별 필터링 - Faculty (ex. 공과대학, 예체는대학)
+   * <p>4. 단과대별 필터링 - Faculty (ex. 공과대학, 예체능대학)
    * <p>5. 채택 상태 필터링 - ChaetaekStatus (전체, 채택, 미채택)
    * <br><br>
    * <h3>정렬 로직 (SortType)</h3>

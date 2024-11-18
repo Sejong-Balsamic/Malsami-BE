@@ -100,7 +100,7 @@ public class QuestionPost extends BasePost {
 
   // 게시글 답변 채택 여부
   @Builder.Default
-  private Boolean isChaetaek = false;
+  private Boolean chaetaekStatus = false;
 
   // 내 정보 비공개 여부
   @Builder.Default
@@ -146,12 +146,12 @@ public class QuestionPost extends BasePost {
   }
 
   // 질문 글 썸네일 설정
-  public void addThumbnail(String thumbnail) {
-    this.thumbnailUrl = thumbnail;
+  public void addThumbnail(String thumbnailUrl) {
+    this.thumbnailUrl = thumbnailUrl;
   }
 
   // 답변 채택
   public void markAsChaetaek() {
-    isChaetaek = true;
+    chaetaekStatus = true;
   }
 }
