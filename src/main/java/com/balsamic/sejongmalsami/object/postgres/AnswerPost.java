@@ -80,4 +80,9 @@ public class AnswerPost extends BaseEntity {
   public void rollbackChaetaek() {
     isChaetaek = false;
   }
+
+  // 댓글 수 증가
+  public void increaseCommentCount() {
+    commentCount++;
+  }
 }

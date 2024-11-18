@@ -8,6 +8,7 @@ import com.balsamic.sejongmalsami.object.constants.Faculty;
 import com.balsamic.sejongmalsami.object.constants.QuestionPresetTag;
 import com.balsamic.sejongmalsami.object.constants.SortType;
 import com.balsamic.sejongmalsami.object.constants.YeopjeonAction;
+import com.balsamic.sejongmalsami.object.mongo.QuestionPostCustomTag;
 import com.balsamic.sejongmalsami.object.postgres.AnswerPost;
 import com.balsamic.sejongmalsami.object.postgres.Course;
 import com.balsamic.sejongmalsami.object.postgres.MediaFile;
@@ -25,10 +26,9 @@ import com.balsamic.sejongmalsami.util.exception.CustomException;
 import com.balsamic.sejongmalsami.util.exception.ErrorCode;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Locale;
+import java.util.stream.Collectors;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import net.datafaker.Faker;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
@@ -51,26 +51,22 @@ public class QuestionPostService {
   private final YeopjeonService yeopjeonService;
   private final YeopjeonCalculator yeopjeonCalculator;
   private final ExpService expService;
-  private final QuestionPostCustomTagRepository questionPostCustomTagRepository;
   private final AnswerPostRepository answerPostRepository;
-  private final QuestionBoardLikeService questionBoardLikeService;
-
-  //FIXME: 임시 사용 : MOCK CUSTOM TAGS 생성
-  private final Faker faker = new Faker(new Locale("ko"));
+  private final QuestionPostCustomTagRepository questionPostCustomTagRepository;
 
   /**
    * <h3>질문 글 등록 로직</h3>
    * <p>작성자 엽전 100냥 감소
    * <p>작성자 경험치 증가
-   * @param command
-   * <p>String title
-   * <p>String content
-   * <p>String subject
-   * <p>List mediaFiles
-   * <p>List questionPresetTags
-   * <p>List customTags
-   * <p>Integer rewardYeopjeon
-   * <p>Boolean isPrivate
+   *
+   * @param command <p>String title
+   *                <p>String content
+   *                <p>String subject
+   *                <p>List mediaFiles
+   *                <p>List questionPresetTags
+   *                <p>List customTags
+   *                <p>Integer rewardYeopjeon
+   *                <p>Boolean isPrivate
    * @return
    */
   @Transactional
@@ -89,7 +85,7 @@ public class QuestionPostService {
     // {질문글 등록 시 소모엽전 + 엽전 현상금} 보다 보유 엽전량이 적을 시 오류 발생
     Yeopjeon yeopjeon = yeopjeonService.findMemberYeopjeon(member);
     if (yeopjeon.getYeopjeon() < command.getRewardYeopjeon()
-        + -yeopjeonCalculator.calculateYeopjeon(YeopjeonAction.CREATE_QUESTION_POST)) {
+                                 + -yeopjeonCalculator.calculateYeopjeon(YeopjeonAction.CREATE_QUESTION_POST)) {
       log.error("사용자: {} 의 엽전이 부족합니다.", member.getStudentId());
       log.error("현재 보유 엽전량: {}, 질문글 등록시 필요 엽전량: {}, 엽전 현상금 설정량: {}",
           yeopjeon.getYeopjeon(),
@@ -127,7 +123,7 @@ public class QuestionPostService {
         .answerCount(0)
         .commentCount(0)
         .rewardYeopjeon(command.getRewardYeopjeon())
-        .isChaetaek(false)
+        .chaetaekStatus(false)
         .dailyScore(0L)
         .weeklyScore(0L)
         .isPrivate(command.getIsPrivate() != null ? command.getIsPrivate() : false)
@@ -157,7 +153,7 @@ public class QuestionPostService {
 
       // 첫번째 이미지를 썸네일로 설정
       if (!mediaFiles.isEmpty()) {
-        questionPost.addThumbnail(mediaFiles.get(0).getFileUrl());
+        questionPost.addThumbnailUrl(mediaFiles.get(0).getFileUrl());
       }
     }
 
@@ -174,7 +170,13 @@ public class QuestionPostService {
         .build();
   }
 
-  /* 특정 질문 글 조회 로직 (해당 글 조회 수 증가) */
+  /**
+   * <h3>특정 질문 글 조회 로직</h3>
+   * <p>해당 글 조회 수 증가</p>
+   *
+   * @param command postId
+   * @return
+   */
   @Transactional
   public QuestionDto getQuestionPost(QuestionCommand command) {
     // 질문 게시글 조회
@@ -189,40 +191,34 @@ public class QuestionPostService {
     questionPostRepository.save(questionPost);
 
     // 답변 조회 (없으면 null 반환)
-    List<AnswerPost> answerPost = answerPostRepository.findAllByQuestionPost(questionPost).orElse(null);
+    List<AnswerPost> answerPost = answerPostRepository
+        .findAllByQuestionPost(questionPost).orElse(null);
 
-    //FIXME : 임시 커스텀 태그 생성 : DB 에서 불러와야합니다
-    List<String> customTags = new ArrayList<>();
-    int tagCount = faker.number().numberBetween(1, 5);
-
-    for (int i = 0; i < tagCount; i++) {
-      // 특수문자를 제거한 후, 10자 이하인 문장만 추가
-      String sentence = faker.lorem().sentence();
-      if (sentence.length() > 10) {
-        sentence = sentence.substring(0, 10);
-      }
-      String cleanedSentence = sentence.replaceAll("[^\\p{IsAlphabetic}\\p{IsDigit}\\s]", "").trim();
-      customTags.add(cleanedSentence);
+    // 커스텀 태그 조회 (없으면 null 반환)
+    List<String> customTags = null;
+    if (questionPostCustomTagRepository.existsByQuestionPostId(command.getQuestionPostId())) {
+      customTags = questionPostCustomTagRepository
+          .findAllByQuestionPostId(command.getPostId())
+          .stream().map(QuestionPostCustomTag::getCustomTag)
+          .collect(Collectors.toList());
     }
-    //TODO: 커스텀 태그 조회
 
     // 좋아요 누른 회원인지 확인
-    Boolean isLiked = questionBoardLikeRepository.existsByQuestionBoardIdAndMemberId(command.getQuestionPostId(), command.getMemberId());
+    Boolean isLiked = questionBoardLikeRepository
+        .existsByQuestionBoardIdAndMemberId(command.getQuestionPostId(), command.getMemberId());
 
     return QuestionDto.builder()
         .questionPost(questionPost)
         .answerPosts(answerPost)
-        .customTags(customTags )
+        .customTags(customTags)
         .isLiked(isLiked)
         .build();
   }
 
   /**
    * 전체 질문 글 조회 (최신순)
-   * @param command <br>
-   * Integer pageNumber <br>
-   * Integer PageSize <br>
    *
+   * @param command pageNumber, PageSize
    * @return
    */
   @Transactional(readOnly = true)
@@ -241,11 +237,10 @@ public class QuestionPostService {
 
   /**
    * 아직 답변 안된 글 조회 로직 + 단과대 필터링 (정렬: 최신순)
-   * @param command
-   * <p>Faculty faculty
-   * <p>Integer pageNumber
-   * <p>Integer pageSize
    *
+   * @param command <p>Faculty faculty
+   *                <p>Integer pageNumber
+   *                <p>Integer pageSize
    * @return
    */
   @Transactional(readOnly = true)
@@ -267,19 +262,17 @@ public class QuestionPostService {
    * <h3>질문글 필터링 로직</h3>
    * <p>1. 교과목명 기준 필터링 - String subject (ex. 컴퓨터구조, 인터렉티브 디자인)
    * <p>3. 정적 태그 필터링 - QuestionPresetTag (최대 2개)
-   * <p>4. 단과대별 필터링 - Faculty (ex. 공과대학, 예체는대학)
+   * <p>4. 단과대별 필터링 - Faculty (ex. 공과대학, 예체능대학)
    * <p>5. 채택 상태 필터링 - ChaetaekStatus (전체, 채택, 미채택)
    * <br><br>
    * <h3>정렬 로직 (SortType)</h3>
    * <p>최신순, 좋아요순, 엽전 현상금순, 조회순
    *
-   * @param command
-   * <p>String subject
-   * <p>List<QuestionPresetTag> questionPresetTags
-   * <p>Faculty
-   * <p>ChaetaekStatus
-   * <p>SortType
-   *
+   * @param command <p>String subject
+   *                <p>List<QuestionPresetTag> questionPresetTags
+   *                <p>Faculty
+   *                <p>ChaetaekStatus
+   *                <p>SortType
    * @return Page<QuestionPost> questionPosts
    */
   @Transactional(readOnly = true)
