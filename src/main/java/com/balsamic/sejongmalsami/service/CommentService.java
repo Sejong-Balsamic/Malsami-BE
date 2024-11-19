@@ -8,10 +8,12 @@ import com.balsamic.sejongmalsami.object.constants.ContentType;
 import com.balsamic.sejongmalsami.object.constants.ExpAction;
 import com.balsamic.sejongmalsami.object.postgres.AnswerPost;
 import com.balsamic.sejongmalsami.object.postgres.Comment;
+import com.balsamic.sejongmalsami.object.postgres.DocumentRequestPost;
 import com.balsamic.sejongmalsami.object.postgres.Member;
 import com.balsamic.sejongmalsami.object.postgres.QuestionPost;
 import com.balsamic.sejongmalsami.repository.postgres.AnswerPostRepository;
 import com.balsamic.sejongmalsami.repository.postgres.CommentRepository;
+import com.balsamic.sejongmalsami.repository.postgres.DocumentRequestPostRepository;
 import com.balsamic.sejongmalsami.repository.postgres.MemberRepository;
 import com.balsamic.sejongmalsami.repository.postgres.QuestionPostRepository;
 import com.balsamic.sejongmalsami.util.exception.CustomException;
@@ -33,6 +35,7 @@ public class CommentService {
 
   private final QuestionPostRepository questionPostRepository;
   private final AnswerPostRepository answerPostRepository;
+  private final DocumentRequestPostRepository documentRequestPostRepository;
   private final CommentRepository commentRepository;
   private final MemberRepository memberRepository;
   private final ExpService expService;
@@ -57,10 +60,11 @@ public class CommentService {
 
     QuestionPost questionPost;
     AnswerPost answerPost;
+    DocumentRequestPost documentRequestPost;
 
     // ContentType 에 따른 댓글 처리
     // FIXME: 자료, 자료요청, 공지사항, 댓글 ContentType 처리
-    if (contentType.equals(ContentType.QUESTION)) {
+    if (contentType.equals(ContentType.QUESTION)) { // 질문글
       questionPost = questionPostRepository.findById(postId)
           .orElseThrow(() -> new CustomException(ErrorCode.QUESTION_POST_NOT_FOUND));
 
@@ -70,7 +74,7 @@ public class CommentService {
       questionPostRepository.save(questionPost);
       log.info("댓글 작성 후 댓글 수: {}", questionPost.getCommentCount());
       superLog(questionPost);
-    } else if (contentType.equals(ContentType.ANSWER)) {
+    } else if (contentType.equals(ContentType.ANSWER)) { // 답변
       answerPost = answerPostRepository.findById(postId)
           .orElseThrow(() -> new CustomException(ErrorCode.ANSWER_POST_NOT_FOUND));
 
@@ -80,13 +84,19 @@ public class CommentService {
       answerPostRepository.save(answerPost);
       log.info("댓글 작성 후 댓글 수: {}", answerPost.getCommentCount());
       superLog(answerPost);
-    } else if (contentType.equals(ContentType.DOCUMENT)) {
+    } else if (contentType.equals(ContentType.DOCUMENT)) { // 자료글
 
-    } else if (contentType.equals(ContentType.DOCUMENT_REQUEST)) {
+    } else if (contentType.equals(ContentType.DOCUMENT_REQUEST)) { // 자료 요청 글
+      documentRequestPost = documentRequestPostRepository.findById(postId)
+          .orElseThrow(() -> new CustomException(ErrorCode.DOCUMENT_REQUEST_POST_NOT_FOUND));
 
+      // 댓글 수 증가
+      log.info("댓글 작성 전 댓글 수: {}", documentRequestPost.getCommentCount());
+      documentRequestPost.increaseCommentCount();
+      documentRequestPostRepository.save(documentRequestPost);
+      log.info("댓글 작성 후 댓글 수: {}", documentRequestPost.getCommentCount());
+      superLog(documentRequestPost);
     } else if (contentType.equals(ContentType.NOTICE)) {
-
-    } else if (contentType.equals(ContentType.COMMENT)) {
 
     } else {
       throw new CustomException(ErrorCode.INVALID_CONTENT_TYPE);
