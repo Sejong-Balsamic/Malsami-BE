@@ -20,9 +20,11 @@ import static com.balsamic.sejongmalsami.object.constants.QuestionPresetTag.STUD
 import static com.balsamic.sejongmalsami.object.constants.QuestionPresetTag.UNKNOWN_CONCEPT;
 
 import com.balsamic.sejongmalsami.object.constants.AccountStatus;
+import com.balsamic.sejongmalsami.object.constants.ContentType;
 import com.balsamic.sejongmalsami.object.constants.Faculty;
 import com.balsamic.sejongmalsami.object.constants.Role;
 import com.balsamic.sejongmalsami.object.postgres.AnswerPost;
+import com.balsamic.sejongmalsami.object.postgres.Comment;
 import com.balsamic.sejongmalsami.object.postgres.Course;
 import com.balsamic.sejongmalsami.object.postgres.DocumentFile;
 import com.balsamic.sejongmalsami.object.postgres.DocumentPost;
@@ -32,6 +34,7 @@ import com.balsamic.sejongmalsami.object.postgres.Member;
 import com.balsamic.sejongmalsami.object.postgres.QuestionPost;
 import com.balsamic.sejongmalsami.object.postgres.Yeopjeon;
 import com.balsamic.sejongmalsami.repository.postgres.AnswerPostRepository;
+import com.balsamic.sejongmalsami.repository.postgres.CommentRepository;
 import com.balsamic.sejongmalsami.repository.postgres.CourseRepository;
 import com.balsamic.sejongmalsami.repository.postgres.DocumentFileRepository;
 import com.balsamic.sejongmalsami.repository.postgres.DocumentPostRepository;
@@ -52,6 +55,7 @@ import java.util.List;
 import java.util.Locale;
 import java.util.Random;
 import java.util.Set;
+import java.util.UUID;
 import java.util.stream.Collectors;
 import lombok.RequiredArgsConstructor;
 import net.datafaker.Faker;
@@ -68,6 +72,7 @@ public class TestDataGenerator {
   private final DocumentRequestPostRepository documentRequestPostRepository;
   private final QuestionPostRepository questionPostRepository;
   private final AnswerPostRepository answerPostRepository;
+  private final CommentRepository commentRepository;
   private final CourseRepository courseRepository;
   private final YeopjeonRepository yeopjeonRepository;
   private final ExpRepository expRepository;
@@ -342,9 +347,28 @@ public class TestDataGenerator {
         )))
         .viewCount(faker.number().numberBetween(0, 30000))
         .likeCount(faker.number().numberBetween(0, 1000))
-        .commentCount(faker.number().numberBetween(0, 300))
+        .commentCount(0)
         .isPrivate(faker.bool().bool())
         .build();
     return documentRequestPostRepository.save(post);
+  }
+
+  /**
+   * <h3>댓글 Mock 데이터 생성 메소드</h3>
+   * @param member 댓글 작성자
+   * @param contentType question, answer, document, documentRequest, notice
+   * @return
+   */
+  public Comment createMockComment(Member member, UUID postId, ContentType contentType) {
+
+    Comment comment = Comment.builder()
+        .member(member)
+        .postId(postId)
+        .content(faker.lorem().paragraph())
+        .likeCount(faker.number().numberBetween(0, 1000))
+        .contentType(contentType)
+        .isPrivate(faker.bool().bool())
+        .build();
+    return commentRepository.save(comment);
   }
 }
