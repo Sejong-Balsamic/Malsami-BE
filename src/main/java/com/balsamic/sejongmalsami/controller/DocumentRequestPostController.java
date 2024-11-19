@@ -35,4 +35,14 @@ public class DocumentRequestPostController implements DocumentRequestPostControl
     command.setMemberId(customUserDetails.getMemberId());
     return ResponseEntity.ok(documentRequestPostService.createPost(command));
   }
+
+  @Override
+  @PostMapping(value = "/get/filtered-posts")
+  @LogMonitoringInvocation
+  public ResponseEntity<DocumentDto> getFilteredDocumentRequestPosts(
+      @AuthenticationPrincipal CustomUserDetails customUserDetails,
+      @ModelAttribute DocumentCommand command) {
+    command.setMemberId(customUserDetails.getMemberId());
+    return ResponseEntity.ok(documentRequestPostService.filteredDocumentRequests(command));
+  }
 }
