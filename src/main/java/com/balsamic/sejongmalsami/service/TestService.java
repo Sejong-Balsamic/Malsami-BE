@@ -1,6 +1,8 @@
 package com.balsamic.sejongmalsami.service;
 
+import com.balsamic.sejongmalsami.object.constants.ContentType;
 import com.balsamic.sejongmalsami.object.postgres.AnswerPost;
+import com.balsamic.sejongmalsami.object.postgres.Comment;
 import com.balsamic.sejongmalsami.object.postgres.DocumentFile;
 import com.balsamic.sejongmalsami.object.postgres.DocumentPost;
 import com.balsamic.sejongmalsami.object.postgres.DocumentRequestPost;
@@ -69,7 +71,19 @@ public class TestService {
         QuestionPost questionPost = testDataGenerator.createMockQuestionPost(questionMember);
         questionTotalCreated++;
 
-        // 4. 답변 글 생성 (0 ~ 10개)
+        // 4. 질문글에 댓글 생성 (0 ~ 5개)
+        int numComments = random.nextInt(6); // 0 ~ 5
+        for (int j = 0; j < numComments; j++) {
+          // 댓글 작성자 생성
+          Member commentWriter = testDataGenerator.createMockMember();
+          Comment comment = testDataGenerator.createMockComment(
+              commentWriter,
+              questionPost.getQuestionPostId(),
+              ContentType.QUESTION
+          );
+        }
+
+        // 5. 답변 글 생성 (0 ~ 10개)
         int numAnswers = random.nextInt(11); // 0 ~ 10
         List<AnswerPost> answerPosts = new ArrayList<>();
 
@@ -78,9 +92,21 @@ public class TestService {
           Member answerWriter = testDataGenerator.createMockMember();
           AnswerPost answerPost = testDataGenerator.createMockAnswerPost(answerWriter, questionPost);
           answerPosts.add(answerPost);
+
+          // 6. 답변글에 댓글 생성 (0 ~ 5개)
+          numComments = random.nextInt(6); // 0 ~ 5
+          for (int k = 0; k < numComments; k++) {
+            // 댓글 작성자 생성
+            Member commentWriter = testDataGenerator.createMockMember();
+            Comment comment = testDataGenerator.createMockComment(
+                commentWriter,
+                answerPost.getAnswerPostId(),
+                ContentType.ANSWER
+            );
+          }
         }
 
-        // 5. 답변 채택
+        // 7. 답변 채택
         if (!answerPosts.isEmpty()) {
           int chaetaekIndex = random.nextInt(answerPosts.size());
           // index가 홀수인 경우만 채택 (채택 안된글도 존재해야하므로)
@@ -94,7 +120,7 @@ public class TestService {
           }
         }
 
-        // 6. 답변 수 동기화
+        // 8. 답변 수 동기화
         questionPost.updateAnswerCount(answerPosts.size());
         questionPostRepository.save(questionPost);
       }
@@ -166,6 +192,7 @@ public class TestService {
   /**
    * <h3>자료 요청 글 Mock 데이터 생성</h3>
    * <p>지정된 개수만큼의 자료 요청 글을 생성합니다.
+   * <p>생성된 자료요청글에 0~5개의 댓글을 작성합니다.</p>
    *
    * @param postCount 생성할 자료 요청 글의 총 개수
    */
@@ -197,6 +224,18 @@ public class TestService {
         DocumentRequestPost documentRequestPost = testDataGenerator.createMockDocumentRequestPost(postWriter);
         documentRequestPostRepository.save(documentRequestPost);
         totalCreated++;
+
+        // 4. 댓글 작성
+        int numComments = random.nextInt(6); // 0 ~ 5
+        for (int j = 0; j < numComments; j++) {
+          // 댓글 작성자 생성
+          Member commentWriter = testDataGenerator.createMockMember();
+          Comment comment = testDataGenerator.createMockComment(
+              commentWriter,
+              documentRequestPost.getDocumentRequestPostId(),
+              ContentType.DOCUMENT_REQUEST
+          );
+        }
       }
     }
 
