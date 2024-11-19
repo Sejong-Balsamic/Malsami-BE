@@ -4,6 +4,7 @@ import static com.balsamic.sejongmalsami.util.LogUtils.superLog;
 
 import com.balsamic.sejongmalsami.object.DocumentCommand;
 import com.balsamic.sejongmalsami.object.constants.DocumentType;
+import com.balsamic.sejongmalsami.object.constants.SortType;
 import com.balsamic.sejongmalsami.object.postgres.DocumentFile;
 import com.balsamic.sejongmalsami.object.postgres.DocumentPost;
 import com.balsamic.sejongmalsami.object.postgres.Member;
@@ -21,6 +22,7 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
+import org.springframework.data.domain.Sort.Order;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -79,7 +81,7 @@ class DocumentPostServiceTest {
 //    searchQuery("viewCount");    // 조회수 기준 정렬
   }
 
-  public void searchQuery(String sortType) {
+  public void searchQuery(SortType sortType) {
     // DocumentCommand 객체 설정
     DocumentCommand command = new DocumentCommand();
     command.setTitle("자료 제목");
@@ -88,9 +90,16 @@ class DocumentPostServiceTest {
     command.setPageNumber(0);
     command.setPageSize(10);
     command.setDocumentTypes(Arrays.asList(DocumentType.DOCUMENT)); // Set -> List로 변경
-    command.setSort(sortType);
+    command.setSortType(sortType);
 
-    Sort sort = Sort.by(sortType);
+    Sort sort;
+    if (sortType.equals(SortType.MOST_LIKED)) {
+      sort = Sort.by(Order.desc("likeCount"));
+    } else if (sortType.equals(SortType.VIEW_COUNT)) {
+      sort = Sort.by(Order.desc("viewCount"));
+    } else {
+      sort = Sort.by(Order.desc("createdDate"));
+    }
     Pageable pageable = PageRequest.of(command.getPageNumber(), command.getPageSize(), sort);
 
     Page<DocumentPost> documentPostsPage = documentPostRepository.findDocumentPostsByFilter(

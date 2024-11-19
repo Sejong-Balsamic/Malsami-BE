@@ -261,9 +261,9 @@ public class QuestionPostService {
   /**
    * <h3>질문글 필터링 로직</h3>
    * <p>1. 교과목명 기준 필터링 - String subject (ex. 컴퓨터구조, 인터렉티브 디자인)
-   * <p>3. 정적 태그 필터링 - QuestionPresetTag (최대 2개)
-   * <p>4. 단과대별 필터링 - Faculty (ex. 공과대학, 예체능대학)
-   * <p>5. 채택 상태 필터링 - ChaetaekStatus (전체, 채택, 미채택)
+   * <p>2. 정적 태그 필터링 - QuestionPresetTag (최대 2개)
+   * <p>3. 단과대별 필터링 - Faculty (ex. 공과대학, 예체능대학)
+   * <p>4. 채택 상태 필터링 - ChaetaekStatus (전체, 채택, 미채택)
    * <br><br>
    * <h3>정렬 로직 (SortType)</h3>
    * <p>최신순, 좋아요순, 엽전 현상금순, 조회순
