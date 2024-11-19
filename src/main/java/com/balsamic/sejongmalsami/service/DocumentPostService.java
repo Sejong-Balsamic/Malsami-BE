@@ -86,10 +86,10 @@ public class DocumentPostService {
 
     // 정렬
     Sort sort;
-    String sortType = command.getSort();
-    if ("likeCount".equalsIgnoreCase(sortType)) {
+    SortType sortType = command.getSortType();
+    if (sortType.equals(SortType.MOST_LIKED)) {
       sort = Sort.by(Order.desc("likeCount"));
-    } else if ("viewCount".equalsIgnoreCase(sortType)) {
+    } else if (sortType.equals(SortType.VIEW_COUNT)) {
       sort = Sort.by(Order.desc("viewCount"));
     } else {
       sort = Sort.by(Order.desc("createdDate"));
@@ -120,12 +120,12 @@ public class DocumentPostService {
 
     // 정렬
     Sort sort = null;
-    String sortType = command.getSort();
-    if (sortType.equals(SortType.MOST_LIKED.name())) {
+    SortType sortType = command.getSortType();
+    if (sortType.equals(SortType.MOST_LIKED)) {
       sort = Sort.by(Order.desc("likeCount"));
-    } else if (sortType.equals(SortType.VIEW_COUNT.name())) {
+    } else if (sortType.equals(SortType.VIEW_COUNT)) {
       sort = Sort.by(Order.desc("viewCount"));
-    } else if (sortType.equals(null) || sortType.equals("") || sortType.equals(SortType.LATEST.name())) {
+    } else {
       sort = Sort.by(Order.desc("createdDate"));
     }
 

@@ -40,7 +40,7 @@ public interface DocumentPostControllerDocs {
       @ApiChangeLog(
           date = "2024.10.10",
           author = Author.BAEKJIHOON,
-          description = "자료게시판 글 등록 & 인기글"
+          description = "자료게시판 글 등록"
       )
   })
   @Operation(
@@ -64,7 +64,7 @@ public interface DocumentPostControllerDocs {
        
         - **`attachmentFiles`** (`MultipartFile`, **선택**): 업로드 자료 파일 리스트
         
-        ### **documentTypeSet**
+        ### **documentTypes**
 
         최대 2개까지의 카테고리를 설정 가능
 

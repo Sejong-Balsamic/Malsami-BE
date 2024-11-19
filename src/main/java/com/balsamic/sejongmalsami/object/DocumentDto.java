@@ -15,11 +15,9 @@ import org.springframework.data.domain.Page;
 public class DocumentDto {
 
   private DocumentPost documentPost; // 자료
-  private List<DocumentPost> documentPosts; // 자료
-  private DocumentRequestPost documentRequestPost; // 자료요청
-  private List<DocumentRequestPost> documentRequestPosts; // 자료요청
-
   private Page<DocumentPost> documentPostsPage;
+  private DocumentRequestPost documentRequestPost; // 자료요청
+  private Page<DocumentRequestPost> documentRequestPostsPage; // 자료요청
 
   private List<DocumentFile> documentFiles;
 }
