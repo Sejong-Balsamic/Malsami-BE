@@ -61,6 +61,20 @@ public class FileUtil {
   }
 
   /**
+   * 파일명 생성 (ContentType을 포함하여)
+   *
+   * @param contentType      파일의 ContentType
+   * @param originalFilename 원본 파일명
+   * @return 생성된 파일명
+   */
+  public static String generateFileName(String contentType, String originalFilename) {
+    String baseName = getBaseName(originalFilename);
+    String extension = getExtension(originalFilename);
+    String curTimeStr = TimeUtil.formatLocalDateTimeNowForFileName();
+    return String.format("%s_%s.%s", contentType, curTimeStr, extension);
+  }
+
+  /**
    * 여러 MultipartFile을 ZIP 파일로 압축하여 byte 배열 반환
    */
   public static byte[] zipFiles(List<MultipartFile> files) throws IOException {
@@ -80,15 +94,5 @@ public class FileUtil {
       }
     }
     return baos.toByteArray();
-  }
-
-  /**
-   * 업로드 파일명 생성 (확장자 포함)
-   */
-  public static String generateUploadFileName(MultipartFile file) {
-    String curTimeStr = TimeUtil.formatLocalDateTimeNowForFileName();
-    String baseName = getBaseName(file.getOriginalFilename());
-    String extension = getExtension(file.getOriginalFilename());
-    return String.format("%s_%s.%s", curTimeStr, baseName, extension);
   }
 }

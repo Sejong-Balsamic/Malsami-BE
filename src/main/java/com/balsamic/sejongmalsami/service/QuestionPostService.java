@@ -20,6 +20,7 @@ import com.balsamic.sejongmalsami.repository.postgres.AnswerPostRepository;
 import com.balsamic.sejongmalsami.repository.postgres.CourseRepository;
 import com.balsamic.sejongmalsami.repository.postgres.MemberRepository;
 import com.balsamic.sejongmalsami.repository.postgres.QuestionPostRepository;
+import com.balsamic.sejongmalsami.util.StorageService;
 import com.balsamic.sejongmalsami.util.YeopjeonCalculator;
 import com.balsamic.sejongmalsami.util.exception.CustomException;
 import com.balsamic.sejongmalsami.util.exception.ErrorCode;
@@ -29,6 +30,7 @@ import java.util.Locale;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import net.datafaker.Faker;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
@@ -54,6 +56,9 @@ public class QuestionPostService {
   private final QuestionPostCustomTagRepository questionPostCustomTagRepository;
   private final AnswerPostRepository answerPostRepository;
   private final QuestionBoardLikeService questionBoardLikeService;
+  private final DocumentPostService documentPostService;
+  @Qualifier("ftpStorageService")
+  private final StorageService storageService;
 
   //FIXME: 임시 사용 : MOCK CUSTOM TAGS 생성
   private final Faker faker = new Faker(new Locale("ko"));
@@ -62,15 +67,15 @@ public class QuestionPostService {
    * <h3>질문 글 등록 로직</h3>
    * <p>작성자 엽전 100냥 감소
    * <p>작성자 경험치 증가
-   * @param command
-   * <p>String title
-   * <p>String content
-   * <p>String subject
-   * <p>List mediaFiles
-   * <p>List questionPresetTags
-   * <p>List customTags
-   * <p>Integer rewardYeopjeon
-   * <p>Boolean isPrivate
+   *
+   * @param command <p>String title
+   *                <p>String content
+   *                <p>String subject
+   *                <p>List mediaFiles
+   *                <p>List questionPresetTags
+   *                <p>List customTags
+   *                <p>Integer rewardYeopjeon
+   *                <p>Boolean isPrivate
    * @return
    */
   @Transactional
@@ -150,14 +155,14 @@ public class QuestionPostService {
     }
 
     // 첨부파일 추가
-    List<MediaFile> mediaFiles = null;
+    List<MediaFile> mediaFileUrls = null;
     if (command.getMediaFiles() != null) {
-      mediaFiles = mediaFileService
+      mediaFileUrls = mediaFileService
           .uploadMediaFiles(savedPost.getQuestionPostId(), command.getMediaFiles());
 
       // 첫번째 이미지를 썸네일로 설정
-      if (!mediaFiles.isEmpty()) {
-        questionPost.addThumbnail(mediaFiles.get(0).getFileUrl());
+      if (!mediaFileUrls.isEmpty()) {
+        questionPost.addThumbnailUrl(mediaFileUrls.get(0).getFileUrl());
       }
     }
 
@@ -169,7 +174,7 @@ public class QuestionPostService {
 
     return QuestionDto.builder()
         .questionPost(savedPost)
-        .mediaFiles(mediaFiles)
+        .mediaFiles(mediaFileUrls)
         .customTags(customTags)
         .build();
   }
@@ -207,22 +212,22 @@ public class QuestionPostService {
     //TODO: 커스텀 태그 조회
 
     // 좋아요 누른 회원인지 확인
-    Boolean isLiked = questionBoardLikeRepository.existsByQuestionBoardIdAndMemberId(command.getQuestionPostId(), command.getMemberId());
+    Boolean isLiked = questionBoardLikeRepository.existsByQuestionBoardIdAndMemberId(command.getQuestionPostId(),
+        command.getMemberId());
 
     return QuestionDto.builder()
         .questionPost(questionPost)
         .answerPosts(answerPost)
-        .customTags(customTags )
+        .customTags(customTags)
         .isLiked(isLiked)
         .build();
   }
 
   /**
    * 전체 질문 글 조회 (최신순)
-   * @param command <br>
-   * Integer pageNumber <br>
-   * Integer PageSize <br>
    *
+   * @param command <br>
+   *                Integer pageNumber <br> Integer PageSize <br>
    * @return
    */
   @Transactional(readOnly = true)
@@ -241,11 +246,10 @@ public class QuestionPostService {
 
   /**
    * 아직 답변 안된 글 조회 로직 + 단과대 필터링 (정렬: 최신순)
-   * @param command
-   * <p>Faculty faculty
-   * <p>Integer pageNumber
-   * <p>Integer pageSize
    *
+   * @param command <p>Faculty faculty
+   *                <p>Integer pageNumber
+   *                <p>Integer pageSize
    * @return
    */
   @Transactional(readOnly = true)
@@ -266,19 +270,18 @@ public class QuestionPostService {
   /**
    * <h3>질문글 필터링 로직</h3>
    * <p>1. 교과목명 기준 필터링 - String subject (ex. 컴퓨터구조, 인터렉티브 디자인)
-   * <p>3. 정적 태그 필터링 - QuestionPresetTag (최대 2개)
-   * <p>4. 단과대별 필터링 - Faculty (ex. 공과대학, 예체는대학)
-   * <p>5. 채택 상태 필터링 - ChaetaekStatus (전체, 채택, 미채택)
+   * <p>2. 정적 태그 필터링 - QuestionPresetTag (최대 2개)
+   * <p>3. 단과대별 필터링 - Faculty (ex. 공과대학, 예체는대학)
+   * <p>4. 채택 상태 필터링 - ChaetaekStatus (전체, 채택, 미채택)
    * <br><br>
    * <h3>정렬 로직 (SortType)</h3>
    * <p>최신순, 좋아요순, 엽전 현상금순, 조회순
    *
-   * @param command
-   * <p>String subject
-   * <p>List<QuestionPresetTag> questionPresetTags
-   * <p>Faculty
-   * <p>ChaetaekStatus
-   * <p>SortType
+   * @param command <p>String subject
+   *                <p>List<QuestionPresetTag> questionPresetTags
+   *                <p>Faculty
+   *                <p>ChaetaekStatus
+   *                <p>SortType
    *
    * @return Page<QuestionPost> questionPosts
    */
@@ -349,5 +352,17 @@ public class QuestionPostService {
 
   private QuestionDto convertToDto(QuestionPost entity) {
     return QuestionDto.builder().build();
+  }
+
+  /**
+   * 썸네일 업로드 메소드 (추가 구현 필요)
+   */
+  private void uploadThumbnail(List<MediaFile> mediaFiles) {
+    if (mediaFiles == null || mediaFiles.isEmpty()) {
+      return;
+    }
+    // 썸네일 업로드 로직 구현
+    // 예: MediaFile의 첫 번째 파일을 썸네일로 사용
+    // 이미 업로드된 파일의 URL을 사용하여 썸네일 설정
   }
 }

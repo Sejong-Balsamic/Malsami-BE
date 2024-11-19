@@ -162,6 +162,7 @@ public class DocumentPostService {
    * @param command       DocumentCommand
    * @param savedDocumentFiles 저장된 파일 리스트
    */
+  //FIXME: 업로드 위치 의존성 수정필요
   private void processAndSaveUploadedFiles(DocumentCommand command, List<DocumentFile> savedDocumentFiles) {
     List<MultipartFile> attachmentFiles = command.getAttachmentFiles();
 

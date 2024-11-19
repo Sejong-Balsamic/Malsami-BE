@@ -64,7 +64,7 @@ public class ImageThumbnailGenerator {
   public byte[] generateImageThumbnail(MultipartFile file) {
     log.info("이미지 썸네일 생성 시작: {}", file.getOriginalFilename());
 
-    if (Objects.requireNonNull(file.getContentType()).equals(MimeType.WEBP.getMimeType())) {
+    if (Objects.requireNonNull(file.getContentType()).equalsIgnoreCase(MimeType.WEBP.getMimeType())) {
       log.info("WebP 형식의 이미지입니다. 썸네일 생성을 건너뜁니다: {}", file.getOriginalFilename());
       try {
         return file.getBytes();
@@ -104,16 +104,16 @@ public class ImageThumbnailGenerator {
     byte[] thumbnailBytes;
 
     try {
-      if (mimeType.equals(MimeType.PDF.getMimeType())) {
+      if (mimeType.equalsIgnoreCase(MimeType.PDF.getMimeType())) {
         log.info("PDF 파일 감지: {}", file.getOriginalFilename());
         thumbnailBytes = generatePdfThumbnail(file.getInputStream());
-      } else if (mimeType.equals(MimeType.DOCX.getMimeType()) || mimeType.equals(MimeType.DOC.getMimeType())) {
+      } else if (mimeType.equalsIgnoreCase(MimeType.DOCX.getMimeType()) || mimeType.equalsIgnoreCase(MimeType.DOC.getMimeType())) {
         log.info("Word 문서 감지: {}", file.getOriginalFilename());
         thumbnailBytes = generateWordThumbnail(file.getInputStream());
-      } else if (mimeType.equals(MimeType.XLSX.getMimeType()) || mimeType.equals(MimeType.XLS.getMimeType())) {
+      } else if (mimeType.equalsIgnoreCase(MimeType.XLSX.getMimeType()) || mimeType.equalsIgnoreCase(MimeType.XLS.getMimeType())) {
         log.info("Excel 파일 감지: {}", file.getOriginalFilename());
         thumbnailBytes = generateExcelThumbnail(file.getInputStream());
-      } else if (mimeType.equals(MimeType.PPTX.getMimeType()) || mimeType.equals(MimeType.PPT.getMimeType())) {
+      } else if (mimeType.equalsIgnoreCase(MimeType.PPTX.getMimeType()) || mimeType.equalsIgnoreCase(MimeType.PPT.getMimeType())) {
         log.info("PowerPoint 파일 감지: {}", file.getOriginalFilename());
         thumbnailBytes = generatePowerPointThumbnail(file.getInputStream());
       } else {
@@ -161,7 +161,7 @@ public class ImageThumbnailGenerator {
   /**
    * PDF 썸네일 생성
    */
-  public byte[] generatePdfThumbnail(InputStream pdfInputStream) throws IOException {
+  private byte[] generatePdfThumbnail(InputStream pdfInputStream) throws IOException {
     log.info("PDF 썸네일 생성 시작");
     try (PDDocument document = PDDocument.load(pdfInputStream)) {
       log.info("PDF 문서 로드 완료, 페이지 수: {}", document.getNumberOfPages());
@@ -278,5 +278,59 @@ public class ImageThumbnailGenerator {
 
     log.info("이미지 크기 조정: originalWidth={}, originalHeight={}, newWidth={}, newHeight={}", originalWidth, originalHeight, newWidth, newHeight);
     return new int[]{newWidth, newHeight};
+  }
+
+  /**
+   * MultipartFile을 byte 배열로 감싸는 어댑터 클래스
+   * (썸네일 생성 후 업로드를 위해 사용)
+   */
+  public static class MultipartFileAdapter implements MultipartFile {
+    private final String fileName;
+    private final byte[] content;
+
+    public MultipartFileAdapter(String fileName, byte[] content) {
+      this.fileName = fileName;
+      this.content = content;
+    }
+
+    @Override
+    public String getName() {
+      return fileName;
+    }
+
+    @Override
+    public String getOriginalFilename() {
+      return fileName;
+    }
+
+    @Override
+    public String getContentType() {
+      return "image/jpeg"; // 썸네일 형식에 맞게 변경 가능
+    }
+
+    @Override
+    public boolean isEmpty() {
+      return content == null || content.length == 0;
+    }
+
+    @Override
+    public long getSize() {
+      return content.length;
+    }
+
+    @Override
+    public byte[] getBytes() throws IOException {
+      return content;
+    }
+
+    @Override
+    public InputStream getInputStream() throws IOException {
+      return new java.io.ByteArrayInputStream(content);
+    }
+
+    @Override
+    public void transferTo(java.io.File dest) throws IOException, IllegalStateException {
+      throw new UnsupportedOperationException("transferTo는 지원되지 않습니다.");
+    }
   }
 }

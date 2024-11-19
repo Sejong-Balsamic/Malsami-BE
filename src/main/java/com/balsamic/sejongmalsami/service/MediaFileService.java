@@ -1,13 +1,12 @@
 package com.balsamic.sejongmalsami.service;
 
-import com.balsamic.sejongmalsami.object.postgres.MediaFile;
-import com.balsamic.sejongmalsami.object.MediaFileDto;
 import com.balsamic.sejongmalsami.object.constants.ContentType;
 import com.balsamic.sejongmalsami.object.constants.MimeType;
+import com.balsamic.sejongmalsami.object.postgres.MediaFile;
 import com.balsamic.sejongmalsami.repository.postgres.AnswerPostRepository;
 import com.balsamic.sejongmalsami.repository.postgres.MediaFileRepository;
 import com.balsamic.sejongmalsami.repository.postgres.QuestionPostRepository;
-import com.balsamic.sejongmalsami.util.S3Service;
+import com.balsamic.sejongmalsami.util.StorageService;
 import com.balsamic.sejongmalsami.util.exception.CustomException;
 import com.balsamic.sejongmalsami.util.exception.ErrorCode;
 import java.util.ArrayList;
@@ -15,6 +14,7 @@ import java.util.List;
 import java.util.UUID;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
@@ -24,7 +24,8 @@ import org.springframework.web.multipart.MultipartFile;
 @Slf4j
 public class MediaFileService {
 
-  private final S3Service s3Service;
+  @Qualifier("ftpStorageService")
+  private final StorageService storageService;
   private final MediaFileRepository mediaFileRepository;
   private final QuestionPostRepository questionPostRepository;
   private final AnswerPostRepository answerPostRepository;
@@ -57,25 +58,30 @@ public class MediaFileService {
     for (MultipartFile file : files) {
       String mimeType = file.getContentType();
       // 첨부파일이 이미지 파일이 아닌 경우
-      if (mimeType == null || !isInvalidImageFile(mimeType)) {
+      if (mimeType == null || !isValidImageFile(mimeType)) {
         throw new CustomException(ErrorCode.INVALID_FILE_FORMAT);
       }
 
-      // S3에 파일 업로드
-      mediaFiles.add(mediaFileRepository.save(MediaFile.builder()
+      // 파일 업로드
+      String fileUrl = storageService.uploadFile(mimeType, file);
+
+      MediaFile mediaFile = mediaFileRepository.save(MediaFile.builder()
           .postId(postId)
           .originalFileName(file.getOriginalFilename())
-          .fileUrl(s3Service.uploadFile(file))
+          .fileUrl(fileUrl)
           .fileSize(file.getSize())
           .contentType(contentType)
           .mimeType(MimeType.fromString(mimeType))
-          .build()));
+          .build());
+
+      mediaFiles.add(mediaFile);
+      log.info("파일 저장 완료: 업로드 파일명={}", fileUrl);
     }
     return mediaFiles;
   }
 
   // 업로드 파일이 이미지 타입인지 검증
-  private static boolean isInvalidImageFile(String mimeType) {
+  private static boolean isValidImageFile(String mimeType) {
     return mimeType.equals("image/jpeg") || mimeType.equals("image/png");
   }
 }
