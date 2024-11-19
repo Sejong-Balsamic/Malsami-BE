@@ -85,6 +85,27 @@ public class AnswerPostService {
   }
 
   /**
+   * <h3>특정 질문글에 작성된 모든 답변 조회 로직</h3>
+   *
+   * @param command questionPostId
+   * @return
+   */
+  public QuestionDto getAnswersByQuestion(QuestionCommand command) {
+
+    // 질문글 조회
+    QuestionPost questionPost = questionPostRepository.findById(command.getQuestionPostId())
+        .orElseThrow(() -> new CustomException(ErrorCode.QUESTION_POST_NOT_FOUND));
+
+    // 질문글에 작성된 답변 list 조회
+    List<AnswerPost> answerPosts = answerPostRepository.findAllByQuestionPost(questionPost)
+        .orElse(null);
+
+    return QuestionDto.builder()
+        .answerPosts(answerPosts)
+        .build();
+  }
+
+  /**
    * <h3>답변 채택 로직
    * <p>1. 해당 답변글 isChaetaek true로 변경
    * <p>2. 글 작성자 - 엽전, 경험치 증가 및 내역 저장
@@ -251,7 +272,8 @@ public class AnswerPostService {
 
     // 해당 질문글의 답변 중 이미 채택된 답변이 있는 경우 채택 불가
     List<AnswerPost> answerPosts = answerPostRepository
-        .findAnswerPostsByQuestionPost(answerPost.getQuestionPost());
+        .findAllByQuestionPost(answerPost.getQuestionPost())
+        .orElseThrow(() -> new CustomException(ErrorCode.ANSWER_POST_NOT_FOUND));
 
     for (AnswerPost post : answerPosts) {
       if (post.getIsChaetaek().equals(Boolean.TRUE)) {
