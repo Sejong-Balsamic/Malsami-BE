@@ -68,6 +68,40 @@ public interface AnswerPostControllerDocs {
 
   @ApiChangeLogs({
       @ApiChangeLog(
+          date = "2024.11.19",
+          author = Author.BAEKJIHOON,
+          description = "특정 질문 글에 작성 된 모든 답변 조회"
+      )
+  })
+  @Operation(
+      summary = "특정 질문 글에 작성 된 모든 답변 조회",
+      description = """
+          **작성 된 답변 조회**
+
+          **이 API는 인증이 필요하며, JWT 토큰이 존재해야합니다.**
+
+          **입력 파라미터 값:**
+
+          - **UUID questionPostId**: 질문 글 PK [필수]
+
+          **반환 파라미터 값:**
+
+          - **QuestionDto**: 질문 게시판 정보 반환
+            - **List\\<AnswerPost\\> answerPosts**: 특정 질문 글에 작성된 답변 List
+
+          **참고 사항:**
+
+          - 이 API를 통해 사용자는 질문 글에 작성된 모든 답변을 조회할 수 있습니다.
+          - 질문글에 작성된 답변이 존재하지 않으면 null 값을 반환합니다.
+          - Swagger에서 테스트 시 mediaFiles에 있는 "Send empty value" 체크박스 해제해야합니다.
+          """
+  )
+  ResponseEntity<QuestionDto> getAnswersByQuestion(
+      CustomUserDetails customUserDetails,
+      QuestionCommand command);
+
+  @ApiChangeLogs({
+      @ApiChangeLog(
           date = "2024.11.16",
           author = Author.SUHSAECHAN,
           description = "질문 게시글도 채택여부 업데이트 및 수정 저장"

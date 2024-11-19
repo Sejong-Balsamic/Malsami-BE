@@ -37,6 +37,15 @@ public class AnswerPostController implements AnswerPostControllerDocs {
   }
 
   @Override
+  @PostMapping(value = "/get/all", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
+  @LogMonitoringInvocation
+  public ResponseEntity<QuestionDto> getAnswersByQuestion(
+      @AuthenticationPrincipal CustomUserDetails customUserDetails,
+      @ModelAttribute QuestionCommand command) {
+    return ResponseEntity.ok(answerPostService.getAnswersByQuestion(command));
+  }
+
+  @Override
   @PostMapping(value = "/chaetaek", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
   @LogMonitoringInvocation
   public ResponseEntity<QuestionDto> chaetaekAnswerPost(
