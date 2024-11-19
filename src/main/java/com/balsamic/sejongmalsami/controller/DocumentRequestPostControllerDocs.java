@@ -119,4 +119,39 @@ public interface DocumentRequestPostControllerDocs {
       CustomUserDetails customUserDetails,
       DocumentCommand command);
 
+  @ApiChangeLogs({
+      @ApiChangeLog(
+          date = "2024.11.19",
+          author = Author.BAEKJIHOON,
+          description = "자료요청 글 상세 조회 init"
+      )
+  })
+  @Operation(
+      summary = "자료 요청 상세 글 조회",
+      description = """
+          **자료 요청 상세 글 조회**
+
+          **이 API는 인증이 필요하며, JWT 토큰이 존재해야합니다.**
+
+          **입력 파라미터 값:**
+
+          - **UUID documentPostId**: 특정 자료 요청 글 PK [필수]
+
+          ### **documentTypes**
+
+          **반환 파라미터 값:**
+
+          - **DocumentDto**: 작성 된 자료 요청 글 정보
+            - **DocumentRequestPost documentRequestPost**: 자료 요청 글
+
+          **참고 사항:**
+
+          - 이 API를 통해 사용자는 특정 자료 요청 글을 조회할 수 있습니다.
+          - API 요청 시 해당 글의 조회수가 증가합니다.
+          - Swagger에서 테스트 시 mediaFiles에 있는 "Send empty value" 체크박스 해제해야합니다.
+          """
+  )
+  ResponseEntity<DocumentDto> getDocumentRequestPost(
+      CustomUserDetails customUserDetails,
+      DocumentCommand command);
 }
