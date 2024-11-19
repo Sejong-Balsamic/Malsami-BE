@@ -160,6 +160,40 @@ public class DocumentRequestPostService {
         .build();
   }
 
+  /**
+   * <h3>특정 자료 요청 글 조회</h3>
+   * <p>자료요청 게시판은 '중인(엽전 수: 1000개)' 이상 접근 가능합니다.
+   * <ul>
+   *   <li>해당 글 조회 수 증가</li>
+   * </ul>
+   *
+   * @param command memberId, documentPostId
+   * @return
+   */
+  public DocumentDto getDocumentRequestPost(DocumentCommand command) {
+
+    Member member = memberRepository.findById(command.getMemberId())
+        .orElseThrow(() -> new CustomException(ErrorCode.MEMBER_NOT_FOUND));
+
+    // 해당 사용자가 중인 이상인지 검증
+    validateJunginOrAbove(member);
+
+    DocumentRequestPost post = documentRequestPostRepository
+        .findById(command.getDocumentPostId())
+        .orElseThrow(() -> new CustomException(ErrorCode.DOCUMENT_REQUEST_POST_NOT_FOUND));
+
+    lineLog(null);
+    superLog(post);
+    lineLog(null);
+
+    // 해당 글 조회 수 증가
+    post.increaseViewCount();
+
+    return DocumentDto.builder()
+        .documentRequestPost(post)
+        .build();
+  }
+
   // 해당 member가 중인 이상인지 검증하는 메소드
   private void validateJunginOrAbove(Member member) {
     // '중인' (엽전수 1000개)이상 접근 가능
