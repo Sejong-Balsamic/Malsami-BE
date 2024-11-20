@@ -2,9 +2,6 @@ package com.balsamic.sejongmalsami.service;
 
 import static com.balsamic.sejongmalsami.util.LogUtils.superLog;
 
-import com.balsamic.sejongmalsami.object.DocumentCommand;
-import com.balsamic.sejongmalsami.object.constants.DocumentType;
-import com.balsamic.sejongmalsami.object.constants.SortType;
 import com.balsamic.sejongmalsami.object.postgres.DocumentFile;
 import com.balsamic.sejongmalsami.object.postgres.DocumentPost;
 import com.balsamic.sejongmalsami.object.postgres.Member;
@@ -12,17 +9,11 @@ import com.balsamic.sejongmalsami.repository.postgres.DocumentFileRepository;
 import com.balsamic.sejongmalsami.repository.postgres.DocumentPostRepository;
 import com.balsamic.sejongmalsami.repository.postgres.MemberRepository;
 import com.balsamic.sejongmalsami.util.TestDataGenerator;
-import java.util.Arrays;
 import lombok.extern.slf4j.Slf4j;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.data.domain.Page;
-import org.springframework.data.domain.PageRequest;
-import org.springframework.data.domain.Pageable;
-import org.springframework.data.domain.Sort;
-import org.springframework.data.domain.Sort.Order;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -81,39 +72,39 @@ class DocumentPostServiceTest {
 //    searchQuery("viewCount");    // 조회수 기준 정렬
   }
 
-  public void searchQuery(SortType sortType) {
-    // DocumentCommand 객체 설정
-    DocumentCommand command = new DocumentCommand();
-    command.setTitle("자료 제목");
-    command.setSubject("수학");
-    command.setContent("자료 내용");
-    command.setPageNumber(0);
-    command.setPageSize(10);
-    command.setDocumentTypes(Arrays.asList(DocumentType.DOCUMENT)); // Set -> List로 변경
-    command.setSortType(sortType);
-
-    Sort sort;
-    if (sortType.equals(SortType.MOST_LIKED)) {
-      sort = Sort.by(Order.desc("likeCount"));
-    } else if (sortType.equals(SortType.VIEW_COUNT)) {
-      sort = Sort.by(Order.desc("viewCount"));
-    } else {
-      sort = Sort.by(Order.desc("createdDate"));
-    }
-    Pageable pageable = PageRequest.of(command.getPageNumber(), command.getPageSize(), sort);
-
-    Page<DocumentPost> documentPostsPage = documentPostRepository.findDocumentPostsByFilter(
-        command.getTitle(),
-        command.getSubject(),
-        command.getContent(),
-        command.getDocumentTypes(),
-        pageable
-    );
-
-    // 결과 로그 출력
-    log.info("검색 결과 (Sort: {}): {}", sortType, documentPostsPage.getContent());
-
-    // 추가적인 로그 출력 (예: 총 요소 수)
-    log.info("총 게시글 수: {}", documentPostsPage.getTotalElements());
-  }
+//  public void searchQuery(SortType sortType) {
+//    // DocumentCommand 객체 설정
+//    DocumentCommand command = new DocumentCommand();
+//    command.setTitle("자료 제목");
+//    command.setSubject("수학");
+//    command.setContent("자료 내용");
+//    command.setPageNumber(0);
+//    command.setPageSize(10);
+//    command.setDocumentTypes(Arrays.asList(DocumentType.DOCUMENT)); // Set -> List로 변경
+//    command.setSortType(sortType);
+//
+//    Sort sort;
+//    if (sortType.equals(SortType.MOST_LIKED)) {
+//      sort = Sort.by(Order.desc("likeCount"));
+//    } else if (sortType.equals(SortType.VIEW_COUNT)) {
+//      sort = Sort.by(Order.desc("viewCount"));
+//    } else {
+//      sort = Sort.by(Order.desc("createdDate"));
+//    }
+//    Pageable pageable = PageRequest.of(command.getPageNumber(), command.getPageSize(), sort);
+//
+//    Page<DocumentPost> documentPostsPage = documentPostRepository.findDocumentPostsByFilter(
+//        command.getTitle(),
+//        command.getSubject(),
+//        command.getContent(),
+//        command.getDocumentTypes(),
+//        pageable
+//    );
+//
+//    // 결과 로그 출력
+//    log.info("검색 결과 (Sort: {}): {}", sortType, documentPostsPage.getContent());
+//
+//    // 추가적인 로그 출력 (예: 총 요소 수)
+//    log.info("총 게시글 수: {}", documentPostsPage.getTotalElements());
+//  }
 }

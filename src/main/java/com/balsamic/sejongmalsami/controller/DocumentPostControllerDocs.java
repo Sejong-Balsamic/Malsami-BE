@@ -64,7 +64,7 @@ public interface DocumentPostControllerDocs {
        
         - **`attachmentFiles`** (`MultipartFile`, **선택**): 업로드 자료 파일 리스트
         
-        ### **documentTypes**
+        ### **DocumentType**
 
         최대 2개까지의 카테고리를 설정 가능
 
@@ -177,6 +177,11 @@ public interface DocumentPostControllerDocs {
   //TODO: description 추가, testCase 더 구체적으로, Mock 객체 생성 최적화 필요
   @ApiChangeLogs({
       @ApiChangeLog(
+          date = "2024.11.20",
+          author = Author.BAEKJIHOON,
+          description = "자료게시판 필터링 조회 수정"
+      ),
+      @ApiChangeLog(
           date = "2024.11.04",
           author = Author.SUHSAECHAN,
           description = "자료게시판 필터링 조회 기본 구현"
@@ -185,7 +190,52 @@ public interface DocumentPostControllerDocs {
   @Operation(
       summary = "자료글 필터링 조회",
       description = """
+          **자료 글 필터링 조회 요청**
+
+          **이 API는 인증이 필요하며, JWT 토큰이 존재해야합니다.**
+
+          **입력 파라미터 값:**
+          
+          - **String subject**: 교과목명 필터링 [선택]
+          
+          - **List<DocumentType> documentTypes**: 태그 필터링 (최대 2개) [선택]
+          
+          - **PostTier postTier**: 자료 등급별 필터링 [선택]
+          
+          - **SortType sortType**: 정렬 기준 [선택] (default = 최신순)
+          
+          - **Integer pageNumber**: 조회하고싶은 페이지 번호 [선택] (default = 0)
+           
+          - **Integer pageSize**: 한 페이지에 조회하고싶은 글 개수 [선택] (default = 30)
+          
+
+          **반환 파라미터 값:**
+
+          - **DocumentDto**: 자료 게시판 정보 반환
+            - **Page\\<DocumentPost\\> documentPostsPage**: 필터링 된 자료글 리스트
+          
+          ### **DocumentType**
+  
+          최대 2개까지의 카테고리를 설정 가능
+  
+          - **DOCUMENT**: 필기 자료, 교안, 녹화본, 실험/실습 자료 등
+          - **PAST_EXAM**: 퀴즈, 기출 문제, 과제 등
+          - **SOLUTION**: 솔루션 등
+          
+          **정렬 타입**
+          
+          - **LATEST** (최신순)
+          - **MOST_LIKED** (좋아요순)
+          - **VIEW_COUNT** (조회수 순)
+   
+          **참고 사항:**
+
+          - 이 API를 통해 사용자는 자료 게시판에 작성된 글을 필터링하여 조회할 수 있습니다.
+          - Swagger에서 테스트 시 mediaFiles에 있는 "Send empty value" 체크박스 해제해야합니다.
+          - pageNumber = 3, pageSize = 10 입력시 4페이지에 해당하는 10개의 글을 반환합니다. (31번째 글 ~ 40번째 글 반환)
           """
   )
-  ResponseEntity<DocumentDto> searchDocumentPost(DocumentCommand command);
+  ResponseEntity<DocumentDto> filteredDocumentPost(
+      CustomUserDetails customUserDetails,
+      DocumentCommand command);
 }
