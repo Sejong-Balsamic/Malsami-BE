@@ -2,7 +2,7 @@ spring:
   profiles:
     active: prod
   config:
-    import: "classpath:yeopjeon.yml,classpath:score.yml,classpath:exp.yml,classpath:admin.yml"
+    import: "classpath:yeopjeon.yml,classpath:score.yml,classpath:exp.yml,classpath:admin.yml, classpath:post-tier.yml"
   jpa:
     generate-ddl: true
     hibernate:

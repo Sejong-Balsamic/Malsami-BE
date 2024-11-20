@@ -71,6 +71,7 @@ src/main/resources/application-prod.yml
 /src/main/resources/score.yml
 /src/main/resources/exp.yml
 /src/main/resources/admin.yml
+/src/main/resources/post-tier.yml
 
 ### cicd
 ./.github/workflows
