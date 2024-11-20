@@ -1,8 +1,5 @@
 package com.balsamic.sejongmalsami.service;
 
-import static com.balsamic.sejongmalsami.util.LogUtils.lineLog;
-import static com.balsamic.sejongmalsami.util.LogUtils.superLog;
-
 import com.balsamic.sejongmalsami.object.DocumentCommand;
 import com.balsamic.sejongmalsami.object.DocumentDto;
 import com.balsamic.sejongmalsami.object.constants.DocumentType;
@@ -94,10 +91,6 @@ public class DocumentRequestPostService {
         .isPrivate(Boolean.TRUE.equals(command.getIsPrivate()))
         .build();
 
-    lineLog(null);
-    superLog(documentRequestPost);
-    lineLog(null);
-
     return DocumentDto.builder()
         .documentRequestPost(documentRequestPostRepository.save(documentRequestPost))
         .build();
@@ -157,6 +150,36 @@ public class DocumentRequestPostService {
 
     return DocumentDto.builder()
         .documentRequestPostsPage(posts)
+        .build();
+  }
+
+  /**
+   * <h3>특정 자료 요청 글 조회</h3>
+   * <p>자료요청 게시판은 '중인(엽전 수: 1000개)' 이상 접근 가능합니다.
+   * <ul>
+   *   <li>해당 글 조회 수 증가</li>
+   * </ul>
+   *
+   * @param command memberId, documentPostId
+   * @return
+   */
+  public DocumentDto getDocumentRequestPost(DocumentCommand command) {
+
+    Member member = memberRepository.findById(command.getMemberId())
+        .orElseThrow(() -> new CustomException(ErrorCode.MEMBER_NOT_FOUND));
+
+    // 해당 사용자가 중인 이상인지 검증
+    validateJunginOrAbove(member);
+
+    DocumentRequestPost post = documentRequestPostRepository
+        .findById(command.getDocumentPostId())
+        .orElseThrow(() -> new CustomException(ErrorCode.DOCUMENT_REQUEST_POST_NOT_FOUND));
+
+    // 해당 글 조회 수 증가
+    post.increaseViewCount();
+
+    return DocumentDto.builder()
+        .documentRequestPost(post)
         .build();
   }
 
