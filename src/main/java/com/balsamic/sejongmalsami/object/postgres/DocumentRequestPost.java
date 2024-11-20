@@ -12,7 +12,6 @@ import jakarta.persistence.FetchType;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
-import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
 import java.util.ArrayList;
 import java.util.List;
@@ -55,7 +54,7 @@ public class DocumentRequestPost extends BaseEntity {
   // 단과대
   @ElementCollection(targetClass = Faculty.class, fetch = FetchType.LAZY)
   @Enumerated(EnumType.STRING)
-  @CollectionTable(name = "document_request_faculties", joinColumns = @JoinColumn(name = "document_request_post_id"))
+  @CollectionTable
   @Builder.Default
   @Column
   private List<Faculty> faculties = new ArrayList<>();
@@ -63,7 +62,7 @@ public class DocumentRequestPost extends BaseEntity {
   // 자료 타입
   @ElementCollection(targetClass = DocumentType.class, fetch = FetchType.LAZY)
   @Enumerated(EnumType.STRING)
-  @CollectionTable(name = "document_types", joinColumns = @JoinColumn(name = "document_request_post_id"))
+  @CollectionTable
   @Builder.Default
   @Column
   private List<DocumentType> documentTypes = new ArrayList<>();
