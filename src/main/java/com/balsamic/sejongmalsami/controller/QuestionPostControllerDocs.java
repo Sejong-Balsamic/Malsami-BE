@@ -285,7 +285,7 @@ public interface QuestionPostControllerDocs {
           **반환 파라미터 값:**
 
           - **QuestionDto**: 질문 게시판 정보 반환
-            - **Page\\<QuestionPost\\> questionPosts**: 필터링 된 질문글 리스트
+            - **Page\\<QuestionPost\\> questionPostsPage**: 필터링 된 질문글 리스트
           
           **정적 태그**
            
