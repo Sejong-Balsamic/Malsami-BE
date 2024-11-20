@@ -20,20 +20,29 @@ import static com.balsamic.sejongmalsami.object.constants.QuestionPresetTag.STUD
 import static com.balsamic.sejongmalsami.object.constants.QuestionPresetTag.UNKNOWN_CONCEPT;
 
 import com.balsamic.sejongmalsami.object.constants.AccountStatus;
+import com.balsamic.sejongmalsami.object.constants.ContentType;
 import com.balsamic.sejongmalsami.object.constants.Faculty;
 import com.balsamic.sejongmalsami.object.constants.Role;
 import com.balsamic.sejongmalsami.object.postgres.AnswerPost;
+import com.balsamic.sejongmalsami.object.postgres.Comment;
 import com.balsamic.sejongmalsami.object.postgres.Course;
 import com.balsamic.sejongmalsami.object.postgres.DocumentFile;
 import com.balsamic.sejongmalsami.object.postgres.DocumentPost;
+import com.balsamic.sejongmalsami.object.postgres.DocumentRequestPost;
+import com.balsamic.sejongmalsami.object.postgres.Exp;
 import com.balsamic.sejongmalsami.object.postgres.Member;
 import com.balsamic.sejongmalsami.object.postgres.QuestionPost;
+import com.balsamic.sejongmalsami.object.postgres.Yeopjeon;
 import com.balsamic.sejongmalsami.repository.postgres.AnswerPostRepository;
+import com.balsamic.sejongmalsami.repository.postgres.CommentRepository;
 import com.balsamic.sejongmalsami.repository.postgres.CourseRepository;
 import com.balsamic.sejongmalsami.repository.postgres.DocumentFileRepository;
 import com.balsamic.sejongmalsami.repository.postgres.DocumentPostRepository;
+import com.balsamic.sejongmalsami.repository.postgres.DocumentRequestPostRepository;
+import com.balsamic.sejongmalsami.repository.postgres.ExpRepository;
 import com.balsamic.sejongmalsami.repository.postgres.MemberRepository;
 import com.balsamic.sejongmalsami.repository.postgres.QuestionPostRepository;
+import com.balsamic.sejongmalsami.repository.postgres.YeopjeonRepository;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import java.io.IOException;
@@ -46,6 +55,7 @@ import java.util.List;
 import java.util.Locale;
 import java.util.Random;
 import java.util.Set;
+import java.util.UUID;
 import java.util.stream.Collectors;
 import lombok.RequiredArgsConstructor;
 import net.datafaker.Faker;
@@ -59,9 +69,13 @@ public class TestDataGenerator {
   private final MemberRepository memberRepository;
   private final DocumentPostRepository documentPostRepository;
   private final DocumentFileRepository documentFileRepository;
+  private final DocumentRequestPostRepository documentRequestPostRepository;
   private final QuestionPostRepository questionPostRepository;
   private final AnswerPostRepository answerPostRepository;
+  private final CommentRepository commentRepository;
   private final CourseRepository courseRepository;
+  private final YeopjeonRepository yeopjeonRepository;
+  private final ExpRepository expRepository;
 
   private final Faker faker = new Faker(new Locale("ko"));
   private final Random random = new Random();
@@ -150,6 +164,12 @@ public class TestDataGenerator {
     return String.format("%02d%s", year, randomDigits);
   }
 
+  /**
+   * <h3>회원 Mock 데이터 생성 메소드</h3>
+   * <p>Mock 회원의 엽전 및 경험치 테이블도 생성합니다.</p>
+   * <p>Mock 회원은 충분한 엽전 및 경험치를 소지하도록 생성합니다.</p>
+   * @return Member
+   */
   public Member createMockMember() {
     Member member = Member.builder()
         .studentId(Long.parseLong(generateStudentId())) // 임의의 8자리 학생 ID
@@ -165,10 +185,33 @@ public class TestDataGenerator {
         .lastLoginTime(LocalDateTime.now().minusDays(faker.number().numberBetween(1, 30))) // 마지막 로그인 시간
         .isFirstLogin(false) // 첫 로그인 X : 고정
         .build();
+
+    // Mock 회원의 엽전 테이블 생성
+    Yeopjeon yeopjeon = Yeopjeon.builder()
+        .member(member)
+        .yeopjeon(1000000)
+        .build();
+    yeopjeonRepository.save(yeopjeon);
+
+    // Mock 회원의 경험치 테이블 생성
+    Exp exp = Exp.builder()
+        .member(member)
+        .exp(faker.number().numberBetween(0, 10000))
+        .build();
+    expRepository.save(exp);
+
     return memberRepository.save(member);
   }
 
-  // 질문 글 Mock 데이터 생성
+  /**
+   * <h3>질문글 Mock 데이터 생성 메소드</h3>
+   * <ul>
+   *   <li>Member를 파라미터로 받아 질문글을 작성합니다.</li>
+   *   <li>TODO: 작성시각, 수정시각 설정 로직 작성</li>
+   * </ul>
+   * @param member
+   * @return questionPost
+   */
   public QuestionPost createMockQuestionPost(Member member) {
 
     String subject = subjects.get(random.nextInt(subjects.size()));
@@ -206,7 +249,13 @@ public class TestDataGenerator {
     return questionPostRepository.save(post);
   }
 
-  // 답변 글 Mock 데이터 생성
+  /**
+   * <h3>답변 글 Mock 데이터 생성 메소드</h3>
+   *
+   * @param member
+   * @param questionPost
+   * @return
+   */
   public AnswerPost createMockAnswerPost(Member member, QuestionPost questionPost) {
 
     AnswerPost answerPost = AnswerPost.builder()
@@ -268,5 +317,58 @@ public class TestDataGenerator {
         .isDeleted(faker.bool().bool()) // 삭제 여부
         .build();
     return documentFileRepository.save(file);
+  }
+
+  /**
+   * <h3>자료 요청 글 Mock 데이터 생성 메소드</h3>
+   *
+   * @param member
+   * @return
+   */
+  public DocumentRequestPost createMockDocumentRequestPost(Member member) {
+
+    String subject = subjects.get(random.nextInt(subjects.size()));
+
+    List<Faculty> faculties = courseRepository
+        .findAllBySubject(subject)
+        .stream().map(Course::getFaculty)
+        .collect(Collectors.toList());
+
+    DocumentRequestPost post = DocumentRequestPost.builder()
+        .member(member)
+        .title(faker.lorem().sentence())
+        .content(faker.lorem().paragraph())
+        .subject(subject)
+        .faculties(faculties)
+        .documentTypes(new ArrayList<>(faker.options().option(
+            List.of(DOCUMENT),
+            List.of(DOCUMENT, PAST_EXAM),
+            List.of(SOLUTION)
+        )))
+        .viewCount(faker.number().numberBetween(0, 30000))
+        .likeCount(faker.number().numberBetween(0, 1000))
+        .commentCount(0)
+        .isPrivate(faker.bool().bool())
+        .build();
+    return documentRequestPostRepository.save(post);
+  }
+
+  /**
+   * <h3>댓글 Mock 데이터 생성 메소드</h3>
+   * @param member 댓글 작성자
+   * @param contentType question, answer, document, documentRequest, notice
+   * @return
+   */
+  public Comment createMockComment(Member member, UUID postId, ContentType contentType) {
+
+    Comment comment = Comment.builder()
+        .member(member)
+        .postId(postId)
+        .content(faker.lorem().paragraph())
+        .likeCount(faker.number().numberBetween(0, 1000))
+        .contentType(contentType)
+        .isPrivate(faker.bool().bool())
+        .build();
+    return commentRepository.save(comment);
   }
 }
