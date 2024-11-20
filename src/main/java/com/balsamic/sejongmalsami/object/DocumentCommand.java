@@ -17,7 +17,7 @@ import org.springframework.web.multipart.MultipartFile;
 @Getter
 @Setter
 public class DocumentCommand {
-  // 2024.11.15 : SUHSAECHAN : 페이지 기본갑 설정
+  // 2024.11.15 : SUHSAECHAN : 페이지 기본값 설정
   public DocumentCommand() {
     this.pageNumber = 0;
     this.pageSize = 30;
