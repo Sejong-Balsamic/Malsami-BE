@@ -1,18 +1,18 @@
 package com.balsamic.sejongmalsami.service;
 
-import static com.balsamic.sejongmalsami.util.LogUtils.superLog;
-
 import com.balsamic.sejongmalsami.object.CommentCommand;
 import com.balsamic.sejongmalsami.object.CommentDto;
 import com.balsamic.sejongmalsami.object.constants.ContentType;
 import com.balsamic.sejongmalsami.object.constants.ExpAction;
 import com.balsamic.sejongmalsami.object.postgres.AnswerPost;
 import com.balsamic.sejongmalsami.object.postgres.Comment;
+import com.balsamic.sejongmalsami.object.postgres.DocumentPost;
 import com.balsamic.sejongmalsami.object.postgres.DocumentRequestPost;
 import com.balsamic.sejongmalsami.object.postgres.Member;
 import com.balsamic.sejongmalsami.object.postgres.QuestionPost;
 import com.balsamic.sejongmalsami.repository.postgres.AnswerPostRepository;
 import com.balsamic.sejongmalsami.repository.postgres.CommentRepository;
+import com.balsamic.sejongmalsami.repository.postgres.DocumentPostRepository;
 import com.balsamic.sejongmalsami.repository.postgres.DocumentRequestPostRepository;
 import com.balsamic.sejongmalsami.repository.postgres.MemberRepository;
 import com.balsamic.sejongmalsami.repository.postgres.QuestionPostRepository;
@@ -35,6 +35,7 @@ public class CommentService {
 
   private final QuestionPostRepository questionPostRepository;
   private final AnswerPostRepository answerPostRepository;
+  private final DocumentPostRepository documentPostRepository;
   private final DocumentRequestPostRepository documentRequestPostRepository;
   private final CommentRepository commentRepository;
   private final MemberRepository memberRepository;
@@ -73,7 +74,6 @@ public class CommentService {
       questionPost.increaseCommentCount();
       questionPostRepository.save(questionPost);
       log.info("댓글 작성 후 댓글 수: {}", questionPost.getCommentCount());
-      superLog(questionPost);
     } else if (contentType.equals(ContentType.ANSWER)) { // 답변
       answerPost = answerPostRepository.findById(postId)
           .orElseThrow(() -> new CustomException(ErrorCode.ANSWER_POST_NOT_FOUND));
@@ -83,9 +83,14 @@ public class CommentService {
       answerPost.increaseCommentCount();
       answerPostRepository.save(answerPost);
       log.info("댓글 작성 후 댓글 수: {}", answerPost.getCommentCount());
-      superLog(answerPost);
     } else if (contentType.equals(ContentType.DOCUMENT)) { // 자료글
+      DocumentPost documentPost = documentPostRepository.findById(postId)
+          .orElseThrow(() -> new CustomException(ErrorCode.DOCUMENT_POST_NOT_FOUND));
 
+      // 댓글 수 증가
+      log.info("댓글 작성 전 댓글 수: {}", documentPost.getCommentCount());
+      documentPost.increaseCommentCount();
+      log.info("댓글 작성 후 댓글 수: {}", documentPost.getCommentCount());
     } else if (contentType.equals(ContentType.DOCUMENT_REQUEST)) { // 자료 요청 글
       documentRequestPost = documentRequestPostRepository.findById(postId)
           .orElseThrow(() -> new CustomException(ErrorCode.DOCUMENT_REQUEST_POST_NOT_FOUND));
@@ -95,7 +100,6 @@ public class CommentService {
       documentRequestPost.increaseCommentCount();
       documentRequestPostRepository.save(documentRequestPost);
       log.info("댓글 작성 후 댓글 수: {}", documentRequestPost.getCommentCount());
-      superLog(documentRequestPost);
     } else if (contentType.equals(ContentType.NOTICE)) {
 
     } else {

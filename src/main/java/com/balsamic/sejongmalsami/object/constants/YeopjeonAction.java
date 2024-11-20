@@ -7,6 +7,7 @@ import lombok.Getter;
 @AllArgsConstructor
 public enum YeopjeonAction {
 
+  VIEW_DOCUMENT_CHEONMIN_POST("천민 자료 게시글 열람"), // 천민 게시글 조회
   VIEW_DOCUMENT_JUNGIN_POST("중인 자료 게시글 열람"), // 중인 게시글 조회 시 엽전 소모
   VIEW_DOCUMENT_YANGBAN_POST("양반 자료 게시글 열람"), // 양반 게시글 조회 시 엽전 소모
   VIEW_DOCUMENT_KING_POST("왕 자료 게시글 열람"), // 왕 게시글 조회 시 엽전 소모
