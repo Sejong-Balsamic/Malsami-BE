@@ -81,6 +81,7 @@ public class TestService {
               questionPost.getQuestionPostId(),
               ContentType.QUESTION
           );
+          questionPost.increaseCommentCount();
         }
 
         // 5. 답변 글 생성 (0 ~ 10개)
@@ -103,6 +104,7 @@ public class TestService {
                 answerPost.getAnswerPostId(),
                 ContentType.ANSWER
             );
+            answerPost.increaseCommentCount();
           }
         }
 
@@ -235,6 +237,7 @@ public class TestService {
               documentRequestPost.getDocumentRequestPostId(),
               ContentType.DOCUMENT_REQUEST
           );
+          documentRequestPost.increaseCommentCount();
         }
       }
     }
