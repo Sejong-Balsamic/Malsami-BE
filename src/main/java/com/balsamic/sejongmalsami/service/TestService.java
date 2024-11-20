@@ -182,6 +182,7 @@ public class TestService {
               documentPost.getDocumentPostId(),
               ContentType.DOCUMENT
           );
+          documentPost.increaseCommentCount();
         }
 
         // 3.3 DocumentFile 생성 (0 ~ 5개)
