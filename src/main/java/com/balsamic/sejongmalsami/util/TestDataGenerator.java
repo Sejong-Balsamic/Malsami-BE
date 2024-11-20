@@ -43,6 +43,7 @@ import com.balsamic.sejongmalsami.repository.postgres.ExpRepository;
 import com.balsamic.sejongmalsami.repository.postgres.MemberRepository;
 import com.balsamic.sejongmalsami.repository.postgres.QuestionPostRepository;
 import com.balsamic.sejongmalsami.repository.postgres.YeopjeonRepository;
+import com.balsamic.sejongmalsami.util.config.PostTierConfig;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import java.io.IOException;
@@ -76,6 +77,7 @@ public class TestDataGenerator {
   private final CourseRepository courseRepository;
   private final YeopjeonRepository yeopjeonRepository;
   private final ExpRepository expRepository;
+  private final PostTierConfig postTierConfig;
 
   private final Faker faker = new Faker(new Locale("ko"));
   private final Random random = new Random();
@@ -273,15 +275,26 @@ public class TestDataGenerator {
     return answerPostRepository.save(answerPost);
   }
 
+  /**
+   * <h3>자료 글 Mock 데이터 생성 메소드</h3>
+   *
+   * @param member
+   * @return
+   */
   public DocumentPost createMockDocumentPost(Member member) {
+
+    String subject = subjects.get(random.nextInt(subjects.size()));
+
     DocumentPost post = DocumentPost.builder()
         .member(member)
         .title(faker.lorem().sentence()) // 임의의 제목
-        .subject(faker.educator().course()) // 임의의 교과목명
+        .subject(subject) // 임의의 교과목명
         .content(faker.lorem().paragraph()) // 임의의 내용
-        .postTier(faker.options().option(CHEONMIN, JUNGIN, YANGBAN, KING)) // 고정 계급
-        .likeCount(faker.number().numberBetween(0, 1000)) // 임의의 좋아요 수
+        .postTier(CHEONMIN) // 글 작성시 천민 계급
+        .likeCount(faker.number().numberBetween(0, 130)) // 임의의 좋아요 수
+        .dislikeCount(faker.number().numberBetween(0, 30)) // 임의의 싫어요 수
         .viewCount(faker.number().numberBetween(0, 30000)) // 임의의 조회 수
+        .commentCount(0)
         .isDepartmentPrivate(faker.bool().bool()) // 학과 비공개 여부
         .dailyScore((long) faker.number().numberBetween(0, 300)) // 임의의 일간 점수
         .weeklyScore((long) faker.number().numberBetween(0, 1000)) // 임의의 주간 점수
@@ -296,9 +309,26 @@ public class TestDataGenerator {
             Arrays.asList(PAST_EXAM)
         )) // 문서 타입
         .build();
+
+    if (post.getLikeCount() < postTierConfig.getLikeRequirementCheonmin()) {
+      post.updatePostTier(CHEONMIN);
+    } else if (post.getLikeCount() < postTierConfig.getLikeRequirementJungin()) {
+      post.updatePostTier(JUNGIN);
+    } else if (post.getLikeCount() < postTierConfig.getLikeRequirementKing()) {
+      post.updatePostTier(YANGBAN);
+    } else {
+      post.updatePostTier(KING);
+    }
+
     return documentPostRepository.save(post);
   }
 
+  /**
+   * <h3>자료 첨부파일 Mock 데이터 생성 메소드</h3>
+   * @param uploader
+   * @param post
+   * @return
+   */
   public DocumentFile createMockDocumentFile(Member uploader, DocumentPost post) {
     DocumentFile file = DocumentFile.builder()
         .documentPost(post)

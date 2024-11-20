@@ -1,5 +1,10 @@
 package com.balsamic.sejongmalsami.service;
 
+import static com.balsamic.sejongmalsami.object.constants.YeopjeonAction.VIEW_DOCUMENT_CHEONMIN_POST;
+import static com.balsamic.sejongmalsami.object.constants.YeopjeonAction.VIEW_DOCUMENT_JUNGIN_POST;
+import static com.balsamic.sejongmalsami.object.constants.YeopjeonAction.VIEW_DOCUMENT_KING_POST;
+import static com.balsamic.sejongmalsami.object.constants.YeopjeonAction.VIEW_DOCUMENT_YANGBAN_POST;
+
 import com.balsamic.sejongmalsami.object.DocumentCommand;
 import com.balsamic.sejongmalsami.object.DocumentDto;
 import com.balsamic.sejongmalsami.object.constants.MimeType;
@@ -143,38 +148,49 @@ public class DocumentPostService {
         .build();
   }
 
-//  @Transactional(readOnly = true)
-//  public DocumentDto getDocumentPosts(DocumentCommand command) {
-//    // 기본 : 천민 자료 반환
-//    //TODO: 게시글 등급 에 맞는 엽전 보유량 체크 필요
-//
-//    // 정렬
-//    Sort sort = null;
-//    SortType sortType = command.getSortType();
-//    if (sortType.equals(SortType.MOST_LIKED)) {
-//      sort = Sort.by(Order.desc("likeCount"));
-//    } else if (sortType.equals(SortType.VIEW_COUNT)) {
-//      sort = Sort.by(Order.desc("viewCount"));
-//    } else {
-//      sort = Sort.by(Order.desc("createdDate"));
-//    }
-//
-//    Pageable pageable = PageRequest.of(command.getPageNumber(), command.getPageSize(), sort);
-//
-//    //TODO: search 와 filter 분리 , like문 제거 및 필터링 변수 정의 추가 필요
-//    String title = command.getTitle();
-//    String subject = command.getSubject();
-//    String content = command.getContent();
-//    List<DocumentType> documentTypesList = command.getDocumentTypes();
-//
-//    Page<DocumentPost> documentPostsPage = documentPostRepository.findDocumentPostsByFilter(
-//        title, subject, content, documentTypesList, pageable
-//    );
-//
-//    return DocumentDto.builder()
-//        .documentPostsPage(documentPostsPage)
-//        .build();
-//  }
+  /**
+   * <h3>특정 자료 글 조회</h3>
+   * <ul>
+   *   <li>해당 글 조회수 증가</li>
+   *   <li>게시판 등급에 따라 사용자 엽전 감소</li>
+   * </ul>
+   *
+   * @param command memberId, documentPostId
+   * @return
+   */
+  public DocumentDto getDocumentPost(DocumentCommand command) {
+
+    Member member = memberRepository.findById(command.getMemberId())
+        .orElseThrow(() -> new CustomException(ErrorCode.MEMBER_NOT_FOUND));
+
+    DocumentPost post = documentPostRepository.findByDocumentPostId(command.getDocumentPostId())
+        .orElseThrow(() -> new CustomException(ErrorCode.DOCUMENT_POST_NOT_FOUND));
+
+    PostTier postTier = post.getPostTier();
+
+    // 해당 게시판 접근 가능 여부 확인
+    canAccessDocumentBoard(member, postTier);
+
+    // 게시글 등급에 따라 사용자 엽전 변동 및 엽전 히스토리 저장
+    switch (postTier) {
+      case CHEONMIN -> yeopjeonService
+          .updateYeopjeonAndSaveYeopjeonHistory(member, VIEW_DOCUMENT_CHEONMIN_POST);
+      case JUNGIN -> yeopjeonService
+          .updateYeopjeonAndSaveYeopjeonHistory(member, VIEW_DOCUMENT_JUNGIN_POST);
+      case YANGBAN -> yeopjeonService
+          .updateYeopjeonAndSaveYeopjeonHistory(member, VIEW_DOCUMENT_YANGBAN_POST);
+      case KING -> yeopjeonService
+          .updateYeopjeonAndSaveYeopjeonHistory(member, VIEW_DOCUMENT_KING_POST);
+    }
+
+    // 해당 자료 글 조회수 증가
+    post.increaseViewCount();
+
+    // 해당 자료 글 반환
+    return DocumentDto.builder()
+        .documentPost(documentPostRepository.save(post))
+        .build();
+  }
 
   /**
    * 첨부 파일 처리, 업로드, 저장
