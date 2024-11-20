@@ -173,7 +173,7 @@ public class TestService {
         documentPostTotalCreated++;
 
         // 3.3 댓글 작성
-        int numComments = random.nextInt(6) // 0 ~ 5
+        int numComments = random.nextInt(6); // 0 ~ 5
         for (int j = 0; j < numComments; j++) {
           // 회원 풀에서 랜덤으로 댓글 작성자 선택
           Member commentWriter = memberPool.get(random.nextInt(memberPool.size()));
