@@ -55,10 +55,21 @@ public class DocumentPostController implements DocumentPostControllerDocs {
   }
 
   @Override
+  @PostMapping(value = "/get", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
+  @LogMonitoringInvocation
+  public ResponseEntity<DocumentDto> getDocumentPost(
+      @AuthenticationPrincipal CustomUserDetails customUserDetails,
+      @ModelAttribute DocumentCommand command) {
+    return ResponseEntity.ok(documentPostService.getDocumentPost(command));
+  }
+
+  @Override
   @PostMapping(value = "/filter", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
   @LogMonitoringInvocation
-  public ResponseEntity<DocumentDto> searchDocumentPost(
+  public ResponseEntity<DocumentDto> filteredDocumentPost(
+      @AuthenticationPrincipal CustomUserDetails customUserDetails,
       @ModelAttribute DocumentCommand command) {
-    return ResponseEntity.ok(documentPostService.searchDocumentPost(command));
+    command.setMemberId(command.getMemberId());
+    return ResponseEntity.ok(documentPostService.filteredDocumentPost(command));
   }
 }

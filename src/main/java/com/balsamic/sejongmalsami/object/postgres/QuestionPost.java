@@ -24,11 +24,13 @@ import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
+import lombok.Setter;
 import lombok.ToString;
 import lombok.experimental.SuperBuilder;
 
 @Entity
 @Getter
+@Setter
 @SuperBuilder
 @AllArgsConstructor
 @NoArgsConstructor
@@ -100,7 +102,7 @@ public class QuestionPost extends BasePost {
 
   // 게시글 답변 채택 여부
   @Builder.Default
-  private Boolean isChaetaek = false;
+  private Boolean chaetaekStatus = false;
 
   // 내 정보 비공개 여부
   @Builder.Default
@@ -152,6 +154,11 @@ public class QuestionPost extends BasePost {
 
   // 답변 채택
   public void markAsChaetaek() {
-    isChaetaek = true;
+    chaetaekStatus = true;
+  }
+
+  // 답변 채택 rollback
+  public void rollbackChaetaek() {
+    chaetaekStatus = false;
   }
 }

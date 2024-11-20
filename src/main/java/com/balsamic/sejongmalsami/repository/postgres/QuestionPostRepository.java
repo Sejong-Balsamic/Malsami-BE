@@ -39,26 +39,26 @@ public interface QuestionPostRepository extends JpaRepository<QuestionPost, UUID
         where (:faculty is null or :faculty member of q.faculties)
         and (q.answerCount = 0)
         """)
-  Page<QuestionPost> findFilteredNotAnsweredQuestion(
+  Page<QuestionPost> findNotAnsweredQuestionByFilter(
       @Param("faculty") Faculty faculty,
       Pageable pageable);
 
   // 과목 및 채택 상태 필터링
   @Query("""
-        select q
+        select distinct q
         from QuestionPost q
-        join q.questionPresetTags qt
+        left join q.questionPresetTags qt
         where
             (:subject is null or q.subject = :subject)
             and (:faculty is null or :faculty member of q.faculties)
             and (:questionPresetTags is null or qt in :questionPresetTags)
             and (
-                :chaetaekStatus = 'ALL' 
-                or (:chaetaekStatus = 'CHAETAEK' and q.isChaetaek = true)
-                or (:chaetaekStatus = 'NO_CHAETAEK' and q.isChaetaek = false)
+                :chaetaekStatus = 'ALL'
+                or (:chaetaekStatus = 'CHAETAEK' and q.chaetaekStatus = true)
+                or (:chaetaekStatus = 'NO_CHAETAEK' and q.chaetaekStatus = false)
             )
         """)
-  Page<QuestionPost> findFilteredQuestions(
+  Page<QuestionPost> findQuestionPostsByFilter(
       @Param("subject") String subject,
       @Param("faculty") Faculty faculty,
       @Param("questionPresetTags") List<QuestionPresetTag> questionPresetTags,

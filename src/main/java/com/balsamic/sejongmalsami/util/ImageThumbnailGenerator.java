@@ -5,7 +5,9 @@ import com.balsamic.sejongmalsami.object.constants.SystemType;
 import com.balsamic.sejongmalsami.util.exception.CustomException;
 import com.balsamic.sejongmalsami.util.exception.ErrorCode;
 import java.awt.Dimension;
+import java.awt.Font;
 import java.awt.Graphics2D;
+import java.awt.RenderingHints;
 import java.awt.image.BufferedImage;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
@@ -32,8 +34,8 @@ import org.springframework.web.multipart.MultipartFile;
 @RequiredArgsConstructor
 public class ImageThumbnailGenerator {
 
-  public static final int DEFAULT_WIDTH = 300;
-  public static final int DEFAULT_HEIGHT = 300;
+  public static final int DEFAULT_WIDTH = 600; // 해상도 향상을 위해 크기 증가
+  public static final int DEFAULT_HEIGHT = 600;
 
   private final String outputThumbnailFormat; // JPG, WEBP
 
@@ -78,8 +80,9 @@ public class ImageThumbnailGenerator {
     try {
       Thumbnails.of(file.getInputStream())
           .size(DEFAULT_WIDTH, DEFAULT_HEIGHT)
-          .keepAspectRatio(true)
           .outputFormat(outputThumbnailFormat)
+          .outputQuality(1.0) // 화질을 최대로 설정
+          .allowOverwrite(true)
           .toOutputStream(thumbnailOutputStream);
       log.info("이미지 썸네일 생성 완료: {}", file.getOriginalFilename());
     } catch (Exception e) {
@@ -146,7 +149,10 @@ public class ImageThumbnailGenerator {
       // 현재는 더미 이미지 반환
       BufferedImage img = new BufferedImage(DEFAULT_WIDTH, DEFAULT_HEIGHT, BufferedImage.TYPE_INT_RGB);
       Graphics2D graphics = img.createGraphics();
-      graphics.drawString("Video Thumbnail", 10, 20);
+      graphics.setFont(new Font("Arial", Font.BOLD, 24));
+      graphics.setRenderingHint(RenderingHints.KEY_TEXT_ANTIALIASING, RenderingHints.VALUE_TEXT_ANTIALIAS_ON);
+      graphics.drawString("Video Thumbnail", 50, 100);
+      graphics.dispose();
 
       ByteArrayOutputStream thumbnailOutputStream = new ByteArrayOutputStream();
       ImageIO.write(img, outputThumbnailFormat, thumbnailOutputStream);
@@ -166,12 +172,13 @@ public class ImageThumbnailGenerator {
     try (PDDocument document = PDDocument.load(pdfInputStream)) {
       log.info("PDF 문서 로드 완료, 페이지 수: {}", document.getNumberOfPages());
       PDFRenderer pdfRenderer = new PDFRenderer(document);
-      BufferedImage bim = pdfRenderer.renderImageWithDPI(0, 300);
+      BufferedImage bim = pdfRenderer.renderImageWithDPI(0, 300); // 높은 DPI로 렌더링
       int[] scaledDimensions = getScaledDimensions(bim);
       log.info("PDF 렌더링 완료, 조정된 크기: width={}, height={}", scaledDimensions[0], scaledDimensions[1]);
 
       BufferedImage thumbnail = Thumbnails.of(bim)
           .size(scaledDimensions[0], scaledDimensions[1])
+          .outputQuality(1.0)
           .asBufferedImage();
 
       ByteArrayOutputStream thumbnailOutputStream = new ByteArrayOutputStream();
@@ -192,16 +199,23 @@ public class ImageThumbnailGenerator {
     try (XWPFDocument document = new XWPFDocument(docInputStream)) {
       BufferedImage img = new BufferedImage(DEFAULT_WIDTH, DEFAULT_HEIGHT, BufferedImage.TYPE_INT_RGB);
       Graphics2D graphics = img.createGraphics();
+      graphics.setFont(new Font("Arial", Font.BOLD, 24));
+      graphics.setRenderingHint(RenderingHints.KEY_TEXT_ANTIALIASING, RenderingHints.VALUE_TEXT_ANTIALIAS_ON);
       String firstPageText = document.getParagraphs().stream()
           .map(paragraph -> paragraph.getText())
           .findFirst()
           .orElse("내용 없음");
       log.info("썸네일에 포함된 첫 페이지 텍스트: {}", firstPageText);
 
-      graphics.drawString(firstPageText, 10, 20);
+      graphics.drawString(firstPageText, 50, 100); // 텍스트 위치 조정
+      graphics.dispose();
 
       ByteArrayOutputStream thumbnailOutputStream = new ByteArrayOutputStream();
-      ImageIO.write(img, outputThumbnailFormat, thumbnailOutputStream);
+      Thumbnails.of(img)
+          .size(DEFAULT_WIDTH, DEFAULT_HEIGHT)
+          .outputFormat(outputThumbnailFormat)
+          .outputQuality(1.0)
+          .toOutputStream(thumbnailOutputStream);
       log.info("Word 썸네일 생성 완료");
       return thumbnailOutputStream.toByteArray();
     } catch (Exception e) {
@@ -221,10 +235,17 @@ public class ImageThumbnailGenerator {
 
       BufferedImage img = new BufferedImage(DEFAULT_WIDTH, DEFAULT_HEIGHT, BufferedImage.TYPE_INT_RGB);
       Graphics2D graphics = img.createGraphics();
-      graphics.drawString("Sheet: " + sheetName, 10, 20);
+      graphics.setFont(new Font("Arial", Font.BOLD, 24));
+      graphics.setRenderingHint(RenderingHints.KEY_TEXT_ANTIALIASING, RenderingHints.VALUE_TEXT_ANTIALIAS_ON);
+      graphics.drawString("Sheet: " + sheetName, 50, 100);
+      graphics.dispose();
 
       ByteArrayOutputStream thumbnailOutputStream = new ByteArrayOutputStream();
-      ImageIO.write(img, outputThumbnailFormat, thumbnailOutputStream);
+      Thumbnails.of(img)
+          .size(DEFAULT_WIDTH, DEFAULT_HEIGHT)
+          .outputFormat(outputThumbnailFormat)
+          .outputQuality(1.0) // 화질을 최대로 설정
+          .toOutputStream(thumbnailOutputStream);
       log.info("Excel 썸네일 생성 완료");
       return thumbnailOutputStream.toByteArray();
     } catch (Exception e) {
@@ -239,6 +260,10 @@ public class ImageThumbnailGenerator {
   private byte[] generatePowerPointThumbnail(InputStream pptInputStream) throws IOException {
     log.info("PowerPoint 썸네일 생성 시작");
     try (XMLSlideShow ppt = new XMLSlideShow(pptInputStream)) {
+      if (ppt.getSlides().isEmpty()) {
+        log.warn("PowerPoint 파일에 슬라이드가 없습니다.");
+        return new byte[0];
+      }
       XSLFSlide slide = ppt.getSlides().get(0);
       Dimension pageSize = ppt.getPageSize();
       log.info("PowerPoint 슬라이드 크기: width={}, height={}", pageSize.width, pageSize.height);
@@ -246,11 +271,15 @@ public class ImageThumbnailGenerator {
       BufferedImage img = new BufferedImage(pageSize.width, pageSize.height, BufferedImage.TYPE_INT_RGB);
       Graphics2D graphics = img.createGraphics();
       slide.draw(graphics);
+      graphics.dispose();
+
       int[] scaledDimensions = getScaledDimensions(img);
       log.info("PowerPoint 슬라이드 조정된 크기: width={}, height={}", scaledDimensions[0], scaledDimensions[1]);
 
       BufferedImage thumbnail = Thumbnails.of(img)
           .size(scaledDimensions[0], scaledDimensions[1])
+          .outputFormat(outputThumbnailFormat)
+          .outputQuality(1.0)
           .asBufferedImage();
 
       ByteArrayOutputStream thumbnailOutputStream = new ByteArrayOutputStream();

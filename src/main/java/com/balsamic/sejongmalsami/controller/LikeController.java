@@ -5,8 +5,7 @@ import com.balsamic.sejongmalsami.object.CommentDto;
 import com.balsamic.sejongmalsami.object.CustomUserDetails;
 import com.balsamic.sejongmalsami.object.QuestionCommand;
 import com.balsamic.sejongmalsami.object.QuestionDto;
-import com.balsamic.sejongmalsami.service.CommentLikeService;
-import com.balsamic.sejongmalsami.service.QuestionBoardLikeService;
+import com.balsamic.sejongmalsami.service.LikeService;
 import com.balsamic.sejongmalsami.util.log.LogMonitoringInvocation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
@@ -27,8 +26,7 @@ import org.springframework.web.bind.annotation.RestController;
 )
 public class LikeController implements LikeControllerDocs{
 
-  private final QuestionBoardLikeService questionBoardLikeService;
-  private final CommentLikeService commentLikeService;
+  private final LikeService likeService;
 
   @Override
   @PostMapping(value = "/question/board", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
@@ -37,7 +35,7 @@ public class LikeController implements LikeControllerDocs{
       @AuthenticationPrincipal CustomUserDetails customUserDetails,
       @ModelAttribute QuestionCommand command) {
     command.setMemberId(customUserDetails.getMemberId());
-    return ResponseEntity.ok(questionBoardLikeService.questionBoardLike(command));
+    return ResponseEntity.ok(likeService.questionBoardLike(command));
   }
 
   @Override
@@ -47,7 +45,7 @@ public class LikeController implements LikeControllerDocs{
       @AuthenticationPrincipal CustomUserDetails customUserDetails,
       @ModelAttribute CommentCommand command) {
     command.setMemberId(customUserDetails.getMemberId());
-    return ResponseEntity.ok(commentLikeService.commentLike(command));
+    return ResponseEntity.ok(likeService.commentLike(command));
   }
 
 }
