@@ -85,4 +85,9 @@ public class DocumentPost extends BasePost {
     }
     this.documentTypes = documentTypes;
   }
+
+  // 조회 수 증가
+  public void increaseViewCount() {
+    viewCount++;
+  }
 }
