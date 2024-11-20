@@ -2,6 +2,7 @@ package com.balsamic.sejongmalsami.object;
 
 import com.balsamic.sejongmalsami.object.constants.DocumentType;
 import com.balsamic.sejongmalsami.object.constants.Faculty;
+import com.balsamic.sejongmalsami.object.constants.PostTier;
 import com.balsamic.sejongmalsami.object.constants.SortType;
 import com.balsamic.sejongmalsami.object.postgres.Member;
 import io.swagger.v3.oas.annotations.media.Schema;
@@ -40,6 +41,7 @@ public class DocumentCommand {
   @Schema(defaultValue = "30")
   private Integer pageSize;
   private SortType sortType; // 최신순, 좋아요순
+  private PostTier postTier;
 
 
   private List<MultipartFile> attachmentFiles = new ArrayList<>(); // 첨부된 파일들
