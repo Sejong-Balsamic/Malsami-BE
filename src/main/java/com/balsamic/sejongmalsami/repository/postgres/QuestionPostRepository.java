@@ -39,7 +39,7 @@ public interface QuestionPostRepository extends JpaRepository<QuestionPost, UUID
         where (:faculty is null or :faculty member of q.faculties)
         and (q.answerCount = 0)
         """)
-  Page<QuestionPost> findFilteredNotAnsweredQuestion(
+  Page<QuestionPost> findNotAnsweredQuestionByFilter(
       @Param("faculty") Faculty faculty,
       Pageable pageable);
 
@@ -58,7 +58,7 @@ public interface QuestionPostRepository extends JpaRepository<QuestionPost, UUID
                 or (:chaetaekStatus = 'NO_CHAETAEK' and q.chaetaekStatus = false)
             )
         """)
-  Page<QuestionPost> findFilteredQuestions(
+  Page<QuestionPost> findQuestionPostsByFilter(
       @Param("subject") String subject,
       @Param("faculty") Faculty faculty,
       @Param("questionPresetTags") List<QuestionPresetTag> questionPresetTags,

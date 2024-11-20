@@ -157,7 +157,7 @@ class QuestionPostServiceTest {
 
     Pageable pageable = PageRequest.of(0, 30, Sort.by("createdDate").descending());
 
-    Page<QuestionPost> posts = questionPostRepository.findFilteredNotAnsweredQuestion(faculty, pageable);
+    Page<QuestionPost> posts = questionPostRepository.findNotAnsweredQuestionByFilter(faculty, pageable);
 
     log.info("!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!");
     log.info("개수: {}", posts.getNumberOfElements());
@@ -176,7 +176,7 @@ class QuestionPostServiceTest {
     List<QuestionPresetTag> questionPresetTags = null;
 //    questionPresetTags.add(QuestionPresetTag.DOCUMENT_REQUEST);
 //    questionPresetTags.add(QuestionPresetTag.UNKNOWN_CONCEPT);
-    Boolean viewNotChaetaek = true;
+    String chaetaekStatus = Boolean.TRUE.toString();
 
     SortType sortType = SortType.LATEST;
 
@@ -191,13 +191,11 @@ class QuestionPostServiceTest {
 
     Pageable pageable = PageRequest.of(0, 30, sort);
 
-    Page<QuestionPost> posts = questionPostRepository.findFilteredQuestions(
+    Page<QuestionPost> posts = questionPostRepository.findQuestionPostsByFilter(
         subject,
-        minYeopjeon,
-        maxYeopjeon,
         faculty,
         questionPresetTags,
-        viewNotChaetaek,
+        chaetaekStatus,
         pageable
     );
 
