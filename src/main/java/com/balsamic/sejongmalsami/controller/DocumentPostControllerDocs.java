@@ -174,7 +174,43 @@ public interface DocumentPostControllerDocs {
   ResponseEntity<DocumentDto> getWeeklyPopularDocumentPost(
       DocumentCommand command);
 
-  //TODO: description 추가, testCase 더 구체적으로, Mock 객체 생성 최적화 필요
+  @ApiChangeLogs({
+      @ApiChangeLog(
+          date = "2024.11.20",
+          author = Author.BAEKJIHOON,
+          description = "특정 자료 글 조회"
+      )
+  })
+  @Operation(
+      summary = "특정 자료 글 조회",
+      description = """
+          **특정 자료 글 조회 요청**
+
+          **이 API는 인증이 필요하며, JWT 토큰이 존재해야합니다.**
+
+          **입력 파라미터 값:**
+          
+          - **UUID documentPostId**: 자료 글 PK [필수]
+
+          **반환 파라미터 값:**
+
+          - **DocumentDto**: 자료 게시판 정보 반환
+            - **DocumentPost documentPost**: 조회한 자료 글
+   
+          **참고 사항:**
+
+          - 이 API를 통해 사용자는 자료 게시판에 작성된 글을 필터링하여 조회할 수 있습니다.
+          - 사용자의 엽전 개수가 부족할 경우 접근이 제한될 수 있습니다.
+          - 성공적으로 글 조회 시 사용자의 엽전이 자료 등급에 따라 감소합니다.
+          - 성공적으로 글 조회 시 해당 자료 글의 조회수가 증가합니다.
+          - Swagger에서 테스트 시 mediaFiles에 있는 "Send empty value" 체크박스 해제해야합니다.
+          - pageNumber = 3, pageSize = 10 입력시 4페이지에 해당하는 10개의 글을 반환합니다. (31번째 글 ~ 40번째 글 반환)
+          """
+  )
+  ResponseEntity<DocumentDto> getDocumentPost(
+      CustomUserDetails customUserDetails,
+      DocumentCommand command);
+
   @ApiChangeLogs({
       @ApiChangeLog(
           date = "2024.11.20",

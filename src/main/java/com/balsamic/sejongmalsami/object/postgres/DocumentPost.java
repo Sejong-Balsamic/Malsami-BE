@@ -85,4 +85,29 @@ public class DocumentPost extends BasePost {
     }
     this.documentTypes = documentTypes;
   }
+
+  // 조회 수 증가
+  public void increaseViewCount() {
+    viewCount++;
+  }
+
+  // 댓글 수 증가
+  public void increaseCommentCount() {
+    commentCount++;
+  }
+
+  // 좋아요 수 증가
+  public void increaseLikeCount() {
+    likeCount++;
+  }
+
+  // 싫어요 수 증가
+  public void increaseDislikeCount() {
+    dislikeCount++;
+  }
+
+  // 게시물 등급 변경
+  public void updatePostTier(PostTier postTier) {
+    this.postTier = postTier;
+  }
 }

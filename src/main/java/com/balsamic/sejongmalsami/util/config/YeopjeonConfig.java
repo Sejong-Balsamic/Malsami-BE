@@ -43,6 +43,9 @@ public class YeopjeonConfig {
   private Integer createAccount;
 
   // 게시글 등급 접근 조건 (필요 엽전)
+  @Value("${yeopjeon.cheonmin-requirement}")
+  private Integer cheonminRequirement;
+
   @Value("${yeopjeon.jungin-requirement}")
   private Integer junginRequirement;
 
@@ -53,6 +56,9 @@ public class YeopjeonConfig {
   private Integer kingRequirement;
 
   // 게시글 상세보기 시 엽전 소모 비용
+  @Value("${yeopjeon.view-cheonmin-cost}")
+  private Integer viewCheonminCost;
+
   @Value("${yeopjeon.view-jungin-cost}")
   private Integer viewJunginCost;
 
