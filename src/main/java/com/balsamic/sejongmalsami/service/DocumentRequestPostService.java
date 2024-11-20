@@ -1,8 +1,5 @@
 package com.balsamic.sejongmalsami.service;
 
-import static com.balsamic.sejongmalsami.util.LogUtils.lineLog;
-import static com.balsamic.sejongmalsami.util.LogUtils.superLog;
-
 import com.balsamic.sejongmalsami.object.DocumentCommand;
 import com.balsamic.sejongmalsami.object.DocumentDto;
 import com.balsamic.sejongmalsami.object.constants.DocumentType;
@@ -94,10 +91,6 @@ public class DocumentRequestPostService {
         .isPrivate(Boolean.TRUE.equals(command.getIsPrivate()))
         .build();
 
-    lineLog(null);
-    superLog(documentRequestPost);
-    lineLog(null);
-
     return DocumentDto.builder()
         .documentRequestPost(documentRequestPostRepository.save(documentRequestPost))
         .build();
@@ -181,10 +174,6 @@ public class DocumentRequestPostService {
     DocumentRequestPost post = documentRequestPostRepository
         .findById(command.getDocumentPostId())
         .orElseThrow(() -> new CustomException(ErrorCode.DOCUMENT_REQUEST_POST_NOT_FOUND));
-
-    lineLog(null);
-    superLog(post);
-    lineLog(null);
 
     // 해당 글 조회 수 증가
     post.increaseViewCount();
