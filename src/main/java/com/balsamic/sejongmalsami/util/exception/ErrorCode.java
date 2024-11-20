@@ -133,6 +133,10 @@ public enum ErrorCode {
 
   DOCUMENT_REQUEST_POST_NOT_FOUND(HttpStatus.BAD_REQUEST, "자료 요청 글을 찾을 수 없습니다."),
 
+  // PostTier
+
+  INVALID_POST_TIER(HttpStatus.BAD_REQUEST, "잘못된 자료 등급 입니다."),
+
   // ContentType
 
   INVALID_CONTENT_TYPE(HttpStatus.BAD_REQUEST, "잘못된 ContentType 입니다."),
