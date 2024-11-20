@@ -249,25 +249,25 @@ public class DocumentPostService {
   private void canAccessDocumentBoard(Member member, PostTier postTier) {
     Yeopjeon yeopjeon = yeopjeonService.findMemberYeopjeon(member);
 
-    // 게시판 접근 가능 여부 확인 (천민: 0개, 중인: 1,000개, 양반: 10,000개, 왕: 50,000개)
+    // 게시판 접근 가능 여부 확인
     if (postTier.equals(PostTier.CHEONMIN)) { // 천민 게시판 접근 시
-      log.info("천민 게시판 엽전 기준: 0냥, 현재 사용자 {}의 엽전개수: {}", member.getStudentId(), yeopjeon.getYeopjeon());
+      log.info("천민 게시판 접근, 현재 사용자 {}의 엽전개수: {}", member.getStudentId(), yeopjeon.getYeopjeon());
     } else if (postTier.equals(PostTier.JUNGIN)) { // 중인 게시판 접근 시
       if (yeopjeon.getYeopjeon() < yeopjeonConfig.getJunginRequirement()) {
         log.error("현재 사용자 {}의 엽전이 부족하여 중인게시판에 접근할 수 없습니다.", member.getStudentId());
-        log.error("중인 게시판 엽전 기준: 1,000냥, 현재 사용자 엽전개수: {}", yeopjeon.getYeopjeon());
+        log.error("중인 게시판 엽전 기준: {}냥, 현재 사용자 엽전개수: {}", yeopjeonConfig.getJunginRequirement(), yeopjeon.getYeopjeon());
         throw new CustomException(ErrorCode.INSUFFICIENT_YEOPJEON);
       }
     } else if (postTier.equals(PostTier.YANGBAN)) { // 양반 게시판 접근 시
       if (yeopjeon.getYeopjeon() < yeopjeonConfig.getYangbanRequirement()) {
         log.error("현재 사용자 {}의 엽전이 부족하여 양반게시판에 접근할 수 없습니다.", member.getStudentId());
-        log.error("양반 게시판 엽전 기준: 10,000냥, 현재 사용자 엽전개수: {}", yeopjeon.getYeopjeon());
+        log.error("양반 게시판 엽전 기준: {}냥, 현재 사용자 엽전개수: {}", yeopjeonConfig.getYangbanRequirement(), yeopjeon.getYeopjeon());
         throw new CustomException(ErrorCode.INSUFFICIENT_YEOPJEON);
       }
     } else if (postTier.equals(PostTier.KING)) { // 왕 게시판 접근 시
       if (yeopjeon.getYeopjeon() < yeopjeonConfig.getKingRequirement()) {
         log.error("현재 사용자 {}의 엽전이 부족하여 왕 게시판에 접근할 수 없습니다.", member.getStudentId());
-        log.error("왕 게시판 엽전 기준: 50,000냥, 현재 사용자 엽전개수: {}", yeopjeon.getYeopjeon());
+        log.error("왕 게시판 엽전 기준: {}냥, 현재 사용자 엽전개수: {}", yeopjeonConfig.getKingRequirement(), yeopjeon.getYeopjeon());
         throw new CustomException(ErrorCode.INSUFFICIENT_YEOPJEON);
       }
     } else {
