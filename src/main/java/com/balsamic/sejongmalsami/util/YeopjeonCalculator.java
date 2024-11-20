@@ -14,6 +14,7 @@ public class YeopjeonCalculator {
   // YeopjeonAction 따른 엽전 변동량 계산
   public int calculateYeopjeon(YeopjeonAction action) {
     return switch (action) {
+      case VIEW_DOCUMENT_CHEONMIN_POST -> yeopjeonConfig.getViewCheonminCost();
       case VIEW_DOCUMENT_JUNGIN_POST -> yeopjeonConfig.getViewJunginCost();
       case VIEW_DOCUMENT_YANGBAN_POST -> yeopjeonConfig.getViewYangbanCost();
       case VIEW_DOCUMENT_KING_POST -> yeopjeonConfig.getViewKingCost();
