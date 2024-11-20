@@ -1,6 +1,7 @@
 package com.balsamic.sejongmalsami.repository.postgres;
 
 import com.balsamic.sejongmalsami.object.constants.DocumentType;
+import com.balsamic.sejongmalsami.object.constants.PostTier;
 import com.balsamic.sejongmalsami.object.postgres.DocumentPost;
 import java.time.LocalDateTime;
 import java.util.List;
@@ -49,21 +50,19 @@ public interface DocumentPostRepository extends JpaRepository<DocumentPost, UUID
 //      Pageable pageable
 //  );
 
+  // 자료 글 교과목명, 태그 필터링
   @Query("SELECT DISTINCT p FROM DocumentPost p " +
-      "LEFT JOIN p.documentTypes dt " +
-      "WHERE (:title IS NULL OR LOWER(p.title) LIKE LOWER(CONCAT('%', :title, '%'))) " +
-      "AND (:subject IS NULL OR LOWER(p.subject) LIKE LOWER(CONCAT('%', :subject, '%'))) " +
-      "AND (:content IS NULL OR LOWER(p.content) LIKE LOWER(CONCAT('%', :content, '%'))) " +
-      "AND (:documentTypes IS NULL OR dt IN :documentTypes)")
+         "LEFT JOIN p.documentTypes dt " +
+         "WHERE " +
+         "(:subject IS NULL OR p.subject = :subject) " +
+         "AND (:documentTypes IS NULL OR dt IN :documentTypes)" +
+         "AND(:postTier IS NULL OR p.postTier = :postTier)")
   Page<DocumentPost> findDocumentPostsByFilter(
-      @Param("title") String title,
       @Param("subject") String subject,
-      @Param("content") String content,
       @Param("documentTypes") List<DocumentType> documentTypes,
+      @Param("postTier") PostTier postTier,
       Pageable pageable
   );
-
-
 
   Optional<DocumentPost> findByDocumentPostId(UUID documentPostId);
 }

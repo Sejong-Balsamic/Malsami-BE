@@ -2,7 +2,6 @@ package com.balsamic.sejongmalsami.service;
 
 import com.balsamic.sejongmalsami.object.DocumentCommand;
 import com.balsamic.sejongmalsami.object.DocumentDto;
-import com.balsamic.sejongmalsami.object.constants.DocumentType;
 import com.balsamic.sejongmalsami.object.constants.MimeType;
 import com.balsamic.sejongmalsami.object.constants.PostTier;
 import com.balsamic.sejongmalsami.object.constants.SortType;
@@ -10,8 +9,10 @@ import com.balsamic.sejongmalsami.object.constants.UploadType;
 import com.balsamic.sejongmalsami.object.postgres.DocumentFile;
 import com.balsamic.sejongmalsami.object.postgres.DocumentPost;
 import com.balsamic.sejongmalsami.object.postgres.Member;
+import com.balsamic.sejongmalsami.object.postgres.Yeopjeon;
 import com.balsamic.sejongmalsami.repository.postgres.DocumentPostRepository;
 import com.balsamic.sejongmalsami.repository.postgres.MemberRepository;
+import com.balsamic.sejongmalsami.util.config.YeopjeonConfig;
 import com.balsamic.sejongmalsami.util.exception.CustomException;
 import com.balsamic.sejongmalsami.util.exception.ErrorCode;
 import java.util.ArrayList;
@@ -32,14 +33,18 @@ import org.springframework.web.multipart.MultipartFile;
 @RequiredArgsConstructor
 public class DocumentPostService {
 
+  private final static int MAX_DOCUMENT_TYPES = 2; // 태그 최대 개수 제한
+
   private final DocumentPostRepository documentPostRepository;
   private final MemberRepository memberRepository;
   private final DocumentFileService documentFileService;
+  private final YeopjeonService yeopjeonService;
+  private final YeopjeonConfig yeopjeonConfig;
 
   /**
-   * 자료 게시글 저장
+   * <h3>자료 글 저장
    *
-   * @param command 자료 게시글 정보
+   * @param command memberId, title, content, subject, documentTypes, isDepartmentPrivate
    * @return 저장된 DocumentDto
    */
   @Transactional
@@ -80,11 +85,36 @@ public class DocumentPostService {
         .build();
   }
 
-  //FIXME: 현재 틀만 만들어놓음 자료 LIST 제공 로직 필요
+  /**
+   * <h3>자료 글 필터링 조회</h3>
+   * <ul>
+   *   <li>과목 필터링</li>
+   *   <li>태그 필터링</li>
+   *   <li>자료등급 필터링</li>
+   * </ul>
+   * <p>정렬 타입</p>
+   * 최신순, 좋아요순, 조회순
+   *
+   * @param command memberId, subject, documentTypes, postTier, sortType, pageNumber, pageSize
+   * @return
+   */
   @Transactional(readOnly = true)
-  public DocumentDto searchDocumentPost(DocumentCommand command) {
+  public DocumentDto filteredDocumentPost(DocumentCommand command) {
 
-    // 정렬
+    Member member = memberRepository.findById(command.getMemberId())
+        .orElseThrow(() -> new CustomException(ErrorCode.MEMBER_NOT_FOUND));
+
+    PostTier postTier = command.getPostTier();
+
+    // 현재 사용자의 해당 게시판 접근 가능 여부 확인
+    canAccessDocumentBoard(member, postTier);
+
+    // 태그 필터링 최대 2개까지 선택가능
+    if (command.getDocumentTypes().size() > MAX_DOCUMENT_TYPES) {
+      throw new CustomException(ErrorCode.DOCUMENT_TYPE_LIMIT_EXCEEDED);
+    }
+
+    // 정렬 (최신순, 좋아요순, 조회순)
     Sort sort;
     SortType sortType = command.getSortType();
     if (sortType.equals(SortType.MOST_LIKED)) {
@@ -95,17 +125,17 @@ public class DocumentPostService {
       sort = Sort.by(Order.desc("createdDate"));
     }
 
-    Pageable pageable = PageRequest.of(command.getPageNumber(), command.getPageSize(), sort);
-
-    //TODO: search 와 filter 분리 , like문 제거 및 필터링 변수 정의 추가 필요
-    String title = command.getTitle();
-    String subject = command.getSubject();
-    String content = command.getContent();
-    List<DocumentType> documentTypesList = command.getDocumentTypes();
-
+    Pageable pageable = PageRequest.of(
+        command.getPageNumber(),
+        command.getPageSize(),
+        sort
+    );
 
     Page<DocumentPost> documentPostsPage = documentPostRepository.findDocumentPostsByFilter(
-        title, subject, content, documentTypesList, pageable
+        command.getSubject(),
+        command.getDocumentTypes(),
+        postTier,
+        pageable
     );
 
     return DocumentDto.builder()
@@ -113,39 +143,38 @@ public class DocumentPostService {
         .build();
   }
 
-  @Transactional(readOnly = true)
-  public DocumentDto getDocumentPosts(DocumentCommand command) {
-    // 기본 : 천민 자료 반환
-    //TODO: 게시글 등급 에 맞는 엽전 보유량 체크 필요
-
-    // 정렬
-    Sort sort = null;
-    SortType sortType = command.getSortType();
-    if (sortType.equals(SortType.MOST_LIKED)) {
-      sort = Sort.by(Order.desc("likeCount"));
-    } else if (sortType.equals(SortType.VIEW_COUNT)) {
-      sort = Sort.by(Order.desc("viewCount"));
-    } else {
-      sort = Sort.by(Order.desc("createdDate"));
-    }
-
-    Pageable pageable = PageRequest.of(command.getPageNumber(), command.getPageSize(), sort);
-
-    //TODO: search 와 filter 분리 , like문 제거 및 필터링 변수 정의 추가 필요
-    String title = command.getTitle();
-    String subject = command.getSubject();
-    String content = command.getContent();
-    List<DocumentType> documentTypesList = command.getDocumentTypes();
-
-
-    Page<DocumentPost> documentPostsPage = documentPostRepository.findDocumentPostsByFilter(
-        title, subject, content, documentTypesList, pageable
-    );
-
-    return DocumentDto.builder()
-        .documentPostsPage(documentPostsPage)
-        .build();
-  }
+//  @Transactional(readOnly = true)
+//  public DocumentDto getDocumentPosts(DocumentCommand command) {
+//    // 기본 : 천민 자료 반환
+//    //TODO: 게시글 등급 에 맞는 엽전 보유량 체크 필요
+//
+//    // 정렬
+//    Sort sort = null;
+//    SortType sortType = command.getSortType();
+//    if (sortType.equals(SortType.MOST_LIKED)) {
+//      sort = Sort.by(Order.desc("likeCount"));
+//    } else if (sortType.equals(SortType.VIEW_COUNT)) {
+//      sort = Sort.by(Order.desc("viewCount"));
+//    } else {
+//      sort = Sort.by(Order.desc("createdDate"));
+//    }
+//
+//    Pageable pageable = PageRequest.of(command.getPageNumber(), command.getPageSize(), sort);
+//
+//    //TODO: search 와 filter 분리 , like문 제거 및 필터링 변수 정의 추가 필요
+//    String title = command.getTitle();
+//    String subject = command.getSubject();
+//    String content = command.getContent();
+//    List<DocumentType> documentTypesList = command.getDocumentTypes();
+//
+//    Page<DocumentPost> documentPostsPage = documentPostRepository.findDocumentPostsByFilter(
+//        title, subject, content, documentTypesList, pageable
+//    );
+//
+//    return DocumentDto.builder()
+//        .documentPostsPage(documentPostsPage)
+//        .build();
+//  }
 
   /**
    * 첨부 파일 처리, 업로드, 저장
@@ -159,7 +188,7 @@ public class DocumentPostService {
    *   <li>저장된 {@link DocumentFile} 객체 -> savedDocumentFiles 추가</li>
    * </ul>
    *
-   * @param command       DocumentCommand
+   * @param command            DocumentCommand
    * @param savedDocumentFiles 저장된 파일 리스트
    */
   private void processAndSaveUploadedFiles(DocumentCommand command, List<DocumentFile> savedDocumentFiles) {
@@ -213,6 +242,36 @@ public class DocumentPostService {
         log.error("파일 처리 중 예상치 못한 오류 발생: {}", e.getMessage());
         throw new CustomException(ErrorCode.INTERNAL_SERVER_ERROR);
       }
+    }
+  }
+
+  // 해당 자료 게시판 접근 가능 여부 판단 메소드
+  private void canAccessDocumentBoard(Member member, PostTier postTier) {
+    Yeopjeon yeopjeon = yeopjeonService.findMemberYeopjeon(member);
+
+    // 게시판 접근 가능 여부 확인 (천민: 0개, 중인: 1,000개, 양반: 10,000개, 왕: 50,000개)
+    if (postTier.equals(PostTier.CHEONMIN)) { // 천민 게시판 접근 시
+      log.info("천민 게시판 엽전 기준: 0냥, 현재 사용자 {}의 엽전개수: {}", member.getStudentId(), yeopjeon.getYeopjeon());
+    } else if (postTier.equals(PostTier.JUNGIN)) { // 중인 게시판 접근 시
+      if (yeopjeon.getYeopjeon() < yeopjeonConfig.getJunginRequirement()) {
+        log.error("현재 사용자 {}의 엽전이 부족하여 중인게시판에 접근할 수 없습니다.", member.getStudentId());
+        log.error("중인 게시판 엽전 기준: 1,000냥, 현재 사용자 엽전개수: {}", yeopjeon.getYeopjeon());
+        throw new CustomException(ErrorCode.INSUFFICIENT_YEOPJEON);
+      }
+    } else if (postTier.equals(PostTier.YANGBAN)) { // 양반 게시판 접근 시
+      if (yeopjeon.getYeopjeon() < yeopjeonConfig.getYangbanRequirement()) {
+        log.error("현재 사용자 {}의 엽전이 부족하여 양반게시판에 접근할 수 없습니다.", member.getStudentId());
+        log.error("양반 게시판 엽전 기준: 10,000냥, 현재 사용자 엽전개수: {}", yeopjeon.getYeopjeon());
+        throw new CustomException(ErrorCode.INSUFFICIENT_YEOPJEON);
+      }
+    } else if (postTier.equals(PostTier.KING)) { // 왕 게시판 접근 시
+      if (yeopjeon.getYeopjeon() < yeopjeonConfig.getKingRequirement()) {
+        log.error("현재 사용자 {}의 엽전이 부족하여 왕 게시판에 접근할 수 없습니다.", member.getStudentId());
+        log.error("왕 게시판 엽전 기준: 50,000냥, 현재 사용자 엽전개수: {}", yeopjeon.getYeopjeon());
+        throw new CustomException(ErrorCode.INSUFFICIENT_YEOPJEON);
+      }
+    } else {
+      throw new CustomException(ErrorCode.INVALID_POST_TIER);
     }
   }
 }
