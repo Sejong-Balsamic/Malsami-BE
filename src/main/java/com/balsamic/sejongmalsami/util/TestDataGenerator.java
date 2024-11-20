@@ -196,7 +196,7 @@ public class TestDataGenerator {
     // Mock 회원의 경험치 테이블 생성
     Exp exp = Exp.builder()
         .member(member)
-        .exp(1000000)
+        .exp(faker.number().numberBetween(0, 10000))
         .build();
     expRepository.save(exp);
 
