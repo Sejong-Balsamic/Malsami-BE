@@ -120,6 +120,6 @@ public class TestController {
       """)
   @PostMapping( "/create/document/request/board")
   public void createMockDocumentRequestPost(Integer postCount) {
-    testService.createMockQuestionPostAndAnswerPost(postCount);
+    testService.createMockDocumentRequestPost(postCount);
   }
 }

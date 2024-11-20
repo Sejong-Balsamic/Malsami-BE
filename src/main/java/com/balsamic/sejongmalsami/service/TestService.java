@@ -40,6 +40,7 @@ public class TestService {
    * <h3>질문 글 Mock 데이터 생성 및 답변 글 동시 생성</h3>
    * <p>지정된 개수만큼의 질문 글을 생성하고, 각 질문 글에 대해 0개에서 10개 사이의 답변 글을 생성합니다.
    * 답변 글의 작성자는 질문 글 작성자와 다르며, 각 질문 글에 대해 단 하나의 답변 글만 채택될 수 있습니다.</p>
+   * <p>답변 및 댓글 작성자는 회원 풀을 미리 생성한 뒤 랜덤으로 작성자를 선택합니다.</p>
    *
    * @param postCount 생성할 질문 글의 총 개수
    */
@@ -51,6 +52,8 @@ public class TestService {
       log.warn("잘못된 작성개수가 입력되었습니다. {} 기본 값 30개로 설정합니다.", postCount);
       postCount = 30;
     }
+    // 답변 및 댓글 작성자 풀 생성
+    List<Member> memberPool = createMemberPool(postCount);
 
     int questionTotalCreated = 0;
     int userCount = 0;
@@ -74,8 +77,8 @@ public class TestService {
         // 4. 질문글에 댓글 생성 (0 ~ 5개)
         int numComments = random.nextInt(6); // 0 ~ 5
         for (int j = 0; j < numComments; j++) {
-          // 댓글 작성자 생성
-          Member commentWriter = testDataGenerator.createMockMember();
+          // 회원 풀에서 랜덤으로 댓글 작성자 선택
+          Member commentWriter = memberPool.get(random.nextInt(memberPool.size()));
           Comment comment = testDataGenerator.createMockComment(
               commentWriter,
               questionPost.getQuestionPostId(),
@@ -89,16 +92,16 @@ public class TestService {
         List<AnswerPost> answerPosts = new ArrayList<>();
 
         for (int j = 0; j < numAnswers; j++) {
-          // 답변 작성자 생성
-          Member answerWriter = testDataGenerator.createMockMember();
+          // 회원 풀에서 랜덤으로 답변 작성자 선택
+          Member answerWriter = memberPool.get(random.nextInt(memberPool.size()));
           AnswerPost answerPost = testDataGenerator.createMockAnswerPost(answerWriter, questionPost);
           answerPosts.add(answerPost);
 
           // 6. 답변글에 댓글 생성 (0 ~ 5개)
           numComments = random.nextInt(6); // 0 ~ 5
           for (int k = 0; k < numComments; k++) {
-            // 댓글 작성자 생성
-            Member commentWriter = testDataGenerator.createMockMember();
+            // 회원 풀에서 랜덤으로 댓글 작성자 선택
+            Member commentWriter = memberPool.get(random.nextInt(memberPool.size()));
             Comment comment = testDataGenerator.createMockComment(
                 commentWriter,
                 answerPost.getAnswerPostId(),
@@ -148,12 +151,7 @@ public class TestService {
     }
 
     // 1. 회원 풀 생성 (postCount보다 작게, 예: 50명 또는 postCount의 10%)
-    int memberPoolSize = Math.min(50, Math.max(10, postCount / 10));
-    List<Member> memberPool = new ArrayList<>();
-    for (int i = 0; i < memberPoolSize; i++) {
-      Member member = testDataGenerator.createMockMember();
-      memberPool.add(member);
-    }
+    List<Member> memberPool = createMemberPool(postCount);
     log.info("회원 풀 생성 완료: {}명", memberPool.size());
 
     int documentPostTotalCreated = 0;
@@ -173,6 +171,18 @@ public class TestService {
         // 3.2 DocumentPost 생성
         DocumentPost documentPost = testDataGenerator.createMockDocumentPost(member);
         documentPostTotalCreated++;
+
+        // 3.3 댓글 작성
+        int numComments = random.nextInt(6) // 0 ~ 5
+        for (int j = 0; j < numComments; j++) {
+          // 회원 풀에서 랜덤으로 댓글 작성자 선택
+          Member commentWriter = memberPool.get(random.nextInt(memberPool.size()));
+          Comment comment = testDataGenerator.createMockComment(
+              commentWriter,
+              documentPost.getDocumentPostId(),
+              ContentType.DOCUMENT
+          );
+        }
 
         // 3.3 DocumentFile 생성 (0 ~ 5개)
         int numFiles = random.nextInt(6); // 0 ~ 5
@@ -195,6 +205,7 @@ public class TestService {
    * <h3>자료 요청 글 Mock 데이터 생성</h3>
    * <p>지정된 개수만큼의 자료 요청 글을 생성합니다.
    * <p>생성된 자료요청글에 0~5개의 댓글을 작성합니다.</p>
+   * <p>댓글 작성자는 회원 풀을 미리 생성하여 댓글 작성 시 랜덤으로 작성자를 선택합니다.</p>
    *
    * @param postCount 생성할 자료 요청 글의 총 개수
    */
@@ -206,6 +217,8 @@ public class TestService {
       log.warn("잘못된 작성개수가 입력되었습니다. {} 기본 값 30개로 설정합니다.", postCount);
       postCount = 30;
     }
+    // 댓글 작성자 풀 생성
+    List<Member> memberPool = createMemberPool(postCount);
 
     int totalCreated = 0;
     int userCount = 0;
@@ -230,8 +243,8 @@ public class TestService {
         // 4. 댓글 작성
         int numComments = random.nextInt(6); // 0 ~ 5
         for (int j = 0; j < numComments; j++) {
-          // 댓글 작성자 생성
-          Member commentWriter = testDataGenerator.createMockMember();
+          // 회원 풀에서 랜덤으로 댓글 작성자 선택
+          Member commentWriter = memberPool.get(random.nextInt(memberPool.size()));
           Comment comment = testDataGenerator.createMockComment(
               commentWriter,
               documentRequestPost.getDocumentRequestPostId(),
@@ -244,5 +257,16 @@ public class TestService {
 
     log.info("총 {} 명의 mock 유저가 {} 개의 자료 요청 글을 생성했습니다.",
         userCount, totalCreated);
+  }
+
+  // 회원 풀 생성
+  private List<Member> createMemberPool(Integer postCount) {
+    int memberPoolSize = Math.min(50, Math.max(10, postCount / 10));
+    List<Member> memberPool = new ArrayList<>();
+    for (int i = 0; i < memberPoolSize; i++) {
+      Member member = testDataGenerator.createMockMember();
+      memberPool.add(member);
+    }
+    return memberPool;
   }
 }
