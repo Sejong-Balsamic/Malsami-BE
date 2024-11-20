@@ -251,7 +251,7 @@ public class QuestionPostService {
         Sort.by("createdDate").descending());
 
     Page<QuestionPost> postPage = questionPostRepository
-        .findFilteredNotAnsweredQuestion(command.getFaculty(), pageable);
+        .findNotAnsweredQuestionByFilter(command.getFaculty(), pageable);
 
     return QuestionDto.builder()
         .questionPostsPage(postPage)
@@ -312,7 +312,7 @@ public class QuestionPostService {
     Pageable pageable = PageRequest.of(command.getPageNumber(), command.getPageSize(), sort);
 
     // chaetaekStatus를 String으로 변환하여 전달
-    Page<QuestionPost> posts = questionPostRepository.findFilteredQuestions(
+    Page<QuestionPost> posts = questionPostRepository.findQuestionPostsByFilter(
         command.getSubject(),
         command.getFaculty(),
         command.getQuestionPresetTags(),
