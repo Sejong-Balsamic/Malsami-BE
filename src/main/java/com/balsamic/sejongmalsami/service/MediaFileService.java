@@ -19,6 +19,9 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 
+/**
+ * 미디어 파일 서비스 클래스
+ */
 @Service
 @RequiredArgsConstructor
 @Slf4j
@@ -31,12 +34,19 @@ public class MediaFileService {
   private final AnswerPostRepository answerPostRepository;
   private static final Integer MAX_MEDIA_FILE_COUNT = 3;
 
-  // 질문게시글 파일 저장
+  /**
+   * 질문게시글 또는 답변게시글에 파일 업로드
+   *
+   * @param postId 게시글 ID
+   * @param files  업로드할 파일 리스트
+   * @return 저장된 MediaFile 리스트
+   */
   @Transactional
   public List<MediaFile> uploadMediaFiles(UUID postId, List<MultipartFile> files) {
-
-    // 질문글 답변글 확인
     ContentType contentType = null;
+    List<MediaFile> mediaFiles = new ArrayList<>();
+
+    // 게시글 존재 여부 및 ContentType 결정
     if (questionPostRepository.existsById(postId)) {
       contentType = ContentType.QUESTION;
       // 해당 질문글 첨부파일이 3개를 초과했는지 체크
@@ -53,17 +63,16 @@ public class MediaFileService {
       throw new CustomException(ErrorCode.INVALID_REQUEST);
     }
 
-    List<MediaFile> mediaFiles = new ArrayList<>();
-
     for (MultipartFile file : files) {
       String mimeType = file.getContentType();
       // 첨부파일이 이미지 파일이 아닌 경우
-      if (mimeType == null || !isValidImageFile(mimeType)) {
+      if (mimeType == null || !MimeType.isValidImageMimeType(mimeType)) {
         throw new CustomException(ErrorCode.INVALID_FILE_FORMAT);
       }
 
       // 파일 업로드
-      String fileUrl = storageService.uploadFile(mimeType, file);
+      String fileUrl = storageService.uploadFile(contentType, file); // MEDIA 경로에 업로드
+      String thumbnailUrl = storageService.uploadThumbnail(contentType, file);
 
       MediaFile mediaFile = mediaFileRepository.save(MediaFile.builder()
           .postId(postId)
@@ -80,8 +89,10 @@ public class MediaFileService {
     return mediaFiles;
   }
 
-  // 업로드 파일이 이미지 타입인지 검증
+  /**
+   * 업로드 파일이 이미지 타입인지 검증
+   */
   private static boolean isValidImageFile(String mimeType) {
-    return mimeType.equals("image/jpeg") || mimeType.equals("image/png");
+    return MimeType.isValidImageMimeType(mimeType);
   }
 }

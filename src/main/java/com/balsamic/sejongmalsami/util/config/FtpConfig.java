@@ -4,6 +4,9 @@ import lombok.Getter;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Configuration;
 
+/**
+ * FTP 서버 설정 클래스
+ */
 @Configuration
 @Getter
 public class FtpConfig {
@@ -26,11 +29,17 @@ public class FtpConfig {
   @Value("${ftp.path.thumbnail}")
   private String thumbnailPath;
 
-  @Value("${ftp.path.thumbnail-base-url}")
+  @Value("${ftp.path.media}")
+  private String mediaPath;
+
+  @Value("${ftp.thumbnail-base-url}")
   private String thumbnailBaseUrl;
 
-  @Value("${ftp.path.document-base-url}")
+  @Value("${ftp.document-base-url}")
   private String documentBaseUrl;
+
+  @Value("${ftp.media-base-url}")
+  private String mediaBaseUrl;
 
   @Value("${ftp.basic.document}")
   private String defaultDocumentThumbnailUrl;

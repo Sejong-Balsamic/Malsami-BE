@@ -12,7 +12,6 @@ import java.awt.image.BufferedImage;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
-import java.util.Objects;
 import javax.imageio.ImageIO;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
@@ -66,7 +65,13 @@ public class ImageThumbnailGenerator {
   public byte[] generateImageThumbnail(MultipartFile file) {
     log.info("이미지 썸네일 생성 시작: {}", file.getOriginalFilename());
 
-    if (Objects.requireNonNull(file.getContentType()).equalsIgnoreCase(MimeType.WEBP.getMimeType())) {
+    String mimeType = file.getContentType();
+    if (mimeType == null || !MimeType.isValidImageMimeType(mimeType)) {
+      log.warn("지원되지 않는 이미지 MIME 타입: {}", mimeType);
+      throw new CustomException(ErrorCode.INVALID_FILE_FORMAT);
+    }
+
+    if (mimeType.equalsIgnoreCase(MimeType.WEBP.getMimeType())) {
       log.info("WebP 형식의 이미지입니다. 썸네일 생성을 건너뜁니다: {}", file.getOriginalFilename());
       try {
         return file.getBytes();

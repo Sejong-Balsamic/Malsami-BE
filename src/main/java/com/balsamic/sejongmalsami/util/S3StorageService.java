@@ -2,6 +2,7 @@ package com.balsamic.sejongmalsami.util;
 
 import com.amazonaws.services.s3.AmazonS3Client;
 import com.amazonaws.services.s3.model.ObjectMetadata;
+import com.balsamic.sejongmalsami.object.constants.ContentType;
 import com.balsamic.sejongmalsami.object.constants.MimeType;
 import com.balsamic.sejongmalsami.util.exception.CustomException;
 import com.balsamic.sejongmalsami.util.exception.ErrorCode;
@@ -23,7 +24,7 @@ public class S3StorageService implements StorageService {
   private String bucketName;
 
   @Override
-  public String uploadFile(String contentType, MultipartFile file) {
+  public String uploadFile(ContentType contentType, MultipartFile file) {
     String originalFilename = file.getOriginalFilename();
     if (originalFilename == null) {
       throw new CustomException(ErrorCode.INVALID_FILE_FORMAT);
@@ -33,12 +34,12 @@ public class S3StorageService implements StorageService {
     String fileName = FileUtil.generateFileName(contentType, originalFilename);
 
     // MIME Type 검증
-    if (!MimeType.isValidMimeType(contentType)) {
+    if (!MimeType.isValidMimeType(contentType.name())) {
       throw new CustomException(ErrorCode.INVALID_FILE_FORMAT);
     }
 
     ObjectMetadata metadata = new ObjectMetadata();
-    metadata.setContentType(contentType);
+    metadata.setContentType(contentType.name());
     metadata.setContentLength(file.getSize());
 
     try {
@@ -53,7 +54,13 @@ public class S3StorageService implements StorageService {
   }
 
   @Override
-  public void deleteFile(String fileUrl) {
+  public String uploadThumbnail(ContentType contentType, MultipartFile file) {
+    return "";
+  }
+
+  @Override
+  public void deleteFile(ContentType contentType, String fileUrl) {
+    // 현재 로직에서 S3Storage는 ContentType을 사용하지 않습니다
     String key = extractKeyFromUrl(fileUrl);
     try {
       amazonS3Client.deleteObject(bucketName, key);

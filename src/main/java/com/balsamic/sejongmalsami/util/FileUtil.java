@@ -1,20 +1,25 @@
 package com.balsamic.sejongmalsami.util;
 
+import com.balsamic.sejongmalsami.object.constants.ContentType;
 import com.balsamic.sejongmalsami.object.constants.SystemType;
 import com.balsamic.sejongmalsami.util.exception.CustomException;
 import com.balsamic.sejongmalsami.util.exception.ErrorCode;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.util.List;
+import java.util.UUID;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipOutputStream;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.util.StringUtils;
 import org.springframework.web.multipart.MultipartFile;
 
+/**
+ * 파일 관련 유틸리티 클래스
+ */
+
 @Slf4j
 public class FileUtil {
-
   /**
    * 현재 운영체제 반환
    */
@@ -29,6 +34,20 @@ public class FileUtil {
     } else {
       return SystemType.OTHER;
     }
+  }
+
+  /**
+   * 파일명 생성 (UUID 사용, ContentType 제거)
+   *
+   * @param originalFilename 원본 파일명
+   * @return 생성된 파일명
+   */
+  public static String generateFileName(ContentType contentType, String originalFilename) {
+    String header = contentType.name();
+    String baseName = getBaseName(originalFilename);
+    String extension = getExtension(originalFilename);
+    String uuid = UUID.randomUUID().toString();
+    return String.format("%s_%s_%s.%s", header, baseName, uuid, extension);
   }
 
   /**
@@ -58,20 +77,6 @@ public class FileUtil {
       return "";
     }
     return filename.substring(dotIndex + 1);
-  }
-
-  /**
-   * 파일명 생성 (ContentType을 포함하여)
-   *
-   * @param contentType      파일의 ContentType
-   * @param originalFilename 원본 파일명
-   * @return 생성된 파일명
-   */
-  public static String generateFileName(String contentType, String originalFilename) {
-    String baseName = getBaseName(originalFilename);
-    String extension = getExtension(originalFilename);
-    String curTimeStr = TimeUtil.formatLocalDateTimeNowForFileName();
-    return String.format("%s_%s.%s", contentType, curTimeStr, extension);
   }
 
   /**
