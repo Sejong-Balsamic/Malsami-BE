@@ -10,7 +10,7 @@ import com.balsamic.sejongmalsami.repository.postgres.DocumentFileRepository;
 import com.balsamic.sejongmalsami.repository.postgres.DocumentPostRepository;
 import com.balsamic.sejongmalsami.util.FileUtil;
 import com.balsamic.sejongmalsami.util.ImageThumbnailGenerator;
-import com.balsamic.sejongmalsami.util.StorageService;
+import com.balsamic.sejongmalsami.util.storage.StorageService;
 import com.balsamic.sejongmalsami.util.TimeUtil;
 import com.balsamic.sejongmalsami.util.config.FtpConfig;
 import com.balsamic.sejongmalsami.util.exception.CustomException;

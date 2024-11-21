@@ -10,7 +10,6 @@ import org.springframework.context.annotation.Configuration;
 @Configuration
 @Getter
 public class FtpConfig {
-
   @Value("${ftp.server}")
   private String server;
 
@@ -22,6 +21,8 @@ public class FtpConfig {
 
   @Value("${ftp.pass}")
   private String pass;
+
+  // PROD
 
   @Value("${ftp.path.document}")
   private String documentPath;
@@ -46,6 +47,34 @@ public class FtpConfig {
 
   @Value("${ftp.path.courses}")
   private String coursesPath;
+
+  // DEV
+
+  @Value("${ftp.path-dev.document}")
+  private String documentDevPath;
+
+  @Value("${ftp.path-dev.question}")
+  private String questionDevPath;
+
+  @Value("${ftp.path-dev.answer}")
+  private String answerDevPath;
+
+  @Value("${ftp.path-dev.notice}")
+  private String noticeDevPath;
+
+  @Value("${ftp.path-dev.comment}")
+  private String commentDevPath;
+
+  @Value("${ftp.path-dev.document-request}")
+  private String documentRequestDevPath;
+
+  @Value("${ftp.path-dev.thumbnail}")
+  private String thumbnailDevPath;
+
+  @Value("${ftp.path-dev.courses}")
+  private String coursesDevPath;
+
+  // 썸네일 URL
 
   @Value("${ftp.thumbnail-url.base-url}")
   private String thumbnailBaseUrl;

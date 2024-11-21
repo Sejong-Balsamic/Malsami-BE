@@ -1,6 +1,7 @@
-package com.balsamic.sejongmalsami.util;
+package com.balsamic.sejongmalsami.util.storage;
 
 import com.balsamic.sejongmalsami.object.constants.ContentType;
+import com.balsamic.sejongmalsami.util.FileUtil;
 import com.balsamic.sejongmalsami.util.config.FtpConfig;
 import com.balsamic.sejongmalsami.util.exception.CustomException;
 import com.balsamic.sejongmalsami.util.exception.ErrorCode;
@@ -29,22 +30,7 @@ public class FtpStorageService implements StorageService {
   @Override
   public String uploadFile(ContentType contentType, MultipartFile file) {
     String uploadFileName = FileUtil.generateFileName(contentType, file.getOriginalFilename());
-    String remoteFilePath;
-
-    // contentType에 대한 업로드할 경로 지정
-    if (contentType.equals(ContentType.DOCUMENT)) {
-      remoteFilePath = ftpConfig.getDocumentPath() + "/" + uploadFileName;
-    } else if (contentType.equals(ContentType.ANSWER) || contentType.equals(ContentType.QUESTION)) {
-      remoteFilePath = ftpConfig.getQuestionPath() + "/" + uploadFileName;
-    } else if (contentType.equals(ContentType.NOTICE)) {
-      remoteFilePath = ftpConfig.getNoticePath() + "/" + uploadFileName;
-    } else if (contentType.equals(ContentType.COMMENT)) {
-      remoteFilePath = ftpConfig.getCommentPath() + "/" + uploadFileName;
-    } else if (contentType.equals(ContentType.DOCUMENT_REQUEST)) {
-      remoteFilePath = ftpConfig.getDocumentRequestPath() + "/" + uploadFileName;
-    } else {
-      throw new CustomException(ErrorCode.INVALID_CONTENT_TYPE);
-    }
+    String remoteFilePath = getPath(contentType) + "/" + uploadFileName;
 
     log.info("FTP 파일 업로드 시작: {} -> {}", file.getOriginalFilename(), remoteFilePath);
 
@@ -151,5 +137,19 @@ public class FtpStorageService implements StorageService {
    */
   private String extractFileName(String fileUrl) {
     return fileUrl.substring(fileUrl.lastIndexOf("/") + 1);
+  }
+
+  private String getPath(ContentType contentType) {
+    return switch (contentType) {
+      case DOCUMENT -> ftpConfig.getDocumentDevPath();
+      case QUESTION -> ftpConfig.getQuestionDevPath();
+      case ANSWER -> ftpConfig.getAnswerDevPath();
+      case NOTICE -> ftpConfig.getNoticeDevPath();
+      case COMMENT -> ftpConfig.getCommentDevPath();
+      case DOCUMENT_REQUEST -> ftpConfig.getDocumentRequestDevPath();
+      case COURSES -> ftpConfig.getCoursesDevPath();
+      case THUMBNAIL -> ftpConfig.getThumbnailDevPath();
+      default -> throw new CustomException(ErrorCode.INVALID_CONTENT_TYPE);
+    };
   }
 }

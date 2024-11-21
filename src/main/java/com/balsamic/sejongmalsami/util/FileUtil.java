@@ -44,10 +44,17 @@ public class FileUtil {
    */
   public static String generateFileName(ContentType contentType, String originalFilename) {
     String header = contentType.name();
-    String baseName = getBaseName(originalFilename);
+    String baseName = sanitizeFileName(getBaseName(originalFilename));
     String extension = getExtension(originalFilename);
     String uuid = UUID.randomUUID().toString();
     return String.format("%s_%s_%s.%s", header, baseName, uuid, extension);
+  }
+
+  // 파일이름에 특수문자 제거
+  private static String sanitizeFileName(String fileName) {
+    return fileName.replaceAll("[\\[\\]\\{\\}\\(\\)\\s]+", "_")  // 특수문자와 공백을 언더스코어로
+        .replaceAll("_{2,}", "_")                      // 중복 언더스코어 제거
+        .replaceAll("^_|_$", "");                     // 시작과 끝의 언더스코어 제거
   }
 
   /**

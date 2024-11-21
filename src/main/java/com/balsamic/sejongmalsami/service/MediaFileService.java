@@ -6,7 +6,7 @@ import com.balsamic.sejongmalsami.object.postgres.MediaFile;
 import com.balsamic.sejongmalsami.repository.postgres.AnswerPostRepository;
 import com.balsamic.sejongmalsami.repository.postgres.MediaFileRepository;
 import com.balsamic.sejongmalsami.repository.postgres.QuestionPostRepository;
-import com.balsamic.sejongmalsami.util.StorageService;
+import com.balsamic.sejongmalsami.util.storage.StorageService;
 import com.balsamic.sejongmalsami.util.exception.CustomException;
 import com.balsamic.sejongmalsami.util.exception.ErrorCode;
 import java.util.ArrayList;
