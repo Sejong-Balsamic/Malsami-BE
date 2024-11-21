@@ -172,6 +172,8 @@ public class LikeService {
   @Transactional
   public DocumentDto documentBoardLike(DocumentCommand command) {
 
+    // TODO: 자료 글 등급 변동로직 작성
+
     // 로그인 사용자
     Member curMember = memberRepository.findById(command.getMemberId())
         .orElseThrow(() -> new CustomException(ErrorCode.MEMBER_NOT_FOUND));
