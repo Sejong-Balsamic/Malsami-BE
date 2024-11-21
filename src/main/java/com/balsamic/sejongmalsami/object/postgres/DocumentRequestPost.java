@@ -93,6 +93,11 @@ public class DocumentRequestPost extends BaseEntity {
     likeCount++;
   }
 
+  // 좋아요 롤백
+  public void decreaseLikeCount() {
+    likeCount--;
+  }
+
   // 댓글 수 증가
   public void increaseCommentCount() {
     commentCount++;

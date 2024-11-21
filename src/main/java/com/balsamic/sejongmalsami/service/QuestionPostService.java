@@ -102,7 +102,8 @@ public class QuestionPostService {
     // 입력된 교과목에 따른 단과대 설정
     List<Faculty> faculties = courseRepository
         .findAllBySubject(command.getSubject())
-        .stream().map(Course::getFaculty).toList();
+        .stream().map(Course::getFaculty)
+        .collect(Collectors.toList());
 
     log.info("입력된 교과목명 : {}", command.getSubject());
     log.info("단과대 List : {}", faculties);

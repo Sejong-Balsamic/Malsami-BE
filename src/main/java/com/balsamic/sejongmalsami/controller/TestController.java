@@ -50,7 +50,7 @@ public class TestController {
        - `postCount`는 **양의 정수**여야 합니다. 음수나 0이 입력될 경우, 기본값이 적용되거나 오류가 발생할 수 있습니다.
        - 대량의 데이터를 생성할 경우, 시스템 성능에 영향을 줄 수 있으므로 적절한 값을 설정하는 것이 좋습니다.
       """)
-  @PostMapping( "/create/question/board")
+  @PostMapping( "/create/question")
   public void createMockQuestionPostAndAnswerPost(Integer postCount) {
     testService.createMockQuestionPostAndAnswerPost(postCount);
   }
@@ -85,7 +85,7 @@ public class TestController {
             - 대량의 데이터를 생성할 경우, 시스템 성능에 영향을 줄 수 있으므로 적절한 값을 설정하는 것이 좋습니다.
         """
   )
-  @PostMapping( "/create/document/board")
+  @PostMapping( "/create/document")
   public void createMockDocumentPostAndAnswerPost(Integer postCount) {
     testService.createMockDocumentPostAndDocumentFiles(postCount);
   }
@@ -118,7 +118,7 @@ public class TestController {
        - `postCount`는 **양의 정수**여야 합니다. 음수나 0이 입력될 경우, 기본값이 적용되거나 오류가 발생할 수 있습니다.
        - 대량의 데이터를 생성할 경우, 시스템 성능에 영향을 줄 수 있으므로 적절한 값을 설정하는 것이 좋습니다.
       """)
-  @PostMapping( "/create/document/request/board")
+  @PostMapping( "/create/document-request")
   public void createMockDocumentRequestPost(Integer postCount) {
     testService.createMockDocumentRequestPost(postCount);
   }

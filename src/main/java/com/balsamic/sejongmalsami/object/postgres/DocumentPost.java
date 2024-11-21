@@ -1,6 +1,7 @@
 package com.balsamic.sejongmalsami.object.postgres;
 
 import com.balsamic.sejongmalsami.object.constants.DocumentType;
+import com.balsamic.sejongmalsami.object.constants.Faculty;
 import com.balsamic.sejongmalsami.object.constants.PostTier;
 import com.balsamic.sejongmalsami.util.exception.CustomException;
 import com.balsamic.sejongmalsami.util.exception.ErrorCode;
@@ -48,6 +49,12 @@ public class DocumentPost extends BasePost {
   private String title; // 제목
 
   private String subject; // 교과목명
+
+  @Builder.Default
+  @ElementCollection(targetClass = Faculty.class, fetch = FetchType.LAZY)
+  @CollectionTable
+  @Enumerated(EnumType.STRING)
+  private List<Faculty> faculties = new ArrayList<>(); // 교과목명에 해당하는 단과대
 
   private String content; // 내용
 
@@ -101,9 +108,19 @@ public class DocumentPost extends BasePost {
     likeCount++;
   }
 
+  // 좋아요 수 롤백
+  public void decreaseLikeCount() {
+    likeCount--;
+  }
+
   // 싫어요 수 증가
   public void increaseDislikeCount() {
     dislikeCount++;
+  }
+
+  // 싫어요 수 롤백
+  public void decreaseDislikeCount() {
+    dislikeCount--;
   }
 
   // 게시물 등급 변경

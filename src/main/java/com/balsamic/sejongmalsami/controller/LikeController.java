@@ -3,6 +3,8 @@ package com.balsamic.sejongmalsami.controller;
 import com.balsamic.sejongmalsami.object.CommentCommand;
 import com.balsamic.sejongmalsami.object.CommentDto;
 import com.balsamic.sejongmalsami.object.CustomUserDetails;
+import com.balsamic.sejongmalsami.object.DocumentCommand;
+import com.balsamic.sejongmalsami.object.DocumentDto;
 import com.balsamic.sejongmalsami.object.QuestionCommand;
 import com.balsamic.sejongmalsami.object.QuestionDto;
 import com.balsamic.sejongmalsami.service.LikeService;
@@ -36,6 +38,16 @@ public class LikeController implements LikeControllerDocs{
       @ModelAttribute QuestionCommand command) {
     command.setMemberId(customUserDetails.getMemberId());
     return ResponseEntity.ok(likeService.questionBoardLike(command));
+  }
+
+  @Override
+  @PostMapping(value = "/document/board", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
+  @LogMonitoringInvocation
+  public ResponseEntity<DocumentDto> documentBoardLike(
+      @AuthenticationPrincipal CustomUserDetails customUserDetails,
+      @ModelAttribute DocumentCommand command) {
+    command.setMemberId(customUserDetails.getMemberId());
+    return ResponseEntity.ok(likeService.documentBoardLike(command));
   }
 
   @Override
