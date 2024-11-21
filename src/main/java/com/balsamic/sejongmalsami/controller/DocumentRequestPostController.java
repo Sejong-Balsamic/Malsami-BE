@@ -37,7 +37,7 @@ public class DocumentRequestPostController implements DocumentRequestPostControl
   }
 
   @Override
-  @PostMapping(value = "/get/filtered-posts", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
+  @PostMapping(value = "/filter", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
   @LogMonitoringInvocation
   public ResponseEntity<DocumentDto> getFilteredDocumentRequestPosts(
       @AuthenticationPrincipal CustomUserDetails customUserDetails,
