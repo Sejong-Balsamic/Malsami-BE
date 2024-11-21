@@ -5,6 +5,7 @@ import com.balsamic.sejongmalsami.util.FileUtil;
 import com.balsamic.sejongmalsami.util.config.FtpConfig;
 import com.balsamic.sejongmalsami.util.exception.CustomException;
 import com.balsamic.sejongmalsami.util.exception.ErrorCode;
+import com.balsamic.sejongmalsami.util.log.LogMonitoringInvocation;
 import java.io.InputStream;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -28,6 +29,7 @@ public class FtpStorageService implements StorageService {
 
   // 파일 Path 반환
   @Override
+  @LogMonitoringInvocation
   public String uploadFile(ContentType contentType, MultipartFile file) {
     String uploadFileName = FileUtil.generateFileName(contentType, file.getOriginalFilename());
     String remoteFilePath = getPath(contentType) + "/" + uploadFileName;
@@ -63,6 +65,7 @@ public class FtpStorageService implements StorageService {
 
   // 썸네일 URL 반환
   @Override
+  @LogMonitoringInvocation
   public String uploadThumbnail(ContentType contentType, MultipartFile file) {
     // 파일명 생성
     String uploadFileName = FileUtil.generateFileName(contentType, file.getOriginalFilename());
@@ -99,6 +102,7 @@ public class FtpStorageService implements StorageService {
   }
 
   @Override
+  @LogMonitoringInvocation
   public void deleteFile(ContentType contentType, String fileName) {
     String remoteFilePath = switch (contentType) {
       case THUMBNAIL -> ftpConfig.getThumbnailPath() + "/" + fileName;
