@@ -114,6 +114,7 @@ public class DocumentPostService {
    * <ul>
    *   <li>과목 필터링</li>
    *   <li>태그 필터링</li>
+   *   <li>단과대 필터링</li>
    *   <li>자료등급 필터링</li>
    * </ul>
    * <p>정렬 타입</p>
