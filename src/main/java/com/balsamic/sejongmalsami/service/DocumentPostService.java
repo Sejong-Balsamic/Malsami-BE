@@ -179,6 +179,7 @@ public class DocumentPostService {
    * @param command memberId, documentPostId
    * @return
    */
+  @Transactional
   public DocumentDto getDocumentPost(DocumentCommand command) {
 
     Member member = memberRepository.findById(command.getMemberId())

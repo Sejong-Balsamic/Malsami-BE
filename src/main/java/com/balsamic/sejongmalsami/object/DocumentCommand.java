@@ -11,6 +11,7 @@ import io.swagger.v3.oas.annotations.media.Schema;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
+import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.Setter;
@@ -19,6 +20,7 @@ import org.springframework.web.multipart.MultipartFile;
 
 @ToString
 @Builder
+@AllArgsConstructor
 @Getter
 @Setter
 public class DocumentCommand {

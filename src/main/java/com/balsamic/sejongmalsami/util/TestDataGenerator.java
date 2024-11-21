@@ -316,11 +316,12 @@ public class TestDataGenerator {
         )) // 문서 타입
         .build();
 
-    if (post.getLikeCount() < postTierConfig.getLikeRequirementCheonmin()) {
+    int score = post.getLikeCount() - post.getDislikeCount();
+    if (score < postTierConfig.getLikeRequirementCheonmin()) {
       post.updatePostTier(CHEONMIN);
-    } else if (post.getLikeCount() < postTierConfig.getLikeRequirementJungin()) {
+    } else if (score < postTierConfig.getLikeRequirementJungin()) {
       post.updatePostTier(JUNGIN);
-    } else if (post.getLikeCount() < postTierConfig.getLikeRequirementKing()) {
+    } else if (score < postTierConfig.getLikeRequirementKing()) {
       post.updatePostTier(YANGBAN);
     } else {
       post.updatePostTier(KING);
