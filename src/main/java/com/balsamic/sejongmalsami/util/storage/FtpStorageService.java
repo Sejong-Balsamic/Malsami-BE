@@ -43,12 +43,15 @@ public class FtpStorageService implements StorageService {
           log.info("FTP 파일 업로드 성공: {}", remoteFilePath);
           return remoteFilePath;
         } else {
-          log.error("FTP 파일 업로드 실패: {}", remoteFilePath);
+          String reply = ftpClient.getReplyString();
+          log.error("FTP 파일 업로드 실패: {}. 서버 응답: {}", remoteFilePath, reply);
           throw new CustomException(ErrorCode.FTP_FILE_UPLOAD_ERROR);
         }
       }
+    } catch (CustomException ce) {
+      throw ce; // 커스텀 예외는 다시 던집니다.
     } catch (Exception e) {
-      log.error("FTP 파일 업로드 중 예외 발생: {}", e.getMessage());
+      log.error("FTP 파일 업로드 중 예외 발생: {}", e.getMessage(), e);
       throw new CustomException(ErrorCode.FTP_FILE_UPLOAD_ERROR);
     } finally {
       if (ftpClient != null) {
@@ -79,12 +82,13 @@ public class FtpStorageService implements StorageService {
           log.info("FTP 썸네일 업로드 성공: {}", remoteFilePath);
           return ftpConfig.getThumbnailBaseUrl() + uploadFileName;
         } else {
-          log.error("FTP 썸네일 업로드 실패: {}", remoteFilePath);
+          String reply = ftpClient.getReplyString();
+          log.error("FTP 썸네일 업로드 실패: {}. 서버 응답: {}", remoteFilePath, reply);
           throw new CustomException(ErrorCode.FTP_FILE_UPLOAD_ERROR);
         }
       }
     } catch (Exception e) {
-      log.error("FTP 썸네일 업로드 중 예외 발생: {}", e.getMessage());
+      log.error("FTP 썸네일 업로드 중 예외 발생: {}", e.getMessage(), e);
       throw new CustomException(ErrorCode.FTP_FILE_UPLOAD_ERROR);
     } finally {
       if (ftpClient != null) {
@@ -96,18 +100,15 @@ public class FtpStorageService implements StorageService {
 
   @Override
   public void deleteFile(ContentType contentType, String fileName) {
-
-    // ContentType -> 파일 path 파악
-    String remoteFilePath =
-        switch (contentType) {
-          case THUMBNAIL -> ftpConfig.getThumbnailPath() + "/" + fileName;
-          case DOCUMENT -> ftpConfig.getDocumentPath() + "/" + fileName;
-          case QUESTION, ANSWER -> ftpConfig.getQuestionPath() + "/" + fileName;
-          case NOTICE -> ftpConfig.getNoticePath() + "/" + fileName;
-          case COMMENT -> ftpConfig.getCommentPath() + "/" + fileName;
-          case DOCUMENT_REQUEST -> ftpConfig.getDocumentRequestPath() + "/" + fileName;
-          default -> throw new CustomException(ErrorCode.INVALID_CONTENT_TYPE);
-        };
+    String remoteFilePath = switch (contentType) {
+      case THUMBNAIL -> ftpConfig.getThumbnailPath() + "/" + fileName;
+      case DOCUMENT -> ftpConfig.getDocumentPath() + "/" + fileName;
+      case QUESTION, ANSWER -> ftpConfig.getQuestionPath() + "/" + fileName;
+      case NOTICE -> ftpConfig.getNoticePath() + "/" + fileName;
+      case COMMENT -> ftpConfig.getCommentPath() + "/" + fileName;
+      case DOCUMENT_REQUEST -> ftpConfig.getDocumentRequestPath() + "/" + fileName;
+      default -> throw new CustomException(ErrorCode.INVALID_CONTENT_TYPE);
+    };
 
     log.info("FTP 파일 삭제 시작: {}", remoteFilePath);
 
@@ -122,7 +123,7 @@ public class FtpStorageService implements StorageService {
         throw new CustomException(ErrorCode.FTP_FILE_DELETE_ERROR);
       }
     } catch (Exception e) {
-      log.error("FTP 파일 삭제 중 예외 발생: {}", e.getMessage());
+      log.error("FTP 파일 삭제 중 예외 발생: {}", e.getMessage(), e);
       throw new CustomException(ErrorCode.FTP_FILE_DELETE_ERROR);
     } finally {
       if (ftpClient != null) {
