@@ -163,7 +163,7 @@ public class DocumentPostService {
     Member member = memberRepository.findById(command.getMemberId())
         .orElseThrow(() -> new CustomException(ErrorCode.MEMBER_NOT_FOUND));
 
-    DocumentPost post = documentPostRepository.findByDocumentPostId(command.getDocumentPostId())
+    DocumentPost post = documentPostRepository.findById(command.getDocumentPostId())
         .orElseThrow(() -> new CustomException(ErrorCode.DOCUMENT_POST_NOT_FOUND));
 
     PostTier postTier = post.getPostTier();

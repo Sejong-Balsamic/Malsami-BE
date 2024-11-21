@@ -5,7 +5,6 @@ import com.balsamic.sejongmalsami.object.constants.PostTier;
 import com.balsamic.sejongmalsami.object.postgres.DocumentPost;
 import java.time.LocalDateTime;
 import java.util.List;
-import java.util.Optional;
 import java.util.UUID;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -63,6 +62,4 @@ public interface DocumentPostRepository extends JpaRepository<DocumentPost, UUID
       @Param("postTier") PostTier postTier,
       Pageable pageable
   );
-
-  Optional<DocumentPost> findByDocumentPostId(UUID documentPostId);
 }
