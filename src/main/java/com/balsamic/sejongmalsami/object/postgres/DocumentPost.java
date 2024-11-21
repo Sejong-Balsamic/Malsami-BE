@@ -101,9 +101,19 @@ public class DocumentPost extends BasePost {
     likeCount++;
   }
 
+  // 좋아요 수 롤백
+  public void decreaseLikeCount() {
+    likeCount--;
+  }
+
   // 싫어요 수 증가
   public void increaseDislikeCount() {
     dislikeCount++;
+  }
+
+  // 싫어요 수 롤백
+  public void decreaseDislikeCount() {
+    dislikeCount--;
   }
 
   // 게시물 등급 변경
