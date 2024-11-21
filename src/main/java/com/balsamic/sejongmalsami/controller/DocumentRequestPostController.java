@@ -17,7 +17,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 @RestController
 @RequiredArgsConstructor
-@RequestMapping("/api/document/request")
+@RequestMapping("/api/document-request")
 @Tag(
     name = "자료요청 게시판 API",
     description = "자료요청 게시판 관련 API 제공"
