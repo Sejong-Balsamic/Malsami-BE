@@ -267,9 +267,12 @@ public class LikeService {
         YeopjeonHistory writerYeopjeonHistory = yeopjeonService
             .updateYeopjeonAndSaveYeopjeonHistory(writer, YeopjeonAction.RECEIVE_DISLIKE);
         // 싫어요 증가 및 MongoDB에 싫어요 내역 저장 - B
+        PostTier previousTier = null;
         try {
           // 싫어요 증가
           documentPost.increaseDislikeCount();
+          previousTier = documentPost.getPostTier(); // 등급 변동 전 등급 저장
+          updatePostTier(documentPost, command.getReactionType()); // 등급 변동 로직 호출
           return DocumentDto.builder()
               .documentBoardLike(documentBoardLikeRepository.save(DocumentBoardLike.builder()
                   .memberId(curMember.getMemberId())
@@ -280,6 +283,8 @@ public class LikeService {
               .build();
         } catch (Exception e) { // B 실패시 A 롤백
           log.error("싫어요 내역 저장 실패 및 롤백: {}", e.getMessage());
+
+          rollbackPostTier(documentPost, previousTier); // 등급 롤백
 
           // 싫어요 수 롤백
           documentPost.decreaseDislikeCount();
