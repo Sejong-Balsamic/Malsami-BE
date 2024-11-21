@@ -14,7 +14,6 @@ import java.util.List;
 import java.util.UUID;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
@@ -27,7 +26,7 @@ import org.springframework.web.multipart.MultipartFile;
 @Slf4j
 public class MediaFileService {
 
-  @Qualifier("ftpStorageService")
+//  @Qualifier("ftpStorageService")
   private final StorageService storageService;
   private final MediaFileRepository mediaFileRepository;
   private final QuestionPostRepository questionPostRepository;
@@ -71,20 +70,21 @@ public class MediaFileService {
       }
 
       // 파일 업로드
-      String fileUrl = storageService.uploadFile(contentType, file); // MEDIA 경로에 업로드
+      String filePath = storageService.uploadFile(contentType, file);
       String thumbnailUrl = storageService.uploadThumbnail(contentType, file);
 
       MediaFile mediaFile = mediaFileRepository.save(MediaFile.builder()
           .postId(postId)
           .originalFileName(file.getOriginalFilename())
-          .fileUrl(fileUrl)
+          .thumbnailUrl(thumbnailUrl)
+          .filePath(filePath)
           .fileSize(file.getSize())
           .contentType(contentType)
           .mimeType(MimeType.fromString(mimeType))
           .build());
 
       mediaFiles.add(mediaFile);
-      log.info("파일 저장 완료: 업로드 파일명={}", fileUrl);
+      log.info("파일 저장 완료: 업로드 파일명={}", file.getOriginalFilename());
     }
     return mediaFiles;
   }

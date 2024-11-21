@@ -195,19 +195,9 @@ public class DocumentPostService {
   /**
    * 첨부 파일 처리, 업로드, 저장
    *
-   * <ul>
-   *   <li>첨부 파일의 존재 여부를 확인</li>
-   *   <li>각 파일의 MIME 타입에 따라 이미지, 동영상, 음악, 문서로 분류</li>
-   *   <li>해당 파일 타입 매칭 -> 타입에 따른 썸네일 생성</li>
-   *   <li>생성한 파일 및 썸네일 -> FTP 서버에 업로드</li>
-   *   <li>파일의 메타데이터 {@link DocumentFile} -> DB에 저장</li>
-   *   <li>저장된 {@link DocumentFile} 객체 -> savedDocumentFiles 추가</li>
-   * </ul>
-   *
    * @param command            DocumentCommand
    * @param savedDocumentFiles 저장된 파일 리스트
    */
-  //FIXME: 업로드 위치 의존성 수정필요
   private void processAndSaveUploadedFiles(DocumentCommand command, List<DocumentFile> savedDocumentFiles) {
     List<MultipartFile> attachmentFiles = command.getAttachmentFiles();
 
@@ -231,20 +221,6 @@ public class DocumentPostService {
 
         // 파일 유효성 검사
         documentFileService.validateFile(file, uploadType);
-
-        // UploadType에 따른 파일리스트에 파일 분류 작업
-        if (uploadType == UploadType.DOCUMENT) {
-          command.getDocumentFiles().add(file);
-        } else if (uploadType == UploadType.IMAGE) {
-          command.getImageFiles().add(file);
-        } else if (uploadType == UploadType.VIDEO) {
-          command.getVideoFiles().add(file);
-        } else if (uploadType == UploadType.MUSIC) {
-          command.getMusicFiles().add(file);
-        } else {
-          log.error("지원되지 않는 UploadType: {}", uploadType);
-          throw new CustomException(ErrorCode.INVALID_UPLOAD_TYPE);
-        }
 
         // 파일 저장
         DocumentFile savedFile = documentFileService.saveFile(command, uploadType, file);

@@ -35,9 +35,11 @@ public class MediaFile extends BaseEntity {
   // 파일 원본명
   private String originalFileName;
 
-  // 파일 경로 (파일 URL)
-  @Column(length = 1024)
-  private String fileUrl;
+  // 썸네일 URL
+  private String thumbnailUrl;
+
+  // 파일 경로
+  private String filePath;
 
   // 파일 크기
   private Long fileSize;

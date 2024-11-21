@@ -9,12 +9,14 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.net.ftp.FTPClient;
 import org.apache.commons.pool2.impl.GenericObjectPool;
+import org.springframework.context.annotation.Primary;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
 /**
  * FTP 스토리지 서비스 구현 클래스
  */
+@Primary
 @Service("ftpStorageService")
 @Slf4j
 @RequiredArgsConstructor
@@ -23,10 +25,26 @@ public class FtpStorageService implements StorageService {
   private final GenericObjectPool<FTPClient> ftpClientPool;
   private final FtpConfig ftpConfig;
 
+  // 파일 Path 반환
   @Override
   public String uploadFile(ContentType contentType, MultipartFile file) {
     String uploadFileName = FileUtil.generateFileName(contentType, file.getOriginalFilename());
-    String remoteFilePath = ftpConfig.getMediaPath() + "/" + uploadFileName;
+    String remoteFilePath;
+
+    // contentType에 대한 업로드할 경로 지정
+    if (contentType.equals(ContentType.DOCUMENT)) {
+      remoteFilePath = ftpConfig.getDocumentPath() + "/" + uploadFileName;
+    } else if (contentType.equals(ContentType.ANSWER) || contentType.equals(ContentType.QUESTION)) {
+      remoteFilePath = ftpConfig.getQuestionPath() + "/" + uploadFileName;
+    } else if (contentType.equals(ContentType.NOTICE)) {
+      remoteFilePath = ftpConfig.getNoticePath() + "/" + uploadFileName;
+    } else if (contentType.equals(ContentType.COMMENT)) {
+      remoteFilePath = ftpConfig.getCommentPath() + "/" + uploadFileName;
+    } else if (contentType.equals(ContentType.DOCUMENT_REQUEST)) {
+      remoteFilePath = ftpConfig.getDocumentRequestPath() + "/" + uploadFileName;
+    } else {
+      throw new CustomException(ErrorCode.INVALID_CONTENT_TYPE);
+    }
 
     log.info("FTP 파일 업로드 시작: {} -> {}", file.getOriginalFilename(), remoteFilePath);
 
@@ -37,7 +55,7 @@ public class FtpStorageService implements StorageService {
         boolean success = ftpClient.storeFile(remoteFilePath, inputStream);
         if (success) {
           log.info("FTP 파일 업로드 성공: {}", remoteFilePath);
-          return ftpConfig.getMediaBaseUrl() + uploadFileName;
+          return remoteFilePath;
         } else {
           log.error("FTP 파일 업로드 실패: {}", remoteFilePath);
           throw new CustomException(ErrorCode.FTP_FILE_UPLOAD_ERROR);
@@ -54,11 +72,13 @@ public class FtpStorageService implements StorageService {
     }
   }
 
+  // 썸네일 URL 반환
   @Override
   public String uploadThumbnail(ContentType contentType, MultipartFile file) {
+    // 파일명 생성
     String uploadFileName = FileUtil.generateFileName(contentType, file.getOriginalFilename());
 
-    // 썸네일 업로드시 접근 URL 생성
+    // contentType에 대한 업로드할 경로 지정 ->  contentType.THUMBNAIL
     String remoteFilePath = ftpConfig.getThumbnailPath() + "/" + uploadFileName;
 
     log.info("FTP 썸네일 업로드 시작: {} -> {}", file.getOriginalFilename(), remoteFilePath);
@@ -67,6 +87,7 @@ public class FtpStorageService implements StorageService {
     try {
       ftpClient = ftpClientPool.borrowObject();
       try (InputStream inputStream = file.getInputStream()) {
+        // 썸네일 path 에 도입
         boolean success = ftpClient.storeFile(remoteFilePath, inputStream);
         if (success) {
           log.info("FTP 썸네일 업로드 성공: {}", remoteFilePath);
@@ -88,13 +109,18 @@ public class FtpStorageService implements StorageService {
   }
 
   @Override
-  public void deleteFile(ContentType contentType, String fileUrl) {
-    String fileName = extractFileName(fileUrl);
+  public void deleteFile(ContentType contentType, String fileName) {
+
+    // ContentType -> 파일 path 파악
     String remoteFilePath =
         switch (contentType) {
           case THUMBNAIL -> ftpConfig.getThumbnailPath() + "/" + fileName;
           case DOCUMENT -> ftpConfig.getDocumentPath() + "/" + fileName;
-          default -> ftpConfig.getMediaPath() + "/" + fileName;
+          case QUESTION, ANSWER -> ftpConfig.getQuestionPath() + "/" + fileName;
+          case NOTICE -> ftpConfig.getNoticePath() + "/" + fileName;
+          case COMMENT -> ftpConfig.getCommentPath() + "/" + fileName;
+          case DOCUMENT_REQUEST -> ftpConfig.getDocumentRequestPath() + "/" + fileName;
+          default -> throw new CustomException(ErrorCode.INVALID_CONTENT_TYPE);
         };
 
     log.info("FTP 파일 삭제 시작: {}", remoteFilePath);

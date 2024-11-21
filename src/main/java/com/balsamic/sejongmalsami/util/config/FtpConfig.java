@@ -26,30 +26,39 @@ public class FtpConfig {
   @Value("${ftp.path.document}")
   private String documentPath;
 
+  @Value("${ftp.path.question}")
+  private String questionPath;
+
+  @Value("${ftp.path.answer}")
+  private String answerPath;
+
+  @Value("${ftp.path.notice}")
+  private String noticePath;
+
+  @Value("${ftp.path.comment}")
+  private String commentPath;
+
+  @Value("${ftp.path.document-request}")
+  private String documentRequestPath;
+
   @Value("${ftp.path.thumbnail}")
   private String thumbnailPath;
 
-  @Value("${ftp.path.media}")
-  private String mediaPath;
+  @Value("${ftp.path.courses}")
+  private String coursesPath;
 
-  @Value("${ftp.thumbnail-base-url}")
+  @Value("${ftp.thumbnail-url.base-url}")
   private String thumbnailBaseUrl;
 
-  @Value("${ftp.document-base-url}")
-  private String documentBaseUrl;
-
-  @Value("${ftp.media-base-url}")
-  private String mediaBaseUrl;
-
-  @Value("${ftp.basic.document}")
+  @Value("${ftp.thumbnail-url.default-document}")
   private String defaultDocumentThumbnailUrl;
 
-  @Value("${ftp.basic.image}")
+  @Value("${ftp.thumbnail-url.default-image}")
   private String defaultImageThumbnailUrl;
 
-  @Value("${ftp.basic.video}")
+  @Value("${ftp.thumbnail-url.default-video}")
   private String defaultVideoThumbnailUrl;
 
-  @Value("${ftp.basic.music}")
+  @Value("${ftp.thumbnail-url.default-music}")
   private String defaultMusicThumbnailUrl;
 }

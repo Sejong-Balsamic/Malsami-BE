@@ -153,14 +153,20 @@ public class QuestionPostService {
     // 첨부파일 추가
     List<MediaFile> mediaFiles = null;
     if (command.getMediaFiles() != null) {
-      mediaFiles = mediaFileService
-          .uploadMediaFiles(savedPost.getQuestionPostId(), command.getMediaFiles());
+      mediaFiles = mediaFileService.uploadMediaFiles(savedPost.getQuestionPostId(), command.getMediaFiles());
+    }
 
-      // 첫번째 이미지를 썸네일로 설정
+    // 파일 업로드 및 써멘일 저장
+    String thumbnailUrl = "";
+
+    if (command.getMediaFiles() != null && !command.getMediaFiles().isEmpty()) {
+      mediaFiles = mediaFileService.uploadMediaFiles(savedPost.getQuestionPostId(), command.getMediaFiles());
       if (!mediaFiles.isEmpty()) {
-        questionPost.setThumbnailUrl(mediaFiles.get(0).getFileUrl());
+        thumbnailUrl = mediaFiles.get(0).getFilePath();
+        savedPost.setThumbnailUrl(thumbnailUrl);
       }
     }
+
 
     // 질문 글 등록 시 엽전 100냥 감소
     yeopjeonService.updateYeopjeonAndSaveYeopjeonHistory(member, YeopjeonAction.CREATE_QUESTION_POST);
