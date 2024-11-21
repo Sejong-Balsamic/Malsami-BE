@@ -47,7 +47,7 @@ public class DocumentFileService {
     String thumbnailUrl = generateThumbnailUrl(ContentType.DOCUMENT, file, uploadType);
     String uploadFileName = FileUtil.generateUploadFileName(file);
 
-    DocumentPost documentPost = documentPostRepository.findByDocumentPostId(command.getDocumentPostId())
+    DocumentPost documentPost = documentPostRepository.findById(command.getDocumentPostId())
         .orElseThrow(() -> new CustomException(ErrorCode.DOCUMENT_POST_NOT_FOUND));
 
     // 첨부파일 업로드

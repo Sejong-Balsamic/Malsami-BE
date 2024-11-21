@@ -285,10 +285,16 @@ public class TestDataGenerator {
 
     String subject = subjects.get(random.nextInt(subjects.size()));
 
+    List<Faculty> faculties = courseRepository
+        .findAllBySubject(subject)
+        .stream().map(Course::getFaculty)
+        .collect(Collectors.toList());
+
     DocumentPost post = DocumentPost.builder()
         .member(member)
         .title(faker.lorem().sentence()) // 임의의 제목
         .subject(subject) // 임의의 교과목명
+        .faculties(faculties)
         .content(faker.lorem().paragraph()) // 임의의 내용
         .postTier(CHEONMIN) // 글 작성시 천민 계급
         .likeCount(faker.number().numberBetween(0, 130)) // 임의의 좋아요 수
@@ -310,11 +316,12 @@ public class TestDataGenerator {
         )) // 문서 타입
         .build();
 
-    if (post.getLikeCount() < postTierConfig.getLikeRequirementCheonmin()) {
+    int score = post.getLikeCount() - post.getDislikeCount();
+    if (score < postTierConfig.getLikeRequirementCheonmin()) {
       post.updatePostTier(CHEONMIN);
-    } else if (post.getLikeCount() < postTierConfig.getLikeRequirementJungin()) {
+    } else if (score < postTierConfig.getLikeRequirementJungin()) {
       post.updatePostTier(JUNGIN);
-    } else if (post.getLikeCount() < postTierConfig.getLikeRequirementKing()) {
+    } else if (score < postTierConfig.getLikeRequirementKing()) {
       post.updatePostTier(YANGBAN);
     } else {
       post.updatePostTier(KING);

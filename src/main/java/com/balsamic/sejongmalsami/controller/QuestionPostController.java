@@ -56,7 +56,7 @@ public class QuestionPostController implements QuestionPostControllerDocs {
   }
 
   @Override
-  @PostMapping(value = "/get/unanswered", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
+  @PostMapping(value = "/unanswered", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
   @LogMonitoringInvocation
   public ResponseEntity<QuestionDto> getAllQuestionPostsNotAnswered(
       @ModelAttribute QuestionCommand command) {
@@ -65,7 +65,7 @@ public class QuestionPostController implements QuestionPostControllerDocs {
   }
 
   @Override
-  @PostMapping(value = "/get/filtered-posts", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
+  @PostMapping(value = "/filter", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
   @LogMonitoringInvocation
   public ResponseEntity<QuestionDto> getFilteredQuestionPosts(
       @ModelAttribute QuestionCommand command) {
