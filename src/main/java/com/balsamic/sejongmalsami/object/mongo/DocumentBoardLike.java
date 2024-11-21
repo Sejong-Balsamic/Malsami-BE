@@ -26,11 +26,11 @@ public class DocumentBoardLike extends BaseMongoEntity {
 
   @Indexed
   @NotNull
-  private UUID documentId;
+  private UUID memberId;
 
   @Indexed
   @NotNull
-  private UUID memberId;
+  private UUID documentBoardId; // 자료 글 or 자료 요청 글 PK
 
   @NotNull
   private ContentType contentType;

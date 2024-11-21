@@ -7,14 +7,17 @@ import static com.balsamic.sejongmalsami.object.constants.YeopjeonAction.VIEW_DO
 
 import com.balsamic.sejongmalsami.object.DocumentCommand;
 import com.balsamic.sejongmalsami.object.DocumentDto;
+import com.balsamic.sejongmalsami.object.constants.Faculty;
 import com.balsamic.sejongmalsami.object.constants.MimeType;
 import com.balsamic.sejongmalsami.object.constants.PostTier;
 import com.balsamic.sejongmalsami.object.constants.SortType;
 import com.balsamic.sejongmalsami.object.constants.UploadType;
+import com.balsamic.sejongmalsami.object.postgres.Course;
 import com.balsamic.sejongmalsami.object.postgres.DocumentFile;
 import com.balsamic.sejongmalsami.object.postgres.DocumentPost;
 import com.balsamic.sejongmalsami.object.postgres.Member;
 import com.balsamic.sejongmalsami.object.postgres.Yeopjeon;
+import com.balsamic.sejongmalsami.repository.postgres.CourseRepository;
 import com.balsamic.sejongmalsami.repository.postgres.DocumentPostRepository;
 import com.balsamic.sejongmalsami.repository.postgres.MemberRepository;
 import com.balsamic.sejongmalsami.util.config.YeopjeonConfig;
@@ -22,6 +25,7 @@ import com.balsamic.sejongmalsami.util.exception.CustomException;
 import com.balsamic.sejongmalsami.util.exception.ErrorCode;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.stream.Collectors;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
@@ -43,6 +47,7 @@ public class DocumentPostService {
   private final DocumentPostRepository documentPostRepository;
   private final MemberRepository memberRepository;
   private final DocumentFileService documentFileService;
+  private final CourseRepository courseRepository;
   private final YeopjeonService yeopjeonService;
   private final YeopjeonConfig yeopjeonConfig;
 
@@ -67,12 +72,26 @@ public class DocumentPostService {
     // 첨부 자료 처리 및 저장 : 저장된 자료 파일은 savedDocumentFiles 에 추가
     processAndSaveUploadedFiles(command, savedDocumentFiles);
 
+    // 입력된 교과목에 따른 단과대 설정
+    List<Faculty> faculties = courseRepository
+        .findAllBySubject(command.getSubject())
+        .stream().map(Course::getFaculty)
+        .collect(Collectors.toList());
+
+    log.info("입력된 교과목명 : {}", command.getSubject());
+    log.info("단과대 List : {}", faculties);
+
+    if (faculties.isEmpty()) {
+      throw new CustomException(ErrorCode.FACULTY_NOT_FOUND);
+    }
+
     // 자료 게시글 객체 생성 및 저장
     DocumentPost savedDocument = documentPostRepository.save(DocumentPost.builder()
         .member(member)
         .title(command.getTitle())
         .content(command.getContent())
         .subject(command.getSubject())
+        .faculties(faculties)
         .postTier(PostTier.CHEONMIN)
         .documentTypes(command.getDocumentTypes() != null ? new ArrayList<>(command.getDocumentTypes()) : null)
         .likeCount(0)
@@ -95,12 +114,13 @@ public class DocumentPostService {
    * <ul>
    *   <li>과목 필터링</li>
    *   <li>태그 필터링</li>
+   *   <li>단과대 필터링</li>
    *   <li>자료등급 필터링</li>
    * </ul>
    * <p>정렬 타입</p>
    * 최신순, 좋아요순, 조회순
    *
-   * @param command memberId, subject, documentTypes, postTier, sortType, pageNumber, pageSize
+   * @param command memberId, subject, documentTypes, faculty, postTier, sortType, pageNumber, pageSize
    * @return
    */
   @Transactional(readOnly = true)
@@ -139,6 +159,7 @@ public class DocumentPostService {
     Page<DocumentPost> documentPostsPage = documentPostRepository.findDocumentPostsByFilter(
         command.getSubject(),
         command.getDocumentTypes(),
+        command.getFaculty(),
         postTier,
         pageable
     );
@@ -158,12 +179,13 @@ public class DocumentPostService {
    * @param command memberId, documentPostId
    * @return
    */
+  @Transactional
   public DocumentDto getDocumentPost(DocumentCommand command) {
 
     Member member = memberRepository.findById(command.getMemberId())
         .orElseThrow(() -> new CustomException(ErrorCode.MEMBER_NOT_FOUND));
 
-    DocumentPost post = documentPostRepository.findByDocumentPostId(command.getDocumentPostId())
+    DocumentPost post = documentPostRepository.findById(command.getDocumentPostId())
         .orElseThrow(() -> new CustomException(ErrorCode.DOCUMENT_POST_NOT_FOUND));
 
     PostTier postTier = post.getPostTier();

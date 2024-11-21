@@ -1,20 +1,26 @@
 package com.balsamic.sejongmalsami.object;
 
+import com.balsamic.sejongmalsami.object.constants.ContentType;
 import com.balsamic.sejongmalsami.object.constants.DocumentType;
 import com.balsamic.sejongmalsami.object.constants.Faculty;
 import com.balsamic.sejongmalsami.object.constants.PostTier;
+import com.balsamic.sejongmalsami.object.constants.ReactionType;
 import com.balsamic.sejongmalsami.object.constants.SortType;
 import com.balsamic.sejongmalsami.object.postgres.Member;
 import io.swagger.v3.oas.annotations.media.Schema;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
+import lombok.AllArgsConstructor;
+import lombok.Builder;
 import lombok.Getter;
 import lombok.Setter;
 import lombok.ToString;
 import org.springframework.web.multipart.MultipartFile;
 
 @ToString
+@Builder
+@AllArgsConstructor
 @Getter
 @Setter
 public class DocumentCommand {
@@ -40,6 +46,8 @@ public class DocumentCommand {
   private Integer pageNumber;
   @Schema(defaultValue = "30")
   private Integer pageSize;
+  private ContentType contentType;
+  private ReactionType reactionType; // 글 좋아요/싫어요
   private SortType sortType; // 최신순, 좋아요순
   private PostTier postTier;
 

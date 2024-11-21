@@ -17,7 +17,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 @RestController
 @RequiredArgsConstructor
-@RequestMapping("/api/document/request")
+@RequestMapping("/api/document-request")
 @Tag(
     name = "자료요청 게시판 API",
     description = "자료요청 게시판 관련 API 제공"
@@ -37,7 +37,7 @@ public class DocumentRequestPostController implements DocumentRequestPostControl
   }
 
   @Override
-  @PostMapping(value = "/get/filtered-posts", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
+  @PostMapping(value = "/filter", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
   @LogMonitoringInvocation
   public ResponseEntity<DocumentDto> getFilteredDocumentRequestPosts(
       @AuthenticationPrincipal CustomUserDetails customUserDetails,

@@ -1,11 +1,11 @@
 package com.balsamic.sejongmalsami.repository.postgres;
 
 import com.balsamic.sejongmalsami.object.constants.DocumentType;
+import com.balsamic.sejongmalsami.object.constants.Faculty;
 import com.balsamic.sejongmalsami.object.constants.PostTier;
 import com.balsamic.sejongmalsami.object.postgres.DocumentPost;
 import java.time.LocalDateTime;
 import java.util.List;
-import java.util.Optional;
 import java.util.UUID;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -56,13 +56,13 @@ public interface DocumentPostRepository extends JpaRepository<DocumentPost, UUID
          "WHERE " +
          "(:subject IS NULL OR p.subject = :subject) " +
          "AND (:documentTypes IS NULL OR dt IN :documentTypes)" +
+         "AND (:faculty IS NULL OR :faculty MEMBER OF p.faculties)" +
          "AND(:postTier IS NULL OR p.postTier = :postTier)")
   Page<DocumentPost> findDocumentPostsByFilter(
       @Param("subject") String subject,
       @Param("documentTypes") List<DocumentType> documentTypes,
+      @Param("faculty") Faculty faculty,
       @Param("postTier") PostTier postTier,
       Pageable pageable
   );
-
-  Optional<DocumentPost> findByDocumentPostId(UUID documentPostId);
 }
