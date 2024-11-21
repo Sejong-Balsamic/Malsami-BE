@@ -1,5 +1,7 @@
 package com.balsamic.sejongmalsami.service;
 
+import static com.balsamic.sejongmalsami.object.constants.PostTier.*;
+
 import com.balsamic.sejongmalsami.object.CommentCommand;
 import com.balsamic.sejongmalsami.object.CommentDto;
 import com.balsamic.sejongmalsami.object.DocumentCommand;
@@ -32,6 +34,7 @@ import com.balsamic.sejongmalsami.repository.postgres.DocumentPostRepository;
 import com.balsamic.sejongmalsami.repository.postgres.DocumentRequestPostRepository;
 import com.balsamic.sejongmalsami.repository.postgres.MemberRepository;
 import com.balsamic.sejongmalsami.repository.postgres.QuestionPostRepository;
+import com.balsamic.sejongmalsami.util.config.PostTierConfig;
 import com.balsamic.sejongmalsami.util.config.YeopjeonConfig;
 import com.balsamic.sejongmalsami.util.exception.CustomException;
 import com.balsamic.sejongmalsami.util.exception.ErrorCode;
@@ -58,6 +61,7 @@ public class LikeService {
   private final YeopjeonService yeopjeonService;
   private final YeopjeonConfig yeopjeonConfig;
   private final ExpService expService;
+  private final PostTierConfig postTierConfig;
   private final CommentLikeRepository commentLikeRepository;
   private final CommentRepository commentRepository;
 
@@ -172,8 +176,6 @@ public class LikeService {
   @Transactional
   public DocumentDto documentBoardLike(DocumentCommand command) {
 
-    // TODO: 자료 글 등급 변동로직 작성
-
     // 로그인 사용자
     Member curMember = memberRepository.findById(command.getMemberId())
         .orElseThrow(() -> new CustomException(ErrorCode.MEMBER_NOT_FOUND));
@@ -200,7 +202,7 @@ public class LikeService {
       writer = documentRequestPost.getMember();
       validateSelfLike(curMember, writer); // 본인이 작성한 글에 좋아요 불가
       isMemberAlreadyAction(postId, curMember.getMemberId()); // 이미 좋아요 누른 글에 중복 요청 불가
-      canAccessDocumentBoard(curMember, PostTier.JUNGIN); // '중인' 이상 유저 접근 가능
+      canAccessDocumentBoard(curMember, JUNGIN); // '중인' 이상 유저 접근 가능
     } else {
       throw new CustomException(ErrorCode.INVALID_CONTENT_TYPE);
     }
@@ -222,9 +224,14 @@ public class LikeService {
           );
         }
         // 좋아요 증가 및 MongoDB에 좋아요 내역 저장 - C
+        PostTier previousTier = null;
         try {
           // 좋아요 증가
           increaseLikeCount(null, null, documentPost, documentRequestPost);
+          if (documentPost != null) { // 자료글에 좋아요를 누른 경우
+            previousTier = documentPost.getPostTier(); // 등급 변동 전 등급 저장
+            updatePostTier(documentPost, command.getReactionType()); // 등급 변동 로직 호출
+          }
           return DocumentDto.builder()
               .documentBoardLike(documentBoardLikeRepository.save(DocumentBoardLike.builder()
                   .memberId(curMember.getMemberId())
@@ -235,6 +242,11 @@ public class LikeService {
               .build();
         } catch (Exception e) { // C 실패시 A, B 롤백
           log.error("좋아요 내역 저장 실패 및 롤백: {}", e.getMessage());
+
+          // 등급 변동 롤백
+          if (documentPost != null) {
+            rollbackPostTier(documentPost, previousTier); // 등급 롤백
+          }
 
           // 좋아요 수 롤백
           rollbackLikeCount(null, null, documentPost, documentRequestPost);
@@ -437,21 +449,21 @@ public class LikeService {
     Yeopjeon yeopjeon = yeopjeonService.findMemberYeopjeon(member);
 
     // 게시판 접근 가능 여부 확인
-    if (postTier.equals(PostTier.CHEONMIN)) { // 천민 게시판 접근 시
+    if (postTier.equals(CHEONMIN)) { // 천민 게시판 접근 시
       log.info("천민 게시판 접근, 현재 사용자 {}의 엽전개수: {}", member.getStudentId(), yeopjeon.getYeopjeon());
-    } else if (postTier.equals(PostTier.JUNGIN)) { // 중인 게시판 접근 시
+    } else if (postTier.equals(JUNGIN)) { // 중인 게시판 접근 시
       if (yeopjeon.getYeopjeon() < yeopjeonConfig.getJunginRequirement()) {
         log.error("현재 사용자 {}의 엽전이 부족하여 중인게시판에 접근할 수 없습니다.", member.getStudentId());
         log.error("중인 게시판 엽전 기준: {}냥, 현재 사용자 엽전개수: {}", yeopjeonConfig.getJunginRequirement(), yeopjeon.getYeopjeon());
         throw new CustomException(ErrorCode.INSUFFICIENT_YEOPJEON);
       }
-    } else if (postTier.equals(PostTier.YANGBAN)) { // 양반 게시판 접근 시
+    } else if (postTier.equals(YANGBAN)) { // 양반 게시판 접근 시
       if (yeopjeon.getYeopjeon() < yeopjeonConfig.getYangbanRequirement()) {
         log.error("현재 사용자 {}의 엽전이 부족하여 양반게시판에 접근할 수 없습니다.", member.getStudentId());
         log.error("양반 게시판 엽전 기준: {}냥, 현재 사용자 엽전개수: {}", yeopjeonConfig.getYangbanRequirement(), yeopjeon.getYeopjeon());
         throw new CustomException(ErrorCode.INSUFFICIENT_YEOPJEON);
       }
-    } else if (postTier.equals(PostTier.KING)) { // 왕 게시판 접근 시
+    } else if (postTier.equals(KING)) { // 왕 게시판 접근 시
       if (yeopjeon.getYeopjeon() < yeopjeonConfig.getKingRequirement()) {
         log.error("현재 사용자 {}의 엽전이 부족하여 왕 게시판에 접근할 수 없습니다.", member.getStudentId());
         log.error("왕 게시판 엽전 기준: {}냥, 현재 사용자 엽전개수: {}", yeopjeonConfig.getKingRequirement(), yeopjeon.getYeopjeon());
@@ -460,5 +472,62 @@ public class LikeService {
     } else {
       throw new CustomException(ErrorCode.INVALID_POST_TIER);
     }
+  }
+
+  // 자료 글 등급 승급/강등 로직
+  private void updatePostTier(DocumentPost post, ReactionType reactionType) {
+
+    if (post == null) {
+      throw new CustomException(ErrorCode.INVALID_REQUEST);
+    }
+
+    // 현재 자료 등급
+    PostTier postTier = post.getPostTier();
+
+    // 자료 점수 계산 (좋아요 수 - 싫어요 수)
+    Integer score = post.getLikeCount() - post.getDislikeCount();
+
+    // 좋아요가 요청된 경우 (승급여부만 확인)
+    if (reactionType.equals(ReactionType.LIKE)) {
+      if (score >= postTierConfig.getLikeRequirementKing() && postTier.equals(YANGBAN)) {
+        log.info("해당 글의 점수가 {} 에 도달하여 왕 등급으로 승급합니다. 현재 점수: {}", postTierConfig.getLikeRequirementKing(), score);
+        post.updatePostTier(KING);
+      } else if (score >= postTierConfig.getLikeRequirementYangban() && postTier.equals(JUNGIN)) {
+        log.info("해당 글의 점수가 {} 에 도달하여 양반 등급으로 승급합니다. 현재 점수: {}", postTierConfig.getLikeRequirementYangban(), score);
+        post.updatePostTier(YANGBAN);
+      } else if (score >= postTierConfig.getLikeRequirementJungin() && postTier.equals(CHEONMIN)) {
+        log.info("해당 글의 점수가 {} 에 도달하여 중인 등급으로 승급합니다. 현재 점수: {}", postTierConfig.getLikeRequirementJungin(), score);
+        post.updatePostTier(JUNGIN);
+      }
+    } else if (reactionType.equals(ReactionType.DISLIKE)) { // 싫어요가 요청된 경우 (강등여부만 확인)
+      if (post.getDislikeCount() < DEMOTION_DISLIKE_LIMIT) { // 싫어요 개수가 20개 미만인 경우 강등여부 확인 X
+        return;
+      }
+      if (score < postTierConfig.getLikeRequirementJungin() && postTier.equals(JUNGIN)) {
+        log.info("해당 글의 점수가 {} 보다 낮아 천민 등급으로 강등됩니다. 현재 점수: {}", postTierConfig.getLikeRequirementJungin(), score);
+        post.updatePostTier(CHEONMIN);
+      } else if (score < postTierConfig.getLikeRequirementYangban() && postTier.equals(YANGBAN)) {
+        log.info("해당 글의 점수가 {} 보다 낮아 중인 등급으로 강등됩니다. 현재 점수: {}", postTierConfig.getLikeRequirementYangban(), score);
+        post.updatePostTier(JUNGIN);
+      } else if (score < postTierConfig.getLikeRequirementKing() && postTier.equals(KING)) {
+        log.info("해당 글의 점수가 {} 보다 낮아 양반 등급으로 강등됩니다. 현재 점수: {}", postTierConfig.getLikeRequirementKing(), score);
+        post.updatePostTier(YANGBAN);
+      }
+    }
+
+    // 등급 변동이 일어난 경우
+    if (!postTier.equals(post.getPostTier())) {
+      log.info("{} 글의 자료 등급이 {} 에서 {} 으로 변동되었습니다.",
+          post.getDocumentPostId(),
+          postTier.getDescription(),
+          post.getPostTier().getDescription());
+    }
+  }
+
+  // 등급 변동 롤백 메소드
+  private void rollbackPostTier(DocumentPost post, PostTier previousTier) {
+    post.updatePostTier(previousTier);
+    documentPostRepository.save(post);
+    log.info("{} 글의 등급이 {} 로 롤백되었습니다.", post.getDocumentTypes(), previousTier);
   }
 }
