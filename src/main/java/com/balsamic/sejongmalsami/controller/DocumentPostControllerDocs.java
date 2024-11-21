@@ -213,6 +213,11 @@ public interface DocumentPostControllerDocs {
 
   @ApiChangeLogs({
       @ApiChangeLog(
+          date = "2024.11.21",
+          author = Author.BAEKJIHOON,
+          description = "단과대 필터링 추가"
+      ),
+      @ApiChangeLog(
           date = "2024.11.20",
           author = Author.BAEKJIHOON,
           description = "자료게시판 필터링 조회 수정"
@@ -235,6 +240,8 @@ public interface DocumentPostControllerDocs {
           - **String subject**: 교과목명 필터링 [선택]
           
           - **List<DocumentType> documentTypes**: 태그 필터링 (최대 2개) [선택]
+          
+          - **Faculty faculty**: 단과대 필터링 [선택]
           
           - **PostTier postTier**: 자료 등급별 필터링 [선택]
           

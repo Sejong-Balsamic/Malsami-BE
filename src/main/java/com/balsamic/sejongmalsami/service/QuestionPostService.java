@@ -26,11 +26,11 @@ import com.balsamic.sejongmalsami.util.exception.CustomException;
 import com.balsamic.sejongmalsami.util.exception.ErrorCode;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.stream.Collectors;
 import java.util.Locale;
 import java.util.stream.Collectors;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import net.datafaker.Faker;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
@@ -54,6 +54,7 @@ public class QuestionPostService {
   private final YeopjeonCalculator yeopjeonCalculator;
   private final ExpService expService;
   private final AnswerPostRepository answerPostRepository;
+  private final QuestionPostCustomTagRepository questionPostCustomTagRepository;
   private final QuestionPostCustomTagRepository questionPostCustomTagRepository;
 
   //FIXME: 임시 사용 : MOCK CUSTOM TAGS 생성
@@ -107,7 +108,8 @@ public class QuestionPostService {
     // 입력된 교과목에 따른 단과대 설정
     List<Faculty> faculties = courseRepository
         .findAllBySubject(command.getSubject())
-        .stream().map(Course::getFaculty).toList();
+        .stream().map(Course::getFaculty)
+        .collect(Collectors.toList());
 
     log.info("입력된 교과목명 : {}", command.getSubject());
     log.info("단과대 List : {}", faculties);
@@ -162,6 +164,7 @@ public class QuestionPostService {
     if (command.getMediaFiles() != null && !command.getMediaFiles().isEmpty()) {
       mediaFiles = mediaFileService.uploadMediaFiles(savedPost.getQuestionPostId(), command.getMediaFiles());
       if (!mediaFiles.isEmpty()) {
+        questionPost.addThumbnailUrl(mediaFiles.get(0).getFileUrl());
         thumbnailUrl = mediaFiles.get(0).getFilePath();
         savedPost.setThumbnailUrl(thumbnailUrl);
       }
@@ -272,20 +275,18 @@ public class QuestionPostService {
   /**
    * <h3>질문글 필터링 로직</h3>
    * <p>1. 교과목명 기준 필터링 - String subject (ex. 컴퓨터구조, 인터렉티브 디자인)
-   * <p>3. 정적 태그 필터링 - QuestionPresetTag (최대 2개)
-   * <p>4. 단과대별 필터링 - Faculty (ex. 공과대학, 예체는대학)
-   * <p>5. 채택 상태 필터링 - ChaetaekStatus (전체, 채택, 미채택)
+   * <p>2. 정적 태그 필터링 - QuestionPresetTag (최대 2개)
+   * <p>3. 단과대별 필터링 - Faculty (ex. 공과대학, 예체능대학)
+   * <p>4. 채택 상태 필터링 - ChaetaekStatus (전체, 채택, 미채택)
    * <br><br>
    * <h3>정렬 로직 (SortType)</h3>
    * <p>최신순, 좋아요순, 엽전 현상금순, 조회순
    *
-   * @param command
-   * <p>String subject
-   * <p>List<QuestionPresetTag> questionPresetTags
-   * <p>Faculty
-   * <p>ChaetaekStatus
-   * <p>SortType
-   *
+   * @param command <p>String subject
+   *                <p>List<QuestionPresetTag> questionPresetTags
+   *                <p>Faculty
+   *                <p>Boolean chaetaekStatus
+   *                <p>SortType
    * @return Page<QuestionPost> questionPosts
    */
   @Transactional(readOnly = true)

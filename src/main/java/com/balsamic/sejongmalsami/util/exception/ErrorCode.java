@@ -147,6 +147,10 @@ public enum ErrorCode {
 
   INVALID_CONTENT_TYPE(HttpStatus.BAD_REQUEST, "잘못된 ContentType 입니다."),
 
+  // ReactionType
+
+  INVALID_REACTION_TYPE(HttpStatus.BAD_REQUEST, "잘못된 ReactionType 입니다."),
+
   // MediaFile
 
   MEDIA_FILE_LIMIT_EXCEEDED(HttpStatus.BAD_REQUEST, "첨부할 수 있는 미디어 파일 개수를 초과했습니다."),
@@ -179,13 +183,15 @@ public enum ErrorCode {
 
   INVALID_EXP_ACTION(HttpStatus.BAD_REQUEST, "잘못된 ExpAction에 해당됩니다."),
 
-  // QuestionBoardLike
+  // QuestionBoardLike & DocumentBoardLike
 
   QUESTION_BOARD_LIKE_SAVE_ERROR(HttpStatus.INTERNAL_SERVER_ERROR, "질문게시판 좋아요 내역 저장 중 오류가 발생했습니다."),
 
-  SELF_LIKE_NOT_ALLOWED(HttpStatus.BAD_REQUEST, "본인에게 좋아요를 누를 수 없습니다."),
+  DOCUMENT_BOARD_LIKE_SAVE_ERROR(HttpStatus.INTERNAL_SERVER_ERROR, "자료게시판 좋아요/싫어요 내역 저장 중 오류가 발생했습니다."),
 
-  ALREADY_LIKED(HttpStatus.BAD_REQUEST, "이미 좋아요를 누른 글입니다."),
+  SELF_ACTION_NOT_ALLOWED(HttpStatus.BAD_REQUEST, "본인에게 좋아요 또는 싫어요를 누를 수 없습니다."),
+
+  ALREADY_ACTION(HttpStatus.BAD_REQUEST, "이미 좋아요 또는 싫어요를 누른 글입니다."),
 
   LIKE_COUNT_CANNOT_BE_NEGATIVE(HttpStatus.BAD_REQUEST, "좋아요 개수의 최소값은 0입니다.");
 
