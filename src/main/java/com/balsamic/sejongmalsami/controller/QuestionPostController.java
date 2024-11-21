@@ -43,6 +43,7 @@ public class QuestionPostController implements QuestionPostControllerDocs {
   public ResponseEntity<QuestionDto> getQuestionPost(
       @AuthenticationPrincipal CustomUserDetails customUserDetails,
       @ModelAttribute QuestionCommand command) {
+    command.setMemberId(customUserDetails.getMemberId());
     return ResponseEntity.ok(questionPostService.getQuestionPost(command));
   }
 
