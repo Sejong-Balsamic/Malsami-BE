@@ -42,11 +42,12 @@ public class DocumentFileService {
   private static final int MAX_VIDEO_UPLOAD_SIZE = 200;   // 비디오
 
   /**
-   * 파일 저장
-   *
-   * @param command    문서 명령어 객체
-   * @param uploadType 업로드 타입
-   * @param file       업로드 파일
+   * 단일 파일 저장 (MAIN)
+   * 1. 파일 유효성 검증
+   * 2. 파일 업로드 및 경로 생성
+   * 3. 썸네일 생성 및 URL 저장
+   * 4. 게시글 검증
+   * 5. DB에 파일 메타데이터 저장
    * @return 저장된 DocumentFile 객체
    */
   @Transactional
@@ -84,9 +85,9 @@ public class DocumentFileService {
 
   /**
    * 파일 유효성 검증
-   *
-   * @param file       검증할 파일
-   * @param uploadType 업로드 타입
+   * 1. 빈 파일 체크
+   * 2. 파일 크기 제한 (일반:50MB, 영상:200MB)
+   * 3. MIME 타입 검증
    */
   public void validateFile(MultipartFile file, UploadType uploadType) {
     if (file == null || file.isEmpty()) {
@@ -119,11 +120,9 @@ public class DocumentFileService {
 
   /**
    * 썸네일 URL 생성
-   *
-   * @param contentType ContentType
-   * @param file        대상 파일
-   * @param uploadType  업로드 타입
-   * @return 썸네일 URL
+   * 1. 음원 파일 -> 기본 썸네일 사용
+   * 2. 나머지 -> 썸네일 생성 시도
+   * 3. 실패시 타입별 기본 썸네일 반환
    */
   private String generateThumbnailUrl(ContentType contentType, MultipartFile file, UploadType uploadType) {
     if (file.isEmpty()) {
@@ -147,11 +146,10 @@ public class DocumentFileService {
   }
 
   /**
-   * 썸네일 생성 및 업로드
-   *
-   * @param contentType ContentType
-   * @param file        대상 파일
-   * @return 업로드된 썸네일 URL
+   * 실제 썸네일 생성 및 업로드
+   * 1. WebP 파일 특별 처리
+   * 2. MIME 타입별 썸네일 생성
+   * 3. 생성된 썸네일 업로드
    */
   private String createAndUploadThumbnail(ContentType contentType, MultipartFile file) {
     byte[] thumbnailBytes;
@@ -204,9 +202,6 @@ public class DocumentFileService {
 
   /**
    * 업로드 타입에 따른 기본 썸네일 URL 반환
-   *
-   * @param uploadType 업로드 타입
-   * @return 기본 썸네일 URL
    */
   private String getDefaultThumbnailUrl(UploadType uploadType) {
     switch (uploadType) {
