@@ -207,7 +207,7 @@ public class QuestionPostService {
 
     // 좋아요 누른 회원인지 확인
     Boolean isLiked = questionBoardLikeRepository
-        .existsByQuestionBoardIdAndMemberId(command.getQuestionPostId(), command.getMemberId());
+        .existsByQuestionBoardIdAndMemberId(command.getPostId(), command.getMemberId());
 
     return QuestionDto.builder()
         .questionPost(questionPost)
