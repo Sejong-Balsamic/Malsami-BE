@@ -20,8 +20,11 @@ import org.springframework.web.multipart.MultipartFile;
 
 @Slf4j
 public class FileUtil {
+
   /**
-   * 현재 운영체제 반환
+   * 시스템 운영체제 확인 (MAC, WINDOWS, LINUX, OTHER)
+   * - WebP 이미지 지원 여부 체크용
+   * @return SystemType 운영체제 타입
    */
   public static SystemType getCurrentSystem() {
     String osName = System.getProperty("os.name").toLowerCase();
@@ -37,10 +40,11 @@ public class FileUtil {
   }
 
   /**
-   * 파일명 생성 (UUID 사용, ContentType 제거)
-   *
-   * @param originalFilename 원본 파일명
-   * @return 생성된 파일명
+   * 파일명 생성
+   * 1. ContentType 접두어 추가
+   * 2. 특수문자/공백 제거
+   * 3. UUID 추가
+   * @return CONTENTTYPE_파일명_UUID.확장자
    */
   public static String generateFileName(ContentType contentType, String originalFilename) {
     String header = contentType.name();
@@ -50,7 +54,12 @@ public class FileUtil {
     return String.format("%s_%s_%s.%s", header, baseName, uuid, extension);
   }
 
-  // 파일이름에 특수문자 제거
+  /**
+   * 파일명 특수문자 제거 및 정제
+   * 1. 특수문자/공백 -> 언더스코어
+   * 2. 중복 언더스코어 제거
+   * 3. 시작/끝 언더스코어 제거
+   */
   private static String sanitizeFileName(String fileName) {
     return fileName.replaceAll("[\\[\\]\\{\\}\\(\\)\\s]+", "_")  // 특수문자와 공백을 언더스코어로
         .replaceAll("_{2,}", "_")                      // 중복 언더스코어 제거
@@ -58,10 +67,8 @@ public class FileUtil {
   }
 
   /**
-   * 파일 이름에서 확장자를 제거한 기본 이름을 반환합니다.
-   *
-   * @param filename 확장자가 포함된 파일 이름
-   * @return 확장자가 제거된 파일 기본 이름
+   * 파일명에서 확장자를 제외한 기본 이름만 추출
+   * @return 확장자 제외 파일명
    */
   public static String getBaseName(String filename) {
     int dotIndex = filename.lastIndexOf('.');
@@ -72,7 +79,8 @@ public class FileUtil {
   }
 
   /**
-   * 파일 이름에서 확장자를 추출하여 반환합니다.
+   * 파일명에서 확장자만 추출
+   * @return 파일 확장자
    */
   public static String getExtension(String filename) {
     if (!StringUtils.hasText(filename)) {
@@ -87,7 +95,9 @@ public class FileUtil {
   }
 
   /**
-   * 여러 MultipartFile을 ZIP 파일로 압축하여 byte 배열 반환
+   * MultipartFile 리스트를 ZIP으로 압축
+   * - 파일이 없거나 1개인 경우 예외 발생
+   * @return ZIP 파일 byte[]
    */
   public static byte[] zipFiles(List<MultipartFile> files) throws IOException {
     // files 유효성 검사
@@ -109,10 +119,8 @@ public class FileUtil {
   }
 
   /**
-   * 주어진 경로에서 파일 이름(확장자 포함)을 추출합니다.
-   *
-   * @param filePath 파일 경로
-   * @return 파일 이름 반환
+   * 파일 경로에서 파일명만 추출
+   * @return 파일명
    */
   public static String extractFileName(String filePath) {
     if (!StringUtils.hasText(filePath)) {
