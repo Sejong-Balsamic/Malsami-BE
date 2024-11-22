@@ -43,7 +43,8 @@ public class DirectStorageService implements StorageService {
       destFile.getParentFile().mkdirs();
       file.transferTo(destFile);
       log.info("썸네일 업로드 성공: {}", destFile.getAbsolutePath());
-      return ftpConfig.getThumbnailBaseUrl() + fileName;
+      //FIXME: 임시 반환
+      return ftpConfig.getBaseUrl() + fileName;
     } catch (IOException e) {
       log.error("썸네일 업로드 실패: {}", e.getMessage());
       throw new CustomException(ErrorCode.DIRECT_FILE_UPLOAD_ERROR);
