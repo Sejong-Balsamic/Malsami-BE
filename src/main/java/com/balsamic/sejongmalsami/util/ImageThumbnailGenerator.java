@@ -98,11 +98,11 @@ public class ImageThumbnailGenerator {
       throw new CustomException(ErrorCode.INVALID_FILE_FORMAT);
     }
 
-    // WebP 포맷인 경우 처리
+    // WebP 포맷 바로 처리
     if (mimeType.equalsIgnoreCase(MimeType.WEBP.getMimeType())) {
-      log.info("WebP 형식의 이미지입니다. 압축 생성을 건너뜁니다: {}", file.getOriginalFilename());
+      log.info("WebP 형식의 이미지입니다. 원본 데이터를 반환합니다: {}", file.getOriginalFilename());
       try {
-        return file.getBytes();
+        return file.getBytes(); // 원본 데이터 반환
       } catch (IOException e) {
         log.error("WebP 이미지 파일 읽기 중 오류 발생: {}", e.getMessage());
         throw new CustomException(ErrorCode.THUMBNAIL_CREATION_ERROR);
@@ -141,10 +141,11 @@ public class ImageThumbnailGenerator {
       throw new CustomException(ErrorCode.INVALID_FILE_FORMAT);
     }
 
+    // WebP 포맷 바로 처리
     if (mimeType.equalsIgnoreCase(MimeType.WEBP.getMimeType())) {
-      log.info("WebP 형식의 이미지입니다. 썸네일 생성을 건너뜁니다: {}", file.getOriginalFilename());
+      log.info("WebP 형식의 이미지입니다. 원본 데이터를 반환합니다: {}", file.getOriginalFilename());
       try {
-        return file.getBytes();
+        return file.getBytes(); // 원본 데이터 반환
       } catch (IOException e) {
         log.error("WebP 이미지 파일 읽기 중 오류 발생: {}", e.getMessage());
         throw new CustomException(ErrorCode.THUMBNAIL_CREATION_ERROR);
@@ -153,15 +154,17 @@ public class ImageThumbnailGenerator {
 
     ByteArrayOutputStream thumbnailOutputStream = new ByteArrayOutputStream();
     try {
+      log.info("출력 형식: {}, 파일 이름: {}", outputThumbnailFormat, file.getOriginalFilename());
       Thumbnails.of(file.getInputStream())
           .size(DEFAULT_WIDTH, DEFAULT_HEIGHT)
-          .outputFormat(outputThumbnailFormat)
+          .outputFormat(outputThumbnailFormat) // OS별 포맷 적용
           .outputQuality(1)
           .allowOverwrite(true)
           .toOutputStream(thumbnailOutputStream);
       log.info("이미지 썸네일 생성 완료: {}", file.getOriginalFilename());
     } catch (Exception e) {
-      log.error("이미지 썸네일 생성 중 오류 발생: {}", e.getMessage(), e);
+      log.error("이미지 썸네일 생성 중 오류 발생: 파일 이름={}, MIME 타입={}, 오류 메시지={}",
+          file.getOriginalFilename(), mimeType, e.getMessage(), e);
       throw new CustomException(ErrorCode.THUMBNAIL_CREATION_ERROR);
     }
     return thumbnailOutputStream.toByteArray();

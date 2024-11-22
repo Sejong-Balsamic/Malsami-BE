@@ -16,6 +16,7 @@ import com.balsamic.sejongmalsami.util.config.FtpConfig;
 import com.balsamic.sejongmalsami.util.exception.CustomException;
 import com.balsamic.sejongmalsami.util.exception.ErrorCode;
 import com.balsamic.sejongmalsami.util.storage.StorageService;
+import java.io.IOException;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Qualifier;
@@ -54,15 +55,15 @@ public class DocumentFileService {
     // 파일 유효성 검증
     validateFile(file, uploadType);
 
-    // 파일 업로드
-    String fileUrl = storageService.uploadFile(ContentType.DOCUMENT, file); // MEDIA 경로에 업로드
+    // 파일 업로드 및 파일 Path 반환
+    String filePath = storageService.uploadFile(ContentType.DOCUMENT, file);
+
+    // 썸네일 업로드 및 URL 생성
+    String thumbnailUrl = generateThumbnailUrl(ContentType.DOCUMENT, file, uploadType);
 
     // 자료 게시글 검증
     DocumentPost documentPost = documentPostRepository.findById(command.getDocumentPostId())
         .orElseThrow(() -> new CustomException(ErrorCode.DOCUMENT_POST_NOT_FOUND));
-
-    // 썸네일 URL 생성
-    String thumbnailUrl = generateThumbnailUrl(ContentType.DOCUMENT, file, uploadType);
 
     // 메타 데이터 documentFile 저장
     DocumentFile savedDocumentFile = documentFileRepository.save(DocumentFile.builder()
@@ -70,13 +71,13 @@ public class DocumentFileService {
         .uploader(command.getMember())
         .thumbnailUrl(thumbnailUrl)
         .originalFileName(file.getOriginalFilename())
-        .uploadFileName(fileUrl)
+        .uploadFileName(FileUtil.extractFileName(filePath))
         .fileSize(file.getSize())
         .mimeType(MimeType.fromString(file.getContentType()))
         .downloadCount(0L)
         .password(null)
         .isInitialPasswordSet(false)
-        .filePath(fileUrl)
+        .filePath(filePath)
         .build());
     log.info("DocumentFile 저장완료 : ID : {} ,업로드 파일명={}", savedDocumentFile.getDocumentFileId(), savedDocumentFile.getUploadFileName());
     return savedDocumentFile;
@@ -154,10 +155,29 @@ public class DocumentFileService {
    * @return 업로드된 썸네일 URL
    */
   private String createAndUploadThumbnail(ContentType contentType, MultipartFile file) {
-    // MIME 타입에 따라 적절한 썸네일 생성 메서드 호출
     byte[] thumbnailBytes;
     String mimeType = file.getContentType();
 
+    // WebP 파일 처리 : MAC 환경에서는 WepP 를 다루지 않음 (라이브러리 지원안함)
+    if (MimeType.WEBP.getMimeType().equalsIgnoreCase(mimeType)) {
+      log.info("WebP 파일 처리: 원본 데이터 업로드");
+      try {
+        return storageService.uploadThumbnail(
+            ContentType.THUMBNAIL,
+            new MultipartFileAdapter(
+                "thumbnail",
+                generateThumbnailFileName(contentType, file.getOriginalFilename()),
+                MimeType.WEBP.getMimeType(),
+                file.getBytes()
+            )
+        );
+      } catch (IOException e) {
+        log.error("WebP 파일 원본 데이터 처리 중 오류: {}", e.getMessage(), e);
+        throw new CustomException(ErrorCode.THUMBNAIL_CREATION_ERROR);
+      }
+    }
+
+    // MIME 타입에 따라 썸네일 생성
     if (MimeType.isValidImageMimeType(mimeType)) {
       thumbnailBytes = imageThumbnailGenerator.generateImageThumbnail(file);
     } else if (MimeType.isValidDocumentMimeType(mimeType)) {
@@ -165,21 +185,21 @@ public class DocumentFileService {
     } else if (mimeType.startsWith("video/")) {
       thumbnailBytes = imageThumbnailGenerator.generateVideoThumbnail(file);
     } else {
-      log.warn("지원되지 않는 MIME 타입으로 인해 썸네일 생성을 건너뜁니다: {}", mimeType);
+      log.warn("지원되지 않는 MIME 타입: {}", mimeType);
       return "";
     }
 
-    // MultipartFile 생성
+    // 생성된 썸네일 파일 업로드
     String thumbnailFileName = generateThumbnailFileName(contentType, file.getOriginalFilename());
     MimeType thumbnailMimeType = imageThumbnailGenerator.getOutputThumbnailMimeType();
     MultipartFile thumbnailFile = new MultipartFileAdapter(
-        "thumbnail",                // 필드 이름
-        thumbnailFileName,                // 파일 이름
-        thumbnailMimeType.getMimeType(),  // MIME 타입
-        thumbnailBytes                    // 파일 내용
+        "thumbnail",
+        thumbnailFileName,
+        thumbnailMimeType.getMimeType(),
+        thumbnailBytes
     );
 
-    // 썸네일 업로드
+    log.debug("업로드 대상 썸네일 파일 이름: {}, MIME 타입: {}", thumbnailFileName, thumbnailMimeType.getMimeType());
     return storageService.uploadThumbnail(ContentType.THUMBNAIL, thumbnailFile);
   }
 

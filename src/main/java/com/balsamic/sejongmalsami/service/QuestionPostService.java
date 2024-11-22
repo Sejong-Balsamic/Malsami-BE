@@ -181,8 +181,9 @@ public class QuestionPostService {
   /**
    * <h3>특정 질문 글 조회 로직</h3>
    * <p>해당 글 조회 수 증가</p>
+   * <p>이미 좋아요 누른 글 isLiked 반환</p>
    *
-   * @param command postId
+   * @param command memberId, postId
    * @return
    */
   @Transactional
@@ -194,6 +195,12 @@ public class QuestionPostService {
     // 조회수 증가
     questionPost.increaseViewCount();
     log.info("제목: {}, 조회수: {}", questionPost.getTitle(), questionPost.getViewCount());
+
+    // 좋아요 누른 회원인지 확인
+    Boolean isLiked = questionBoardLikeRepository
+        .existsByQuestionBoardIdAndMemberId(command.getPostId(), command.getMemberId());
+
+    questionPost.updateIsLiked(isLiked);
 
     // 변경사항 저장
     questionPostRepository.save(questionPost);
@@ -211,15 +218,10 @@ public class QuestionPostService {
           .collect(Collectors.toList());
     }
 
-    // 좋아요 누른 회원인지 확인
-    Boolean isLiked = questionBoardLikeRepository
-        .existsByQuestionBoardIdAndMemberId(command.getQuestionPostId(), command.getMemberId());
-
     return QuestionDto.builder()
         .questionPost(questionPost)
         .answerPosts(answerPost)
         .customTags(customTags)
-        .isLiked(isLiked)
         .build();
   }
 

@@ -107,4 +107,23 @@ public class FileUtil {
     }
     return baos.toByteArray();
   }
+
+  /**
+   * 주어진 경로에서 파일 이름(확장자 포함)을 추출합니다.
+   *
+   * @param filePath 파일 경로
+   * @return 파일 이름 반환
+   */
+  public static String extractFileName(String filePath) {
+    if (!StringUtils.hasText(filePath)) {
+      throw new IllegalArgumentException("파일 경로가 비어 있거나 null입니다.");
+    }
+
+    int lastSeparatorIndex = filePath.lastIndexOf('/');
+    if (lastSeparatorIndex == -1) {
+      return filePath; // 경로에 '/'가 없는 경우 전체가 파일 이름으로 간주
+    }
+
+    return filePath.substring(lastSeparatorIndex + 1);
+  }
 }

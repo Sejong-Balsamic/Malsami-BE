@@ -17,7 +17,7 @@ import com.balsamic.sejongmalsami.object.postgres.DocumentFile;
 import com.balsamic.sejongmalsami.object.postgres.DocumentPost;
 import com.balsamic.sejongmalsami.object.postgres.Member;
 import com.balsamic.sejongmalsami.object.postgres.Yeopjeon;
-import com.balsamic.sejongmalsami.object.postgres.Yeopjeon;
+import com.balsamic.sejongmalsami.repository.mongo.DocumentBoardLikeRepository;
 import com.balsamic.sejongmalsami.repository.postgres.CourseRepository;
 import com.balsamic.sejongmalsami.repository.postgres.DocumentPostRepository;
 import com.balsamic.sejongmalsami.repository.postgres.MemberRepository;
@@ -48,6 +48,7 @@ public class DocumentPostService {
   private final DocumentPostRepository documentPostRepository;
   private final MemberRepository memberRepository;
   private final DocumentFileService documentFileService;
+  private final DocumentBoardLikeRepository documentBoardLikeRepository;
   private final CourseRepository courseRepository;
   private final YeopjeonService yeopjeonService;
   private final YeopjeonConfig yeopjeonConfig;
@@ -70,8 +71,6 @@ public class DocumentPostService {
         });
     log.info("회원 검증 완료: studentId={}", member.getStudentId());
 
-    // 첨부 자료 처리 및 저장 : 저장된 자료 파일은 savedDocumentFiles 에 추가
-    processAndSaveUploadedFiles(command, savedDocumentFiles);
 
     // 입력된 교과목에 따른 단과대 설정
     List<Faculty> faculties = courseRepository
@@ -103,6 +102,10 @@ public class DocumentPostService {
         .weeklyScore(0L)
         .build());
     log.info("자료 게시글 저장 완료: 제목={} id={}", command.getTitle(), savedDocument.getDocumentPostId());
+
+    // 첨부 자료 처리 및 저장 : 저장된 자료 파일은 savedDocumentFiles 에 추가
+    command.setDocumentPostId(savedDocument.getDocumentPostId()); // 생성된 DocumentPostId 전달
+    processAndSaveUploadedFiles(command, savedDocumentFiles);
 
     return DocumentDto.builder()
         .documentPost(savedDocument)
@@ -175,6 +178,7 @@ public class DocumentPostService {
    * <ul>
    *   <li>해당 글 조회수 증가</li>
    *   <li>게시판 등급에 따라 사용자 엽전 감소</li>
+   *   <li>사용자가 좋아요 누른 글 여부 반환</li>
    * </ul>
    *
    * @param command memberId, documentPostId
@@ -208,6 +212,11 @@ public class DocumentPostService {
 
     // 해당 자료 글 조회수 증가
     post.increaseViewCount();
+
+    // 사용자가 좋아요를 눌렀는지 확인
+    Boolean isLiked = documentBoardLikeRepository
+        .existsByDocumentBoardIdAndMemberId(post.getDocumentPostId(), command.getMemberId());
+    post.updateIsLiked(isLiked);
 
     // 해당 자료 글 반환
     return DocumentDto.builder()
