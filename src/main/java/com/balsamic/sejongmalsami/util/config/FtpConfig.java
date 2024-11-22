@@ -77,19 +77,19 @@ public class FtpConfig {
 
   // 썸네일 URL
 
-  @Value("${ftp.thumbnail-url.base-url}")
-  private String thumbnailBaseUrl;
+  @Value("${ftp.url.base-url}")
+  private String baseUrl;
 
-  @Value("${ftp.thumbnail-url.default-document}")
+  @Value("${ftp.url.default-document}")
   private String defaultDocumentThumbnailUrl;
 
-  @Value("${ftp.thumbnail-url.default-image}")
+  @Value("${ftp.url.default-image}")
   private String defaultImageThumbnailUrl;
 
-  @Value("${ftp.thumbnail-url.default-video}")
+  @Value("${ftp.url.default-video}")
   private String defaultVideoThumbnailUrl;
 
-  @Value("${ftp.thumbnail-url.default-music}")
+  @Value("${ftp.url.default-music}")
   private String defaultMusicThumbnailUrl;
 
   // WEB 이미지 업로드

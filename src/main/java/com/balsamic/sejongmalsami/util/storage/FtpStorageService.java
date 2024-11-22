@@ -74,6 +74,9 @@ public class FtpStorageService implements StorageService {
     // 파일명 생성
     String uploadFileName = FileUtil.generateFileName(contentType, multipartFile.getOriginalFilename());
 
+    // 파일 접근 URL
+    String uploadFileUrl = ftpConfig.getBaseUrl() + contentType.name().toLowerCase() + "/" + uploadFileName;
+
     // contentType에 대한 업로드할 경로 지정 ->  contentType.THUMBNAIL
     String remoteFilePath = ftpConfig.getThumbnailPath() + "/" + uploadFileName;
 
@@ -90,7 +93,8 @@ public class FtpStorageService implements StorageService {
         boolean success = ftpClient.storeFile(remoteFilePath, inputStream);
         if (success) {
           log.info("FTP 썸네일 업로드 성공: {}", remoteFilePath);
-          return ftpConfig.getThumbnailBaseUrl() + uploadFileName;
+          log.info("FTP 썸네일 접근 URL : {}", uploadFileUrl);
+          return uploadFileUrl;
         } else {
           String reply = ftpClient.getReplyString();
           log.error("FTP 썸네일 업로드 실패: {}. 서버 응답: {}", remoteFilePath, reply);
@@ -113,6 +117,9 @@ public class FtpStorageService implements StorageService {
     // 파일명 생성
     String uploadFileName = FileUtil.generateFileName(contentType, multipartFile.getOriginalFilename());
 
+    // 파일 접근 URL
+    String uploadFileUrl = ftpConfig.getBaseUrl() + contentType.name().toLowerCase() + "/" + uploadFileName;
+
     // contentType 에 대한 업로드할 경로 지정
     String remoteFilePath = getWebSavePath(contentType) + "/" + uploadFileName;
 
@@ -128,8 +135,9 @@ public class FtpStorageService implements StorageService {
         // 썸네일 path 에 도입
         boolean success = ftpClient.storeFile(remoteFilePath, inputStream);
         if (success) {
-          log.info("FTP 썸네일 업로드 성공: {}", remoteFilePath);
-          return ftpConfig.getThumbnailBaseUrl() + uploadFileName;
+          log.info("FTP 이미지 업로드 성공: {}", remoteFilePath);
+          log.info("FTP 이미지 접근 URL : {}", uploadFileUrl);
+          return uploadFileUrl;
         } else {
           String reply = ftpClient.getReplyString();
           log.error("FTP 썸네일 업로드 실패: {}. 서버 응답: {}", remoteFilePath, reply);
