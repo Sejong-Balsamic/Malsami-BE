@@ -174,8 +174,9 @@ public class QuestionPostService {
   /**
    * <h3>특정 질문 글 조회 로직</h3>
    * <p>해당 글 조회 수 증가</p>
+   * <p>이미 좋아요 누른 글 isLiked 반환</p>
    *
-   * @param command postId
+   * @param command memberId, postId
    * @return
    */
   @Transactional
@@ -206,7 +207,7 @@ public class QuestionPostService {
 
     // 좋아요 누른 회원인지 확인
     Boolean isLiked = questionBoardLikeRepository
-        .existsByQuestionBoardIdAndMemberId(command.getQuestionPostId(), command.getMemberId());
+        .existsByQuestionBoardIdAndMemberId(command.getPostId(), command.getMemberId());
 
     return QuestionDto.builder()
         .questionPost(questionPost)
