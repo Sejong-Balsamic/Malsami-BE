@@ -27,6 +27,7 @@ dependencies {
     // springBoot web, JPA
     implementation 'org.springframework.boot:spring-boot-starter-web'
     implementation 'org.springframework.boot:spring-boot-starter-data-jpa'
+    testImplementation 'org.springframework:spring-test' //2024.11.22 : SUH : MockMultipartFile 사용
     testImplementation 'org.springframework.boot:spring-boot-starter-test'
 
     // security
@@ -98,4 +99,10 @@ dependencies {
 
 tasks.named('test') {
     useJUnitPlatform()
+}
+
+//2024.11.22 : SUH : ImageThumbnailGenerator 사용중 이미지 생성 오류 수정
+test {
+    minHeapSize = "512m"
+    maxHeapSize = "2048m"
 }
