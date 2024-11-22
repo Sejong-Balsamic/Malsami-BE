@@ -13,6 +13,11 @@ public interface QuestionPostControllerDocs {
 
   @ApiChangeLogs({
       @ApiChangeLog(
+          date = "2024.11.21",
+          author = Author.SUHSAECHAN,
+          description = "QuestionPost 첨부파일 로직 개선, 아직 Answer는 적용안한상태"
+      ),
+      @ApiChangeLog(
           date = "2024.11.15",
           author = Author.SUHSAECHAN,
           description = "(임시) ContentType 고려안함. QuestionPost의 comment 수 증가"
@@ -50,23 +55,20 @@ public interface QuestionPostControllerDocs {
                                                                            
           **이 API는 인증이 필요하며, JWT 토큰이 존재해야합니다.**
            
-          **입력 파라미터 값:**
-           
-          - **String title**: 질문게시글 제목 [필수]
-           
-          - **String content**: 질문게시글 본문 [필수]
-
-          - **String subject**: 교과목 명 [필수]
-
-          - **List\\<MultipartFile\\> mediaFiles**: 첨부파일 (최대 3개까지만 추가가능, 이미지파일만 업로드가능) [선택]
-
-          - **List\\<QuestionPresetTag\\> questionPresetTags**: 질문 게시글 정적태그 (최대 2개까지만 선택가능) [선택]
-
-          - **List\\<String\\> customTags**: 질문 게시글 커스텀태그 (최대 4개까지만 추가가능) [선택]
-
-          - **Integer reward**: 엽전 현상금 (default = 0) [선택]
-
-          - **Boolean isPrivate**: 내 정보 비공개 여부 (default = false) [선택]
+          #### 요청 파라미터
+          - **`title`** (`String`, **필수**): 질문 게시글 제목
+          - **`content`** (`String`, **필수**): 질문 게시글 본문
+          - **`subject`** (`String`, **필수**): 교과목 명
+          - **`attachmentFiles`** (`List<MultipartFile>`, 선택): 첨부파일 (최대 3개, 이미지 파일만 지원)
+          - **`questionPresetTags`** (`List<QuestionPresetTag>`, 선택): 정적 태그 (최대 2개 선택 가능)
+          - **`customTags`** (`List<String>`, 선택): 커스텀 태그 (최대 4개 추가 가능)
+          - **`reward`** (`Integer`, 선택): 엽전 현상금 (기본값 = 0)
+          - **`isPrivate`** (`Boolean`, 선택): 내 정보 비공개 여부 (기본값 = false)
+          
+          #### 반환 파라미터
+          - **`QuestionPost questionPost`**: 질문 글 정보
+          - **`List<MediaFile> mediaFiles`**: 첨부파일 리스트
+          - **`Set<String> customTags`**: 커스텀 태그 리스트 
            
 
           **정적 태그**
@@ -80,25 +82,8 @@ public interface QuestionPostControllerDocs {
           - **STUDY_TIPS** (공부 팁)
           - **ADVICE_REQUEST** (조언 구함)
           
-          _예: "formData.append('questionPresetTagSet', 'DOCUMENT_REQUEST');_
-           
-           
-          **반환 파라미터 값:**
-           
-          - **QuestionDto**: 질문 게시판 정보 반환
-            - **QuestionPost questionPost**: 질문 글 정보
-            - **List\\<MediaFile\\> mediaFiles**: 질문 글 첨부파일
-            - **Set\\<String\\> customTags**: 질문 글 커스텀태그
-           
           **참고 사항:**
-           
-          - 이 API를 통해 사용자는 질문게시판에 질문 글을 동록할 수 있습니다.
-          - 글 제목, 본문, 과목명은 null 값이 들어갈 수 없습니다. [필수]
           - 첨부파일은 이미지 파일만 지원합니다.
-          - 정적태그, 엽전 현상금, 내 정보 비공개 여부는 프론트에서 설정하지 않으면 default 값이 할당됩니다.
-          - 엽전 현상금 null 또는 음수 값 입력시 자동으로 0으로 설정됩니다.
-          - 성공적인 등록 후, 등록 된 질문글을 반환합니다.
-          - Swagger에서 테스트 시 mediaFiles에 있는 "Send empty value" 체크박스 해제해야합니다.
           """
   )
   ResponseEntity<QuestionDto> saveQuestionPost(
@@ -125,26 +110,16 @@ public interface QuestionPostControllerDocs {
   @Operation(
       summary = "특정 질문 글 조회",
       description = """
-          **특정 질문 글 조회 요청**
+          ### 특정 질문 글 조회 요청
+          이 API는 인증이 필요하며, JWT 토큰이 필요합니다.
 
-          **이 API는 인증이 필요하며, JWT 토큰이 존재해야합니다.**
+          #### 요청 파라미터
+          - **`postId`** (`UUID`, **필수**): 질문 글의 고유 식별자
 
-          **입력 파라미터 값:**
-
-          - **UUID postId**: 질문 글 PK [필수]
-           \s
-            _예: "9b1deb4d-3b7d-4bad-9bdd-2b0d7b3dcb6d"_
-
-          **반환 파라미터 값:**
-
-          - **QuestionDto**: 질문 게시판 정보 반환
-            - **QuestionPost questionPost**: 질문 글
-
-          **참고 사항:**
-
-          - 이 API를 통해 사용자는 postId 값에 해당하는 질문 글을 조회할 수 있습니다.
-          - 반환된 질문글의 조회수가 1 증가합니다.
-          - Swagger에서 테스트 시 mediaFiles에 있는 "Send empty value" 체크박스 해제해야합니다.
+          #### 반환 파라미터
+          - **`QuestionPost questionPost`**: 질문 글 정보
+          - **`List<String> customTags`**: 질문글의 태그 리스트
+          - **`List<AnswerPost> answerPosts`**: 답변 리스트
           """
   )
   ResponseEntity<QuestionDto> getQuestionPost(
@@ -171,26 +146,15 @@ public interface QuestionPostControllerDocs {
   @Operation(
       summary = "전체 질문 글 조회 (최신순)",
       description = """
-          **전체 질문 글 조회 요청**
+          ### 전체 질문 글 조회 요청
+          이 API는 인증이 필요하며, JWT 토큰이 필요합니다.
 
-          **이 API는 인증이 필요하며, JWT 토큰이 존재해야합니다.**
+          #### 요청 파라미터
+          - **`pageNumber`** (`Integer`, 선택): 조회할 페이지 번호 (기본값 = 0)
+          - **`pageSize`** (`Integer`, 선택): 한 페이지에 조회할 글 개수 (기본값 = 30)
 
-          **입력 파라미터 값:**
-
-          - **Integer pageNumber**: 조회하고싶은 페이지 번호 [선택] (default = 0)
-           
-          - **Integer pageSize**: 한 페이지에 조회하고싶은 글 개수 [선택] (default = 30)
-
-          **반환 파라미터 값:**
-
-          - **QuestionDto**: 질문 게시판 정보 반환
-            - **Page\\<QuestionPost\\> questionPosts**: 전체 질문 글 리스트
-
-          **참고 사항:**
-
-          - 이 API를 통해 사용자는 전체 질문 글을 조회할 수 있습니다.
-          - Swagger에서 테스트 시 mediaFiles에 있는 "Send empty value" 체크박스 해제해야합니다.
-          - pageNumber = 3, pageSize = 10 입력시 4페이지에 해당하는 10개의 글을 반환합니다. (31번째 글 ~ 40번째 글 반환)
+          #### 반환 파라미터
+            - **`Page<QuestionPost> questionPosts`**: 전체 질문 글 리스트
           """
   )
   ResponseEntity<QuestionDto> getAllQuestionPost(
@@ -212,29 +176,17 @@ public interface QuestionPostControllerDocs {
   @Operation(
       summary = "답변 개수가 0개인 글 조회 및 단과대 필터링 (최신순)",
       description = """
-          **답변 개수가 0개인 질문 글 조회 요청**
+          ### 답변 개수가 0개인 질문 글 조회 요청
+          이 API는 인증이 필요하며, JWT 토큰이 필요합니다.
 
-          **이 API는 인증이 필요하며, JWT 토큰이 존재해야합니다.**
+          #### 요청 파라미터
+          - **`faculty`** (`Faculty`, 선택): 단과대 필터링
+          - **`pageNumber`** (`Integer`, 선택): 조회할 페이지 번호 (기본값 = 0)
+          - **`pageSize`** (`Integer`, 선택): 한 페이지에 조회할 글 개수 (기본값 = 30)
 
-          **입력 파라미터 값:**
-          
-          - **Faculty faculty**: 단과대 필터링 [선택]
-
-          - **Integer pageNumber**: 조회하고싶은 페이지 번호 [선택] (default = 0)
-           
-          - **Integer pageSize**: 한 페이지에 조회하고싶은 글 개수 [선택] (default = 30)
-
-          **반환 파라미터 값:**
-
-          - **QuestionDto**: 질문 게시판 정보 반환
-            - **Page\\<QuestionPost\\> questionPosts**: 단과대 필터링이 적용 된 답변 개수가 0개인 질문글 리스트
-
-          **참고 사항:**
-
-          - 이 API를 통해 사용자는 아직 답변이 작성되지 않은 질문 글 최신순으로 조회할 수 있습니다.
-          - 단과대 필터링 적용 시 해당 단과대가 적용된 글 중 답변 개수가 0개인 질문글을 반환합니다.
-          - Swagger에서 테스트 시 mediaFiles에 있는 "Send empty value" 체크박스 해제해야합니다.
-          - pageNumber = 3, pageSize = 10 입력시 4페이지에 해당하는 10개의 글을 반환합니다. (31번째 글 ~ 40번째 글 반환)
+          #### 반환 파라미터
+          - **`QuestionDto`**: 질문 게시판 정보 반환
+            - **`Page<QuestionPost> questionPosts`**: 답변이 없는 글 리스트 (단과대 필터링 적용)
           """
   )
   ResponseEntity<QuestionDto> getAllQuestionPostsNotAnswered(
@@ -258,73 +210,46 @@ public interface QuestionPostControllerDocs {
           description = "질문 글 필터링 init"
       )
   })
+
   @Operation(
       summary = "질문 글 필터링 조회",
       description = """
-          **질문 글 필터링 조회 요청**
+        ### 질문 글 필터링 조회 요청
+        이 API는 인증이 필요하며, JWT 토큰이 필요합니다.
 
-          **이 API는 인증이 필요하며, JWT 토큰이 존재해야합니다.**
+        #### 요청 파라미터
+        - **`subject`** (`String`, 선택): 교과목명 필터링
+        - **`questionPresetTags`** (`List<QuestionPresetTag>`, 선택): 정적 태그 필터링 (최대 2개)
+        - **`faculty`** (`Faculty`, 선택): 단과대별 필터링
+        - **`chaetaekStatus`** (`ChaetaekStatus`, 선택): 채택 상태 필터링 (전체, 채택, 미채택)
+        - **`sortType`** (`SortType`, 선택): 정렬 조건 (최신순, 좋아요순, 엽전 현상금순, 조회순)
+        - **`pageNumber`** (`Integer`, 선택): 조회할 페이지 번호 (기본값 = 0)
+        - **`pageSize`** (`Integer`, 선택): 한 페이지에 조회할 글 개수 (기본값 = 30)
 
-          **입력 파라미터 값:**
-          
-          - **String subject**: 교과목명 필터링 [선택]
-          
-          - **List<QuestionPresetTag> questionPresetTags**: 정적 태그 필터링 [선택]
-          
-          - **Faculty faculty**: 단과대별 필터링 [선택]
-          
-          - **Boolean viewNotChaetaek**: 아직 채택되지 않은 글 필터링 [선택] (default = false)
-          
-          - **SortType sortType**: 정렬 조건 [선택]
-          
-          - **Integer pageNumber**: 조회하고싶은 페이지 번호 [선택] (default = 0)
-           
-          - **Integer pageSize**: 한 페이지에 조회하고싶은 글 개수 [선택] (default = 30)
-          
+        #### 반환 파라미터
+        - **`Page<QuestionPost> questionPostsPage`**: 필터링된 질문 글 리스트
 
-          **반환 파라미터 값:**
+        #### 정적 태그
+        *총 7개의 정적 태그가 존재하며, 최대 2개까지 설정 가능합니다.*
+        - **OUT_OF_CLASS**: 수업 외 내용
+        - **UNKNOWN_CONCEPT**: 개념 모름
+        - **BETTER_SOLUTION**: 더 나은 풀이
+        - **EXAM_PREPARATION**: 시험 대비
+        - **DOCUMENT_REQUEST**: 자료 요청
+        - **STUDY_TIPS**: 공부 팁
+        - **ADVICE_REQUEST**: 조언 구함
+        
+        #### 정렬 타입
+        - **LATEST**: 최신순
+        - **MOST_LIKED**: 좋아요순
+        - **YEOPJEON_REWARD**: 엽전 현상금 순
+        - **VIEW_COUNT**: 조회수 순
 
-          - **QuestionDto**: 질문 게시판 정보 반환
-            - **Page\\<QuestionPost\\> questionPostsPage**: 필터링 된 질문글 리스트
-          
-          **정적 태그**
-           
-          *총 7개의 정적태그가 존재하며 최대 2개까지의 정적태그를 설정할 수 있습니다.*
-          - **OUT_OF_CLASS** (수업 외 내용)
-          - **UNKNOWN_CONCEPT** (개념 모름)
-          - **BETTER_SOLUTION** (더 나은 풀이)
-          - **EXAM_PREPARATION** (시험 대비)
-          - **DOCUMENT_REQUEST** (자료 요청)
-          - **STUDY_TIPS** (공부 팁)
-          - **ADVICE_REQUEST** (조언 구함)
-          
-          **정렬 타입**
-          
-          - **LATEST** (최신순)
-          - **MOST_LIKED** (좋아요순)
-          - **YEOPJEON_REWARD** (엽전 현상금 순)
-          - **VIEW_COUNT** (조회수 순)
-          
-          **채택 여부**
-          - ALL (전체)
-          - CHAETAEK (채택)
-          - NO_CHAETAEK (미채택)
-
-          * <h3>질문글 필터링 로직
-          * <p>1. 교과목명 기준 필터링 - String subject (ex. 컴퓨터구조, 인터렉티브 디자인)
-          * <p>3. 정적 태그 필터링 - QuestionPresetTag (최대 2개)
-          * <p>4. 단과대별 필터링 - Faculty (ex. 공과대학, 예체는대학)
-          * <p>5. 채택 상태 필터링 - ChaetaekStatus (전체, 채택, 미채택)
-          * <br><br>
-          * <h3>정렬 로직 (SortType)
-          * <p>최신순, 좋아요순, 엽전 현상금순, 조회순
-   
-          **참고 사항:**
-
-          - 이 API를 통해 사용자는 질문 게시판에 작성된 글을 필터링하여 조회할 수 있습니다.
-          - Swagger에서 테스트 시 mediaFiles에 있는 "Send empty value" 체크박스 해제해야합니다.
-          - pageNumber = 3, pageSize = 10 입력시 4페이지에 해당하는 10개의 글을 반환합니다. (31번째 글 ~ 40번째 글 반환)
-          """
+        #### 채택 여부
+        - **ALL**: 전체
+        - **CHAETAEK**: 채택
+        - **NO_CHAETAEK**: 미채택
+        """
   )
   ResponseEntity<QuestionDto> getFilteredQuestionPosts(
       QuestionCommand command
@@ -365,29 +290,18 @@ public interface QuestionPostControllerDocs {
   @Operation(
       summary = "일간 인기 질문글",
       description = """
-          **일간 인기 질문글 요청**
+        ### 일간 인기 질문글 요청
+        이 API는 인증이 필요하며, JWT 토큰이 필요합니다.
 
-          **이 API는 인증이 필요하며, JWT 토큰이 존재해야합니다.**
+        #### 요청 파라미터
+        - **`pageSize`** (`Integer`, 선택): 조회하고 싶은 일간 인기 질문 글 개수 (기본값 = 30)
 
-          **입력 파라미터 값:**
-           
-          - **Integer pageSize**: 조회하고 싶은 일간 인기 질문 글 개수 [선택] (default = 30)
-                    
-            _예: 10_ (총 10개의 일간 인기 질문글이 반환됩니다.)
-
-          **반환 파라미터 값:**
-
-          - **QuestionDto**: 질문 게시판 정보 반환
-            - **Page\\<QuestionPost\\> questionPosts**: 일간 인기 질문 글 리스트
-
-          **참고 사항:**
-
-          - 이 API를 통해 사용자는 일간 인기 질문글을 조회할 수 있습니다.
-          - 요청 시각으로부터 24시간 이내에 작성된 n개의 일간 인기 질문 글을 조회합니다.
-          - pageSize 파라미터를 설정하지 않으면 기본값 30이 할당됩니다.
-          - Swagger에서 테스트 시 mediaFiles에 있는 "Send empty value" 체크박스 해제해야합니다.
-          """
+        #### 반환 파라미터
+        - **`QuestionDto`**: 질문 게시판 정보 반환
+          - **`Page<QuestionPost> questionPosts`**: 일간 인기 질문 글 리스트
+        """
   )
+
   ResponseEntity<QuestionDto> getDailyPopularQuestionPost(
       QuestionCommand command);
 
@@ -426,28 +340,16 @@ public interface QuestionPostControllerDocs {
   @Operation(
       summary = "주간 인기 질문글",
       description = """
-          **주간 인기 질문글 요청**
+        ### 주간 인기 질문글 요청
+        이 API는 인증이 필요하며, JWT 토큰이 필요합니다.
 
-          **이 API는 인증이 필요하며, JWT 토큰이 존재해야합니다.**
+        #### 요청 파라미터
+        - **`pageSize`** (`Integer`, 선택): 조회하고 싶은 주간 인기 질문 글 개수 (기본값 = 30)
 
-          **입력 파라미터 값:**
-           
-          - **Integer pageSize**: 조회하고 싶은 주간 인기 질문 글 개수 [선택] (default = 30)
-                    
-            _예: 10_ (총 10개의 주간 인기 질문글이 반환됩니다.)
-
-          **반환 파라미터 값:**
-
-          - **QuestionDto**: 질문 게시판 정보 반환
-            - **Page\\<QuestionPost\\> questionPosts**: 주간 인기 질문 글 리스트
-
-          **참고 사항:**
-
-          - 이 API를 통해 사용자는 주간 인기 질문글을 조회할 수 있습니다.
-          - 요청 시각으로부터 7일 이내에 작성된 n개의 주간 인기 질문 글을 조회합니다.
-          - pageSize 파라미터를 설정하지 않으면 기본값 30이 할당됩니다.
-          - Swagger에서 테스트 시 mediaFiles에 있는 "Send empty value" 체크박스 해제해야합니다.
-          """
+        #### 반환 파라미터
+        - **`QuestionDto`**: 질문 게시판 정보 반환
+          - **`Page<QuestionPost> questionPosts`**: 주간 인기 질문 글 리스트
+        """
   )
   ResponseEntity<QuestionDto> getWeeklyPopularQuestionPost(
       QuestionCommand command);

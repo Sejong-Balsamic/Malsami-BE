@@ -49,12 +49,77 @@ public class MediaFileService {
   private final NoticePostRepository noticePostRepository;
   private final FtpConfig ftpConfig;
   private final ImageThumbnailGenerator imageThumbnailGenerator;
-  private static final Integer MAX_MEDIA_FILE_COUNT = 3;
+  private static final Integer MAX_MEDIA_FILE_COUNT = 10;
 
   // 파일 유형별 최대 업로드 크기 (MB)
   private static final int MAX_BASIC_UPLOAD_SIZE = 50;    // 이미지, 문서 등
   private static final int MAX_VIDEO_UPLOAD_SIZE = 200;   // 비디오
 
+  /**
+   * 단일 파일을 저장하고 메타데이터를 처리
+   * 1. 파일 업로드 및 경로 생성
+   * 2. 썸네일 생성 및 URL 생성
+   * 3. 압축된 이미지 URL 생성
+   * 4. 게시글 유형별 유효성 검증
+   * 5. 메타데이터와 함께 DB에 저장
+   * @return 저장된 MediaFile 객체
+   */
+  @Transactional
+  public List<MediaFile> handleMediaFiles(
+      ContentType contentType,
+      UUID postId,
+      List<MultipartFile> attachmentFiles) {
+
+    // MediaFile 저장할 리스트 초기화
+    List<MediaFile> savedMediaFiles = new ArrayList<>();
+
+    // 첨부파일 리스트에 첨부된 파일이 없을 때
+    if (attachmentFiles == null || attachmentFiles.isEmpty()) {
+      log.info("첨부된 파일이 없습니다.");
+      return savedMediaFiles; // 빈리스트 반환
+    }
+
+    // 첨부파일 리스트에서 파일 순회
+    for (MultipartFile multipartFile : attachmentFiles) {
+      try {
+        String mimeType = multipartFile.getContentType();
+
+        // MIMETYPE 검증
+        if (mimeType == null) {
+          log.error("파일의 MIME 타입을 확인할 수 없습니다: {}", multipartFile.getOriginalFilename());
+          throw new CustomException(ErrorCode.INVALID_FILE_FORMAT);
+        }
+
+        // 파일 유효성 검사
+        validateFile(multipartFile);
+
+        // 파일 저장
+        MediaFile savedMediaFile = saveFile(contentType, postId, multipartFile);
+
+        // 저장된 미디어파일 리스트에 추가
+        savedMediaFiles.add(savedMediaFile);
+
+        log.info("파일 저장 완료: 업로드 파일명={}", savedMediaFile.getOriginalFileName());
+      } catch (CustomException e) {
+        log.error("파일 처리 중 오류 발생: {}", e.getMessage());
+        throw e; // 트랜잭션 롤백을 위해 예외 다시 던지기
+      } catch (Exception e) {
+        log.error("파일 처리 중 예상치 못한 오류 발생: {}", e.getMessage());
+        throw new CustomException(ErrorCode.INTERNAL_SERVER_ERROR);
+      }
+    }
+    return savedMediaFiles;
+  }
+
+  /**
+   * 단일 파일을 저장하고 메타데이터를 처리
+   * 1. 파일 업로드 및 경로 생성
+   * 2. 썸네일 생성 및 URL 생성
+   * 3. 압축된 이미지 URL 생성
+   * 4. 게시글 유형별 유효성 검증
+   * 5. 메타데이터와 함께 DB에 저장
+   * @return 저장된 MediaFile 객체
+   */
   @Transactional
   public MediaFile saveFile(
       ContentType contentType,
@@ -108,80 +173,13 @@ public class MediaFileService {
     return savedMediaFile;
   }
 
-
-  //FIXME: 자네... 이것이 무엇이요~?
   /**
-   * 질문게시글 또는 답변게시글에 파일 업로드
-   *
-   * @param postId 게시글 ID
-   * @param files  업로드할 파일 리스트
-   * @return 저장된 MediaFile 리스트
-   */
-  @Transactional
-  public List<MediaFile> uploadMediaFiles(UUID postId, List<MultipartFile> files) {
-    ContentType contentType = null;
-    List<MediaFile> mediaFiles = new ArrayList<>();
-
-    // 게시글 존재 여부 및 ContentType 결정
-    if (questionPostRepository.existsById(postId)) {
-      contentType = ContentType.QUESTION;
-      // 해당 질문글 첨부파일이 3개를 초과했는지 체크
-//      if (mediaFileRepository.countByPost(postId, ContentType.QUESTION) + files.size() > MAX_MEDIA_FILE_COUNT) { //2024.11.22: SUH :첨부파일 개수 초과 로직 오류로 주석처리
-      if (files.size() > MAX_MEDIA_FILE_COUNT) {
-        log.error("첨부파일 개수가 초과하였습니다. 현재 : {} , 최대 업로드할수있는 첨부파일 개수 : {}", files.size(), MAX_MEDIA_FILE_COUNT);
-        throw new CustomException(ErrorCode.MEDIA_FILE_LIMIT_EXCEEDED);
-      }
-    } else if (answerPostRepository.existsById(postId)) {
-      contentType = ContentType.ANSWER;
-      // 해당 답변 첨부파일이 3개를 초과했는지 체크
-//      if (mediaFileRepository.countByPost(postId, ContentType.ANSWER) + files.size() > MAX_MEDIA_FILE_COUNT) { //2024.11.22: SUH :첨부파일 개수 초과 로직 오류로 주석처리
-      if (files.size() > MAX_MEDIA_FILE_COUNT) {
-        log.error("첨부파일 개수가 초과하였습니다. 현재 : {} , 최대 업로드할수있는 첨부파일 개수 : {}", files.size(), MAX_MEDIA_FILE_COUNT);
-        throw new CustomException(ErrorCode.MEDIA_FILE_LIMIT_EXCEEDED);
-      }
-    } else {
-      log.error("uploadMediaFiles : 게시글 존재 여부 판단 하는 도중 오류 발생 : postId = {}", postId);
-      throw new CustomException(ErrorCode.INVALID_REQUEST);
-    }
-
-    // 각 첨푸파일 처리
-    for (MultipartFile file : files) {
-      String mimeType = file.getContentType();
-
-      // 첨부파일이 이미지 파일이 아닌 경우
-      if (mimeType == null || !MimeType.isValidImageMimeType(mimeType)) {
-        throw new CustomException(ErrorCode.INVALID_FILE_FORMAT);
-      }
-
-      // 파일 업로드
-      String filePath = storageService.uploadFile(contentType, file);
-      String thumbnailUrl = storageService.uploadThumbnail(contentType, file);
-
-      MediaFile mediaFile = mediaFileRepository.save(MediaFile.builder()
-          .postId(postId)
-          .originalFileName(file.getOriginalFilename())
-          .thumbnailUrl(thumbnailUrl)
-          .filePath(filePath)
-          .fileSize(file.getSize())
-          .contentType(contentType)
-          .mimeType(MimeType.fromString(mimeType))
-          .build());
-
-      mediaFiles.add(mediaFile);
-      log.info("파일 저장 완료: 업로드 파일명={}", file.getOriginalFilename());
-    }
-    return mediaFiles;
-  }
-
-  /**
-   * 업로드 파일이 이미지 타입인지 검증
-   */
-  private static boolean isValidImageFile(String mimeType) {
-    return MimeType.isValidImageMimeType(mimeType);
-  }
-
-  /**
-   * 파일 유효성 검증
+   * 업로드된 파일의 유효성 검사
+   * 1. 빈 파일 체크
+   * 2. 파일 크기 제한 검사
+   * 3. MIME 타입 유효성 검사
+   * 4. 이미지 파일 타입 검증
+   * @throws CustomException 검증 실패 시
    */
   public void validateFile(MultipartFile file) {
     if (file == null || file.isEmpty()) {
@@ -214,13 +212,13 @@ public class MediaFileService {
     log.info("파일 검증 성공: 파일명={}, MIME 타입={}, 크기={}MB", file.getOriginalFilename(), mimeType, fileSizeInMB);
   }
 
-  /**
-   * 썸네일 URL 생성
-   *
-   * @param contentType ContentType
-   * @param file        대상 파일
-   * @return 썸네일 URL
-   */
+/**
+ * 썸네일 URL 생성
+ * 1. 빈 파일 체크
+ * 2. 썸네일 생성 시도
+ * 3. 실패 시 기본 썸네일 URL 반환
+ * @return 썸네일 URL 문자열
+ */
   private String generateThumbnailUrl(ContentType contentType, MultipartFile file) {
     if (file.isEmpty()) {
       log.info("generateThumbnailUrl : 파일이 비어있습니다");
@@ -237,10 +235,10 @@ public class MediaFileService {
   }
 
   /**
-   * 썸네일 생성 및 업로드
-   *
-   * @param contentType ContentType
-   * @param file        대상 파일
+   * 썸네일 생성 및 업로드 처리
+   * 1. WebP 파일 특별 처리
+   * 2. 파일 타입별 썸네일 생성 (이미지/문서/비디오)
+   * 3. 생성된 썸네일 파일 업로드
    * @return 업로드된 썸네일 URL
    */
   private String createAndUploadThumbnail(ContentType contentType, MultipartFile file) {
