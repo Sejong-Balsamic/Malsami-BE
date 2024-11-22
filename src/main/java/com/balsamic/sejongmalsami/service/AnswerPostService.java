@@ -11,6 +11,7 @@ import com.balsamic.sejongmalsami.object.postgres.MediaFile;
 import com.balsamic.sejongmalsami.object.postgres.Member;
 import com.balsamic.sejongmalsami.object.postgres.QuestionPost;
 import com.balsamic.sejongmalsami.object.postgres.Yeopjeon;
+import com.balsamic.sejongmalsami.repository.mongo.QuestionBoardLikeRepository;
 import com.balsamic.sejongmalsami.repository.postgres.AnswerPostRepository;
 import com.balsamic.sejongmalsami.repository.postgres.MemberRepository;
 import com.balsamic.sejongmalsami.repository.postgres.QuestionPostRepository;
@@ -30,6 +31,7 @@ public class AnswerPostService {
   private final AnswerPostRepository answerPostRepository;
   private final MemberRepository memberRepository;
   private final QuestionPostRepository questionPostRepository;
+  private final QuestionBoardLikeRepository questionBoardLikeRepository;
   private final MediaFileService mediaFileService;
   private final YeopjeonService yeopjeonService;
   private final ExpService expService;
@@ -87,7 +89,7 @@ public class AnswerPostService {
   /**
    * <h3>특정 질문글에 작성된 모든 답변 조회 로직</h3>
    *
-   * @param command questionPostId
+   * @param command memberId, questionPostId
    * @return
    */
   public QuestionDto getAnswersByQuestion(QuestionCommand command) {
@@ -97,8 +99,17 @@ public class AnswerPostService {
         .orElseThrow(() -> new CustomException(ErrorCode.QUESTION_POST_NOT_FOUND));
 
     // 질문글에 작성된 답변 list 조회
-    List<AnswerPost> answerPosts = answerPostRepository.findAllByQuestionPost(questionPost)
-        .orElse(null);
+    List<AnswerPost> answerPosts = answerPostRepository
+        .findAllByQuestionPost(questionPost).orElse(null);
+
+    // 각 답변에 대해 좋아요 여부 설정
+    if (answerPosts != null) {
+      answerPosts.forEach(answerPost -> {
+        Boolean isLiked = questionBoardLikeRepository
+            .existsByQuestionBoardIdAndMemberId(answerPost.getAnswerPostId(), command.getMemberId());
+        answerPost.updateIsLiked(isLiked); // isLiked 필드 설정
+      });
+    }
 
     return QuestionDto.builder()
         .answerPosts(answerPosts)
