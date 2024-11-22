@@ -9,15 +9,18 @@ import com.balsamic.sejongmalsami.object.postgres.DocumentPost;
 import com.balsamic.sejongmalsami.repository.postgres.DocumentFileRepository;
 import com.balsamic.sejongmalsami.repository.postgres.DocumentPostRepository;
 import com.balsamic.sejongmalsami.util.FileUtil;
-import com.balsamic.sejongmalsami.util.FtpUtil;
 import com.balsamic.sejongmalsami.util.ImageThumbnailGenerator;
-import com.balsamic.sejongmalsami.util.TimeUtil;
+import com.balsamic.sejongmalsami.util.MultipartFileAdapter;
 import com.balsamic.sejongmalsami.util.config.FtpConfig;
 import com.balsamic.sejongmalsami.util.exception.CustomException;
 import com.balsamic.sejongmalsami.util.exception.ErrorCode;
+import com.balsamic.sejongmalsami.util.storage.StorageService;
+import java.io.IOException;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 
 @Service
@@ -26,14 +29,17 @@ import org.springframework.web.multipart.MultipartFile;
 public class DocumentFileService {
 
   private final DocumentFileRepository documentFileRepository;
+  private final DocumentPostRepository documentPostRepository;
+
+  @Qualifier("ftpStorageService")
+  private final StorageService storageService;
+
+  private final ImageThumbnailGenerator imageThumbnailGenerator;
   private final FtpConfig ftpConfig;
-  private final FtpUtil ftpUtil;
-  private final ImageThumbnailGenerator thumbnailGenerator;
 
   // 파일 유형별 최대 업로드 크기 (MB)
   private static final int MAX_BASIC_UPLOAD_SIZE = 50;    // 이미지, 문서 등
   private static final int MAX_VIDEO_UPLOAD_SIZE = 200;   // 비디오
-  private final DocumentPostRepository documentPostRepository;
 
   /**
    * 파일 저장
@@ -43,15 +49,20 @@ public class DocumentFileService {
    * @param file       업로드 파일
    * @return 저장된 DocumentFile 객체
    */
+  @Transactional
   public DocumentFile saveFile(DocumentCommand command, UploadType uploadType, MultipartFile file) {
-    String thumbnailUrl = generateThumbnailUrl(ContentType.DOCUMENT, file, uploadType);
-    String uploadFileName = FileUtil.generateUploadFileName(file);
+    // 파일 유효성 검증
+    validateFile(file, uploadType);
 
+    // 파일 업로드 및 파일 Path 반환
+    String filePath = storageService.uploadFile(ContentType.DOCUMENT, file);
+
+    // 썸네일 업로드 및 URL 생성
+    String thumbnailUrl = generateThumbnailUrl(ContentType.DOCUMENT, file, uploadType);
+
+    // 자료 게시글 검증
     DocumentPost documentPost = documentPostRepository.findById(command.getDocumentPostId())
         .orElseThrow(() -> new CustomException(ErrorCode.DOCUMENT_POST_NOT_FOUND));
-
-    // 첨부파일 업로드
-    ftpUtil.uploadDocument(file, uploadFileName);
 
     // 메타 데이터 documentFile 저장
     DocumentFile savedDocumentFile = documentFileRepository.save(DocumentFile.builder()
@@ -59,14 +70,15 @@ public class DocumentFileService {
         .uploader(command.getMember())
         .thumbnailUrl(thumbnailUrl)
         .originalFileName(file.getOriginalFilename())
-        .uploadFileName(uploadFileName)
+        .uploadedFileName(FileUtil.extractFileName(filePath))
         .fileSize(file.getSize())
         .mimeType(MimeType.fromString(file.getContentType()))
         .downloadCount(0L)
         .password(null)
         .isInitialPasswordSet(false)
+        .filePath(filePath)
         .build());
-    log.info("DocumentFile 저장완료 : ID : {} ,업로드 파일명={}", savedDocumentFile.getDocumentFileId(), savedDocumentFile.getUploadFileName());
+    log.info("DocumentFile 저장완료 : ID : {} ,업로드 파일명={}", savedDocumentFile.getDocumentFileId(), savedDocumentFile.getUploadedFileName());
     return savedDocumentFile;
   }
 
@@ -85,13 +97,10 @@ public class DocumentFileService {
     long fileSizeInMB = file.getSize() / (1024 * 1024);
     int maxSize;
 
-    // 업로드 타입에 따른 최대 파일 크기 설정 (if-else if 사용)
+    // 업로드 타입에 따른 최대 파일 크기 설정
     if (uploadType == UploadType.VIDEO) {
       maxSize = MAX_VIDEO_UPLOAD_SIZE;
-    } else if (uploadType == UploadType.IMAGE || uploadType == UploadType.DOCUMENT || uploadType == UploadType.MUSIC) {
-      maxSize = MAX_BASIC_UPLOAD_SIZE;
     } else {
-      log.warn("uploadType 을 알 수 없습니다. file {} , {}", file.getOriginalFilename(), uploadType);
       maxSize = MAX_BASIC_UPLOAD_SIZE;
     }
 
@@ -108,19 +117,15 @@ public class DocumentFileService {
     }
   }
 
-
   /**
    * 썸네일 URL 생성
    *
-   * @param file       대상 파일
-   * @param uploadType 업로드 타입
+   * @param contentType ContentType
+   * @param file        대상 파일
+   * @param uploadType  업로드 타입
    * @return 썸네일 URL
    */
   private String generateThumbnailUrl(ContentType contentType, MultipartFile file, UploadType uploadType) {
-
-    String thumbnailFileName = generateThumbnailFileName(contentType, file.getOriginalFilename());
-    String thumbnailUrl = "";
-
     if (file.isEmpty()) {
       log.info("generateThumbnailUrl : 파일이 비어있습니다");
       return "";
@@ -128,71 +133,93 @@ public class DocumentFileService {
 
     if (uploadType == UploadType.MUSIC) {
       log.info("MUSIC 타입의 파일은 기본 썸네일 URL을 사용합니다.");
-      return ftpConfig.getDefaultMusicThumbnailUrl();
+      return ftpConfig.getDefaultMusicThumbnailUrl(); // 기본 썸네일 URL 반환
     }
 
-    byte[] thumbnailBytes = generateThumbnailBytes(file, uploadType);
-
-    if (thumbnailBytes.length > 0) {
-      thumbnailUrl = ftpUtil.uploadThumbnailBytes(thumbnailBytes, thumbnailFileName);
-      log.info("{} 썸네일 생성 및 업로드 완료: {}", uploadType, thumbnailFileName);
-    } else {
-      thumbnailUrl = getDefaultThumbnailUrl(uploadType);
-      log.info("썸네일 생성 실패, 기본 썸네일 사용: {}", thumbnailUrl);
+    try {
+      // 썸네일 생성 및 업로드
+      return createAndUploadThumbnail(contentType, file);
+    } catch (Exception e) {
+      log.error("썸네일 생성 실패: {}", e.getMessage(), e);
+      // 업로드 타입에 따른 기본 썸네일 URL 사용
+      return getDefaultThumbnailUrl(uploadType);
     }
-    return thumbnailUrl;
   }
 
   /**
-   * 썸네일 바이트 생성
+   * 썸네일 생성 및 업로드
    *
-   * @param file       대상 파일
-   * @param uploadType 업로드 타입
-   * @return 썸네일 바이트 배열
-   * @throws CustomException ErrorCode.INVALID_UPLOAD_TYPE
+   * @param contentType ContentType
+   * @param file        대상 파일
+   * @return 업로드된 썸네일 URL
    */
-  private byte[] generateThumbnailBytes(MultipartFile file, UploadType uploadType) throws CustomException {
-    if (uploadType == UploadType.IMAGE) {
-      return thumbnailGenerator.generateImageThumbnail(file);
-    } else if (uploadType == UploadType.DOCUMENT) {
-      return thumbnailGenerator.generateDocumentThumbnail(file);
-    } else if (uploadType == UploadType.VIDEO) {
-      return thumbnailGenerator.generateVideoThumbnail(file);
-    } else {
-      log.warn("알 수 없는 업로드 타입: {}", uploadType);
-      throw new CustomException(ErrorCode.INVALID_UPLOAD_TYPE);
+  private String createAndUploadThumbnail(ContentType contentType, MultipartFile file) {
+    byte[] thumbnailBytes;
+    String mimeType = file.getContentType();
+
+    // WebP 파일 처리 : MAC 환경에서는 WepP 를 다루지 않음 (라이브러리 지원안함)
+    if (MimeType.WEBP.getMimeType().equalsIgnoreCase(mimeType)) {
+      log.info("WebP 파일 처리: 원본 데이터 업로드");
+      try {
+        return storageService.uploadThumbnail(
+            ContentType.THUMBNAIL,
+            new MultipartFileAdapter(
+                "thumbnail",
+                imageThumbnailGenerator.generateThumbnailFileName(contentType, file.getOriginalFilename()),
+                MimeType.WEBP.getMimeType(),
+                file.getBytes()
+            )
+        );
+      } catch (IOException e) {
+        log.error("WebP 파일 원본 데이터 처리 중 오류: {}", e.getMessage(), e);
+        throw new CustomException(ErrorCode.THUMBNAIL_CREATION_ERROR);
+      }
     }
+
+    // MIME 타입에 따라 썸네일 생성
+    if (MimeType.isValidImageMimeType(mimeType)) {
+      thumbnailBytes = imageThumbnailGenerator.generateImageThumbnail(file);
+    } else if (MimeType.isValidDocumentMimeType(mimeType)) {
+      thumbnailBytes = imageThumbnailGenerator.generateDocumentThumbnail(file);
+    } else if (mimeType.startsWith("video/")) {
+      thumbnailBytes = imageThumbnailGenerator.generateVideoThumbnail(file);
+    } else {
+      log.warn("지원되지 않는 MIME 타입: {}", mimeType);
+      return "";
+    }
+
+    // 생성된 썸네일 파일 업로드
+    String thumbnailFileName = imageThumbnailGenerator.generateThumbnailFileName(contentType, file.getOriginalFilename());
+    MimeType thumbnailMimeType = imageThumbnailGenerator.getOutputThumbnailMimeType();
+    MultipartFile thumbnailFile = new MultipartFileAdapter(
+        "thumbnail",
+        thumbnailFileName,
+        thumbnailMimeType.getMimeType(),
+        thumbnailBytes
+    );
+
+    log.debug("업로드 대상 썸네일 파일 이름: {}, MIME 타입: {}", thumbnailFileName, thumbnailMimeType.getMimeType());
+    return storageService.uploadThumbnail(ContentType.THUMBNAIL, thumbnailFile);
   }
 
   /**
-   * 기본 썸네일 URL 반환
+   * 업로드 타입에 따른 기본 썸네일 URL 반환
    *
    * @param uploadType 업로드 타입
    * @return 기본 썸네일 URL
    */
   private String getDefaultThumbnailUrl(UploadType uploadType) {
-    if (uploadType == UploadType.DOCUMENT) {
-      return ftpConfig.getDefaultDocumentThumbnailUrl();
-    } else if (uploadType == UploadType.IMAGE) {
-      return ftpConfig.getDefaultImageThumbnailUrl();
-    } else if (uploadType == UploadType.VIDEO) {
-      return ftpConfig.getDefaultVideoThumbnailUrl();
-    } else {
-      log.warn("기본 썸네일이 존재하지 않습니다. UploadType={}", uploadType);
-      return "";
+    switch (uploadType) {
+      case DOCUMENT:
+        return ftpConfig.getDefaultDocumentThumbnailUrl();
+      case IMAGE:
+        return ftpConfig.getDefaultImageThumbnailUrl();
+      case VIDEO:
+        return ftpConfig.getDefaultVideoThumbnailUrl();
+      case MUSIC:
+        return ftpConfig.getDefaultMusicThumbnailUrl();
+      default:
+        return ""; // 빈 URL 설정 (프론트가 해주시겠지)
     }
-  }
-
-  /**
-   * 썸네일 파일명 생성
-   *
-   * @param originalFileName 원본 파일명
-   * @return 생성된 썸네일 파일명
-   */
-  private String generateThumbnailFileName(ContentType contentType , String originalFileName) {
-    String curTimeStr = TimeUtil.formatLocalDateTimeNowForFileName();
-    String baseName = FileUtil.getBaseName(originalFileName);
-    String thumbnailExtension = thumbnailGenerator.getOutputThumbnailFormat(); // JPG, WEBP
-    return String.format("%s_%s_%s.%s", contentType.name(), curTimeStr, baseName, thumbnailExtension);
   }
 }

@@ -1,20 +1,25 @@
 package com.balsamic.sejongmalsami.util;
 
+import com.balsamic.sejongmalsami.object.constants.ContentType;
 import com.balsamic.sejongmalsami.object.constants.SystemType;
 import com.balsamic.sejongmalsami.util.exception.CustomException;
 import com.balsamic.sejongmalsami.util.exception.ErrorCode;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.util.List;
+import java.util.UUID;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipOutputStream;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.util.StringUtils;
 import org.springframework.web.multipart.MultipartFile;
 
+/**
+ * 파일 관련 유틸리티 클래스
+ */
+
 @Slf4j
 public class FileUtil {
-
   /**
    * 현재 운영체제 반환
    */
@@ -29,6 +34,27 @@ public class FileUtil {
     } else {
       return SystemType.OTHER;
     }
+  }
+
+  /**
+   * 파일명 생성 (UUID 사용, ContentType 제거)
+   *
+   * @param originalFilename 원본 파일명
+   * @return 생성된 파일명
+   */
+  public static String generateFileName(ContentType contentType, String originalFilename) {
+    String header = contentType.name();
+    String baseName = sanitizeFileName(getBaseName(originalFilename));
+    String extension = getExtension(originalFilename);
+    String uuid = UUID.randomUUID().toString();
+    return String.format("%s_%s_%s.%s", header, baseName, uuid, extension);
+  }
+
+  // 파일이름에 특수문자 제거
+  private static String sanitizeFileName(String fileName) {
+    return fileName.replaceAll("[\\[\\]\\{\\}\\(\\)\\s]+", "_")  // 특수문자와 공백을 언더스코어로
+        .replaceAll("_{2,}", "_")                      // 중복 언더스코어 제거
+        .replaceAll("^_|_$", "");                     // 시작과 끝의 언더스코어 제거
   }
 
   /**
@@ -83,12 +109,21 @@ public class FileUtil {
   }
 
   /**
-   * 업로드 파일명 생성 (확장자 포함)
+   * 주어진 경로에서 파일 이름(확장자 포함)을 추출합니다.
+   *
+   * @param filePath 파일 경로
+   * @return 파일 이름 반환
    */
-  public static String generateUploadFileName(MultipartFile file) {
-    String curTimeStr = TimeUtil.formatLocalDateTimeNowForFileName();
-    String baseName = getBaseName(file.getOriginalFilename());
-    String extension = getExtension(file.getOriginalFilename());
-    return String.format("%s_%s.%s", curTimeStr, baseName, extension);
+  public static String extractFileName(String filePath) {
+    if (!StringUtils.hasText(filePath)) {
+      throw new IllegalArgumentException("파일 경로가 비어 있거나 null입니다.");
+    }
+
+    int lastSeparatorIndex = filePath.lastIndexOf('/');
+    if (lastSeparatorIndex == -1) {
+      return filePath; // 경로에 '/'가 없는 경우 전체가 파일 이름으로 간주
+    }
+
+    return filePath.substring(lastSeparatorIndex + 1);
   }
 }
