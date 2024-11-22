@@ -133,17 +133,31 @@ public class DocumentPostService {
 
     PostTier postTier = command.getPostTier();
 
+    // 과목명이 비어있는 경우 null 설정 (비어있는 경우 쿼리문에서 오류 발생)
+    if (command.getSubject() != null && command.getSubject().isEmpty()) {
+      command.setSubject(null);
+    }
+
+    // 태그 List 사이즈가 0인 경우 null로 설정 (비어있는 List의 경우 쿼리문에서 오류 발생)
+    if (command.getDocumentTypes() != null && command.getDocumentTypes().isEmpty()) {
+      command.setDocumentTypes(null);
+    }
+
     // 현재 사용자의 해당 게시판 접근 가능 여부 확인
-    canAccessDocumentBoard(member, postTier);
+    if (postTier != null) {
+      canAccessDocumentBoard(member, postTier);
+    }
 
     // 태그 필터링 최대 2개까지 선택가능
-    if (command.getDocumentTypes().size() > MAX_DOCUMENT_TYPES) {
-      throw new CustomException(ErrorCode.DOCUMENT_TYPE_LIMIT_EXCEEDED);
+    if (command.getDocumentTypes() != null) {
+      if (command.getDocumentTypes().size() > MAX_DOCUMENT_TYPES) {
+        throw new CustomException(ErrorCode.DOCUMENT_TYPE_LIMIT_EXCEEDED);
+      }
     }
 
     // 정렬 (최신순, 좋아요순, 조회순)
     Sort sort;
-    SortType sortType = command.getSortType();
+    SortType sortType = command.getSortType() != null ? command.getSortType() : SortType.LATEST;
     if (sortType.equals(SortType.MOST_LIKED)) {
       sort = Sort.by(Order.desc("likeCount"));
     } else if (sortType.equals(SortType.VIEW_COUNT)) {
