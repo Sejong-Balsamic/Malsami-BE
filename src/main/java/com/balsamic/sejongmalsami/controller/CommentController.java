@@ -42,7 +42,6 @@ public class CommentController implements CommentControllerDocs {
   public ResponseEntity<CommentDto> getAllCommentsByPostId(
       @AuthenticationPrincipal CustomUserDetails customUserDetails,
       @ModelAttribute CommentCommand command) {
-    command.setMemberId(customUserDetails.getMemberId());
     return ResponseEntity.ok(commentService.getAllCommentsByPostId(command));
   }
 }

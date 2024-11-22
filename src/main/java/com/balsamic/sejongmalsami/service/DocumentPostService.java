@@ -17,7 +17,6 @@ import com.balsamic.sejongmalsami.object.postgres.DocumentFile;
 import com.balsamic.sejongmalsami.object.postgres.DocumentPost;
 import com.balsamic.sejongmalsami.object.postgres.Member;
 import com.balsamic.sejongmalsami.object.postgres.Yeopjeon;
-import com.balsamic.sejongmalsami.repository.mongo.DocumentBoardLikeRepository;
 import com.balsamic.sejongmalsami.repository.postgres.CourseRepository;
 import com.balsamic.sejongmalsami.repository.postgres.DocumentPostRepository;
 import com.balsamic.sejongmalsami.repository.postgres.MemberRepository;
@@ -48,7 +47,6 @@ public class DocumentPostService {
   private final DocumentPostRepository documentPostRepository;
   private final MemberRepository memberRepository;
   private final DocumentFileService documentFileService;
-  private final DocumentBoardLikeRepository documentBoardLikeRepository;
   private final CourseRepository courseRepository;
   private final YeopjeonService yeopjeonService;
   private final YeopjeonConfig yeopjeonConfig;
@@ -176,7 +174,6 @@ public class DocumentPostService {
    * <ul>
    *   <li>해당 글 조회수 증가</li>
    *   <li>게시판 등급에 따라 사용자 엽전 감소</li>
-   *   <li>사용자가 좋아요 누른 글 여부 반환</li>
    * </ul>
    *
    * @param command memberId, documentPostId
@@ -210,11 +207,6 @@ public class DocumentPostService {
 
     // 해당 자료 글 조회수 증가
     post.increaseViewCount();
-
-    // 사용자가 좋아요를 눌렀는지 확인
-    Boolean isLiked = documentBoardLikeRepository
-        .existsByDocumentBoardIdAndMemberId(post.getDocumentPostId(), command.getMemberId());
-    post.updateIsLiked(isLiked);
 
     // 해당 자료 글 반환
     return DocumentDto.builder()

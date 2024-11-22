@@ -52,7 +52,6 @@ public class DocumentRequestPostController implements DocumentRequestPostControl
   public ResponseEntity<DocumentDto> getDocumentRequestPost(
       @AuthenticationPrincipal CustomUserDetails customUserDetails,
       @ModelAttribute DocumentCommand command) {
-    command.setMemberId(customUserDetails.getMemberId());
     return ResponseEntity.ok(documentRequestPostService.getDocumentRequestPost(command));
   }
 }

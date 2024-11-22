@@ -40,7 +40,6 @@ public class QuestionPostController implements QuestionPostControllerDocs {
 
   @Override
   @PostMapping(value = "/get", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
-  @LogMonitoringInvocation
   public ResponseEntity<QuestionDto> getQuestionPost(
       @AuthenticationPrincipal CustomUserDetails customUserDetails,
       @ModelAttribute QuestionCommand command) {

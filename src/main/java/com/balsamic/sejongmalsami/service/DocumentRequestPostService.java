@@ -9,7 +9,6 @@ import com.balsamic.sejongmalsami.object.postgres.Course;
 import com.balsamic.sejongmalsami.object.postgres.DocumentRequestPost;
 import com.balsamic.sejongmalsami.object.postgres.Member;
 import com.balsamic.sejongmalsami.object.postgres.Yeopjeon;
-import com.balsamic.sejongmalsami.repository.mongo.DocumentBoardLikeRepository;
 import com.balsamic.sejongmalsami.repository.postgres.CourseRepository;
 import com.balsamic.sejongmalsami.repository.postgres.DocumentRequestPostRepository;
 import com.balsamic.sejongmalsami.repository.postgres.MemberRepository;
@@ -34,7 +33,6 @@ public class DocumentRequestPostService {
   private static final Integer DOCUMENT_TYPE_LIMIT = 3;
 
   private final DocumentRequestPostRepository documentRequestPostRepository;
-  private final DocumentBoardLikeRepository documentBoardLikeRepository;
   private final MemberRepository memberRepository;
   private final YeopjeonService yeopjeonService;
   private final CourseRepository courseRepository;
@@ -179,10 +177,6 @@ public class DocumentRequestPostService {
 
     // 해당 글 조회 수 증가
     post.increaseViewCount();
-
-    Boolean isLiked = documentBoardLikeRepository
-        .existsByDocumentBoardIdAndMemberId(post.getDocumentRequestPostId(), command.getMemberId());
-    post.updateIsLiked(isLiked);
 
     return DocumentDto.builder()
         .documentRequestPost(post)

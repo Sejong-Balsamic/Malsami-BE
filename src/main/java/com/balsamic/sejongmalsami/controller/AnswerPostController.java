@@ -42,7 +42,6 @@ public class AnswerPostController implements AnswerPostControllerDocs {
   public ResponseEntity<QuestionDto> getAnswersByQuestion(
       @AuthenticationPrincipal CustomUserDetails customUserDetails,
       @ModelAttribute QuestionCommand command) {
-    command.setMemberId(customUserDetails.getMemberId());
     return ResponseEntity.ok(answerPostService.getAnswersByQuestion(command));
   }
 

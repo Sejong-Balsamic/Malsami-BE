@@ -189,12 +189,6 @@ public class QuestionPostService {
     questionPost.increaseViewCount();
     log.info("제목: {}, 조회수: {}", questionPost.getTitle(), questionPost.getViewCount());
 
-    // 좋아요 누른 회원인지 확인
-    Boolean isLiked = questionBoardLikeRepository
-        .existsByQuestionBoardIdAndMemberId(command.getPostId(), command.getMemberId());
-
-    questionPost.updateIsLiked(isLiked);
-
     // 변경사항 저장
     questionPostRepository.save(questionPost);
 
@@ -211,10 +205,15 @@ public class QuestionPostService {
           .collect(Collectors.toList());
     }
 
+    // 좋아요 누른 회원인지 확인
+    Boolean isLiked = questionBoardLikeRepository
+        .existsByQuestionBoardIdAndMemberId(command.getPostId(), command.getMemberId());
+
     return QuestionDto.builder()
         .questionPost(questionPost)
         .answerPosts(answerPost)
         .customTags(customTags)
+        .isLiked(isLiked)
         .build();
   }
 

@@ -4,14 +4,12 @@ import com.balsamic.sejongmalsami.object.CommentCommand;
 import com.balsamic.sejongmalsami.object.CommentDto;
 import com.balsamic.sejongmalsami.object.constants.ContentType;
 import com.balsamic.sejongmalsami.object.constants.ExpAction;
-import com.balsamic.sejongmalsami.object.mongo.CommentLike;
 import com.balsamic.sejongmalsami.object.postgres.AnswerPost;
 import com.balsamic.sejongmalsami.object.postgres.Comment;
 import com.balsamic.sejongmalsami.object.postgres.DocumentPost;
 import com.balsamic.sejongmalsami.object.postgres.DocumentRequestPost;
 import com.balsamic.sejongmalsami.object.postgres.Member;
 import com.balsamic.sejongmalsami.object.postgres.QuestionPost;
-import com.balsamic.sejongmalsami.repository.mongo.CommentLikeRepository;
 import com.balsamic.sejongmalsami.repository.postgres.AnswerPostRepository;
 import com.balsamic.sejongmalsami.repository.postgres.CommentRepository;
 import com.balsamic.sejongmalsami.repository.postgres.DocumentPostRepository;
@@ -20,10 +18,7 @@ import com.balsamic.sejongmalsami.repository.postgres.MemberRepository;
 import com.balsamic.sejongmalsami.repository.postgres.QuestionPostRepository;
 import com.balsamic.sejongmalsami.util.exception.CustomException;
 import com.balsamic.sejongmalsami.util.exception.ErrorCode;
-import java.util.List;
-import java.util.Set;
 import java.util.UUID;
-import java.util.stream.Collectors;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
@@ -43,7 +38,6 @@ public class CommentService {
   private final DocumentPostRepository documentPostRepository;
   private final DocumentRequestPostRepository documentRequestPostRepository;
   private final CommentRepository commentRepository;
-  private final CommentLikeRepository commentLikeRepository;
   private final MemberRepository memberRepository;
   private final ExpService expService;
 
@@ -132,9 +126,7 @@ public class CommentService {
 
   /**
    * <h3>특정 글에 작성된 모든 댓글 조회 로직
-   *
-   * @param command <p>memberId: 로그인 사용자 PK</p>
-   *                <p>postId: 특정 글 PK</p>
+   * @param command <p>postId: 특정 글 PK</p>
    *                <p>contentType: 글 Type</p>
    *                <p>pageNumber: n번째 페이지</p>
    *                <p>pageSize: n개의 데이터</p>
@@ -153,21 +145,6 @@ public class CommentService {
         command.getContentType(),
         pageable
     );
-
-    // 댓글 PK 목록 가져오기
-    List<UUID> commentIds = commentPage.getContent().stream()
-        .map(Comment::getCommentId)
-        .collect(Collectors.toList());
-
-    // 현재 사용자가 좋아요를 누른 댓글 PK 조회
-    Set<UUID> likedCommentIds = commentLikeRepository
-        .findAllByCommentIdInAndMemberId(commentIds, command.getMemberId())
-        .stream().map(CommentLike::getCommentId)
-        .collect(Collectors.toSet());
-
-    // 각 댓글에 좋아요 여부 설정
-    commentPage.forEach(comment -> comment
-        .updateIsLiked(likedCommentIds.contains(comment.getCommentId())));
 
     return CommentDto.builder()
         .commentsPage(commentPage)
