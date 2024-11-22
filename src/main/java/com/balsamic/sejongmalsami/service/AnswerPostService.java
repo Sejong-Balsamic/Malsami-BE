@@ -2,6 +2,7 @@ package com.balsamic.sejongmalsami.service;
 
 import com.balsamic.sejongmalsami.object.QuestionCommand;
 import com.balsamic.sejongmalsami.object.QuestionDto;
+import com.balsamic.sejongmalsami.object.constants.ContentType;
 import com.balsamic.sejongmalsami.object.constants.ExpAction;
 import com.balsamic.sejongmalsami.object.constants.YeopjeonAction;
 import com.balsamic.sejongmalsami.object.mongo.ExpHistory;
@@ -56,22 +57,23 @@ public class AnswerPostService {
       throw new CustomException(ErrorCode.SELF_ANSWER_NOT_ALLOWED);
     }
 
-    AnswerPost answerPost = answerPostRepository.save(AnswerPost.builder()
-        .member(member)
-        .questionPost(questionPost)
-        .content(command.getContent())
-        .likeCount(0)
-        .commentCount(0)
-        .isPrivate(Boolean.TRUE.equals(command.getIsPrivate()))
-        .isChaetaek(false)
-        .build());
+    // 답변 생성 및 저장
+    AnswerPost savedAnswerPost = answerPostRepository.save(
+        AnswerPost.builder()
+            .member(member)
+            .questionPost(questionPost)
+            .content(command.getContent())
+            .likeCount(0)
+            .commentCount(0)
+            .isPrivate(Boolean.TRUE.equals(command.getIsPrivate()))
+            .isChaetaek(false)
+            .build());
 
-    // 첨부파일 추가
-    List<MediaFile> mediaFiles = null;
-    if (command.getMediaFiles() != null) {
-      mediaFiles = mediaFileService
-          .uploadMediaFiles(answerPost.getAnswerPostId(), command.getMediaFiles());
-    }
+    // 첨부파일 파일 업로드 및 썸네일 저장 -> 저장된 미디어파일 리스트 반환
+    List<MediaFile> savedMediaFiles = mediaFileService.handleMediaFiles(
+        ContentType.ANSWER,
+        savedAnswerPost.getAnswerPostId(),
+        command.getAttachmentFiles());
 
     // 답변이 작성된 질문 글 답변 수 증가
     questionPost.updateAnswerCount(answerPostRepository.countByQuestionPost(questionPost));
@@ -81,8 +83,8 @@ public class AnswerPostService {
     expService.updateExpAndSaveExpHistory(member, ExpAction.CREATE_COMMENT);
 
     return QuestionDto.builder()
-        .answerPost(answerPost)
-        .mediaFiles(mediaFiles)
+        .answerPost(savedAnswerPost)
+        .mediaFiles(savedMediaFiles)
         .build();
   }
 

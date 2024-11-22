@@ -27,7 +27,6 @@ import com.balsamic.sejongmalsami.util.exception.CustomException;
 import com.balsamic.sejongmalsami.util.exception.ErrorCode;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.UUID;
 import java.util.stream.Collectors;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -38,7 +37,6 @@ import org.springframework.data.domain.Sort;
 import org.springframework.data.domain.Sort.Direction;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import org.springframework.web.multipart.MultipartFile;
 
 @Service
 @Slf4j
@@ -58,19 +56,15 @@ public class QuestionPostService {
   private final QuestionPostCustomTagRepository questionPostCustomTagRepository;
 
   /**
-   * <h3>질문 글 등록 로직</h3>
-   * <p>작성자 엽전 100냥 감소
-   * <p>작성자 경험치 증가
-   *
-   * @param command <p>String title
-   *                <p>String content
-   *                <p>String subject
-   *                <p>List mediaFiles
-   *                <p>List questionPresetTags
-   *                <p>List customTags
-   *                <p>Integer rewardYeopjeon
-   *                <p>Boolean isPrivate
-   * @return
+   * 질문 글 등록
+   * 1. 회원 엽전 검증 (현상금 + 작성 비용)
+   * 2. 교과목 별 단과대 설정
+   * 3. 질문글 기본정보 저장
+   * 4. 정적/커스텀 태그 처리
+   * 5. 첨부파일 업로드 및 썸네일 처리
+   * 6. 엽전 차감 (-100냥)
+   * 7. 경험치 증가
+   * @return 저장된 질문글, 미디어파일, 커스텀태그 정보
    */
   @Transactional
   public QuestionDto saveQuestionPost(QuestionCommand command) {
@@ -88,7 +82,7 @@ public class QuestionPostService {
     // {질문글 등록 시 소모엽전 + 엽전 현상금} 보다 보유 엽전량이 적을 시 오류 발생
     Yeopjeon yeopjeon = yeopjeonService.findMemberYeopjeon(member);
     if (yeopjeon.getYeopjeon() < command.getRewardYeopjeon()
-                                 + -yeopjeonCalculator.calculateYeopjeon(YeopjeonAction.CREATE_QUESTION_POST)) {
+        + -yeopjeonCalculator.calculateYeopjeon(YeopjeonAction.CREATE_QUESTION_POST)) {
       log.error("사용자: {} 의 엽전이 부족합니다.", member.getStudentId());
       log.error("현재 보유 엽전량: {}, 질문글 등록시 필요 엽전량: {}, 엽전 현상금 설정량: {}",
           yeopjeon.getYeopjeon(),
@@ -149,15 +143,11 @@ public class QuestionPostService {
           .saveCustomTags(command.getCustomTagSet(), savedQuestionPost.getQuestionPostId());
     }
 
-    // 저장된 미디어파일 리스트
-    List<MediaFile> savedMediaFiles = new ArrayList<>();
-
-    // 첨부파일 파일 업로드 및 썸네일 저장
-    processAndSaveMediaFiles(
+    // 첨부파일 파일 업로드 및 썸네일 저장 -> 저장된 미디어파일 리스트 반환
+    List<MediaFile> savedMediaFiles = mediaFileService.handleMediaFiles(
         ContentType.QUESTION,
         savedQuestionPost.getQuestionPostId(),
-        command.getMediaFiles(),
-        savedMediaFiles);
+        command.getAttachmentFiles());
 
     // QuestionPost 에 썸네일 지정 : 저장된 사진 중 첫번째 사진
     String thumbnailUrl = savedMediaFiles.get(0).getThumbnailUrl();
@@ -177,12 +167,12 @@ public class QuestionPostService {
   }
 
   /**
-   * <h3>특정 질문 글 조회 로직</h3>
-   * <p>해당 글 조회 수 증가</p>
-   * <p>이미 좋아요 누른 글 isLiked 반환</p>
-   *
-   * @param command memberId, postId
-   * @return
+   * 특정 질문 글 조회
+   * 1. 조회수 증가
+   * 2. 좋아요 여부 확인
+   * 3. 답변 목록 조회
+   * 4. 커스텀 태그 조회
+   * @return 질문글, 답변목록, 커스텀태그 정보
    */
   @Transactional
   public QuestionDto getQuestionPost(QuestionCommand command) {
@@ -204,7 +194,7 @@ public class QuestionPostService {
     questionPostRepository.save(questionPost);
 
     // 답변 조회 (없으면 null 반환)
-    List<AnswerPost> answerPost = answerPostRepository
+    List<AnswerPost> answerPosts = answerPostRepository
         .findAllByQuestionPost(questionPost).orElse(null);
 
     // 커스텀 태그 조회 (없으면 null 반환)
@@ -218,16 +208,15 @@ public class QuestionPostService {
 
     return QuestionDto.builder()
         .questionPost(questionPost)
-        .answerPosts(answerPost)
+        .answerPosts(answerPosts)
         .customTags(customTags)
         .build();
   }
 
   /**
-   * 전체 질문 글 조회 (최신순)
-   *
-   * @param command pageNumber, PageSize
-   * @return
+   * 전체 질문 글 페이징 조회
+   * - 최신순 정렬 (createdDate DESC)
+   * @return 질문글 페이지 정보
    */
   @Transactional(readOnly = true)
   public QuestionDto findAllQuestionPost(QuestionCommand command) {
@@ -244,12 +233,9 @@ public class QuestionPostService {
   }
 
   /**
-   * 아직 답변 안된 글 조회 로직 + 단과대 필터링 (정렬: 최신순)
-   *
-   * @param command <p>Faculty faculty
-   *                <p>Integer pageNumber
-   *                <p>Integer pageSize
-   * @return
+   * 미답변 질문글 조회 + 단과대 필터링
+   * - 최신순 정렬 (createdDate DESC)
+   * @return 질문글 페이지 정보
    */
   @Transactional(readOnly = true)
   public QuestionDto findAllQuestionPostsNotAnswered(QuestionCommand command) {
@@ -267,21 +253,19 @@ public class QuestionPostService {
   }
 
   /**
-   * <h3>질문글 필터링 로직</h3>
-   * <p>1. 교과목명 기준 필터링 - String subject (ex. 컴퓨터구조, 인터렉티브 디자인)
-   * <p>2. 정적 태그 필터링 - QuestionPresetTag (최대 2개)
-   * <p>3. 단과대별 필터링 - Faculty (ex. 공과대학, 예체능대학)
-   * <p>4. 채택 상태 필터링 - ChaetaekStatus (전체, 채택, 미채택)
-   * <br><br>
-   * <h3>정렬 로직 (SortType)</h3>
-   * <p>최신순, 좋아요순, 엽전 현상금순, 조회순
+   * 메인 필터링/정렬 조회
+   * [필터링]
+   * 1. 교과목명
+   * 2. 정적태그 (최대 2개)
+   * 3. 단과대
+   * 4. 채택상태 (전체/채택/미채택)
    *
-   * @param command <p>String subject
-   *                <p>List<QuestionPresetTag> questionPresetTags
-   *                <p>Faculty
-   *                <p>Boolean chaetaekStatus
-   *                <p>SortType
-   * @return Page<QuestionPost> questionPosts
+   * [정렬]
+   * - 최신순(default)
+   * - 좋아요순
+   * - 현상금순
+   * - 조회순
+   * @return 필터링/정렬된 질문글 페이지
    */
   @Transactional(readOnly = true)
   public QuestionDto filteredQuestions(QuestionCommand command) {
@@ -348,50 +332,5 @@ public class QuestionPostService {
   public void deleteQuestion(QuestionCommand command) {
   }
 
-  /**
-   * 첨부 파일 처리, 업로드, 저장
-   */
-  @Transactional
-  public void processAndSaveMediaFiles(
-      ContentType contentType,
-      UUID postId,
-      List<MultipartFile> attachmentFiles,
-      List<MediaFile> savedMediaFiles) {
-    // 첨부파일 리스트에 첨부된 파일이 없을 때
-    if (attachmentFiles == null || attachmentFiles.isEmpty()) {
-      log.info("첨부된 파일이 없습니다.");
-      return;
-    }
 
-    // 첨부파일 리스트에서 파일 순회
-    for (MultipartFile file : attachmentFiles) {
-      try {
-        String mimeType = file.getContentType();
-
-        // MIMETYPE 검증
-        if (mimeType == null) {
-          log.error("파일의 MIME 타입을 확인할 수 없습니다: {}", file.getOriginalFilename());
-          throw new CustomException(ErrorCode.INVALID_FILE_FORMAT);
-        }
-
-        // 파일 유효성 검사
-        mediaFileService.validateFile(file);
-
-        // 파일 저장
-        MediaFile savedMediaFile = mediaFileService.saveFile(contentType, postId, file);
-
-        // 저장된 미디어파일 리스트에 추가
-        savedMediaFiles.add(savedMediaFile);
-
-        log.info("파일 저장 완료: 업로드 파일명={}", savedMediaFile.getOriginalFileName());
-
-      } catch (CustomException e) {
-        log.error("파일 처리 중 오류 발생: {}", e.getMessage());
-        throw e; // 트랜잭션 롤백을 위해 예외 다시 던지기
-      } catch (Exception e) {
-        log.error("파일 처리 중 예상치 못한 오류 발생: {}", e.getMessage());
-        throw new CustomException(ErrorCode.INTERNAL_SERVER_ERROR);
-      }
-    }
-  }
 }
