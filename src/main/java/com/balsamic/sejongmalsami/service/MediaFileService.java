@@ -26,7 +26,7 @@ import org.springframework.web.multipart.MultipartFile;
 @Slf4j
 public class MediaFileService {
 
-//  @Qualifier("ftpStorageService")
+  //  @Qualifier("ftpStorageService")
   private final StorageService storageService;
   private final MediaFileRepository mediaFileRepository;
   private final QuestionPostRepository questionPostRepository;
@@ -49,21 +49,28 @@ public class MediaFileService {
     if (questionPostRepository.existsById(postId)) {
       contentType = ContentType.QUESTION;
       // 해당 질문글 첨부파일이 3개를 초과했는지 체크
-      if (mediaFileRepository.countByPost(postId, ContentType.QUESTION) + files.size() > MAX_MEDIA_FILE_COUNT) {
+//      if (mediaFileRepository.countByPost(postId, ContentType.QUESTION) + files.size() > MAX_MEDIA_FILE_COUNT) { //2024.11.22: SUH :첨부파일 개수 초과 로직 오류로 주석처리
+      if (files.size() > MAX_MEDIA_FILE_COUNT) {
+        log.error("첨부파일 개수가 초과하였습니다. 현재 : {} , 최대 업로드할수있는 첨부파일 개수 : {}", files.size(), MAX_MEDIA_FILE_COUNT);
         throw new CustomException(ErrorCode.MEDIA_FILE_LIMIT_EXCEEDED);
       }
     } else if (answerPostRepository.existsById(postId)) {
       contentType = ContentType.ANSWER;
       // 해당 답변 첨부파일이 3개를 초과했는지 체크
-      if (mediaFileRepository.countByPost(postId, ContentType.ANSWER) + files.size() > MAX_MEDIA_FILE_COUNT) {
+//      if (mediaFileRepository.countByPost(postId, ContentType.ANSWER) + files.size() > MAX_MEDIA_FILE_COUNT) { //2024.11.22: SUH :첨부파일 개수 초과 로직 오류로 주석처리
+        if (files.size() > MAX_MEDIA_FILE_COUNT) {
+          log.error("첨부파일 개수가 초과하였습니다. 현재 : {} , 최대 업로드할수있는 첨부파일 개수 : {}", files.size(), MAX_MEDIA_FILE_COUNT);
         throw new CustomException(ErrorCode.MEDIA_FILE_LIMIT_EXCEEDED);
       }
     } else {
+      log.error("uploadMediaFiles : 게시글 존재 여부 판단 하는 도중 오류 발생 : postId = {}", postId);
       throw new CustomException(ErrorCode.INVALID_REQUEST);
     }
 
+    // 각 첨푸파일 처리
     for (MultipartFile file : files) {
       String mimeType = file.getContentType();
+
       // 첨부파일이 이미지 파일이 아닌 경우
       if (mimeType == null || !MimeType.isValidImageMimeType(mimeType)) {
         throw new CustomException(ErrorCode.INVALID_FILE_FORMAT);

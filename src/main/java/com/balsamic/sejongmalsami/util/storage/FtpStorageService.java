@@ -2,10 +2,12 @@ package com.balsamic.sejongmalsami.util.storage;
 
 import com.balsamic.sejongmalsami.object.constants.ContentType;
 import com.balsamic.sejongmalsami.util.FileUtil;
+import com.balsamic.sejongmalsami.util.ImageThumbnailGenerator;
 import com.balsamic.sejongmalsami.util.config.FtpConfig;
 import com.balsamic.sejongmalsami.util.exception.CustomException;
 import com.balsamic.sejongmalsami.util.exception.ErrorCode;
 import com.balsamic.sejongmalsami.util.log.LogMonitoringInvocation;
+import java.io.ByteArrayInputStream;
 import java.io.InputStream;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -26,20 +28,21 @@ public class FtpStorageService implements StorageService {
 
   private final GenericObjectPool<FTPClient> ftpClientPool;
   private final FtpConfig ftpConfig;
+  private final ImageThumbnailGenerator imageThumbnailGenerator;
 
   // 파일 Path 반환
   @Override
   @LogMonitoringInvocation
-  public String uploadFile(ContentType contentType, MultipartFile file) {
-    String uploadFileName = FileUtil.generateFileName(contentType, file.getOriginalFilename());
+  public String uploadFile(ContentType contentType, MultipartFile multipartFile) {
+    String uploadFileName = FileUtil.generateFileName(contentType, multipartFile.getOriginalFilename());
     String remoteFilePath = getPath(contentType) + "/" + uploadFileName;
 
-    log.info("FTP 파일 업로드 시작: {} -> {}", file.getOriginalFilename(), remoteFilePath);
+    log.info("FTP 파일 업로드 시작: {} -> {}", multipartFile.getOriginalFilename(), remoteFilePath);
 
     FTPClient ftpClient = null;
     try {
       ftpClient = ftpClientPool.borrowObject();
-      try (InputStream inputStream = file.getInputStream()) {
+      try (InputStream inputStream = multipartFile.getInputStream()) {
         boolean success = ftpClient.storeFile(remoteFilePath, inputStream);
         if (success) {
           log.info("FTP 파일 업로드 성공: {}", remoteFilePath);
@@ -66,19 +69,22 @@ public class FtpStorageService implements StorageService {
   // 썸네일 URL 반환
   @Override
   @LogMonitoringInvocation
-  public String uploadThumbnail(ContentType contentType, MultipartFile file) {
+  public String uploadThumbnail(ContentType contentType, MultipartFile multipartFile) {
     // 파일명 생성
-    String uploadFileName = FileUtil.generateFileName(contentType, file.getOriginalFilename());
+    String uploadFileName = FileUtil.generateFileName(contentType, multipartFile.getOriginalFilename());
 
     // contentType에 대한 업로드할 경로 지정 ->  contentType.THUMBNAIL
     String remoteFilePath = ftpConfig.getThumbnailPath() + "/" + uploadFileName;
 
-    log.info("FTP 썸네일 업로드 시작: {} -> {}", file.getOriginalFilename(), remoteFilePath);
+    log.info("FTP 썸네일 업로드 시작: {} -> {}", multipartFile.getOriginalFilename(), remoteFilePath);
 
     FTPClient ftpClient = null;
     try {
+      // 썸네일 변환
+      byte[] generatedImageBytes = imageThumbnailGenerator.generateImageThumbnail(multipartFile);
+
       ftpClient = ftpClientPool.borrowObject();
-      try (InputStream inputStream = file.getInputStream()) {
+      try (InputStream inputStream = new ByteArrayInputStream(generatedImageBytes)) {
         // 썸네일 path 에 도입
         boolean success = ftpClient.storeFile(remoteFilePath, inputStream);
         if (success) {

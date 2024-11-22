@@ -27,8 +27,6 @@ import com.balsamic.sejongmalsami.util.exception.ErrorCode;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
-import java.util.Locale;
-import java.util.stream.Collectors;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
@@ -55,10 +53,6 @@ public class QuestionPostService {
   private final ExpService expService;
   private final AnswerPostRepository answerPostRepository;
   private final QuestionPostCustomTagRepository questionPostCustomTagRepository;
-  private final QuestionPostCustomTagRepository questionPostCustomTagRepository;
-
-  //FIXME: 임시 사용 : MOCK CUSTOM TAGS 생성
-  private final Faker faker = new Faker(new Locale("ko"));
 
   /**
    * <h3>질문 글 등록 로직</h3>
@@ -164,7 +158,7 @@ public class QuestionPostService {
     if (command.getMediaFiles() != null && !command.getMediaFiles().isEmpty()) {
       mediaFiles = mediaFileService.uploadMediaFiles(savedPost.getQuestionPostId(), command.getMediaFiles());
       if (!mediaFiles.isEmpty()) {
-        questionPost.addThumbnailUrl(mediaFiles.get(0).getFileUrl());
+        questionPost.addThumbnailUrl(mediaFiles.get(0).getThumbnailUrl());
         thumbnailUrl = mediaFiles.get(0).getFilePath();
         savedPost.setThumbnailUrl(thumbnailUrl);
       }

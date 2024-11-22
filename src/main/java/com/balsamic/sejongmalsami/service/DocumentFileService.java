@@ -10,11 +10,12 @@ import com.balsamic.sejongmalsami.repository.postgres.DocumentFileRepository;
 import com.balsamic.sejongmalsami.repository.postgres.DocumentPostRepository;
 import com.balsamic.sejongmalsami.util.FileUtil;
 import com.balsamic.sejongmalsami.util.ImageThumbnailGenerator;
-import com.balsamic.sejongmalsami.util.storage.StorageService;
+import com.balsamic.sejongmalsami.util.MultipartFileAdapter;
 import com.balsamic.sejongmalsami.util.TimeUtil;
 import com.balsamic.sejongmalsami.util.config.FtpConfig;
 import com.balsamic.sejongmalsami.util.exception.CustomException;
 import com.balsamic.sejongmalsami.util.exception.ErrorCode;
+import com.balsamic.sejongmalsami.util.storage.StorageService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Qualifier;
@@ -56,6 +57,7 @@ public class DocumentFileService {
     // 파일 업로드
     String fileUrl = storageService.uploadFile(ContentType.DOCUMENT, file); // MEDIA 경로에 업로드
 
+    // 자료 게시글 검증
     DocumentPost documentPost = documentPostRepository.findById(command.getDocumentPostId())
         .orElseThrow(() -> new CustomException(ErrorCode.DOCUMENT_POST_NOT_FOUND));
 
@@ -167,10 +169,14 @@ public class DocumentFileService {
       return "";
     }
 
-    // 썸네일 파일 생성 (MultipartFileAdapter 사용)
-    MultipartFile thumbnailFile = new ImageThumbnailGenerator.MultipartFileAdapter(
-        generateThumbnailFileName(contentType, file.getOriginalFilename()),
-        thumbnailBytes
+    // MultipartFile 생성
+    String thumbnailFileName = generateThumbnailFileName(contentType, file.getOriginalFilename());
+    MimeType thumbnailMimeType = imageThumbnailGenerator.getOutputThumbnailMimeType();
+    MultipartFile thumbnailFile = new MultipartFileAdapter(
+        "thumbnail",                // 필드 이름
+        thumbnailFileName,                // 파일 이름
+        thumbnailMimeType.getMimeType(),  // MIME 타입
+        thumbnailBytes                    // 파일 내용
     );
 
     // 썸네일 업로드
@@ -194,7 +200,7 @@ public class DocumentFileService {
       case MUSIC:
         return ftpConfig.getDefaultMusicThumbnailUrl();
       default:
-        return ""; // 필요 시 기본값 설정
+        return ""; // 빈 URL 설정 (프론트가 해주시겠지)
     }
   }
 

@@ -1,5 +1,6 @@
 package com.balsamic.sejongmalsami.util;
 
+import com.balsamic.sejongmalsami.object.constants.ImageQuality;
 import com.balsamic.sejongmalsami.object.constants.MimeType;
 import com.balsamic.sejongmalsami.object.constants.SystemType;
 import com.balsamic.sejongmalsami.util.exception.CustomException;
@@ -33,7 +34,7 @@ import org.springframework.web.multipart.MultipartFile;
 @RequiredArgsConstructor
 public class ImageThumbnailGenerator {
 
-  public static final int DEFAULT_WIDTH = 600; // 해상도 향상을 위해 크기 증가
+  public static final int DEFAULT_WIDTH = 600;
   public static final int DEFAULT_HEIGHT = 600;
 
   private final String outputThumbnailFormat; // JPG, WEBP
@@ -47,7 +48,7 @@ public class ImageThumbnailGenerator {
     log.info("선택된 썸네일 이미지 형식: {}", outputThumbnailFormat);
   }
 
-  private boolean isWebPSupported() {
+  public boolean isWebPSupported() {
     SystemType os = FileUtil.getCurrentSystem();
     if (os == SystemType.WINDOWS || os == SystemType.LINUX) {
       return true;
@@ -57,6 +58,75 @@ public class ImageThumbnailGenerator {
     }
     log.warn("알 수 없는 운영체제입니다. 기본 출력 형식을 'jpg'로 설정합니다.");
     return false;
+  }
+
+  /**
+   * 출력 형식에 따른 MimeType 반환
+   */
+  public MimeType getOutputThumbnailMimeType() {
+    switch (outputThumbnailFormat.toLowerCase()) {
+      case "jpg":
+      case "jpeg":
+        return MimeType.JPEG;
+      case "webp":
+        return MimeType.WEBP;
+      case "png":
+        return MimeType.PNG;
+      case "gif":
+        return MimeType.GIF;
+      case "bmp":
+        return MimeType.BMP;
+      case "tiff":
+        return MimeType.TIFF;
+      case "svg":
+        return MimeType.SVG;
+      default:
+        throw new CustomException(ErrorCode.INVALID_FILE_FORMAT);
+    }
+  }
+
+  /**
+   * 이미지 압축 저장 URL 생성
+   * 각 품질 수준 : scale, outputQuality 값 동적 주입
+   */
+  public byte[] generateImageCompress(MultipartFile file, ImageQuality imageQuality) {
+    log.info("이미지 압축 생성 시작: {}, 품질: {}", file.getOriginalFilename(), imageQuality.name());
+
+    String mimeType = file.getContentType();
+    if (mimeType == null || !MimeType.isValidImageMimeType(mimeType)) {
+      log.warn("지원되지 않는 이미지 MIME 타입: {}", mimeType);
+      throw new CustomException(ErrorCode.INVALID_FILE_FORMAT);
+    }
+
+    // WebP 포맷인 경우 처리
+    if (mimeType.equalsIgnoreCase(MimeType.WEBP.getMimeType())) {
+      log.info("WebP 형식의 이미지입니다. 압축 생성을 건너뜁니다: {}", file.getOriginalFilename());
+      try {
+        return file.getBytes();
+      } catch (IOException e) {
+        log.error("WebP 이미지 파일 읽기 중 오류 발생: {}", e.getMessage());
+        throw new CustomException(ErrorCode.THUMBNAIL_CREATION_ERROR);
+      }
+    }
+
+    // 운영체제에 따라 출력 형식 결정
+    String targetFormat = isWebPSupported() ? "webp" : "jpg";
+    log.info("운영체제에 따라 변환할 포맷 결정: {}", targetFormat);
+
+    ByteArrayOutputStream compressedOutputStream = new ByteArrayOutputStream();
+    try {
+      Thumbnails.of(file.getInputStream())
+          .scale(imageQuality.getScale())
+          .outputFormat(targetFormat) // OS별 포맷 적용
+          .outputQuality(imageQuality.getOutputQuality())
+          .allowOverwrite(true)
+          .toOutputStream(compressedOutputStream);
+      log.info("이미지 압축 생성 완료: {}, 품질: {}", file.getOriginalFilename(), imageQuality.name());
+    } catch (Exception e) {
+      log.error("이미지 압축 생성 중 오류 발생: {}", e.getMessage(), e);
+      throw new CustomException(ErrorCode.THUMBNAIL_CREATION_ERROR);
+    }
+    return compressedOutputStream.toByteArray();
   }
 
   /**
@@ -86,7 +156,7 @@ public class ImageThumbnailGenerator {
       Thumbnails.of(file.getInputStream())
           .size(DEFAULT_WIDTH, DEFAULT_HEIGHT)
           .outputFormat(outputThumbnailFormat)
-          .outputQuality(1.0) // 화질을 최대로 설정
+          .outputQuality(1)
           .allowOverwrite(true)
           .toOutputStream(thumbnailOutputStream);
       log.info("이미지 썸네일 생성 완료: {}", file.getOriginalFilename());
@@ -96,6 +166,7 @@ public class ImageThumbnailGenerator {
     }
     return thumbnailOutputStream.toByteArray();
   }
+
 
   /**
    * 문서 썸네일 생성
@@ -312,59 +383,5 @@ public class ImageThumbnailGenerator {
 
     log.info("이미지 크기 조정: originalWidth={}, originalHeight={}, newWidth={}, newHeight={}", originalWidth, originalHeight, newWidth, newHeight);
     return new int[]{newWidth, newHeight};
-  }
-
-  /**
-   * MultipartFile을 byte 배열로 감싸는 어댑터 클래스
-   * (썸네일 생성 후 업로드를 위해 사용)
-   */
-  public static class MultipartFileAdapter implements MultipartFile {
-    private final String fileName;
-    private final byte[] content;
-
-    public MultipartFileAdapter(String fileName, byte[] content) {
-      this.fileName = fileName;
-      this.content = content;
-    }
-
-    @Override
-    public String getName() {
-      return fileName;
-    }
-
-    @Override
-    public String getOriginalFilename() {
-      return fileName;
-    }
-
-    @Override
-    public String getContentType() {
-      return "image/jpeg"; // 썸네일 형식에 맞게 변경 가능
-    }
-
-    @Override
-    public boolean isEmpty() {
-      return content == null || content.length == 0;
-    }
-
-    @Override
-    public long getSize() {
-      return content.length;
-    }
-
-    @Override
-    public byte[] getBytes() throws IOException {
-      return content;
-    }
-
-    @Override
-    public InputStream getInputStream() throws IOException {
-      return new java.io.ByteArrayInputStream(content);
-    }
-
-    @Override
-    public void transferTo(java.io.File dest) throws IOException, IllegalStateException {
-      throw new UnsupportedOperationException("transferTo는 지원되지 않습니다.");
-    }
   }
 }
