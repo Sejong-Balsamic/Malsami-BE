@@ -36,6 +36,7 @@ public class DocumentCommand {
   private String subject; // 자료
   private Faculty faculty; // 자료 요청
   private List<DocumentType> documentTypes; // 자료, 자료 요청
+  private List<MultipartFile> attachmentFiles = new ArrayList<>(); // 첨부된 파일들
   private Boolean isDepartmentPrivate; // 자료
   private Boolean isPrivate; // 자료 요청
 
@@ -50,12 +51,4 @@ public class DocumentCommand {
   private ReactionType reactionType; // 글 좋아요/싫어요
   private SortType sortType; // 최신순, 좋아요순
   private PostTier postTier;
-
-
-  private List<MultipartFile> attachmentFiles = new ArrayList<>(); // 첨부된 파일들
-
-  private List<MultipartFile> documentFiles = new ArrayList<>();
-  private List<MultipartFile> imageFiles = new ArrayList<>();
-  private List<MultipartFile> videoFiles = new ArrayList<>();
-  private List<MultipartFile> musicFiles = new ArrayList<>();
 }

@@ -156,7 +156,7 @@ public class QuestionPostService {
     processAndSaveMediaFiles(
         ContentType.QUESTION,
         savedQuestionPost.getQuestionPostId(),
-        command.getMediaFiles(),
+        command.getAttachmentFiles(),
         savedMediaFiles);
 
     // QuestionPost 에 썸네일 지정 : 저장된 사진 중 첫번째 사진
@@ -204,7 +204,7 @@ public class QuestionPostService {
     questionPostRepository.save(questionPost);
 
     // 답변 조회 (없으면 null 반환)
-    List<AnswerPost> answerPost = answerPostRepository
+    List<AnswerPost> answerPosts = answerPostRepository
         .findAllByQuestionPost(questionPost).orElse(null);
 
     // 커스텀 태그 조회 (없으면 null 반환)
@@ -218,7 +218,7 @@ public class QuestionPostService {
 
     return QuestionDto.builder()
         .questionPost(questionPost)
-        .answerPosts(answerPost)
+        .answerPosts(answerPosts)
         .customTags(customTags)
         .build();
   }

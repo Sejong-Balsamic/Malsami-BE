@@ -68,9 +68,9 @@ public class AnswerPostService {
 
     // 첨부파일 추가
     List<MediaFile> mediaFiles = null;
-    if (command.getMediaFiles() != null) {
+    if (command.getAttachmentFiles() != null) {
       mediaFiles = mediaFileService
-          .uploadMediaFiles(answerPost.getAnswerPostId(), command.getMediaFiles());
+          .uploadMediaFiles(answerPost.getAnswerPostId(), command.getAttachmentFiles());
     }
 
     // 답변이 작성된 질문 글 답변 수 증가
