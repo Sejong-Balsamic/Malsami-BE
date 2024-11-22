@@ -27,7 +27,6 @@ import com.balsamic.sejongmalsami.util.exception.CustomException;
 import com.balsamic.sejongmalsami.util.exception.ErrorCode;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.UUID;
 import java.util.stream.Collectors;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -38,7 +37,6 @@ import org.springframework.data.domain.Sort;
 import org.springframework.data.domain.Sort.Direction;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import org.springframework.web.multipart.MultipartFile;
 
 @Service
 @Slf4j
@@ -88,7 +86,7 @@ public class QuestionPostService {
     // {질문글 등록 시 소모엽전 + 엽전 현상금} 보다 보유 엽전량이 적을 시 오류 발생
     Yeopjeon yeopjeon = yeopjeonService.findMemberYeopjeon(member);
     if (yeopjeon.getYeopjeon() < command.getRewardYeopjeon()
-                                 + -yeopjeonCalculator.calculateYeopjeon(YeopjeonAction.CREATE_QUESTION_POST)) {
+        + -yeopjeonCalculator.calculateYeopjeon(YeopjeonAction.CREATE_QUESTION_POST)) {
       log.error("사용자: {} 의 엽전이 부족합니다.", member.getStudentId());
       log.error("현재 보유 엽전량: {}, 질문글 등록시 필요 엽전량: {}, 엽전 현상금 설정량: {}",
           yeopjeon.getYeopjeon(),
@@ -149,15 +147,11 @@ public class QuestionPostService {
           .saveCustomTags(command.getCustomTagSet(), savedQuestionPost.getQuestionPostId());
     }
 
-    // 저장된 미디어파일 리스트
-    List<MediaFile> savedMediaFiles = new ArrayList<>();
-
-    // 첨부파일 파일 업로드 및 썸네일 저장
-    processAndSaveMediaFiles(
+    // 첨부파일 파일 업로드 및 썸네일 저장 -> 저장된 미디어파일 리스트 반환
+    List<MediaFile> savedMediaFiles = mediaFileService.handleMediaFiles(
         ContentType.QUESTION,
         savedQuestionPost.getQuestionPostId(),
-        command.getAttachmentFiles(),
-        savedMediaFiles);
+        command.getAttachmentFiles());
 
     // QuestionPost 에 썸네일 지정 : 저장된 사진 중 첫번째 사진
     String thumbnailUrl = savedMediaFiles.get(0).getThumbnailUrl();
@@ -348,50 +342,5 @@ public class QuestionPostService {
   public void deleteQuestion(QuestionCommand command) {
   }
 
-  /**
-   * 첨부 파일 처리, 업로드, 저장
-   */
-  @Transactional
-  public void processAndSaveMediaFiles(
-      ContentType contentType,
-      UUID postId,
-      List<MultipartFile> attachmentFiles,
-      List<MediaFile> savedMediaFiles) {
-    // 첨부파일 리스트에 첨부된 파일이 없을 때
-    if (attachmentFiles == null || attachmentFiles.isEmpty()) {
-      log.info("첨부된 파일이 없습니다.");
-      return;
-    }
 
-    // 첨부파일 리스트에서 파일 순회
-    for (MultipartFile file : attachmentFiles) {
-      try {
-        String mimeType = file.getContentType();
-
-        // MIMETYPE 검증
-        if (mimeType == null) {
-          log.error("파일의 MIME 타입을 확인할 수 없습니다: {}", file.getOriginalFilename());
-          throw new CustomException(ErrorCode.INVALID_FILE_FORMAT);
-        }
-
-        // 파일 유효성 검사
-        mediaFileService.validateFile(file);
-
-        // 파일 저장
-        MediaFile savedMediaFile = mediaFileService.saveFile(contentType, postId, file);
-
-        // 저장된 미디어파일 리스트에 추가
-        savedMediaFiles.add(savedMediaFile);
-
-        log.info("파일 저장 완료: 업로드 파일명={}", savedMediaFile.getOriginalFileName());
-
-      } catch (CustomException e) {
-        log.error("파일 처리 중 오류 발생: {}", e.getMessage());
-        throw e; // 트랜잭션 롤백을 위해 예외 다시 던지기
-      } catch (Exception e) {
-        log.error("파일 처리 중 예상치 못한 오류 발생: {}", e.getMessage());
-        throw new CustomException(ErrorCode.INTERNAL_SERVER_ERROR);
-      }
-    }
-  }
 }

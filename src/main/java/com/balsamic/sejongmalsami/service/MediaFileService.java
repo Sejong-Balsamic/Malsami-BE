@@ -55,6 +55,56 @@ public class MediaFileService {
   private static final int MAX_BASIC_UPLOAD_SIZE = 50;    // 이미지, 문서 등
   private static final int MAX_VIDEO_UPLOAD_SIZE = 200;   // 비디오
 
+  /**
+   * Main 메소드 : 첨부 파일 처리, 업로드, 저장
+   */
+  @Transactional
+  public List<MediaFile> handleMediaFiles(
+      ContentType contentType,
+      UUID postId,
+      List<MultipartFile> attachmentFiles) {
+
+    // MediaFile 저장할 리스트 초기화
+    List<MediaFile> savedMediaFiles = new ArrayList<>();
+
+    // 첨부파일 리스트에 첨부된 파일이 없을 때
+    if (attachmentFiles == null || attachmentFiles.isEmpty()) {
+      log.info("첨부된 파일이 없습니다.");
+      return savedMediaFiles; // 빈리스트 반환
+    }
+
+    // 첨부파일 리스트에서 파일 순회
+    for (MultipartFile multipartFile : attachmentFiles) {
+      try {
+        String mimeType = multipartFile.getContentType();
+
+        // MIMETYPE 검증
+        if (mimeType == null) {
+          log.error("파일의 MIME 타입을 확인할 수 없습니다: {}", multipartFile.getOriginalFilename());
+          throw new CustomException(ErrorCode.INVALID_FILE_FORMAT);
+        }
+
+        // 파일 유효성 검사
+        validateFile(multipartFile);
+
+        // 파일 저장
+        MediaFile savedMediaFile = saveFile(contentType, postId, multipartFile);
+
+        // 저장된 미디어파일 리스트에 추가
+        savedMediaFiles.add(savedMediaFile);
+
+        log.info("파일 저장 완료: 업로드 파일명={}", savedMediaFile.getOriginalFileName());
+      } catch (CustomException e) {
+        log.error("파일 처리 중 오류 발생: {}", e.getMessage());
+        throw e; // 트랜잭션 롤백을 위해 예외 다시 던지기
+      } catch (Exception e) {
+        log.error("파일 처리 중 예상치 못한 오류 발생: {}", e.getMessage());
+        throw new CustomException(ErrorCode.INTERNAL_SERVER_ERROR);
+      }
+    }
+    return savedMediaFiles;
+  }
+
   @Transactional
   public MediaFile saveFile(
       ContentType contentType,
