@@ -26,6 +26,6 @@ public interface DocumentRequestPostRepository extends JpaRepository<DocumentReq
   Page<DocumentRequestPost> findFilteredDocumentRequestPost(
       @Param("subject") String subject,
       @Param("faculty") Faculty faculty,
-      @Param("documentType") List<DocumentType> documentTypes,
+      @Param("documentTypes") List<DocumentType> documentTypes,
       Pageable pageable);
 }
