@@ -11,7 +11,6 @@ import com.balsamic.sejongmalsami.repository.postgres.DocumentPostRepository;
 import com.balsamic.sejongmalsami.util.FileUtil;
 import com.balsamic.sejongmalsami.util.ImageThumbnailGenerator;
 import com.balsamic.sejongmalsami.util.MultipartFileAdapter;
-import com.balsamic.sejongmalsami.util.TimeUtil;
 import com.balsamic.sejongmalsami.util.config.FtpConfig;
 import com.balsamic.sejongmalsami.util.exception.CustomException;
 import com.balsamic.sejongmalsami.util.exception.ErrorCode;
@@ -71,7 +70,7 @@ public class DocumentFileService {
         .uploader(command.getMember())
         .thumbnailUrl(thumbnailUrl)
         .originalFileName(file.getOriginalFilename())
-        .uploadFileName(FileUtil.extractFileName(filePath))
+        .uploadedFileName(FileUtil.extractFileName(filePath))
         .fileSize(file.getSize())
         .mimeType(MimeType.fromString(file.getContentType()))
         .downloadCount(0L)
@@ -79,7 +78,7 @@ public class DocumentFileService {
         .isInitialPasswordSet(false)
         .filePath(filePath)
         .build());
-    log.info("DocumentFile 저장완료 : ID : {} ,업로드 파일명={}", savedDocumentFile.getDocumentFileId(), savedDocumentFile.getUploadFileName());
+    log.info("DocumentFile 저장완료 : ID : {} ,업로드 파일명={}", savedDocumentFile.getDocumentFileId(), savedDocumentFile.getUploadedFileName());
     return savedDocumentFile;
   }
 
@@ -166,7 +165,7 @@ public class DocumentFileService {
             ContentType.THUMBNAIL,
             new MultipartFileAdapter(
                 "thumbnail",
-                generateThumbnailFileName(contentType, file.getOriginalFilename()),
+                imageThumbnailGenerator.generateThumbnailFileName(contentType, file.getOriginalFilename()),
                 MimeType.WEBP.getMimeType(),
                 file.getBytes()
             )
@@ -190,7 +189,7 @@ public class DocumentFileService {
     }
 
     // 생성된 썸네일 파일 업로드
-    String thumbnailFileName = generateThumbnailFileName(contentType, file.getOriginalFilename());
+    String thumbnailFileName = imageThumbnailGenerator.generateThumbnailFileName(contentType, file.getOriginalFilename());
     MimeType thumbnailMimeType = imageThumbnailGenerator.getOutputThumbnailMimeType();
     MultipartFile thumbnailFile = new MultipartFileAdapter(
         "thumbnail",
@@ -222,19 +221,5 @@ public class DocumentFileService {
       default:
         return ""; // 빈 URL 설정 (프론트가 해주시겠지)
     }
-  }
-
-  /**
-   * 썸네일 파일명 생성
-   *
-   * @param contentType      ContentType
-   * @param originalFileName 원본 파일명
-   * @return 생성된 썸네일 파일명
-   */
-  private String generateThumbnailFileName(ContentType contentType, String originalFileName) {
-    String curTimeStr = TimeUtil.formatLocalDateTimeNowForFileName();
-    String baseName = FileUtil.getBaseName(originalFileName);
-    String thumbnailExtension = "jpg"; // 또는 실제 썸네일 생성 시 사용한 형식
-    return String.format("%s_%s_%s.%s", baseName, curTimeStr, "thumbnail", thumbnailExtension);
   }
 }

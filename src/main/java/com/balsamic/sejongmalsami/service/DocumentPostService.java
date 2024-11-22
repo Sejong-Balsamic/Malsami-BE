@@ -272,7 +272,7 @@ public class DocumentPostService {
         DocumentFile savedFile = documentFileService.saveFile(command, uploadType, file);
         savedDocumentFiles.add(savedFile);
 
-        log.info("파일 저장 완료: 업로드 파일명={}", savedFile.getUploadFileName());
+        log.info("파일 저장 완료: 업로드 파일명={}", savedFile.getUploadedFileName());
 
       } catch (CustomException e) {
         log.error("파일 처리 중 오류 발생: {}", e.getMessage());

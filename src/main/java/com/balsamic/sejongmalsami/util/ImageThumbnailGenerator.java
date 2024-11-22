@@ -1,5 +1,6 @@
 package com.balsamic.sejongmalsami.util;
 
+import com.balsamic.sejongmalsami.object.constants.ContentType;
 import com.balsamic.sejongmalsami.object.constants.ImageQuality;
 import com.balsamic.sejongmalsami.object.constants.MimeType;
 import com.balsamic.sejongmalsami.object.constants.SystemType;
@@ -386,5 +387,20 @@ public class ImageThumbnailGenerator {
 
     log.info("이미지 크기 조정: originalWidth={}, originalHeight={}, newWidth={}, newHeight={}", originalWidth, originalHeight, newWidth, newHeight);
     return new int[]{newWidth, newHeight};
+  }
+
+  /**
+   * 썸네일 파일명 생성
+   *
+   * @param contentType      ContentType
+   * @param originalFileName 원본 파일명
+   * @return 생성된 썸네일 파일명
+   */
+  public String generateThumbnailFileName(ContentType contentType, String originalFileName) {
+    String curTimeStr = TimeUtil.formatLocalDateTimeNowForFileName();
+    String baseName = FileUtil.getBaseName(originalFileName);
+    // 출력 형식에 따라 동적으로 확장자 결정
+    String thumbnailExtension = getOutputThumbnailMimeType().getMimeType().split("/")[1];
+    return String.format("%s_%s_%s.%s", baseName, curTimeStr, "thumbnail", thumbnailExtension);
   }
 }

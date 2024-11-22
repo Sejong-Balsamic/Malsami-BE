@@ -342,7 +342,7 @@ public class TestDataGenerator {
         .uploader(uploader)
         .thumbnailUrl(faker.internet().image()) // 썸네일 URL
         .originalFileName(faker.file().fileName()) // 원본 파일 이름
-        .uploadFileName(faker.file().fileName()) // 업로드된 파일 이름
+        .uploadedFileName(faker.file().fileName()) // 업로드된 파일 이름
         .fileSize((long) faker.number().numberBetween(1000, 100000)) // 파일 크기
         .mimeType(faker.options().option(AAC, PDF, DOCX, MP3, JPG, XLSX)) // MIME 타입
         .downloadCount((long) faker.number().numberBetween(0, 300)) // 다운로드 수

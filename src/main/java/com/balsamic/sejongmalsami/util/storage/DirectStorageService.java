@@ -51,6 +51,12 @@ public class DirectStorageService implements StorageService {
   }
 
   @Override
+  public String uploadImage(ContentType contentType, MultipartFile file) {
+    //TODO: 미구현
+    return "미구현";
+  }
+
+  @Override
   public void deleteFile(ContentType contentType, String fileUrl) {
     String fileName = extractFileName(fileUrl);
     String path = getPath(contentType);

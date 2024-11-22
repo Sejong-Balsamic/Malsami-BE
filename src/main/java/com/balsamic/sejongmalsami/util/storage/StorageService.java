@@ -18,11 +18,19 @@ public interface StorageService {
 
   /**
    * 썸네일을 업로드하고 파일 URL을 반환합니다.
-   *
-   * @param file 업로드할 썸네일 파일
+   * * @param file 업로드할 썸네일 파일
    * @return 업로드된 썸네일의 URL
    */
   String uploadThumbnail(ContentType contentType, MultipartFile file);
+
+  /**
+   * 이미지 업로드하고 접근가능한 URL 반환
+   *
+   * @param file 업로드할 이미지 파일
+   * @return 업로드된 이미지의 URL
+   */
+  String uploadImage(ContentType contentType, MultipartFile file);
+
 
   /**
    * 파일을 삭제합니다.

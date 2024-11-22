@@ -35,8 +35,14 @@ public class MediaFile extends BaseEntity {
   // 파일 원본명
   private String originalFileName;
 
+  // 업로드된 파일명
+  private String uploadedFileName;
+
   // 썸네일 URL
   private String thumbnailUrl;
+
+  // 압축된 이미지 URL (화질좋음)
+  private String uploadedImageUrl;
 
   // 파일 경로
   private String filePath;

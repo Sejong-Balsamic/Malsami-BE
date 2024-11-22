@@ -48,31 +48,32 @@ public class FtpConfig {
   @Value("${ftp.path.courses}")
   private String coursesPath;
 
-  // DEV
+  // DEV FILE 업로드
 
-  @Value("${ftp.path-dev.document}")
-  private String documentDevPath;
+  @Value("${ftp.path-file-dev.document}")
+  private String documentFileDevPath;
 
-  @Value("${ftp.path-dev.question}")
-  private String questionDevPath;
+  @Value("${ftp.path-file-dev.question}")
+  private String questionFileDevPath;
 
-  @Value("${ftp.path-dev.answer}")
-  private String answerDevPath;
+  @Value("${ftp.path-file-dev.answer}")
+  private String answerFileDevPath;
 
-  @Value("${ftp.path-dev.notice}")
-  private String noticeDevPath;
+  @Value("${ftp.path-file-dev.notice}")
+  private String noticeFileDevPath;
 
-  @Value("${ftp.path-dev.comment}")
-  private String commentDevPath;
+  @Value("${ftp.path-file-dev.comment}")
+  private String commentFileDevPath;
 
-  @Value("${ftp.path-dev.document-request}")
-  private String documentRequestDevPath;
+  @Value("${ftp.path-file-dev.document-request}")
+  private String documentRequestFileDevPath;
 
-  @Value("${ftp.path-dev.thumbnail}")
-  private String thumbnailDevPath;
+  @Value("${ftp.path-file-dev.thumbnail}")
+  private String thumbnailFileDevPath;
 
-  @Value("${ftp.path-dev.courses}")
-  private String coursesDevPath;
+  @Value("${ftp.path-file-dev.courses}")
+  private String coursesFileDevPath;
+
 
   // 썸네일 URL
 
@@ -90,4 +91,33 @@ public class FtpConfig {
 
   @Value("${ftp.thumbnail-url.default-music}")
   private String defaultMusicThumbnailUrl;
+
+  // WEB 이미지 업로드
+
+  @Value("${ftp.path-web-dev.document}")
+  private String documentWebDevPath;
+
+  @Value("${ftp.path-web-dev.question}")
+  private String questionWebDevPath;
+
+  @Value("${ftp.path-web-dev.answer}")
+  private String answerWebDevPath;
+
+  @Value("${ftp.path-web-dev.notice}")
+  private String noticeWebDevPath;
+
+  @Value("${ftp.path-web-dev.comment}")
+  private String commentWebDevPath;
+
+  @Value("${ftp.path-web-dev.document-request}")
+  private String documentRequestWebDevPath;
+
+  @Value("${ftp.path-web-dev.thumbnail}")
+  private String thumbnailWebDevPath;
+
+  @Value("${ftp.path-web-dev.courses}")
+  private String coursesWebDevPath;
+
+
+
 }

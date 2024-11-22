@@ -56,7 +56,14 @@ public class S3StorageService implements StorageService {
 
   @Override
   public String uploadThumbnail(ContentType contentType, MultipartFile file) {
-    return "";
+    //TODO: 미구현
+    return "미구현";
+  }
+
+  @Override
+  public String uploadImage(ContentType contentType, MultipartFile file) {
+    //TODO: 미구현
+    return "미구현";
   }
 
   @Override

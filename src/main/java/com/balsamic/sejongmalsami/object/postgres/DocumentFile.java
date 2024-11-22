@@ -48,7 +48,7 @@ public class DocumentFile extends BaseEntity {
   private String originalFileName;
 
   // 업로드한 파일 이름
-  private String uploadFileName;
+  private String uploadedFileName;
 
   // 파일 크기
   private Long fileSize;

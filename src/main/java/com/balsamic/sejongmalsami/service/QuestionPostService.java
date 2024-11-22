@@ -3,6 +3,7 @@ package com.balsamic.sejongmalsami.service;
 import com.balsamic.sejongmalsami.object.QuestionCommand;
 import com.balsamic.sejongmalsami.object.QuestionDto;
 import com.balsamic.sejongmalsami.object.constants.ChaetaekStatus;
+import com.balsamic.sejongmalsami.object.constants.ContentType;
 import com.balsamic.sejongmalsami.object.constants.ExpAction;
 import com.balsamic.sejongmalsami.object.constants.Faculty;
 import com.balsamic.sejongmalsami.object.constants.QuestionPresetTag;
@@ -26,6 +27,7 @@ import com.balsamic.sejongmalsami.util.exception.CustomException;
 import com.balsamic.sejongmalsami.util.exception.ErrorCode;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.UUID;
 import java.util.stream.Collectors;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -36,6 +38,7 @@ import org.springframework.data.domain.Sort;
 import org.springframework.data.domain.Sort.Direction;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.multipart.MultipartFile;
 
 @Service
 @Slf4j
@@ -137,33 +140,28 @@ public class QuestionPostService {
       }
     }
 
-    QuestionPost savedPost = questionPostRepository.save(questionPost);
+    QuestionPost savedQuestionPost = questionPostRepository.save(questionPost);
 
     // 커스텀 태그 추가
     List<String> customTags = null;
     if (command.getCustomTagSet() != null) {
       customTags = questionPostCustomTagService
-          .saveCustomTags(command.getCustomTagSet(), savedPost.getQuestionPostId());
+          .saveCustomTags(command.getCustomTagSet(), savedQuestionPost.getQuestionPostId());
     }
 
-    // 첨부파일 추가
-    List<MediaFile> mediaFiles = null;
-    if (command.getMediaFiles() != null) {
-      mediaFiles = mediaFileService.uploadMediaFiles(savedPost.getQuestionPostId(), command.getMediaFiles());
-    }
+    // 저장된 미디어파일 리스트
+    List<MediaFile> savedMediaFiles = new ArrayList<>();
 
-    // 파일 업로드 및 써멘일 저장
-    String thumbnailUrl = "";
+    // 첨부파일 파일 업로드 및 썸네일 저장
+    processAndSaveMediaFiles(
+        ContentType.QUESTION,
+        savedQuestionPost.getQuestionPostId(),
+        command.getMediaFiles(),
+        savedMediaFiles);
 
-    if (command.getMediaFiles() != null && !command.getMediaFiles().isEmpty()) {
-      mediaFiles = mediaFileService.uploadMediaFiles(savedPost.getQuestionPostId(), command.getMediaFiles());
-      if (!mediaFiles.isEmpty()) {
-        questionPost.addThumbnailUrl(mediaFiles.get(0).getThumbnailUrl());
-        thumbnailUrl = mediaFiles.get(0).getFilePath();
-        savedPost.setThumbnailUrl(thumbnailUrl);
-      }
-    }
-
+    // QuestionPost 에 썸네일 지정 : 저장된 사진 중 첫번째 사진
+    String thumbnailUrl = savedMediaFiles.get(0).getThumbnailUrl();
+    questionPost.setThumbnailUrl(thumbnailUrl);
 
     // 질문 글 등록 시 엽전 100냥 감소
     yeopjeonService.updateYeopjeonAndSaveYeopjeonHistory(member, YeopjeonAction.CREATE_QUESTION_POST);
@@ -172,8 +170,8 @@ public class QuestionPostService {
     expService.updateExpAndSaveExpHistory(member, ExpAction.CREATE_QUESTION_POST);
 
     return QuestionDto.builder()
-        .questionPost(savedPost)
-        .mediaFiles(mediaFiles)
+        .questionPost(savedQuestionPost)
+        .mediaFiles(savedMediaFiles)
         .customTags(customTags)
         .build();
   }
@@ -350,7 +348,50 @@ public class QuestionPostService {
   public void deleteQuestion(QuestionCommand command) {
   }
 
-  private QuestionDto convertToDto(QuestionPost entity) {
-    return QuestionDto.builder().build();
+  /**
+   * 첨부 파일 처리, 업로드, 저장
+   */
+  @Transactional
+  public void processAndSaveMediaFiles(
+      ContentType contentType,
+      UUID postId,
+      List<MultipartFile> attachmentFiles,
+      List<MediaFile> savedMediaFiles) {
+    // 첨부파일 리스트에 첨부된 파일이 없을 때
+    if (attachmentFiles == null || attachmentFiles.isEmpty()) {
+      log.info("첨부된 파일이 없습니다.");
+      return;
+    }
+
+    // 첨부파일 리스트에서 파일 순회
+    for (MultipartFile file : attachmentFiles) {
+      try {
+        String mimeType = file.getContentType();
+
+        // MIMETYPE 검증
+        if (mimeType == null) {
+          log.error("파일의 MIME 타입을 확인할 수 없습니다: {}", file.getOriginalFilename());
+          throw new CustomException(ErrorCode.INVALID_FILE_FORMAT);
+        }
+
+        // 파일 유효성 검사
+        mediaFileService.validateFile(file);
+
+        // 파일 저장
+        MediaFile savedMediaFile = mediaFileService.saveFile(contentType, postId, file);
+
+        // 저장된 미디어파일 리스트에 추가
+        savedMediaFiles.add(savedMediaFile);
+
+        log.info("파일 저장 완료: 업로드 파일명={}", savedMediaFile.getOriginalFileName());
+
+      } catch (CustomException e) {
+        log.error("파일 처리 중 오류 발생: {}", e.getMessage());
+        throw e; // 트랜잭션 롤백을 위해 예외 다시 던지기
+      } catch (Exception e) {
+        log.error("파일 처리 중 예상치 못한 오류 발생: {}", e.getMessage());
+        throw new CustomException(ErrorCode.INTERNAL_SERVER_ERROR);
+      }
+    }
   }
 }

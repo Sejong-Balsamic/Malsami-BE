@@ -1,6 +1,7 @@
 package com.balsamic.sejongmalsami.util.storage;
 
 import com.balsamic.sejongmalsami.object.constants.ContentType;
+import com.balsamic.sejongmalsami.object.constants.ImageQuality;
 import com.balsamic.sejongmalsami.util.FileUtil;
 import com.balsamic.sejongmalsami.util.ImageThumbnailGenerator;
 import com.balsamic.sejongmalsami.util.config.FtpConfig;
@@ -35,7 +36,7 @@ public class FtpStorageService implements StorageService {
   @LogMonitoringInvocation
   public String uploadFile(ContentType contentType, MultipartFile multipartFile) {
     String uploadFileName = FileUtil.generateFileName(contentType, multipartFile.getOriginalFilename());
-    String remoteFilePath = getPath(contentType) + "/" + uploadFileName;
+    String remoteFilePath = getFileSavePath(contentType) + "/" + uploadFileName;
 
     log.info("FTP 파일 업로드 시작: {} -> {}", multipartFile.getOriginalFilename(), remoteFilePath);
 
@@ -108,6 +109,45 @@ public class FtpStorageService implements StorageService {
   }
 
   @Override
+  public String uploadImage(ContentType contentType, MultipartFile multipartFile) {
+    // 파일명 생성
+    String uploadFileName = FileUtil.generateFileName(contentType, multipartFile.getOriginalFilename());
+
+    // contentType 에 대한 업로드할 경로 지정
+    String remoteFilePath = getWebSavePath(contentType) + "/" + uploadFileName;
+
+    log.info("FTP 썸네일 업로드 시작: {} -> {}", multipartFile.getOriginalFilename(), remoteFilePath);
+
+    FTPClient ftpClient = null;
+    try {
+      // 이미지 압축 생성
+      byte[] generatedImageBytes = imageThumbnailGenerator.generateImageCompress(multipartFile, ImageQuality.MEDIUM);
+
+      ftpClient = ftpClientPool.borrowObject();
+      try (InputStream inputStream = new ByteArrayInputStream(generatedImageBytes)) {
+        // 썸네일 path 에 도입
+        boolean success = ftpClient.storeFile(remoteFilePath, inputStream);
+        if (success) {
+          log.info("FTP 썸네일 업로드 성공: {}", remoteFilePath);
+          return ftpConfig.getThumbnailBaseUrl() + uploadFileName;
+        } else {
+          String reply = ftpClient.getReplyString();
+          log.error("FTP 썸네일 업로드 실패: {}. 서버 응답: {}", remoteFilePath, reply);
+          throw new CustomException(ErrorCode.FTP_FILE_UPLOAD_ERROR);
+        }
+      }
+    } catch (Exception e) {
+      log.error("FTP 썸네일 업로드 중 예외 발생: {}", e.getMessage(), e);
+      throw new CustomException(ErrorCode.FTP_FILE_UPLOAD_ERROR);
+    } finally {
+      if (ftpClient != null) {
+        ftpClientPool.returnObject(ftpClient);
+        log.debug("FTPClient 반환 완료: {}", ftpClient);
+      }
+    }
+  }
+
+  @Override
   @LogMonitoringInvocation
   public void deleteFile(ContentType contentType, String fileName) {
     String remoteFilePath = switch (contentType) {
@@ -150,16 +190,32 @@ public class FtpStorageService implements StorageService {
     return fileUrl.substring(fileUrl.lastIndexOf("/") + 1);
   }
 
-  private String getPath(ContentType contentType) {
+  // URL 접근 불가능
+  private String getFileSavePath(ContentType contentType) {
     return switch (contentType) {
-      case DOCUMENT -> ftpConfig.getDocumentDevPath();
-      case QUESTION -> ftpConfig.getQuestionDevPath();
-      case ANSWER -> ftpConfig.getAnswerDevPath();
-      case NOTICE -> ftpConfig.getNoticeDevPath();
-      case COMMENT -> ftpConfig.getCommentDevPath();
-      case DOCUMENT_REQUEST -> ftpConfig.getDocumentRequestDevPath();
-      case COURSES -> ftpConfig.getCoursesDevPath();
-      case THUMBNAIL -> ftpConfig.getThumbnailDevPath();
+      case DOCUMENT -> ftpConfig.getDocumentFileDevPath();
+      case QUESTION -> ftpConfig.getQuestionFileDevPath();
+      case ANSWER -> ftpConfig.getAnswerFileDevPath();
+      case NOTICE -> ftpConfig.getNoticeFileDevPath();
+      case COMMENT -> ftpConfig.getCommentFileDevPath();
+      case DOCUMENT_REQUEST -> ftpConfig.getDocumentRequestFileDevPath();
+      case COURSES -> ftpConfig.getCoursesFileDevPath();
+      case THUMBNAIL -> ftpConfig.getThumbnailFileDevPath();
+      default -> throw new CustomException(ErrorCode.INVALID_CONTENT_TYPE);
+    };
+  }
+
+  // URL 접근 가능한 파일들
+  private String getWebSavePath(ContentType contentType) {
+    return switch (contentType) {
+      case DOCUMENT -> ftpConfig.getDocumentWebDevPath();
+      case QUESTION -> ftpConfig.getQuestionWebDevPath();
+      case ANSWER -> ftpConfig.getAnswerWebDevPath();
+      case NOTICE -> ftpConfig.getNoticeWebDevPath();
+      case COMMENT -> ftpConfig.getCommentWebDevPath();
+      case DOCUMENT_REQUEST -> ftpConfig.getDocumentRequestWebDevPath();
+      case COURSES -> ftpConfig.getCoursesWebDevPath();
+      case THUMBNAIL -> ftpConfig.getThumbnailWebDevPath();
       default -> throw new CustomException(ErrorCode.INVALID_CONTENT_TYPE);
     };
   }
