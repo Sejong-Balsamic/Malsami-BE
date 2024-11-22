@@ -1,16 +1,19 @@
 package com.balsamic.sejongmalsami.util;
 
+import com.balsamic.sejongmalsami.object.constants.ContentType;
+import com.balsamic.sejongmalsami.object.constants.ImageQuality;
 import com.balsamic.sejongmalsami.object.constants.MimeType;
 import com.balsamic.sejongmalsami.object.constants.SystemType;
 import com.balsamic.sejongmalsami.util.exception.CustomException;
 import com.balsamic.sejongmalsami.util.exception.ErrorCode;
 import java.awt.Dimension;
+import java.awt.Font;
 import java.awt.Graphics2D;
+import java.awt.RenderingHints;
 import java.awt.image.BufferedImage;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
-import java.util.Objects;
 import javax.imageio.ImageIO;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
@@ -32,8 +35,8 @@ import org.springframework.web.multipart.MultipartFile;
 @RequiredArgsConstructor
 public class ImageThumbnailGenerator {
 
-  public static final int DEFAULT_WIDTH = 300;
-  public static final int DEFAULT_HEIGHT = 300;
+  public static final int DEFAULT_WIDTH = 600;
+  public static final int DEFAULT_HEIGHT = 600;
 
   private final String outputThumbnailFormat; // JPG, WEBP
 
@@ -46,7 +49,7 @@ public class ImageThumbnailGenerator {
     log.info("선택된 썸네일 이미지 형식: {}", outputThumbnailFormat);
   }
 
-  private boolean isWebPSupported() {
+  public boolean isWebPSupported() {
     SystemType os = FileUtil.getCurrentSystem();
     if (os == SystemType.WINDOWS || os == SystemType.LINUX) {
       return true;
@@ -59,15 +62,91 @@ public class ImageThumbnailGenerator {
   }
 
   /**
+   * 출력 형식에 따른 MimeType 반환
+   */
+  public MimeType getOutputThumbnailMimeType() {
+    switch (outputThumbnailFormat.toLowerCase()) {
+      case "jpg":
+      case "jpeg":
+        return MimeType.JPEG;
+      case "webp":
+        return MimeType.WEBP;
+      case "png":
+        return MimeType.PNG;
+      case "gif":
+        return MimeType.GIF;
+      case "bmp":
+        return MimeType.BMP;
+      case "tiff":
+        return MimeType.TIFF;
+      case "svg":
+        return MimeType.SVG;
+      default:
+        throw new CustomException(ErrorCode.INVALID_FILE_FORMAT);
+    }
+  }
+
+  /**
+   * 이미지 압축 저장 URL 생성
+   * 각 품질 수준 : scale, outputQuality 값 동적 주입
+   */
+  public byte[] generateImageCompress(MultipartFile file, ImageQuality imageQuality) {
+    log.info("이미지 압축 생성 시작: {}, 품질: {}", file.getOriginalFilename(), imageQuality.name());
+
+    String mimeType = file.getContentType();
+    if (mimeType == null || !MimeType.isValidImageMimeType(mimeType)) {
+      log.warn("지원되지 않는 이미지 MIME 타입: {}", mimeType);
+      throw new CustomException(ErrorCode.INVALID_FILE_FORMAT);
+    }
+
+    // WebP 포맷 바로 처리
+    if (mimeType.equalsIgnoreCase(MimeType.WEBP.getMimeType())) {
+      log.info("WebP 형식의 이미지입니다. 원본 데이터를 반환합니다: {}", file.getOriginalFilename());
+      try {
+        return file.getBytes(); // 원본 데이터 반환
+      } catch (IOException e) {
+        log.error("WebP 이미지 파일 읽기 중 오류 발생: {}", e.getMessage());
+        throw new CustomException(ErrorCode.THUMBNAIL_CREATION_ERROR);
+      }
+    }
+
+    // 운영체제에 따라 출력 형식 결정
+    String targetFormat = isWebPSupported() ? "webp" : "jpg";
+    log.info("운영체제에 따라 변환할 포맷 결정: {}", targetFormat);
+
+    ByteArrayOutputStream compressedOutputStream = new ByteArrayOutputStream();
+    try {
+      Thumbnails.of(file.getInputStream())
+          .scale(imageQuality.getScale())
+          .outputFormat(targetFormat) // OS별 포맷 적용
+          .outputQuality(imageQuality.getOutputQuality())
+          .allowOverwrite(true)
+          .toOutputStream(compressedOutputStream);
+      log.info("이미지 압축 생성 완료: {}, 품질: {}", file.getOriginalFilename(), imageQuality.name());
+    } catch (Exception e) {
+      log.error("이미지 압축 생성 중 오류 발생: {}", e.getMessage(), e);
+      throw new CustomException(ErrorCode.THUMBNAIL_CREATION_ERROR);
+    }
+    return compressedOutputStream.toByteArray();
+  }
+
+  /**
    * 이미지 썸네일 생성
    */
   public byte[] generateImageThumbnail(MultipartFile file) {
     log.info("이미지 썸네일 생성 시작: {}", file.getOriginalFilename());
 
-    if (Objects.requireNonNull(file.getContentType()).equals(MimeType.WEBP.getMimeType())) {
-      log.info("WebP 형식의 이미지입니다. 썸네일 생성을 건너뜁니다: {}", file.getOriginalFilename());
+    String mimeType = file.getContentType();
+    if (mimeType == null || !MimeType.isValidImageMimeType(mimeType)) {
+      log.warn("지원되지 않는 이미지 MIME 타입: {}", mimeType);
+      throw new CustomException(ErrorCode.INVALID_FILE_FORMAT);
+    }
+
+    // WebP 포맷 바로 처리
+    if (mimeType.equalsIgnoreCase(MimeType.WEBP.getMimeType())) {
+      log.info("WebP 형식의 이미지입니다. 원본 데이터를 반환합니다: {}", file.getOriginalFilename());
       try {
-        return file.getBytes();
+        return file.getBytes(); // 원본 데이터 반환
       } catch (IOException e) {
         log.error("WebP 이미지 파일 읽기 중 오류 발생: {}", e.getMessage());
         throw new CustomException(ErrorCode.THUMBNAIL_CREATION_ERROR);
@@ -76,18 +155,22 @@ public class ImageThumbnailGenerator {
 
     ByteArrayOutputStream thumbnailOutputStream = new ByteArrayOutputStream();
     try {
+      log.info("출력 형식: {}, 파일 이름: {}", outputThumbnailFormat, file.getOriginalFilename());
       Thumbnails.of(file.getInputStream())
           .size(DEFAULT_WIDTH, DEFAULT_HEIGHT)
-          .keepAspectRatio(true)
-          .outputFormat(outputThumbnailFormat)
+          .outputFormat(outputThumbnailFormat) // OS별 포맷 적용
+          .outputQuality(1)
+          .allowOverwrite(true)
           .toOutputStream(thumbnailOutputStream);
       log.info("이미지 썸네일 생성 완료: {}", file.getOriginalFilename());
     } catch (Exception e) {
-      log.error("이미지 썸네일 생성 중 오류 발생: {}", e.getMessage(), e);
+      log.error("이미지 썸네일 생성 중 오류 발생: 파일 이름={}, MIME 타입={}, 오류 메시지={}",
+          file.getOriginalFilename(), mimeType, e.getMessage(), e);
       throw new CustomException(ErrorCode.THUMBNAIL_CREATION_ERROR);
     }
     return thumbnailOutputStream.toByteArray();
   }
+
 
   /**
    * 문서 썸네일 생성
@@ -104,16 +187,16 @@ public class ImageThumbnailGenerator {
     byte[] thumbnailBytes;
 
     try {
-      if (mimeType.equals(MimeType.PDF.getMimeType())) {
+      if (mimeType.equalsIgnoreCase(MimeType.PDF.getMimeType())) {
         log.info("PDF 파일 감지: {}", file.getOriginalFilename());
         thumbnailBytes = generatePdfThumbnail(file.getInputStream());
-      } else if (mimeType.equals(MimeType.DOCX.getMimeType()) || mimeType.equals(MimeType.DOC.getMimeType())) {
+      } else if (mimeType.equalsIgnoreCase(MimeType.DOCX.getMimeType()) || mimeType.equalsIgnoreCase(MimeType.DOC.getMimeType())) {
         log.info("Word 문서 감지: {}", file.getOriginalFilename());
         thumbnailBytes = generateWordThumbnail(file.getInputStream());
-      } else if (mimeType.equals(MimeType.XLSX.getMimeType()) || mimeType.equals(MimeType.XLS.getMimeType())) {
+      } else if (mimeType.equalsIgnoreCase(MimeType.XLSX.getMimeType()) || mimeType.equalsIgnoreCase(MimeType.XLS.getMimeType())) {
         log.info("Excel 파일 감지: {}", file.getOriginalFilename());
         thumbnailBytes = generateExcelThumbnail(file.getInputStream());
-      } else if (mimeType.equals(MimeType.PPTX.getMimeType()) || mimeType.equals(MimeType.PPT.getMimeType())) {
+      } else if (mimeType.equalsIgnoreCase(MimeType.PPTX.getMimeType()) || mimeType.equalsIgnoreCase(MimeType.PPT.getMimeType())) {
         log.info("PowerPoint 파일 감지: {}", file.getOriginalFilename());
         thumbnailBytes = generatePowerPointThumbnail(file.getInputStream());
       } else {
@@ -146,7 +229,10 @@ public class ImageThumbnailGenerator {
       // 현재는 더미 이미지 반환
       BufferedImage img = new BufferedImage(DEFAULT_WIDTH, DEFAULT_HEIGHT, BufferedImage.TYPE_INT_RGB);
       Graphics2D graphics = img.createGraphics();
-      graphics.drawString("Video Thumbnail", 10, 20);
+      graphics.setFont(new Font("Arial", Font.BOLD, 24));
+      graphics.setRenderingHint(RenderingHints.KEY_TEXT_ANTIALIASING, RenderingHints.VALUE_TEXT_ANTIALIAS_ON);
+      graphics.drawString("Video Thumbnail", 50, 100);
+      graphics.dispose();
 
       ByteArrayOutputStream thumbnailOutputStream = new ByteArrayOutputStream();
       ImageIO.write(img, outputThumbnailFormat, thumbnailOutputStream);
@@ -161,17 +247,18 @@ public class ImageThumbnailGenerator {
   /**
    * PDF 썸네일 생성
    */
-  public byte[] generatePdfThumbnail(InputStream pdfInputStream) throws IOException {
+  private byte[] generatePdfThumbnail(InputStream pdfInputStream) throws IOException {
     log.info("PDF 썸네일 생성 시작");
     try (PDDocument document = PDDocument.load(pdfInputStream)) {
       log.info("PDF 문서 로드 완료, 페이지 수: {}", document.getNumberOfPages());
       PDFRenderer pdfRenderer = new PDFRenderer(document);
-      BufferedImage bim = pdfRenderer.renderImageWithDPI(0, 300);
+      BufferedImage bim = pdfRenderer.renderImageWithDPI(0, 300); // 높은 DPI로 렌더링
       int[] scaledDimensions = getScaledDimensions(bim);
       log.info("PDF 렌더링 완료, 조정된 크기: width={}, height={}", scaledDimensions[0], scaledDimensions[1]);
 
       BufferedImage thumbnail = Thumbnails.of(bim)
           .size(scaledDimensions[0], scaledDimensions[1])
+          .outputQuality(1.0)
           .asBufferedImage();
 
       ByteArrayOutputStream thumbnailOutputStream = new ByteArrayOutputStream();
@@ -192,16 +279,23 @@ public class ImageThumbnailGenerator {
     try (XWPFDocument document = new XWPFDocument(docInputStream)) {
       BufferedImage img = new BufferedImage(DEFAULT_WIDTH, DEFAULT_HEIGHT, BufferedImage.TYPE_INT_RGB);
       Graphics2D graphics = img.createGraphics();
+      graphics.setFont(new Font("Arial", Font.BOLD, 24));
+      graphics.setRenderingHint(RenderingHints.KEY_TEXT_ANTIALIASING, RenderingHints.VALUE_TEXT_ANTIALIAS_ON);
       String firstPageText = document.getParagraphs().stream()
           .map(paragraph -> paragraph.getText())
           .findFirst()
           .orElse("내용 없음");
       log.info("썸네일에 포함된 첫 페이지 텍스트: {}", firstPageText);
 
-      graphics.drawString(firstPageText, 10, 20);
+      graphics.drawString(firstPageText, 50, 100); // 텍스트 위치 조정
+      graphics.dispose();
 
       ByteArrayOutputStream thumbnailOutputStream = new ByteArrayOutputStream();
-      ImageIO.write(img, outputThumbnailFormat, thumbnailOutputStream);
+      Thumbnails.of(img)
+          .size(DEFAULT_WIDTH, DEFAULT_HEIGHT)
+          .outputFormat(outputThumbnailFormat)
+          .outputQuality(1.0)
+          .toOutputStream(thumbnailOutputStream);
       log.info("Word 썸네일 생성 완료");
       return thumbnailOutputStream.toByteArray();
     } catch (Exception e) {
@@ -221,10 +315,17 @@ public class ImageThumbnailGenerator {
 
       BufferedImage img = new BufferedImage(DEFAULT_WIDTH, DEFAULT_HEIGHT, BufferedImage.TYPE_INT_RGB);
       Graphics2D graphics = img.createGraphics();
-      graphics.drawString("Sheet: " + sheetName, 10, 20);
+      graphics.setFont(new Font("Arial", Font.BOLD, 24));
+      graphics.setRenderingHint(RenderingHints.KEY_TEXT_ANTIALIASING, RenderingHints.VALUE_TEXT_ANTIALIAS_ON);
+      graphics.drawString("Sheet: " + sheetName, 50, 100);
+      graphics.dispose();
 
       ByteArrayOutputStream thumbnailOutputStream = new ByteArrayOutputStream();
-      ImageIO.write(img, outputThumbnailFormat, thumbnailOutputStream);
+      Thumbnails.of(img)
+          .size(DEFAULT_WIDTH, DEFAULT_HEIGHT)
+          .outputFormat(outputThumbnailFormat)
+          .outputQuality(1.0) // 화질을 최대로 설정
+          .toOutputStream(thumbnailOutputStream);
       log.info("Excel 썸네일 생성 완료");
       return thumbnailOutputStream.toByteArray();
     } catch (Exception e) {
@@ -239,6 +340,10 @@ public class ImageThumbnailGenerator {
   private byte[] generatePowerPointThumbnail(InputStream pptInputStream) throws IOException {
     log.info("PowerPoint 썸네일 생성 시작");
     try (XMLSlideShow ppt = new XMLSlideShow(pptInputStream)) {
+      if (ppt.getSlides().isEmpty()) {
+        log.warn("PowerPoint 파일에 슬라이드가 없습니다.");
+        return new byte[0];
+      }
       XSLFSlide slide = ppt.getSlides().get(0);
       Dimension pageSize = ppt.getPageSize();
       log.info("PowerPoint 슬라이드 크기: width={}, height={}", pageSize.width, pageSize.height);
@@ -246,11 +351,15 @@ public class ImageThumbnailGenerator {
       BufferedImage img = new BufferedImage(pageSize.width, pageSize.height, BufferedImage.TYPE_INT_RGB);
       Graphics2D graphics = img.createGraphics();
       slide.draw(graphics);
+      graphics.dispose();
+
       int[] scaledDimensions = getScaledDimensions(img);
       log.info("PowerPoint 슬라이드 조정된 크기: width={}, height={}", scaledDimensions[0], scaledDimensions[1]);
 
       BufferedImage thumbnail = Thumbnails.of(img)
           .size(scaledDimensions[0], scaledDimensions[1])
+          .outputFormat(outputThumbnailFormat)
+          .outputQuality(1.0)
           .asBufferedImage();
 
       ByteArrayOutputStream thumbnailOutputStream = new ByteArrayOutputStream();
@@ -278,5 +387,20 @@ public class ImageThumbnailGenerator {
 
     log.info("이미지 크기 조정: originalWidth={}, originalHeight={}, newWidth={}, newHeight={}", originalWidth, originalHeight, newWidth, newHeight);
     return new int[]{newWidth, newHeight};
+  }
+
+  /**
+   * 썸네일 파일명 생성
+   *
+   * @param contentType      ContentType
+   * @param originalFileName 원본 파일명
+   * @return 생성된 썸네일 파일명
+   */
+  public String generateThumbnailFileName(ContentType contentType, String originalFileName) {
+    String curTimeStr = TimeUtil.formatLocalDateTimeNowForFileName();
+    String baseName = FileUtil.getBaseName(originalFileName);
+    // 출력 형식에 따라 동적으로 확장자 결정
+    String thumbnailExtension = getOutputThumbnailMimeType().getMimeType().split("/")[1];
+    return String.format("%s_%s_%s.%s", baseName, curTimeStr, "thumbnail", thumbnailExtension);
   }
 }

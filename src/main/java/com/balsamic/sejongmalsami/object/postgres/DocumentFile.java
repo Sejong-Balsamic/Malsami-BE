@@ -38,14 +38,17 @@ public class DocumentFile extends BaseEntity {
   @ManyToOne
   private Member uploader;
 
-  // 파일 경로 (파일 URL)
+  // 썸네일 URL
   private String thumbnailUrl;
+
+  // 파일 URL
+  private String filePath;
 
   // 기존 파일
   private String originalFileName;
 
   // 업로드한 파일 이름
-  private String uploadFileName;
+  private String uploadedFileName;
 
   // 파일 크기
   private Long fileSize;

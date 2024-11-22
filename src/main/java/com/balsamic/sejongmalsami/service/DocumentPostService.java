@@ -71,8 +71,6 @@ public class DocumentPostService {
         });
     log.info("회원 검증 완료: studentId={}", member.getStudentId());
 
-    // 첨부 자료 처리 및 저장 : 저장된 자료 파일은 savedDocumentFiles 에 추가
-    processAndSaveUploadedFiles(command, savedDocumentFiles);
 
     // 입력된 교과목에 따른 단과대 설정
     List<Faculty> faculties = courseRepository
@@ -104,6 +102,10 @@ public class DocumentPostService {
         .weeklyScore(0L)
         .build());
     log.info("자료 게시글 저장 완료: 제목={} id={}", command.getTitle(), savedDocument.getDocumentPostId());
+
+    // 첨부 자료 처리 및 저장 : 저장된 자료 파일은 savedDocumentFiles 에 추가
+    command.setDocumentPostId(savedDocument.getDocumentPostId()); // 생성된 DocumentPostId 전달
+    processAndSaveUploadedFiles(command, savedDocumentFiles);
 
     return DocumentDto.builder()
         .documentPost(savedDocument)
@@ -239,15 +241,6 @@ public class DocumentPostService {
   /**
    * 첨부 파일 처리, 업로드, 저장
    *
-   * <ul>
-   *   <li>첨부 파일의 존재 여부를 확인</li>
-   *   <li>각 파일의 MIME 타입에 따라 이미지, 동영상, 음악, 문서로 분류</li>
-   *   <li>해당 파일 타입 매칭 -> 타입에 따른 썸네일 생성</li>
-   *   <li>생성한 파일 및 썸네일 -> FTP 서버에 업로드</li>
-   *   <li>파일의 메타데이터 {@link DocumentFile} -> DB에 저장</li>
-   *   <li>저장된 {@link DocumentFile} 객체 -> savedDocumentFiles 추가</li>
-   * </ul>
-   *
    * @param command            DocumentCommand
    * @param savedDocumentFiles 저장된 파일 리스트
    */
@@ -275,25 +268,11 @@ public class DocumentPostService {
         // 파일 유효성 검사
         documentFileService.validateFile(file, uploadType);
 
-        // UploadType에 따른 파일리스트에 파일 분류 작업
-        if (uploadType == UploadType.DOCUMENT) {
-          command.getDocumentFiles().add(file);
-        } else if (uploadType == UploadType.IMAGE) {
-          command.getImageFiles().add(file);
-        } else if (uploadType == UploadType.VIDEO) {
-          command.getVideoFiles().add(file);
-        } else if (uploadType == UploadType.MUSIC) {
-          command.getMusicFiles().add(file);
-        } else {
-          log.error("지원되지 않는 UploadType: {}", uploadType);
-          throw new CustomException(ErrorCode.INVALID_UPLOAD_TYPE);
-        }
-
         // 파일 저장
         DocumentFile savedFile = documentFileService.saveFile(command, uploadType, file);
         savedDocumentFiles.add(savedFile);
 
-        log.info("파일 저장 완료: 업로드 파일명={}", savedFile.getUploadFileName());
+        log.info("파일 저장 완료: 업로드 파일명={}", savedFile.getUploadedFileName());
 
       } catch (CustomException e) {
         log.error("파일 처리 중 오류 발생: {}", e.getMessage());
