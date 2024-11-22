@@ -73,6 +73,8 @@ public enum ErrorCode {
 
   FILE_LIST_EMPTY(HttpStatus.BAD_REQUEST, "업로드된 파일 목록이 비어있음"),
 
+  VIDEO_FRAME_EXTRACTION_ERROR(HttpStatus.BAD_REQUEST, "비디오 프레임 추출 중 오류 발생"),
+
   // FTP
 
   FTP_FILE_UPLOAD_ERROR(HttpStatus.BAD_REQUEST, "FTP 파일 업로드에 실패했습니다."),

@@ -90,6 +90,10 @@ dependencies {
     // PDF
     implementation 'org.apache.pdfbox:pdfbox:2.0.29'
 
+    // FFmepg
+    implementation 'org.bytedeco:javacv-platform:1.5.9'
+    implementation 'org.bytedeco:ffmpeg-platform:6.0-1.5.9'
+
     // Thymeleaf
     implementation 'org.springframework.boot:spring-boot-starter-thymeleaf'
 

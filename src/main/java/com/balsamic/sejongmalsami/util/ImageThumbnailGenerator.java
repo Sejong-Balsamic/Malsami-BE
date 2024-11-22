@@ -12,8 +12,12 @@ import java.awt.Graphics2D;
 import java.awt.RenderingHints;
 import java.awt.image.BufferedImage;
 import java.io.ByteArrayOutputStream;
+import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.StandardCopyOption;
 import javax.imageio.ImageIO;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
@@ -26,6 +30,9 @@ import org.apache.poi.xslf.usermodel.XMLSlideShow;
 import org.apache.poi.xslf.usermodel.XSLFSlide;
 import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 import org.apache.poi.xwpf.usermodel.XWPFDocument;
+import org.bytedeco.javacv.FFmpegFrameGrabber;
+import org.bytedeco.javacv.Frame;
+import org.bytedeco.javacv.Java2DFrameConverter;
 import org.springframework.stereotype.Component;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -87,8 +94,11 @@ public class ImageThumbnailGenerator {
   }
 
   /**
-   * 이미지 압축 저장 URL 생성
-   * 각 품질 수준 : scale, outputQuality 값 동적 주입
+   * 이미지 압축 생성 (퀄리티별)
+   * 1. 이미지 파일 검증
+   * 2. WebP 특별 처리
+   * 3. OS별 출력 포맷 결정
+   * 4. 이미지 압축 처리
    */
   public byte[] generateImageCompress(MultipartFile file, ImageQuality imageQuality) {
     log.info("이미지 압축 생성 시작: {}, 품질: {}", file.getOriginalFilename(), imageQuality.name());
@@ -132,6 +142,9 @@ public class ImageThumbnailGenerator {
 
   /**
    * 이미지 썸네일 생성
+   * 1. 이미지 파일 검증
+   * 2. WebP 특별 처리
+   * 3. 썸네일 크기 조정 (600x600)
    */
   public byte[] generateImageThumbnail(MultipartFile file) {
     log.info("이미지 썸네일 생성 시작: {}", file.getOriginalFilename());
@@ -159,7 +172,7 @@ public class ImageThumbnailGenerator {
       Thumbnails.of(file.getInputStream())
           .size(DEFAULT_WIDTH, DEFAULT_HEIGHT)
           .outputFormat(outputThumbnailFormat) // OS별 포맷 적용
-          .outputQuality(1)
+          .outputQuality(0.7)
           .allowOverwrite(true)
           .toOutputStream(thumbnailOutputStream);
       log.info("이미지 썸네일 생성 완료: {}", file.getOriginalFilename());
@@ -174,6 +187,10 @@ public class ImageThumbnailGenerator {
 
   /**
    * 문서 썸네일 생성
+   * 1. PDF: 첫 페이지 렌더링
+   * 2. Word: 첫 문단 텍스트
+   * 3. Excel: 시트명
+   * 4. PPT: 첫 슬라이드
    */
   public byte[] generateDocumentThumbnail(MultipartFile file) {
     String mimeType = file.getContentType();
@@ -213,34 +230,85 @@ public class ImageThumbnailGenerator {
   }
 
   /**
-   * VIDEO 썸네일 생성 (FFmpeg 사용 예정)
+   * 비디오 썸네일 생성
+   * 1. 임시 파일 생성 및 복사
+   * 2. FFmpeg으로 프레임 추출 (5초 지점)
+   * 3. 이미지 변환 및 크기 조정
+   * 4. 리소스 정리
    */
   public byte[] generateVideoThumbnail(MultipartFile file) {
-    String mimeType = file.getContentType();
-    log.info("동영상 썸네일 생성 시작: {}", file.getOriginalFilename());
-
-    if (mimeType == null || !mimeType.startsWith("video/")) {
-      log.warn("지원되지 않는 동영상 타입: {}", mimeType);
-      return new byte[0];
+    if (file == null || file.isEmpty()) {
+      log.error("비디오 파일이 비어있습니다.");
+      throw new CustomException(ErrorCode.FILE_EMPTY);
     }
 
-    try {
-      // TODO: FFmpeg 등을 사용하여 실제 썸네일 생성
-      // 현재는 더미 이미지 반환
-      BufferedImage img = new BufferedImage(DEFAULT_WIDTH, DEFAULT_HEIGHT, BufferedImage.TYPE_INT_RGB);
-      Graphics2D graphics = img.createGraphics();
-      graphics.setFont(new Font("Arial", Font.BOLD, 24));
-      graphics.setRenderingHint(RenderingHints.KEY_TEXT_ANTIALIASING, RenderingHints.VALUE_TEXT_ANTIALIAS_ON);
-      graphics.drawString("Video Thumbnail", 50, 100);
-      graphics.dispose();
+    String mimeType = file.getContentType();
+    if (mimeType == null || !mimeType.startsWith("video/")) {
+      log.error("올바르지 않은 비디오 형식: {}", mimeType);
+      throw new CustomException(ErrorCode.INVALID_FILE_FORMAT);
+    }
 
-      ByteArrayOutputStream thumbnailOutputStream = new ByteArrayOutputStream();
-      ImageIO.write(img, outputThumbnailFormat, thumbnailOutputStream);
-      log.info("동영상 썸네일 생성 완료");
-      return thumbnailOutputStream.toByteArray();
-    } catch (IOException e) {
-      log.error("동영상 썸네일 생성 중 오류 발생: {}", e.getMessage());
+    File tempFile = null;
+    FFmpegFrameGrabber grabber = null;
+    Java2DFrameConverter converter = null;
+    ByteArrayOutputStream outputStream = null;
+
+    try {
+      // 1. 임시 파일 생성
+      String extension = FileUtil.getExtension(file.getOriginalFilename());
+      Path tempPath = Files.createTempFile("video_thumbnail_", "." + extension);
+      tempFile = tempPath.toFile();
+      tempFile.deleteOnExit();
+      Files.copy(file.getInputStream(), tempPath, StandardCopyOption.REPLACE_EXISTING);
+
+      // 2. FFmpeg 초기화 및 프레임 추출
+      grabber = new FFmpegFrameGrabber(tempFile);
+      grabber.start();
+      grabber.setTimestamp(5000000); // 5초 지점
+      Frame frame = grabber.grab();
+
+      if (frame == null) {
+        log.error("비디오 프레임 추출 실패: {}", file.getOriginalFilename());
+        throw new CustomException(ErrorCode.VIDEO_FRAME_EXTRACTION_ERROR);
+      }
+
+      // 3. 프레임을 이미지로 변환
+      converter = new Java2DFrameConverter();
+      BufferedImage bufferedImage = converter.convert(frame);
+
+      // 4. 썸네일 생성
+      BufferedImage thumbnail = Thumbnails.of(bufferedImage)
+          .size(DEFAULT_WIDTH, DEFAULT_HEIGHT)
+          .outputQuality(1.0)
+          .asBufferedImage();
+
+      // 5. 바이트 배열로 변환
+      outputStream = new ByteArrayOutputStream();
+      ImageIO.write(thumbnail, outputThumbnailFormat, outputStream);
+
+      return outputStream.toByteArray();
+
+    } catch (Exception e) {
+      log.error("비디오 썸네일 생성 실패 - 파일: {}, 에러: {}",
+          file.getOriginalFilename(), e.getMessage());
       throw new CustomException(ErrorCode.THUMBNAIL_CREATION_ERROR);
+
+    } finally {
+      // 6. 리소스 정리
+      try {
+        if (grabber != null) {
+          grabber.stop();
+          grabber.release();
+        }
+        if (tempFile != null && tempFile.exists()) {
+          tempFile.delete();
+        }
+        if (outputStream != null) {
+          outputStream.close();
+        }
+      } catch (Exception e) {
+        log.error("리소스 정리 중 오류: {}", e.getMessage());
+      }
     }
   }
 
