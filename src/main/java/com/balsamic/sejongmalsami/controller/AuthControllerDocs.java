@@ -1,6 +1,5 @@
 package com.balsamic.sejongmalsami.controller;
 
-import com.balsamic.sejongmalsami.object.AuthCommand;
 import com.balsamic.sejongmalsami.object.AuthDto;
 import com.balsamic.sejongmalsami.object.constants.Author;
 import com.balsamic.sejongmalsami.util.log.ApiChangeLog;
@@ -10,12 +9,16 @@ import io.swagger.v3.oas.annotations.Operation;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.PostMapping;
 
 public interface AuthControllerDocs {
 
   @ApiChangeLogs({
+      @ApiChangeLog(
+          date = "2024.11.24",
+          author = Author.SUHSAECHAN,
+          description = "반환값에 studentName 추가"
+      ),
       @ApiChangeLog(
           date = "2024.10.01",
           author = Author.SUHSAECHAN,
@@ -45,6 +48,7 @@ public interface AuthControllerDocs {
           **반환 파라미터 값:**
 
           - **String accessToken**: 새로운 JWT 액세스 토큰 (인증이 필요한 요청에 사용)
+          - **String studentName**: 학생 이름 반환
 
           **예시:**
 
