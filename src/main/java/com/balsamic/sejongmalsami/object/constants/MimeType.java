@@ -29,6 +29,7 @@ public enum MimeType {
   XLS("application/vnd.ms-excel", UploadType.DOCUMENT),
   PPTX("application/vnd.openxmlformats-officedocument.presentationml.presentation", UploadType.DOCUMENT),
   PPT("application/vnd.ms-powerpoint", UploadType.DOCUMENT),
+  HWP("application/x-hwp", UploadType.DOCUMENT),
 
   // 비디오 MIME 타입
   MP4("video/mp4", UploadType.VIDEO),
