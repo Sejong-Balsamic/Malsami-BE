@@ -7,11 +7,10 @@ import static com.balsamic.sejongmalsami.object.constants.YeopjeonAction.VIEW_DO
 
 import com.balsamic.sejongmalsami.object.DocumentCommand;
 import com.balsamic.sejongmalsami.object.DocumentDto;
+import com.balsamic.sejongmalsami.object.constants.ContentType;
 import com.balsamic.sejongmalsami.object.constants.Faculty;
-import com.balsamic.sejongmalsami.object.constants.MimeType;
 import com.balsamic.sejongmalsami.object.constants.PostTier;
 import com.balsamic.sejongmalsami.object.constants.SortType;
-import com.balsamic.sejongmalsami.object.constants.UploadType;
 import com.balsamic.sejongmalsami.object.postgres.Course;
 import com.balsamic.sejongmalsami.object.postgres.DocumentFile;
 import com.balsamic.sejongmalsami.object.postgres.DocumentPost;
@@ -36,7 +35,6 @@ import org.springframework.data.domain.Sort;
 import org.springframework.data.domain.Sort.Order;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import org.springframework.web.multipart.MultipartFile;
 
 @Service
 @Slf4j
@@ -61,7 +59,6 @@ public class DocumentPostService {
    */
   @Transactional
   public DocumentDto saveDocumentPost(DocumentCommand command) {
-    List<DocumentFile> savedDocumentFiles = new ArrayList<>(); // 저장된 자료 파일들
 
     // 회원 검증
     Member member = memberRepository.findById(command.getMemberId())
@@ -70,7 +67,6 @@ public class DocumentPostService {
           return new CustomException(ErrorCode.MEMBER_NOT_FOUND);
         });
     log.info("회원 검증 완료: studentId={}", member.getStudentId());
-
 
     // 입력된 교과목에 따른 단과대 설정
     List<Faculty> faculties = courseRepository
@@ -86,26 +82,30 @@ public class DocumentPostService {
     }
 
     // 자료 게시글 객체 생성 및 저장
-    DocumentPost savedDocument = documentPostRepository.save(DocumentPost.builder()
-        .member(member)
-        .title(command.getTitle())
-        .content(command.getContent())
-        .subject(command.getSubject())
-        .faculties(faculties)
-        .postTier(PostTier.CHEONMIN)
-        .documentTypes(command.getDocumentTypes() != null ? new ArrayList<>(command.getDocumentTypes()) : null)
-        .likeCount(0)
-        .commentCount(0)
-        .viewCount(0)
-        .isDepartmentPrivate(Boolean.TRUE.equals(command.getIsDepartmentPrivate()))
-        .dailyScore(0L)
-        .weeklyScore(0L)
-        .build());
+    DocumentPost savedDocument = documentPostRepository.save(
+        DocumentPost.builder()
+            .member(member)
+            .title(command.getTitle())
+            .content(command.getContent())
+            .subject(command.getSubject())
+            .faculties(faculties)
+            .postTier(PostTier.CHEONMIN)
+            .documentTypes(command.getDocumentTypes() != null ? new ArrayList<>(command.getDocumentTypes()) : null)
+            .likeCount(0)
+            .commentCount(0)
+            .viewCount(0)
+            .isDepartmentPrivate(Boolean.TRUE.equals(command.getIsDepartmentPrivate()))
+            .dailyScore(0L)
+            .weeklyScore(0L)
+            .build());
     log.info("자료 게시글 저장 완료: 제목={} id={}", command.getTitle(), savedDocument.getDocumentPostId());
 
     // 첨부 자료 처리 및 저장 : 저장된 자료 파일은 savedDocumentFiles 에 추가
-    command.setDocumentPostId(savedDocument.getDocumentPostId()); // 생성된 DocumentPostId 전달
-    processAndSaveUploadedFiles(command, savedDocumentFiles);
+    List<DocumentFile> savedDocumentFiles = documentFileService.handleDocumentFiles(
+        command.getAttachmentFiles(),
+        ContentType.DOCUMENT,
+        savedDocument.getDocumentPostId(),
+        member);
 
     return DocumentDto.builder()
         .documentPost(savedDocument)
@@ -236,52 +236,6 @@ public class DocumentPostService {
     return DocumentDto.builder()
         .documentPost(documentPostRepository.save(post))
         .build();
-  }
-
-  /**
-   * 첨부 파일 처리, 업로드, 저장
-   *
-   * @param command            DocumentCommand
-   * @param savedDocumentFiles 저장된 파일 리스트
-   */
-  private void processAndSaveUploadedFiles(DocumentCommand command, List<DocumentFile> savedDocumentFiles) {
-    List<MultipartFile> attachmentFiles = command.getAttachmentFiles();
-
-    // 첨부파일 리스트에 첨부된 파일이 없을 때
-    if (attachmentFiles == null || attachmentFiles.isEmpty()) {
-      log.info("첨부된 파일이 없습니다.");
-      return;
-    }
-
-    // 첨부파일 리스트에서 파일 순회
-    for (MultipartFile file : attachmentFiles) {
-      try {
-        String mimeType = file.getContentType();
-        if (mimeType == null) {
-          log.error("파일의 MIME 타입을 확인할 수 없습니다: {}", file.getOriginalFilename());
-          throw new CustomException(ErrorCode.INVALID_FILE_FORMAT);
-        }
-
-        // UploadType 결정
-        UploadType uploadType = MimeType.fromString(mimeType).getUploadType();
-
-        // 파일 유효성 검사
-        documentFileService.validateFile(file, uploadType);
-
-        // 파일 저장
-        DocumentFile savedFile = documentFileService.saveFile(command, uploadType, file);
-        savedDocumentFiles.add(savedFile);
-
-        log.info("파일 저장 완료: 업로드 파일명={}", savedFile.getUploadedFileName());
-
-      } catch (CustomException e) {
-        log.error("파일 처리 중 오류 발생: {}", e.getMessage());
-        throw e; // 트랜잭션 롤백을 위해 예외 다시 던지기
-      } catch (Exception e) {
-        log.error("파일 처리 중 예상치 못한 오류 발생: {}", e.getMessage());
-        throw new CustomException(ErrorCode.INTERNAL_SERVER_ERROR);
-      }
-    }
   }
 
   // 해당 자료 게시판 접근 가능 여부 판단 메소드
