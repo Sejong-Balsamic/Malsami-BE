@@ -8,4 +8,5 @@ import lombok.Getter;
 public class AuthDto {
   private String accessToken;
   private Boolean isValidToken;
+  private String studentName;
 }
