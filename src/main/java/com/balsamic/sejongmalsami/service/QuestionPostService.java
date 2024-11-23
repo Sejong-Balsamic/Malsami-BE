@@ -150,8 +150,10 @@ public class QuestionPostService {
         command.getAttachmentFiles());
 
     // QuestionPost 에 썸네일 지정 : 저장된 사진 중 첫번째 사진
-    String thumbnailUrl = savedMediaFiles.get(0).getThumbnailUrl();
-    questionPost.setThumbnailUrl(thumbnailUrl);
+    if(!savedMediaFiles.isEmpty()){
+      String thumbnailUrl = savedMediaFiles.get(0).getThumbnailUrl();
+      questionPost.setThumbnailUrl(thumbnailUrl);
+    }
 
     // 질문 글 등록 시 엽전 100냥 감소
     yeopjeonService.updateYeopjeonAndSaveYeopjeonHistory(member, YeopjeonAction.CREATE_QUESTION_POST);
