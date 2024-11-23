@@ -1,11 +1,11 @@
 package com.balsamic.sejongmalsami.service;
 
-import com.balsamic.sejongmalsami.object.DocumentCommand;
 import com.balsamic.sejongmalsami.object.constants.ContentType;
 import com.balsamic.sejongmalsami.object.constants.MimeType;
 import com.balsamic.sejongmalsami.object.constants.UploadType;
 import com.balsamic.sejongmalsami.object.postgres.DocumentFile;
 import com.balsamic.sejongmalsami.object.postgres.DocumentPost;
+import com.balsamic.sejongmalsami.object.postgres.Member;
 import com.balsamic.sejongmalsami.repository.postgres.DocumentFileRepository;
 import com.balsamic.sejongmalsami.repository.postgres.DocumentPostRepository;
 import com.balsamic.sejongmalsami.util.FileUtil;
@@ -16,9 +16,11 @@ import com.balsamic.sejongmalsami.util.exception.CustomException;
 import com.balsamic.sejongmalsami.util.exception.ErrorCode;
 import com.balsamic.sejongmalsami.util.storage.StorageService;
 import java.io.IOException;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.UUID;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
@@ -31,9 +33,7 @@ public class DocumentFileService {
   private final DocumentFileRepository documentFileRepository;
   private final DocumentPostRepository documentPostRepository;
 
-  @Qualifier("ftpStorageService")
   private final StorageService storageService;
-
   private final ImageThumbnailGenerator imageThumbnailGenerator;
   private final FtpConfig ftpConfig;
 
@@ -42,52 +42,109 @@ public class DocumentFileService {
   private static final int MAX_VIDEO_UPLOAD_SIZE = 200;   // 비디오
 
   /**
-   * 단일 파일 저장 (MAIN)
-   * 1. 파일 유효성 검증
-   * 2. 파일 업로드 및 경로 생성
-   * 3. 썸네일 생성 및 URL 저장
-   * 4. 게시글 검증
-   * 5. DB에 파일 메타데이터 저장
+   * 첨부 파일 처리, 업로드, 저장
+   *
+   * @param command            DocumentCommand
+   * @param savedDocumentFiles 저장된 파일 리스트
+   */
+  public List<DocumentFile> handleDocumentFiles(
+      List<MultipartFile> attachmentFiles,
+      ContentType contentType,
+      UUID postId,
+      Member uploader) {
+
+    // 저장된 DocumentFile 리스트 초기화
+    List<DocumentFile> savedDocumentFiles = new ArrayList<>();
+
+    // 첨부파일 리스트에 첨부된 파일이 없을 때
+    if (attachmentFiles == null || attachmentFiles.isEmpty()) {
+      log.info("첨부된 파일이 없습니다.");
+      return savedDocumentFiles; // 빈 리스트 반환
+    }
+
+    // 첨부파일 리스트에서 파일 순회
+    for (MultipartFile multipartFile : attachmentFiles) {
+      try {
+        String mimeType = multipartFile.getContentType();
+        if (mimeType == null) {
+          log.error("파일의 MIME 타입을 확인할 수 없습니다: {}", multipartFile.getOriginalFilename());
+          throw new CustomException(ErrorCode.INVALID_FILE_FORMAT);
+        }
+
+        // UploadType 결정
+        UploadType uploadType = MimeType.fromString(mimeType).getUploadType();
+
+        // 파일 유효성 검사
+        validateFile(multipartFile, uploadType);
+
+        // 파일 저장
+        DocumentFile savedFile = saveFile(
+            uploader,
+            ContentType.DOCUMENT,
+            postId,
+            uploadType,
+            multipartFile);
+        savedDocumentFiles.add(savedFile);
+
+        log.info("파일 저장 완료: 업로드 파일명={}", savedFile.getUploadedFileName());
+
+      } catch (CustomException e) {
+        log.error("파일 처리 중 오류 발생: {}", e.getMessage());
+        throw e; // 트랜잭션 롤백을 위해 예외 다시 던지기
+      } catch (Exception e) {
+        log.error("파일 처리 중 예상치 못한 오류 발생: {}", e.getMessage());
+        throw new CustomException(ErrorCode.INTERNAL_SERVER_ERROR);
+      }
+    }
+    return savedDocumentFiles;
+  }
+
+  /**
+   * 단일 파일 저장 (MAIN) 1. 파일 유효성 검증 2. 파일 업로드 및 경로 생성 3. 썸네일 생성 및 URL 저장 4. 게시글 검증 5. DB에 파일 메타데이터 저장
+   *
    * @return 저장된 DocumentFile 객체
    */
   @Transactional
-  public DocumentFile saveFile(DocumentCommand command, UploadType uploadType, MultipartFile file) {
+  public DocumentFile saveFile(
+      Member uploader,
+      ContentType contentType,    //현재: ContentType.DOCUMENT 고정
+      UUID postId,                //현재 : documentPostId 고정
+      UploadType uploadType,
+      MultipartFile multipartFile) {
     // 파일 유효성 검증
-    validateFile(file, uploadType);
+    validateFile(multipartFile, uploadType);
 
     // 파일 업로드 및 파일 Path 반환
-    String filePath = storageService.uploadFile(ContentType.DOCUMENT, file);
+    String filePath = storageService.uploadFile(contentType, multipartFile);
 
     // 썸네일 업로드 및 URL 생성
-    String thumbnailUrl = generateThumbnailUrl(ContentType.DOCUMENT, file, uploadType);
+    String thumbnailUrl = generateThumbnailUrl(contentType, multipartFile, uploadType);
 
     // 자료 게시글 검증
-    DocumentPost documentPost = documentPostRepository.findById(command.getDocumentPostId())
+    DocumentPost documentPost = documentPostRepository.findById(postId)
         .orElseThrow(() -> new CustomException(ErrorCode.DOCUMENT_POST_NOT_FOUND));
 
     // 메타 데이터 documentFile 저장
     DocumentFile savedDocumentFile = documentFileRepository.save(DocumentFile.builder()
         .documentPost(documentPost)
-        .uploader(command.getMember())
+        .uploader(uploader)
         .thumbnailUrl(thumbnailUrl)
-        .originalFileName(file.getOriginalFilename())
+        .originalFileName(multipartFile.getOriginalFilename())
         .uploadedFileName(FileUtil.extractFileName(filePath))
-        .fileSize(file.getSize())
-        .mimeType(MimeType.fromString(file.getContentType()))
+        .fileSize(multipartFile.getSize())
+        .mimeType(MimeType.fromString(multipartFile.getContentType()))
         .downloadCount(0L)
         .password(null)
         .isInitialPasswordSet(false)
         .filePath(filePath)
         .build());
-    log.info("DocumentFile 저장완료 : ID : {} ,업로드 파일명={}", savedDocumentFile.getDocumentFileId(), savedDocumentFile.getUploadedFileName());
+    log.info("DocumentFile 저장완료 : ID : {} ,업로드 파일명={}", savedDocumentFile.getDocumentFileId(),
+        savedDocumentFile.getUploadedFileName());
     return savedDocumentFile;
   }
 
   /**
-   * 파일 유효성 검증
-   * 1. 빈 파일 체크
-   * 2. 파일 크기 제한 (일반:50MB, 영상:200MB)
-   * 3. MIME 타입 검증
+   * 파일 유효성 검증 1. 빈 파일 체크 2. 파일 크기 제한 (일반:50MB, 영상:200MB) 3. MIME 타입 검증
    */
   public void validateFile(MultipartFile file, UploadType uploadType) {
     if (file == null || file.isEmpty()) {
@@ -119,10 +176,7 @@ public class DocumentFileService {
   }
 
   /**
-   * 썸네일 URL 생성
-   * 1. 음원 파일 -> 기본 썸네일 사용
-   * 2. 나머지 -> 썸네일 생성 시도
-   * 3. 실패시 타입별 기본 썸네일 반환
+   * 썸네일 URL 생성 1. 음원 파일 -> 기본 썸네일 사용 2. 나머지 -> 썸네일 생성 시도 3. 실패시 타입별 기본 썸네일 반환
    */
   private String generateThumbnailUrl(ContentType contentType, MultipartFile file, UploadType uploadType) {
     if (file.isEmpty()) {
@@ -146,10 +200,7 @@ public class DocumentFileService {
   }
 
   /**
-   * 실제 썸네일 생성 및 업로드
-   * 1. WebP 파일 특별 처리
-   * 2. MIME 타입별 썸네일 생성
-   * 3. 생성된 썸네일 업로드
+   * 실제 썸네일 생성 및 업로드 1. WebP 파일 특별 처리 2. MIME 타입별 썸네일 생성 3. 생성된 썸네일 업로드
    */
   private String createAndUploadThumbnail(ContentType contentType, MultipartFile file) {
     byte[] thumbnailBytes;
@@ -187,7 +238,8 @@ public class DocumentFileService {
     }
 
     // 생성된 썸네일 파일 업로드
-    String thumbnailFileName = imageThumbnailGenerator.generateThumbnailFileName(contentType, file.getOriginalFilename());
+    String thumbnailFileName = imageThumbnailGenerator.generateThumbnailFileName(contentType,
+        file.getOriginalFilename());
     MimeType thumbnailMimeType = imageThumbnailGenerator.getOutputThumbnailMimeType();
     MultipartFile thumbnailFile = new MultipartFileAdapter(
         "thumbnail",
