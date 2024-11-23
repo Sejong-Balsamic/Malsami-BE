@@ -8,6 +8,7 @@ import com.balsamic.sejongmalsami.object.MemberDto;
 import com.balsamic.sejongmalsami.object.WebLoginDto;
 import com.balsamic.sejongmalsami.object.mongo.RefreshToken;
 import com.balsamic.sejongmalsami.repository.mongo.RefreshTokenRepository;
+
 import com.balsamic.sejongmalsami.util.JwtUtil;
 import com.balsamic.sejongmalsami.util.exception.CustomException;
 import com.balsamic.sejongmalsami.util.exception.ErrorCode;
@@ -69,6 +70,7 @@ public class AuthService {
 
     return AuthDto.builder()
         .accessToken(newAccessToken)
+        .studentName(userDetails.getMember().getStudentName()) //2024.11.24 : SUH : 학생 이름 반환 추가
         .build();
   }
 
