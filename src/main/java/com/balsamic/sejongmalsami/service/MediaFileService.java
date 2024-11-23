@@ -39,7 +39,6 @@ import org.springframework.web.multipart.MultipartFile;
 @Slf4j
 public class MediaFileService {
 
-  //  @Qualifier("ftpStorageService")
   private final StorageService storageService;
   private final MediaFileRepository mediaFileRepository;
   private final QuestionPostRepository questionPostRepository;
@@ -49,8 +48,9 @@ public class MediaFileService {
   private final NoticePostRepository noticePostRepository;
   private final FtpConfig ftpConfig;
   private final ImageThumbnailGenerator imageThumbnailGenerator;
-  private static final Integer MAX_MEDIA_FILE_COUNT = 10;
 
+  // 최대 업로드 개수
+  private static final Integer MAX_MEDIA_FILE_COUNT = 10;
   // 파일 유형별 최대 업로드 크기 (MB)
   private static final int MAX_BASIC_UPLOAD_SIZE = 50;    // 이미지, 문서 등
   private static final int MAX_VIDEO_UPLOAD_SIZE = 200;   // 비디오
