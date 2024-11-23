@@ -77,7 +77,6 @@ public class QuestionPost extends BasePost {
   private List<QuestionPresetTag> questionPresetTags = new ArrayList<>();
 
   // 썸네일
-  @Column(length = 1024)
   private String thumbnailUrl;
 
   // 조회 수

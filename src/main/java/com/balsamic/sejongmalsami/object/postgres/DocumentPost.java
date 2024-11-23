@@ -24,11 +24,13 @@ import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
+import lombok.Setter;
 import lombok.ToString;
 import lombok.experimental.SuperBuilder;
 
 @Entity
 @Getter
+@Setter
 @SuperBuilder
 @AllArgsConstructor
 @NoArgsConstructor
@@ -69,7 +71,7 @@ public class DocumentPost extends BasePost {
   private PostTier postTier = PostTier.CHEONMIN; // 게시물 등급
 
   // 파일 미리보기 이미지 URL
-  private String previewUrl;
+  private String thumbnailUrl;
 
   @Builder.Default
   private Integer likeCount = 0; // 좋아요수

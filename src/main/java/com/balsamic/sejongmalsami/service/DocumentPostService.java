@@ -90,6 +90,7 @@ public class DocumentPostService {
             .subject(command.getSubject())
             .faculties(faculties)
             .postTier(PostTier.CHEONMIN)
+            .thumbnailUrl(null)
             .documentTypes(command.getDocumentTypes() != null ? new ArrayList<>(command.getDocumentTypes()) : null)
             .likeCount(0)
             .commentCount(0)
@@ -106,6 +107,11 @@ public class DocumentPostService {
         ContentType.DOCUMENT,
         savedDocument.getDocumentPostId(),
         member);
+
+    // 첨부자료 존재시 썸네일 추가
+    if(!savedDocumentFiles.isEmpty()){
+      savedDocument.setThumbnailUrl(savedDocumentFiles.get(0).getThumbnailUrl());
+    }
 
     return DocumentDto.builder()
         .documentPost(savedDocument)
