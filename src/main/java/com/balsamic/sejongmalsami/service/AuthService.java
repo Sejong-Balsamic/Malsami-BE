@@ -125,7 +125,7 @@ public class AuthService {
       throw new CustomException(ErrorCode.INVALID_REFRESH_TOKEN);
     }
 
-    // 리프레시 토큰 삭제 (MongoDB에서)
+    // 리프레시 토큰 삭제
     refreshTokenRepository.deleteByToken(refreshToken);
     log.info("리프레시 토큰 삭제 완료: {}", refreshToken);
 
