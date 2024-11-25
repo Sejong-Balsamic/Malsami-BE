@@ -14,4 +14,7 @@ public interface AnswerPostRepository extends JpaRepository<AnswerPost, UUID> {
 
   // 특정 질문글에 작성된 모든 답변 List 조회
   Optional<List<AnswerPost>> findAllByQuestionPost(QuestionPost questionPost);
+
+  // 특정 질문글에 작성된 답변 조회 시 채택 된 글이 최상단에 위치
+  Optional<List<AnswerPost>> findAllByQuestionPostOrderByIsChaetaekDescCreatedDateDesc(QuestionPost questionPost);
 }
