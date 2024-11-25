@@ -1,0 +1,59 @@
+name: SEJONG-MALSAMI-BE-PR-Build
+
+on:
+  pull_request:
+    branches:
+      - epic/**
+
+jobs:
+  build:
+#    if: startsWith(github.head_ref, 'chuseok22/') || startsWith(github.head_ref, 'SUH/') || startsWith(github.head_ref, 'minhong620/') || startsWith(github.head_ref, 'epic/')
+#    if: startsWith(github.head_ref, 'epic/')
+    runs-on: ubuntu-20.04
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
+
+      - name: Set up JDK 17
+        uses: actions/setup-java@v3
+        with:
+          distribution: 'temurin'
+          java-version: '17'
+
+      - name: Grant execute permission for gradlew
+        run: chmod +x gradlew
+
+      # application-prod.yml 파일을 빌드 전에 생성
+      - name: Create application-prod.yml from secret
+        run: |
+          echo "${{ secrets.APPLICATION_PROD_YML }}" > ./src/main/resources/application-prod.yml
+
+      # yeopjeon.yml 파일을 빌드 전에 생성
+      - name: Create yeopjeon.yml from secret
+        run: |
+          echo "${{ secrets.YEOPJEON_YML }}" > ./src/main/resources/yeopjeon.yml
+
+      # score.yml 파일을 빌드 전에 생성
+      - name: Create score.yml from secret
+        run: |
+          echo "${{ secrets.SCORE_YML }}" > ./src/main/resources/score.yml
+
+      # exp.yml 파일을 빌드 전에 생성
+      - name: Create exp.yml from secret
+        run: |
+          echo "${{ secrets.EXP_YML }}" > ./src/main/resources/exp.yml
+
+      # admin.yml 파일을 빌드 전에 생성
+      - name: Create admin.yml from secret
+        run: |
+          echo "${{ secrets.ADMIN_YML }}" > ./src/main/resources/admin.yml
+
+      # post-tier.yml 파일을 빌드 전에 생성
+      - name: Create post-tier.yml from secret
+        run: |
+          echo "${{ secrets.POSTTIER_YML }}" > ./src/main/resources/post-tier.yml
+
+      # prod 프로파일을 활성화하여 빌드
+      - name: Build with Gradle
+        run: ./gradlew clean build -Dspring.profiles.active=prod
