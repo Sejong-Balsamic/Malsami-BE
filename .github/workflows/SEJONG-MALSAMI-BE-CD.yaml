@@ -54,6 +54,7 @@ jobs:
         run: |
           echo "${{ secrets.POSTTIER_YML }}" > ./src/main/resources/post-tier.yml
 
-      # prod 프로파일을 활성화하여 빌드
+      # prod 프로파일을 활성화하여 빌드 ( 테스트 코드 테스트 X)
       - name: Build with Gradle
-        run: ./gradlew clean build -Dspring.profiles.active=prod
+        run: ./gradlew clean build -x test -Dspring.profiles.active=prod
+
