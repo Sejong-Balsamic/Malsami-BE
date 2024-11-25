@@ -90,6 +90,8 @@ public class AnswerPostService {
 
   /**
    * <h3>특정 질문글에 작성된 모든 답변 조회 로직</h3>
+   * <p>채택된 글이 있으면 최상단에 반환합니다.
+   * <p>다른 답변은 최신순으로 정렬합니다.
    *
    * @param command memberId, questionPostId
    * @return
@@ -102,7 +104,7 @@ public class AnswerPostService {
 
     // 질문글에 작성된 답변 list 조회
     List<AnswerPost> answerPosts = answerPostRepository
-        .findAllByQuestionPost(questionPost).orElse(null);
+        .findAllByQuestionPostOrderByIsChaetaekDescCreatedDateDesc(questionPost).orElse(null);
 
     // 각 답변에 대해 좋아요 여부 설정
     if (answerPosts != null) {
