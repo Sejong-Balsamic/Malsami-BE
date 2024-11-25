@@ -19,7 +19,6 @@ import lombok.ToString;
 import org.springframework.web.multipart.MultipartFile;
 
 @ToString
-@Builder
 @AllArgsConstructor
 @Getter
 @Setter
