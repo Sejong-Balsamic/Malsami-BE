@@ -33,7 +33,7 @@ public class AuthService {
   /**
    * 리프레시 토큰을 사용하여 새로운 액세스 토큰 발급
    */
-  @Transactional(readOnly = true)
+  @Transactional
   public AuthDto refreshAccessToken(AuthCommand command) {
     String refreshToken = command.getRefreshToken();
     // 리프레시 토큰 검증 (JWT 유효성 검사)

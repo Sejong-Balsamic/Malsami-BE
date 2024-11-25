@@ -12,7 +12,6 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
 import lombok.AllArgsConstructor;
-import lombok.Builder;
 import lombok.Getter;
 import lombok.Setter;
 import lombok.ToString;
@@ -25,9 +24,9 @@ import org.springframework.web.multipart.MultipartFile;
 public class DocumentCommand {
   // 2024.11.15 : SUHSAECHAN : 페이지 기본값 설정
   public DocumentCommand() {
-    this.pageNumber = 0; // 기본값 설정
-    this.pageSize = 30; // 기본값 설정
-    this.attachmentFiles = new ArrayList<>(); // 빈 리스트 초기화
+    this.pageNumber = 0;
+    this.pageSize = 30;
+    this.attachmentFiles = new ArrayList<>();
   }
 
   private UUID memberId; // 자료, 자료 요청
