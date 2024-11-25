@@ -75,6 +75,11 @@ public interface AuthControllerDocs {
 
   @ApiChangeLogs({
       @ApiChangeLog(
+          date = "2024.11.24",
+          author = Author.SUHSAECHAN,
+          description = "버그수정 : #424 : 리프레시 토큰 삭제 로직 추가 및 SameSite 속성 설정"
+      ),
+      @ApiChangeLog(
           date = "2024.11.10",
           author = Author.SUHSAECHAN,
           description = "로그아웃 API 구현"
@@ -83,12 +88,29 @@ public interface AuthControllerDocs {
   @Operation(
       summary = "로그아웃 API",
       description = """
-          **참고 사항:** 
-          - 정상 삭제 했을시 200 ok 반환
-          """
+        **로그아웃 API**
+
+        클라이언트는 이 API를 호출하여 사용자 세션을 종료할 수 있습니다. 로그아웃 시, 서버는 `refreshToken` 쿠키를 삭제하고, 서버 측에서도 리프레시 토큰을 제거합니다.
+
+        **입력 파라미터 값:**
+
+        - **Cookie**: 리프레시 토큰이 포함된 HTTP-Only 쿠키
+          - **Name:** `refreshToken`
+          - **Value:** 저장된 리프레시 토큰 값
+
+        **반환 파라미터 값:**
+
+        - **없음**: 성공 시 200 OK 응답
+
+        **응답 코드:**
+
+        - **200 OK**: 로그아웃 성공
+        - **401 Unauthorized**: 리프레시 토큰이 유효하지 않거나 만료됨
+        - **403 Forbidden**: 쿠키에서 리프레시 토큰을 찾을 수 없음
+        """
   )
   @PostMapping(value = "/logout")
   @LogMonitoringInvocation
-  ResponseEntity<Void> logout(HttpServletResponse response);
+  ResponseEntity<Void> logout(HttpServletRequest request, HttpServletResponse response);
 }
 

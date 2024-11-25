@@ -2,7 +2,6 @@ package com.balsamic.sejongmalsami.controller;
 
 import com.balsamic.sejongmalsami.object.AuthCommand;
 import com.balsamic.sejongmalsami.object.AuthDto;
-import com.balsamic.sejongmalsami.object.CustomUserDetails;
 import com.balsamic.sejongmalsami.service.AuthService;
 import com.balsamic.sejongmalsami.util.JwtUtil;
 import com.balsamic.sejongmalsami.util.exception.CustomException;
@@ -45,27 +44,9 @@ public class AuthController implements AuthControllerDocs {
   @PostMapping(value = "/logout")
   @LogMonitoringInvocation
   @Override
-  public ResponseEntity<Void> logout(HttpServletResponse response) {
-
-    // 리프레시 토큰 쿠키 삭제
-    Cookie cookie = new Cookie("refreshToken", null);
-    cookie.setMaxAge(0);
-    cookie.setPath("/");
-    response.addCookie(cookie);
-
-    //TODO: 리프레시 토큰 삭제로직 필요
-
-    // AccessToken 삭제
-    response.setHeader("Authorization", "Bearer ");
-
+  public ResponseEntity<Void> logout(HttpServletRequest request, HttpServletResponse response) {
+    authService.logout(request, response);
     return ResponseEntity.ok().build();
-  }
-
-  /*
-   인증된 사용자 확인
-   */
-  private Boolean isValidateUserDetails(CustomUserDetails customUserDetails){
-    return customUserDetails != null && customUserDetails.getMemberId() != null;
   }
 
   /**
