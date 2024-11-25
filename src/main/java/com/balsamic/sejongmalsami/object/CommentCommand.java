@@ -6,7 +6,6 @@ import java.util.UUID;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
-import lombok.NoArgsConstructor;
 import lombok.Setter;
 import lombok.ToString;
 
@@ -14,9 +13,12 @@ import lombok.ToString;
 @Getter
 @Setter
 @ToString
-@NoArgsConstructor
 @AllArgsConstructor
 public class CommentCommand {
+  public CommentCommand() {
+    this.pageNumber = 0; // 기본값 설정
+    this.pageSize = 30; // 기본값 설정
+  }
 
   private UUID memberId;
   private UUID postId;

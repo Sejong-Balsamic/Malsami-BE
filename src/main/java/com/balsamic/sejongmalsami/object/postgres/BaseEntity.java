@@ -43,6 +43,7 @@ public abstract class BaseEntity {
 
   // 좋아요 누른 글 여부
   @Transient
+  @Builder.Default
   private Boolean isLiked = false;
 
   // 수정
