@@ -51,7 +51,6 @@ public class QueryService {
     Pageable pageable = PageRequest.of(
         command.getPageNumber(),
         command.getPageSize()
-//        Sort.by("createdDate").descending()
     );
 
     Page<QuestionPost> questionPostPage = questionPostRepository
