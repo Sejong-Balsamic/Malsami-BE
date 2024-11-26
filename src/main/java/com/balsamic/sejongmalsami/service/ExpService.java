@@ -92,4 +92,14 @@ public class ExpService {
     return expRepository.findByMember(member)
         .orElseThrow(() -> new CustomException(ErrorCode.EXP_NOT_FOUND));
   }
+
+  // 경험치 랭킹 반환
+  public int getExpRank(Member member) {
+    return expRepository.findRankByMemberId(member.getMemberId());
+  }
+
+  // 전체 경험치 수 반환
+  public int getTotalExpCount() {
+    return expRepository.findTotalExpCount();
+  }
 }

@@ -50,6 +50,7 @@ public class MemberService implements UserDetailsService {
   private final ExpRepository expRepository;
   private final AdminConfig adminConfig;
   private final YeopjeonService yeopjeonService;
+  private final ExpService expService;
 
   /**
    * Spring Security에서 회원 정보를 로드하는 메서드
@@ -239,20 +240,31 @@ public class MemberService implements UserDetailsService {
         .orElseThrow(() -> new CustomException(ErrorCode.EXP_NOT_FOUND));
 
     // 경험치 : 현재 순위
+    int expRank = expService.getExpRank(member);
+    int totalExpCount = expService.getTotalExpCount();
+    double expPercentile = FileUtil.calculatePercentile(totalExpCount, expRank);
 
-    // 작성한 댓글
+    // 작성한 댓글 개수
 
-    // 작성한 글
-    // 올린 인기자료
-    // 받은
+    // 작성한 글 개수
+
+    // 올린 인기자료 개수
+
+    // 받은 좋아요 개수
 
     return MemberDto.builder()
+        // 회원
         .member(member)
+        // 엽전
         .yeopjeon(yeopjeon)
         .yeopjeonRank(yeopjeonRank)
         .totalYeopjeonCount(totalYeopjeonCount)
         .yeopjeonPercentile(yeopjeonPercentile)
+        // 경험치
         .exp(exp)
+        .expRank(expRank)
+        .totalExpCount(totalExpCount)
+        .expPercentile(expPercentile)
         .build();
   }
 
