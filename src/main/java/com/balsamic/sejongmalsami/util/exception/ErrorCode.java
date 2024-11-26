@@ -159,6 +159,9 @@ public enum ErrorCode {
 
   INVALID_REACTION_TYPE(HttpStatus.BAD_REQUEST, "잘못된 ReactionType 입니다."),
 
+  // SortType
+  INVALID_SORT_TYPE(HttpStatus.BAD_REQUEST, "잘못된 정렬타입 입니다."),
+
   // MediaFile
 
   MEDIA_FILE_LIMIT_EXCEEDED(HttpStatus.BAD_REQUEST, "첨부할 수 있는 미디어 파일 개수를 초과했습니다."),

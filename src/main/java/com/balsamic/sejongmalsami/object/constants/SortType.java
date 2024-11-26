@@ -7,6 +7,7 @@ import lombok.Getter;
 @Getter
 public enum SortType {
   LATEST("최신순"),
+  OLDEST("과거순"),
   MOST_LIKED("추천순"),
   YEOPJEON_REWARD("엽전 현상금 높은순"),
   VIEW_COUNT("조회수 많은순"),
