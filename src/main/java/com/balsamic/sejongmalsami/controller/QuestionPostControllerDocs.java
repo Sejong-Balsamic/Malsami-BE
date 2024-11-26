@@ -92,6 +92,11 @@ public interface QuestionPostControllerDocs {
 
   @ApiChangeLogs({
       @ApiChangeLog(
+          date = "2024.11.27",
+          author = Author.SUHSAECHAN,
+          description = "반환값에 mediaFiles 추가"
+      ),
+      @ApiChangeLog(
           date = "2024.11.16",
           author = Author.SUHSAECHAN,
           description = "게시글 조회시 isChaetaek"
@@ -120,6 +125,7 @@ public interface QuestionPostControllerDocs {
           - **`QuestionPost questionPost`**: 질문 글 정보
           - **`List<String> customTags`**: 질문글의 태그 리스트
           - **`List<AnswerPost> answerPosts`**: 답변 리스트
+          - **`List<MediaFiles> mediaFiles`**: 미디어 리스트
           """
   )
   ResponseEntity<QuestionDto> getQuestionPost(
