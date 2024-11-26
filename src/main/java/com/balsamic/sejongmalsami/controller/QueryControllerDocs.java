@@ -27,6 +27,7 @@ public interface QueryControllerDocs {
           #### 요청 파라미터
           - **`query`** (`String`, 선택): 검색어
           - **`subject`** (`String`, 선택): 교과목 명
+          - **`sortType`** (`SortType`, 선택): 정렬기준 (기본값 = 최신순)
           - **`pageNumber`** (`Integer`, 선택): 조회할 페이지 (기본값 = 0)
           - **`pageSize`** (`Integer`, 선택): 페이지 당 조회할 개수 (기본값 = 30)
           
@@ -37,6 +38,7 @@ public interface QueryControllerDocs {
           - **`Page<NoticePost> noticePostsPage`**: 공지사항 글 리스트
           
           **참고 사항:**
+          - 정렬기준은 `최신순`, `좋아요순`, `댓글순`, `조회순`, `과거순` 선택 가능합니다.
           - 검색어 입력 시 질문, 자료, 자료 요청, 공지사항 글 제목+본문에 해당 검색어가 포함된 글을 조회합니다.
           - 질문, 자료, 자료 요청, 공지사항 글은 각각 pageSize 개수만큼 조회됩니다.
             _예: pageSize = 30, 질문글 - 30개, 자료글 - 30개, 자료요청글 - 30개, 공지사항글 - 30개
