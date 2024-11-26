@@ -13,7 +13,6 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
-import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -30,6 +29,7 @@ public class QueryService {
    * <h3>검색 로직
    * <p>제목+본문에 검색어를 포함하는 글을 반환합니다.</p>
    * <p>해당 과목명이 포함된 글을 반환합니다.</p>
+   *
    * @param command query, subject, pageNumber, pageSize
    * @return
    */
@@ -50,8 +50,9 @@ public class QueryService {
     // 검색 (최신순 정렬)
     Pageable pageable = PageRequest.of(
         command.getPageNumber(),
-        command.getPageSize(),
-        Sort.by("createdDate").descending());
+        command.getPageSize()
+//        Sort.by("createdDate").descending()
+    );
 
     Page<QuestionPost> questionPostPage = questionPostRepository
         .findQuestionPostsByQuery(

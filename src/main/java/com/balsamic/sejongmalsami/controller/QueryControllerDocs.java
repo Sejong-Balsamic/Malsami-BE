@@ -31,10 +31,10 @@ public interface QueryControllerDocs {
           - **`pageSize`** (`Integer`, 선택): 페이지 당 조회할 개수 (기본값 = 30)
           
           #### 반환 파라미터
-          - **`Page\\<QuestionPost\\> questionPostsPage`**: 질문 글 리스트
-          - **`Page\\<DocumentPost\\> documentPostsPage`**: 자료 글 리스트
-          - **`Page\\<DocumentRequestPost\\> documentRequestPostsPage`**: 자료 요청 글 리스트
-          - **`Page\\<NoticePost\\> noticePostsPage`**: 공지사항 글 리스트
+          - **`Page<QuestionPost> questionPostsPage`**: 질문 글 리스트
+          - **`Page<DocumentPost> documentPostsPage`**: 자료 글 리스트
+          - **`Page<DocumentRequestPost> documentRequestPostsPage`**: 자료 요청 글 리스트
+          - **`Page<NoticePost> noticePostsPage`**: 공지사항 글 리스트
           
           **참고 사항:**
           - 검색어 입력 시 질문, 자료, 자료 요청, 공지사항 글 제목+본문에 해당 검색어가 포함된 글을 조회합니다.

@@ -4,6 +4,7 @@ import com.balsamic.sejongmalsami.object.QueryCommand;
 import com.balsamic.sejongmalsami.object.QueryDto;
 import com.balsamic.sejongmalsami.service.QueryService;
 import com.balsamic.sejongmalsami.util.log.LogMonitoringInvocation;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
@@ -15,7 +16,11 @@ import org.springframework.web.bind.annotation.RestController;
 @RestController
 @RequiredArgsConstructor
 @RequestMapping("/api/query")
-public class QueryController implements QueryControllerDocs{
+@Tag(
+    name = "검색 페이지 API",
+    description = "검색 페이지 관련 API 제공"
+)
+public class QueryController implements QueryControllerDocs {
 
   private final QueryService queryService;
 
