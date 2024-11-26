@@ -1,5 +1,12 @@
 package com.balsamic.sejongmalsami.service;
 
+import static com.balsamic.sejongmalsami.object.constants.SortType.COMMENT_COUNT;
+import static com.balsamic.sejongmalsami.object.constants.SortType.LATEST;
+import static com.balsamic.sejongmalsami.object.constants.SortType.MOST_LIKED;
+import static com.balsamic.sejongmalsami.object.constants.SortType.OLDEST;
+import static com.balsamic.sejongmalsami.object.constants.SortType.VIEW_COUNT;
+import static com.balsamic.sejongmalsami.object.constants.SortType.getNativeQuerySortOrder;
+
 import com.balsamic.sejongmalsami.object.QueryCommand;
 import com.balsamic.sejongmalsami.object.QueryDto;
 import com.balsamic.sejongmalsami.object.constants.SortType;
@@ -52,20 +59,18 @@ public class QueryService {
       command.setSubject(null);
     }
 
-    if (command.getSortType() == null) {
-      command.setSortType(SortType.LATEST);
+    // 정렬타입 기본값 설정 / 잘못된 경우
+    SortType sortType = (command.getSortType() != null) ? command.getSortType() : LATEST;
+    if (!sortType.equals(LATEST) &&
+        !sortType.equals(MOST_LIKED) &&
+        !sortType.equals(COMMENT_COUNT) &&
+        !sortType.equals(VIEW_COUNT) &&
+        !sortType.equals(OLDEST)) {
+      throw new CustomException(ErrorCode.INVALID_SORT_TYPE);
     }
 
     // 정렬조건 (최신순, 좋아요순, 댓글순, 조회순, 과거순)
-    Sort sort;
-    switch (command.getSortType()) {
-      case LATEST -> sort = Sort.by(Sort.Order.desc("created_date"));
-      case MOST_LIKED -> sort = Sort.by(Sort.Order.desc("like_count"));
-      case VIEW_COUNT -> sort = Sort.by(Sort.Order.desc("view_count"));
-      case COMMENT_COUNT -> sort = Sort.by(Sort.Order.desc("comment_count"));
-      case OLDEST -> sort = Sort.by(Sort.Order.asc("created_date"));
-      default -> throw new CustomException(ErrorCode.INVALID_SORT_TYPE);
-    }
+    Sort sort = getNativeQuerySortOrder(sortType);
 
     // 검색
     Pageable pageable = PageRequest.of(
