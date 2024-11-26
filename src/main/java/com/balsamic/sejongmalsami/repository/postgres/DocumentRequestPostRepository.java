@@ -31,20 +31,15 @@ public interface DocumentRequestPostRepository extends JpaRepository<DocumentReq
 
   // 검색
   @Query(
-      value = """
-          select distinct p.* from document_request_post p 
-          where (:query) is null or lower(p.title) like lower(concat('%', :query, '%'))
-          and (:query) is null or lower(p.content) like lower(concat('%', :query, '%'))
-          and (:subject) is null or lower(p.subject) like lower(concat('%', :subject, '%'))
-          order by p.created_date desc 
-          fetch first ? rows only 
-          """,
-      countQuery = """
-          select count (distinct p.document_request_post_id) from document_request_post p
-          where (:query is null or lower(p.title) like lower(concat('%', :query, '%')))
-          and (:query) is null or lower(p.content) like lower(concat('%', :query, '%'))
-          and (:subject) is null or lower (p.subject) like lower(concat('%', :subject, '%'))
-          """,
+      value = "SELECT DISTINCT p.* FROM document_request_post p " +
+              "WHERE (:query IS NULL OR LOWER(p.title) LIKE LOWER(CONCAT('%', :query, '%'))) " +
+              "AND (:subject IS NULL OR LOWER(p.subject) LIKE LOWER(CONCAT('%', :subject, '%'))) " +
+              "AND (:query IS NULL OR LOWER(p.content) LIKE LOWER(CONCAT('%', :query, '%'))) " +
+              "ORDER BY p.created_date DESC ",
+      countQuery = "SELECT COUNT(DISTINCT p.document_request_post_id) FROM document_request_post p " +
+                   "WHERE (:query IS NULL OR LOWER(p.title) LIKE LOWER(CONCAT('%', :query, '%'))) " +
+                   "AND (:subject IS NULL OR LOWER(p.subject) LIKE LOWER(CONCAT('%', :subject, '%'))) " +
+                   "AND (:query IS NULL OR LOWER(p.content) LIKE LOWER(CONCAT('%', :query, '%'))) ",
       nativeQuery = true
   )
   Page<DocumentRequestPost> findDocumentRequestPostsByQuery(

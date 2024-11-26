@@ -67,20 +67,15 @@ public interface QuestionPostRepository extends JpaRepository<QuestionPost, UUID
 
   // 검색
   @Query(
-      value = """
-          select distinct p.* from question_post p 
-          where (:query) is null or lower(p.title) like lower(concat('%', :query, '%'))
-          and (:query) is null or lower(p.content) like lower(concat('%', :query, '%'))
-          and (:subject) is null or lower(p.subject) like lower(concat('%', :subject, '%'))
-          order by p.created_date desc 
-          fetch first ? rows only 
-          """,
-      countQuery = """
-          select count (distinct p.question_post_id) from question_post p
-          where (:query is null or lower(p.title) like lower(concat('%', :query, '%')))
-          and (:query) is null or lower(p.content) like lower(concat('%', :query, '%'))
-          and (:subject) is null or lower (p.subject) like lower(concat('%', :subject, '%'))
-          """,
+      value = "SELECT DISTINCT p.* FROM question_post p " +
+              "WHERE (:query IS NULL OR LOWER(p.title) LIKE LOWER(CONCAT('%', :query, '%'))) " +
+              "AND (:subject IS NULL OR LOWER(p.subject) LIKE LOWER(CONCAT('%', :subject, '%'))) " +
+              "AND (:query IS NULL OR LOWER(p.content) LIKE LOWER(CONCAT('%', :query, '%'))) " +
+              "ORDER BY p.created_date DESC ",
+      countQuery = "SELECT COUNT(DISTINCT p.question_post_id) FROM question_post p " +
+                   "WHERE (:query IS NULL OR LOWER(p.title) LIKE LOWER(CONCAT('%', :query, '%'))) " +
+                   "AND (:subject IS NULL OR LOWER(p.subject) LIKE LOWER(CONCAT('%', :subject, '%'))) " +
+                   "AND (:query IS NULL OR LOWER(p.content) LIKE LOWER(CONCAT('%', :query, '%'))) ",
       nativeQuery = true
   )
   Page<QuestionPost> findQuestionPostsByQuery(
