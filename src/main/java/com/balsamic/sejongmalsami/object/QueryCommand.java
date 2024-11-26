@@ -1,5 +1,6 @@
 package com.balsamic.sejongmalsami.object;
 
+import com.balsamic.sejongmalsami.object.constants.SortType;
 import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
@@ -19,6 +20,7 @@ public class QueryCommand {
 
   private String query;
   private String subject;
+  private SortType sortType;
   @Schema(defaultValue = "0")
   private Integer pageNumber;
   @Schema(defaultValue = "30")
