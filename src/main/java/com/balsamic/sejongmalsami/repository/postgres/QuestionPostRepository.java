@@ -64,4 +64,28 @@ public interface QuestionPostRepository extends JpaRepository<QuestionPost, UUID
       @Param("questionPresetTags") List<QuestionPresetTag> questionPresetTags,
       @Param("chaetaekStatus") String chaetaekStatus,
       Pageable pageable);
+
+  // 검색
+  @Query(
+      value = """
+          select distinct p.* from question_post p 
+          where (:query) is null or lower(p.title) like lower(concat('%', :query, '%'))
+          and (:query) is null or lower(p.content) like lower(concat('%', :query, '%'))
+          and (:subject) is null or lower(p.subject) like lower(concat('%', :subject, '%'))
+          order by p.created_date desc 
+          fetch first ? rows only 
+          """,
+      countQuery = """
+          select count (distinct p.question_post_id) from question_post p
+          where (:query is null or lower(p.title) like lower(concat('%', :query, '%')))
+          and (:query) is null or lower(p.content) like lower(concat('%', :query, '%'))
+          and (:subject) is null or lower (p.subject) like lower(concat('%', :subject, '%'))
+          """,
+      nativeQuery = true
+  )
+  Page<QuestionPost> findQuestionPostsByQuery(
+      @Param("query") String query,
+      @Param("subject") String subject,
+      Pageable pageable
+  );
 }

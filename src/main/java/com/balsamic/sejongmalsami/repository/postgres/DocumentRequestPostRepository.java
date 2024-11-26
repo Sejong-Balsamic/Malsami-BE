@@ -3,6 +3,7 @@ package com.balsamic.sejongmalsami.repository.postgres;
 import com.balsamic.sejongmalsami.object.constants.DocumentType;
 import com.balsamic.sejongmalsami.object.constants.Faculty;
 import com.balsamic.sejongmalsami.object.postgres.DocumentRequestPost;
+import com.balsamic.sejongmalsami.object.postgres.QuestionPost;
 import java.util.List;
 import java.util.UUID;
 import org.springframework.data.domain.Page;
@@ -28,4 +29,28 @@ public interface DocumentRequestPostRepository extends JpaRepository<DocumentReq
       @Param("faculty") Faculty faculty,
       @Param("documentTypes") List<DocumentType> documentTypes,
       Pageable pageable);
+
+  // 검색
+  @Query(
+      value = """
+          select distinct p.* from document_request_post p 
+          where (:query) is null or lower(p.title) like lower(concat('%', :query, '%'))
+          and (:query) is null or lower(p.content) like lower(concat('%', :query, '%'))
+          and (:subject) is null or lower(p.subject) like lower(concat('%', :subject, '%'))
+          order by p.created_date desc 
+          fetch first ? rows only 
+          """,
+      countQuery = """
+          select count (distinct p.document_request_post_id) from document_request_post p
+          where (:query is null or lower(p.title) like lower(concat('%', :query, '%')))
+          and (:query) is null or lower(p.content) like lower(concat('%', :query, '%'))
+          and (:subject) is null or lower (p.subject) like lower(concat('%', :subject, '%'))
+          """,
+      nativeQuery = true
+  )
+  Page<QuestionPost> findDocumentRequestPostsByQuery(
+      @Param("query") String query,
+      @Param("subject") String subject,
+      Pageable pageable
+  );
 }
