@@ -205,10 +205,14 @@ public class QuestionPostService {
           .collect(Collectors.toList());
     }
 
+    // 첨부파일 mediaFiles 가져오기
+    List<MediaFile> mediaFiles = mediaFileService.getMediaFilesByPostId(questionPost.getQuestionPostId());
+
     return QuestionDto.builder()
         .questionPost(questionPost)
         .answerPosts(answerPosts)
         .customTags(customTags)
+        .mediaFiles(mediaFiles)
         .build();
   }
 
