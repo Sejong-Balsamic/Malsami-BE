@@ -1,5 +1,11 @@
 package com.balsamic.sejongmalsami.service;
 
+import static com.balsamic.sejongmalsami.object.constants.SortType.COMMENT_COUNT;
+import static com.balsamic.sejongmalsami.object.constants.SortType.LATEST;
+import static com.balsamic.sejongmalsami.object.constants.SortType.MOST_LIKED;
+import static com.balsamic.sejongmalsami.object.constants.SortType.VIEW_COUNT;
+import static com.balsamic.sejongmalsami.object.constants.SortType.getJpqlSortOrder;
+
 import com.balsamic.sejongmalsami.object.DocumentCommand;
 import com.balsamic.sejongmalsami.object.DocumentDto;
 import com.balsamic.sejongmalsami.object.constants.DocumentType;
@@ -23,7 +29,6 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
-import org.springframework.data.domain.Sort.Direction;
 import org.springframework.stereotype.Service;
 
 @Service
@@ -130,18 +135,20 @@ public class DocumentRequestPostService {
     }
 
     // 정렬 기준 (default: 최신순)
-    SortType sortType = (command.getSortType() != null) ? command.getSortType() : SortType.LATEST;
-
-    Sort sort;
-    switch (sortType) {
-      case LATEST -> sort = Sort.by(Direction.DESC, "createdDate");
-      case MOST_LIKED -> sort = Sort.by(Direction.DESC, "likeCount");
-      case COMMENT_COUNT -> sort = Sort.by(Direction.DESC, "commentCount");
-      case VIEW_COUNT -> sort = Sort.by(Direction.DESC, "viewCount");
-      default -> sort = Sort.by(Direction.DESC, "createdDate");
+    SortType sortType = (command.getSortType() != null) ? command.getSortType() : LATEST;
+    if (!sortType.equals(LATEST) &&
+        !sortType.equals(MOST_LIKED) &&
+        !sortType.equals(COMMENT_COUNT) &&
+        !sortType.equals(VIEW_COUNT)) {
+      throw new CustomException(ErrorCode.INVALID_SORT_TYPE);
     }
 
-    Pageable pageable = PageRequest.of(command.getPageNumber(), command.getPageSize(), sort);
+    Sort sort = getJpqlSortOrder(sortType);
+
+    Pageable pageable = PageRequest.of(
+        command.getPageNumber(),
+        command.getPageSize(),
+        sort);
 
     Page<DocumentRequestPost> posts = documentRequestPostRepository.findFilteredDocumentRequestPost(
         command.getSubject(),

@@ -21,7 +21,7 @@ import org.springframework.web.multipart.MultipartFile;
 @ToString
 @AllArgsConstructor
 public class QuestionCommand {
-  // 2024.11.15 : SUHSAECHAN : 페이지 기본갑 성정
+  // 2024.11.15 : SUHSAECHAN : 페이지 기본값 성정
   public QuestionCommand() {
     this.pageNumber = 0;
     this.pageSize = 30;
