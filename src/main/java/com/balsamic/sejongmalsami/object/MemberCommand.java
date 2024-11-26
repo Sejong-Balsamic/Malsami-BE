@@ -1,5 +1,6 @@
 package com.balsamic.sejongmalsami.object;
 
+import com.balsamic.sejongmalsami.object.postgres.Member;
 import java.util.UUID;
 import lombok.Builder;
 import lombok.Getter;
@@ -20,6 +21,8 @@ public class MemberCommand {
   private String major;
   private String academicYear;
   private String enrollmentStatus;
+
+  private Member member;
 
   // auth
   private String sejongPortalId;

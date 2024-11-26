@@ -13,8 +13,8 @@ import com.balsamic.sejongmalsami.repository.mongo.RefreshTokenRepository;
 import com.balsamic.sejongmalsami.repository.postgres.ExpRepository;
 import com.balsamic.sejongmalsami.repository.postgres.MemberRepository;
 import com.balsamic.sejongmalsami.repository.postgres.YeopjeonRepository;
+import com.balsamic.sejongmalsami.util.FileUtil;
 import com.balsamic.sejongmalsami.util.JwtUtil;
-import com.balsamic.sejongmalsami.util.LogUtils;
 import com.balsamic.sejongmalsami.util.SejongPortalAuthenticator;
 import com.balsamic.sejongmalsami.util.config.AdminConfig;
 import com.balsamic.sejongmalsami.util.config.YeopjeonConfig;
@@ -49,6 +49,7 @@ public class MemberService implements UserDetailsService {
   private final YeopjeonConfig yeopjeonConfig;
   private final ExpRepository expRepository;
   private final AdminConfig adminConfig;
+  private final YeopjeonService yeopjeonService;
 
   /**
    * Spring Security에서 회원 정보를 로드하는 메서드
@@ -221,18 +222,36 @@ public class MemberService implements UserDetailsService {
 
   @Transactional(readOnly = true)
   public MemberDto myPage(MemberCommand command) {
-    Member member = memberRepository.findById(command.getMemberId())
-        .orElseThrow(() -> new CustomException(ErrorCode.MEMBER_NOT_FOUND));
+    // 사용자 정보 가져오기
+    Member member = command.getMember();
 
+    // 엽전 내역 가져오기
     Yeopjeon yeopjeon = yeopjeonRepository.findByMember(member)
         .orElseThrow(() -> new CustomException(ErrorCode.YEOPJEON_NOT_FOUND));
 
+    // 엽전 : 현재 순위
+    int yeopjeonRank = yeopjeonService.getYeopjeonRank(member);
+    int totalYeopjeonCount = yeopjeonService.getTotalYeopjeonCount();
+    double yeopjeonPercentile = FileUtil.calculatePercentile(totalYeopjeonCount, yeopjeonRank);
+
+    // 현재 경험치
     Exp exp = expRepository.findByMember(member)
         .orElseThrow(() -> new CustomException(ErrorCode.EXP_NOT_FOUND));
+
+    // 경험치 : 현재 순위
+
+    // 작성한 댓글
+
+    // 작성한 글
+    // 올린 인기자료
+    // 받은
 
     return MemberDto.builder()
         .member(member)
         .yeopjeon(yeopjeon)
+        .yeopjeonRank(yeopjeonRank)
+        .totalYeopjeonCount(totalYeopjeonCount)
+        .yeopjeonPercentile(yeopjeonPercentile)
         .exp(exp)
         .build();
   }
@@ -249,4 +268,7 @@ public class MemberService implements UserDetailsService {
     CustomUserDetails userDetails = loadUserByUsername(username);
     return new UsernamePasswordAuthenticationToken(userDetails, null, userDetails.getAuthorities());
   }
+
+
+
 }

@@ -30,4 +30,8 @@ public class MemberDto {
 
   private Boolean isFirstLogin;
   private Boolean isAdmin;
+
+  private int yeopjeonRank;
+  private int totalYeopjeonCount;
+  private double yeopjeonPercentile;
 }

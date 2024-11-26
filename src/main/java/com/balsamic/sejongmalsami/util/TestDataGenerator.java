@@ -191,7 +191,7 @@ public class TestDataGenerator {
     // Mock 회원의 엽전 테이블 생성
     Yeopjeon yeopjeon = Yeopjeon.builder()
         .member(member)
-        .yeopjeon(1000000)
+        .yeopjeon(faker.number().numberBetween(500, 10000))
         .build();
     yeopjeonRepository.save(yeopjeon);
 

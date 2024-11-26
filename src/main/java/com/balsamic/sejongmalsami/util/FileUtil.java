@@ -134,4 +134,18 @@ public class FileUtil {
 
     return filePath.substring(lastSeparatorIndex + 1);
   }
+
+  /**
+   * 백분위 계산
+   * @param total
+   * @param value
+   * @return
+   */
+  public static double calculatePercentile(int total, int value) {
+    if (total == 0) {
+      throw new IllegalStateException("No members found in the database.");
+    }
+    // 백분위 계산
+    return ((double) (total - value + 1) / total) * 100;
+  }
 }
