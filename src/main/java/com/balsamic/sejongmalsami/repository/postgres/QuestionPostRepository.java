@@ -70,8 +70,7 @@ public interface QuestionPostRepository extends JpaRepository<QuestionPost, UUID
       value = "SELECT DISTINCT p.* FROM question_post p " +
               "WHERE (:query IS NULL OR LOWER(p.title) LIKE LOWER(CONCAT('%', :query, '%')) " +
               "OR LOWER(p.content) LIKE LOWER(CONCAT('%', :query, '%'))) " +
-              "AND (:subject IS NULL OR LOWER(p.subject) LIKE LOWER(CONCAT('%', :subject, '%'))) " +
-              "ORDER BY p.created_date DESC ",
+              "AND (:subject IS NULL OR LOWER(p.subject) LIKE LOWER(CONCAT('%', :subject, '%'))) ",
       countQuery = "SELECT COUNT(DISTINCT p.question_post_id) FROM question_post p " +
                    "WHERE (:query IS NULL OR LOWER(p.title) LIKE LOWER(CONCAT('%', :query, '%')) " +
                    "OR LOWER(p.content) LIKE LOWER(CONCAT('%', :query, '%'))) " +

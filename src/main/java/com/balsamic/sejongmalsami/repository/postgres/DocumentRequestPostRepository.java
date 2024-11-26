@@ -34,8 +34,7 @@ public interface DocumentRequestPostRepository extends JpaRepository<DocumentReq
       value = "SELECT DISTINCT p.* FROM document_request_post p " +
               "WHERE (:query IS NULL OR LOWER(p.title) LIKE LOWER(CONCAT('%', :query, '%')) " +
               "OR LOWER(p.content) LIKE LOWER(CONCAT('%', :query, '%'))) " +
-              "AND (:subject IS NULL OR LOWER(p.subject) LIKE LOWER(CONCAT('%', :subject, '%'))) " +
-              "ORDER BY p.created_date DESC ",
+              "AND (:subject IS NULL OR LOWER(p.subject) LIKE LOWER(CONCAT('%', :subject, '%'))) ",
       countQuery = "SELECT COUNT(DISTINCT p.document_request_post_id) FROM document_request_post p " +
                    "WHERE (:query IS NULL OR LOWER(p.title) LIKE LOWER(CONCAT('%', :query, '%')) " +
                    "OR LOWER(p.content) LIKE LOWER(CONCAT('%', :query, '%'))) " +
