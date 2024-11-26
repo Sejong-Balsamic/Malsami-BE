@@ -1,5 +1,9 @@
 package com.balsamic.sejongmalsami.service;
 
+import static com.balsamic.sejongmalsami.object.constants.SortType.LATEST;
+import static com.balsamic.sejongmalsami.object.constants.SortType.MOST_LIKED;
+import static com.balsamic.sejongmalsami.object.constants.SortType.VIEW_COUNT;
+import static com.balsamic.sejongmalsami.object.constants.SortType.getJpqlSortOrder;
 import static com.balsamic.sejongmalsami.object.constants.YeopjeonAction.VIEW_DOCUMENT_CHEONMIN_POST;
 import static com.balsamic.sejongmalsami.object.constants.YeopjeonAction.VIEW_DOCUMENT_JUNGIN_POST;
 import static com.balsamic.sejongmalsami.object.constants.YeopjeonAction.VIEW_DOCUMENT_KING_POST;
@@ -32,7 +36,6 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
-import org.springframework.data.domain.Sort.Order;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -164,15 +167,14 @@ public class DocumentPostService {
     }
 
     // 정렬 (최신순, 좋아요순, 조회순)
-    Sort sort;
-    SortType sortType = command.getSortType() != null ? command.getSortType() : SortType.LATEST;
-    if (sortType.equals(SortType.MOST_LIKED)) {
-      sort = Sort.by(Order.desc("likeCount"));
-    } else if (sortType.equals(SortType.VIEW_COUNT)) {
-      sort = Sort.by(Order.desc("viewCount"));
-    } else {
-      sort = Sort.by(Order.desc("createdDate"));
+    SortType sortType = command.getSortType() != null ? command.getSortType() : LATEST;
+    if (!sortType.equals(LATEST) &&
+        !sortType.equals(MOST_LIKED) &&
+        !sortType.equals(VIEW_COUNT)) {
+      throw new CustomException(ErrorCode.INVALID_SORT_TYPE);
     }
+
+    Sort sort = getJpqlSortOrder(sortType);
 
     Pageable pageable = PageRequest.of(
         command.getPageNumber(),
