@@ -3,7 +3,6 @@ package com.balsamic.sejongmalsami.repository.postgres;
 import com.balsamic.sejongmalsami.object.constants.DocumentType;
 import com.balsamic.sejongmalsami.object.constants.Faculty;
 import com.balsamic.sejongmalsami.object.postgres.DocumentRequestPost;
-import com.balsamic.sejongmalsami.object.postgres.QuestionPost;
 import java.util.List;
 import java.util.UUID;
 import org.springframework.data.domain.Page;
@@ -48,7 +47,7 @@ public interface DocumentRequestPostRepository extends JpaRepository<DocumentReq
           """,
       nativeQuery = true
   )
-  Page<QuestionPost> findDocumentRequestPostsByQuery(
+  Page<DocumentRequestPost> findDocumentRequestPostsByQuery(
       @Param("query") String query,
       @Param("subject") String subject,
       Pageable pageable
