@@ -19,7 +19,7 @@ public class QueryCommand {
   private String query;
   private String subject;
   @Schema(defaultValue = "0")
-  private Integer pageNumber;
+  private Integer pageNumber = 0;
   @Schema(defaultValue = "30")
-  private Integer pageSize;
+  private Integer pageSize = 30;
 }
