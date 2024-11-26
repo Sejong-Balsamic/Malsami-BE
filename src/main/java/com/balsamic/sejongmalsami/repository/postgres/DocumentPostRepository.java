@@ -70,14 +70,14 @@ public interface DocumentPostRepository extends JpaRepository<DocumentPost, UUID
   // 검색
   @Query(
       value = "SELECT DISTINCT p.* FROM document_post p " +
-              "WHERE (:query IS NULL OR LOWER(p.title) LIKE LOWER(CONCAT('%', :query, '%'))) " +
+              "WHERE (:query IS NULL OR LOWER(p.title) LIKE LOWER(CONCAT('%', :query, '%')) " +
+              "OR LOWER(p.content) LIKE LOWER(CONCAT('%', :query, '%'))) " +
               "AND (:subject IS NULL OR LOWER(p.subject) LIKE LOWER(CONCAT('%', :subject, '%'))) " +
-              "AND (:query IS NULL OR LOWER(p.content) LIKE LOWER(CONCAT('%', :query, '%'))) " +
               "ORDER BY p.created_date DESC ",
       countQuery = "SELECT COUNT(DISTINCT p.document_post_id) FROM document_post p " +
-                   "WHERE (:query IS NULL OR LOWER(p.title) LIKE LOWER(CONCAT('%', :query, '%'))) " +
-                   "AND (:subject IS NULL OR LOWER(p.subject) LIKE LOWER(CONCAT('%', :subject, '%'))) " +
-                   "AND (:query IS NULL OR LOWER(p.content) LIKE LOWER(CONCAT('%', :query, '%'))) ",
+                   "WHERE (:query IS NULL OR LOWER(p.title) LIKE LOWER(CONCAT('%', :query, '%')) " +
+                   "OR LOWER(p.content) LIKE LOWER(CONCAT('%', :query, '%'))) " +
+                   "AND (:subject IS NULL OR LOWER(p.subject) LIKE LOWER(CONCAT('%', :subject, '%'))) ",
       nativeQuery = true
   )
   Page<DocumentPost> findDocumentPostsByQuery(

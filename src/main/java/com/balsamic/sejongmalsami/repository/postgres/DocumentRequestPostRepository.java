@@ -32,14 +32,14 @@ public interface DocumentRequestPostRepository extends JpaRepository<DocumentReq
   // 검색
   @Query(
       value = "SELECT DISTINCT p.* FROM document_request_post p " +
-              "WHERE (:query IS NULL OR LOWER(p.title) LIKE LOWER(CONCAT('%', :query, '%'))) " +
+              "WHERE (:query IS NULL OR LOWER(p.title) LIKE LOWER(CONCAT('%', :query, '%')) " +
+              "OR LOWER(p.content) LIKE LOWER(CONCAT('%', :query, '%'))) " +
               "AND (:subject IS NULL OR LOWER(p.subject) LIKE LOWER(CONCAT('%', :subject, '%'))) " +
-              "AND (:query IS NULL OR LOWER(p.content) LIKE LOWER(CONCAT('%', :query, '%'))) " +
               "ORDER BY p.created_date DESC ",
       countQuery = "SELECT COUNT(DISTINCT p.document_request_post_id) FROM document_request_post p " +
-                   "WHERE (:query IS NULL OR LOWER(p.title) LIKE LOWER(CONCAT('%', :query, '%'))) " +
-                   "AND (:subject IS NULL OR LOWER(p.subject) LIKE LOWER(CONCAT('%', :subject, '%'))) " +
-                   "AND (:query IS NULL OR LOWER(p.content) LIKE LOWER(CONCAT('%', :query, '%'))) ",
+                   "WHERE (:query IS NULL OR LOWER(p.title) LIKE LOWER(CONCAT('%', :query, '%')) " +
+                   "OR LOWER(p.content) LIKE LOWER(CONCAT('%', :query, '%'))) " +
+                   "AND (:subject IS NULL OR LOWER(p.subject) LIKE LOWER(CONCAT('%', :subject, '%'))) ",
       nativeQuery = true
   )
   Page<DocumentRequestPost> findDocumentRequestPostsByQuery(
