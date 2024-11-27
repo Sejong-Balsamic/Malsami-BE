@@ -32,18 +32,22 @@ public class MemberDto {
   private Boolean isAdmin;
 
   // Yeopjeon
-  private int yeopjeonRank;
-  private int totalYeopjeonCount;
-  private double yeopjeonPercentile;
+  private Integer yeopjeonRank;
+  private Integer totalYeopjeon;
+  private Double yeopjeonPercentile;
 
   // Exp
-  private int expRank;
-  private int totalExp;
-  private double expPercentile;
+  private Integer expRank;
+  private Integer totalExp;
+  private Double expPercentile;
 
   // Total
-  private long totalLike;
-  private long totalPopularPost;
-  private long totalComment;
-  private long totalPost;
+  private Long totalLikeCount;
+  private Long totalPopularPostCount;
+  private Long totalCommentCount;
+  private Long totalPostCount;
+  private Long questionPostCount;
+  private Long answerPostCount;
+  private Long documentPostCount;
+  private Long documentRequestPostCount;
 }

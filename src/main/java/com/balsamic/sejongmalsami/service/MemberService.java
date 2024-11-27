@@ -255,37 +255,38 @@ public class MemberService implements UserDetailsService {
     Member member = command.getMember();
     log.info("회원 마이페이지 정보: {}", member);
 
+    // 엽전
     Yeopjeon yeopjeon = yeopjeonRepository.findByMember(member)
         .orElseThrow(() -> new CustomException(ErrorCode.YEOPJEON_NOT_FOUND));
     log.info("엽전 정보: {}", yeopjeon);
 
+    int yeopjeonRank = yeopjeonService.getYeopjeonRank(member);
+    int totalYeopjeon = yeopjeonService.getTotalYeopjeonCount();
+    double yeopjeonPercentile = FileUtil.calculatePercentile(totalYeopjeon, yeopjeonRank);
+    log.info("엽전 랭킹: {}, 총 엽전 수: {}, Percentile: {}", yeopjeonRank, totalYeopjeon, yeopjeonPercentile);
+
+    // 경험치
     Exp exp = expRepository.findByMember(member)
         .orElseThrow(() -> new CustomException(ErrorCode.EXP_NOT_FOUND));
     log.info("경험치 정보: {}", exp);
 
-    // 랭킹 관련 변수
-    int yeopjeonRank = yeopjeonService.getYeopjeonRank(member);
-    int totalYeopjeonCount = yeopjeonService.getTotalYeopjeonCount();
-    double yeopjeonPercentile = FileUtil.calculatePercentile(totalYeopjeonCount, yeopjeonRank);
-    log.info("엽전 랭킹: {}, 총 엽전 수: {}, Percentile: {}", yeopjeonRank, totalYeopjeonCount, yeopjeonPercentile);
-
     int expRank = expService.getExpRank(member);
-    int totalExpCount = expService.getTotalExpCount();
-    double expPercentile = FileUtil.calculatePercentile(totalExpCount, expRank);
-    log.info("경험치 랭킹: {}, 총 경험치 수: {}, Percentile: {}", expRank, totalExpCount, expPercentile);
+    int totalExp = expService.getTotalExpCount();
+    double expPercentile = FileUtil.calculatePercentile(totalExp, expRank);
+    log.info("경험치 랭킹: {}, 총 경험치 수: {}, Percentile: {}", expRank, totalExp, expPercentile);
 
-    // 게시글 및 댓글 관련 변수
-    long totalComment = commentRepository.countByMember(member);
+    // 게시글 및 댓글
     long questionPostCount = questionPostRepository.countByMember(member);
     long answerPostCount = answerPostRepository.countByMember(member);
     long documentPostCount = documentPostRepository.countByMember(member);
     long documentRequestPostCount = documentRequestPostRepository.countByMember(member);
-    long totalPost = questionPostCount + answerPostCount + documentPostCount + documentRequestPostCount;
-    long totalPopularPost = documentPostRepository.countByMemberAndIsPopularTrue(member);
-    log.info("댓글 수: {}, 총 게시글 수: {}, 인기자료 수: {}", totalComment, totalPost, totalPopularPost);
+    long totalCommentCount = commentRepository.countByMember(member);
+    long totalPostCount = questionPostCount + answerPostCount + documentPostCount + documentRequestPostCount;
+    long totalPopularPostCount = documentPostRepository.countByMemberAndIsPopularTrue(member);
+    log.info("댓글 수: {}, 총 게시글 수: {}, 인기자료 수: {}", totalCommentCount, totalPostCount, totalPopularPostCount);
 
     // 좋아요
-    long totalLike = 0;
+    long totalLikeCount = 0;
 
     // 질문 좋아요 수
     List<QuestionPost> questionPosts = questionPostRepository.findByMember(member);
@@ -294,7 +295,7 @@ public class MemberService implements UserDetailsService {
         .collect(Collectors.toList());
     long questionLikeCount = questionBoardLikeRepository.countByQuestionBoardIdIn(questionPostIds);
     log.info("질문 게시글 좋아요 수: {}", questionLikeCount);
-    totalLike += questionLikeCount;
+    totalLikeCount += questionLikeCount;
 
     // 답변 좋아요 수
     List<AnswerPost> answerPosts = answerPostRepository.findByMember(member);
@@ -303,7 +304,7 @@ public class MemberService implements UserDetailsService {
         .collect(Collectors.toList());
     long answerLikeCount = questionBoardLikeRepository.countByQuestionBoardIdIn(answerPostIds);
     log.info("답변 게시글 좋아요 수: {}", answerLikeCount);
-    totalLike += answerLikeCount;
+    totalLikeCount += answerLikeCount;
 
     // 자료글 좋아요 수
     List<DocumentPost> documentPosts = documentPostRepository.findByMember(member);
@@ -312,7 +313,7 @@ public class MemberService implements UserDetailsService {
         .collect(Collectors.toList());
     long documentLikeCount = documentBoardLikeRepository.countByDocumentBoardIdIn(documentPostIds);
     log.info("문서 게시글 좋아요 수: {}", documentLikeCount);
-    totalLike += documentLikeCount;
+    totalLikeCount += documentLikeCount;
 
     // 자료요청글 좋아요 수
     List<DocumentRequestPost> documentRequestPosts = documentRequestPostRepository.findByMember(member);
@@ -321,7 +322,7 @@ public class MemberService implements UserDetailsService {
         .collect(Collectors.toList());
     long documentRequestLikeCount = documentBoardLikeRepository.countByDocumentBoardIdIn(documentRequestPostIds);
     log.info("문서 요청 게시글 좋아요 수: {}", documentRequestLikeCount);
-    totalLike += documentRequestLikeCount;
+    totalLikeCount += documentRequestLikeCount;
 
     // 댓글 좋아요 수
     List<Comment> comments = commentRepository.findByMember(member);
@@ -330,29 +331,32 @@ public class MemberService implements UserDetailsService {
         .collect(Collectors.toList());
     long commentLikeCount = commentLikeRepository.countByCommentIdIn(commentIds);
     log.info("댓글 좋아요 수: {}", commentLikeCount);
-    totalLike += commentLikeCount;
+    totalLikeCount += commentLikeCount;
 
     // 총 좋아요
-    log.info("총 좋아요 수: {}", totalLike);
+    log.info("총 좋아요 수: {}", totalLikeCount);
+
 
     return MemberDto.builder()
-        .member(member)
-        .yeopjeon(yeopjeon)
-        .yeopjeonRank(yeopjeonRank)
-        .totalYeopjeonCount(totalYeopjeonCount)
-        .yeopjeonPercentile(yeopjeonPercentile)
-        .exp(exp)
-        .expRank(expRank)
-        .totalExp(totalExpCount)
-        .expPercentile(expPercentile)
-        .totalComment(totalComment)
-        .totalPost(totalPost)
-        .totalLike(totalLike)
-        .totalPopularPost(totalPopularPost)
+        .member(member)                                     // 회원 정보
+        .yeopjeon(yeopjeon)                                 // 엽전 정보
+        .yeopjeonRank(yeopjeonRank)                         // 엽전 랭킹
+        .totalYeopjeon(totalYeopjeon)                       // 총 엽전 수
+        .yeopjeonPercentile(yeopjeonPercentile)             // 엽전 백분위
+        .exp(exp)                                           // 경험치 정보
+        .expRank(expRank)                                   // 경험치 랭킹
+        .totalExp(totalExp)                                 // 총 경험치 수
+        .expPercentile(expPercentile)                       // 경험치 백분위
+        .questionPostCount(questionPostCount)               // 질문 게시글 수
+        .answerPostCount(answerPostCount)                   // 답변 게시글 수
+        .documentPostCount(documentPostCount)               // 문서 게시글 수
+        .documentRequestPostCount(documentRequestPostCount) // 문서 요청 게시글 수
+        .totalPostCount(totalPostCount)                     // 총 게시글 수
+        .totalCommentCount(totalCommentCount)               // 총 댓글 수
+        .totalPopularPostCount(totalPopularPostCount)       // 총 인기자료 수
+        .totalLikeCount(totalLikeCount)                     // 총 좋아요 수
         .build();
   }
-
-
 
   /**
    * JWT 토큰에서 Authentication 객체 생성
