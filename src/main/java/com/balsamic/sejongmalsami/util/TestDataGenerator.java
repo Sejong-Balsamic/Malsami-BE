@@ -253,10 +253,13 @@ public class TestDataGenerator {
     questionPostRepository.save(post);
 
     // 커스텀 태그 추가 (0 ~ 4개 랜덤)
-    questionPostCustomTagService.saveCustomTags(
-        faker.lorem().words(random.nextInt(5)),
-        post.getQuestionPostId()
-    );
+    List<String> tags = new ArrayList<>();
+    int tagCount = random.nextInt(5);
+    for (int i = 0; i < tagCount; i++) {
+      String tag = faker.lorem().word().substring(0, 10);
+      tags.add(tag);
+    }
+    questionPostCustomTagService.saveCustomTags(tags, post.getQuestionPostId());
 
     return questionPostRepository.save(post);
   }
