@@ -57,6 +57,10 @@ public enum ErrorCode {
 
   FILE_EMPTY(HttpStatus.BAD_REQUEST, "파일이 존재하지 않습니다."),
 
+  FILE_NOT_FOUND(HttpStatus.NOT_FOUND, "파일을 찾을 수 없습니다."),
+
+  FTP_DOWNLOAD_ERROR(HttpStatus.INTERNAL_SERVER_ERROR, "FTP 다운로드 중 오류가 발생했습니다."),
+
   EMPTY_OR_SINGLE_FILE_FOR_ZIP(HttpStatus.BAD_REQUEST, "압축할 파일 목록이 비어있거다 하나입니다"),
 
   FILE_SIZE_EXCEEDED(HttpStatus.BAD_REQUEST, "파일 크기가 너무 큽니다."),

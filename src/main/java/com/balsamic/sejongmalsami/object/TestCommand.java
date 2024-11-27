@@ -1,19 +1,16 @@
 package com.balsamic.sejongmalsami.object;
 
-import java.util.List;
+import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.Setter;
 import lombok.ToString;
-import org.springframework.web.multipart.MultipartFile;
 
 @Builder
 @Getter
 @Setter
 @ToString
 public class TestCommand {
-  private MultipartFile documentFile;
-  private List<MultipartFile> imageFiles;
-  private List<MultipartFile> files;
-
+  @Schema(defaultValue = "/projects/sejong-malsami/document/DOCUMENT_sejong-malsami-test_b482d4cc-722c-42e7-b042-b4a3d5903ae5.mp4")
+  private String filePath;
 }

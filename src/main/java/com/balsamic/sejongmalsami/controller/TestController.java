@@ -1,9 +1,15 @@
 package com.balsamic.sejongmalsami.controller;
 
+import com.balsamic.sejongmalsami.object.TestCommand;
 import com.balsamic.sejongmalsami.service.TestService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
+import org.springframework.http.ContentDisposition;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.MediaType;
+import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
@@ -50,7 +56,7 @@ public class TestController {
        - `postCount`는 **양의 정수**여야 합니다. 음수나 0이 입력될 경우, 기본값이 적용되거나 오류가 발생할 수 있습니다.
        - 대량의 데이터를 생성할 경우, 시스템 성능에 영향을 줄 수 있으므로 적절한 값을 설정하는 것이 좋습니다.
       """)
-  @PostMapping( "/create/question")
+  @PostMapping(value = "/create/question", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
   public void createMockQuestionPostAndAnswerPost(Integer postCount) {
     testService.createMockQuestionPostAndAnswerPost(postCount);
   }
@@ -85,7 +91,7 @@ public class TestController {
             - 대량의 데이터를 생성할 경우, 시스템 성능에 영향을 줄 수 있으므로 적절한 값을 설정하는 것이 좋습니다.
         """
   )
-  @PostMapping( "/create/document")
+  @PostMapping(value = "/create/document", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
   public void createMockDocumentPostAndAnswerPost(Integer postCount) {
     testService.createMockDocumentPostAndDocumentFiles(postCount);
   }
@@ -118,8 +124,56 @@ public class TestController {
        - `postCount`는 **양의 정수**여야 합니다. 음수나 0이 입력될 경우, 기본값이 적용되거나 오류가 발생할 수 있습니다.
        - 대량의 데이터를 생성할 경우, 시스템 성능에 영향을 줄 수 있으므로 적절한 값을 설정하는 것이 좋습니다.
       """)
-  @PostMapping( "/create/document-request")
+  @PostMapping(value = "/create/document-request", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
   public void createMockDocumentRequestPost(Integer postCount) {
     testService.createMockDocumentRequestPost(postCount);
+  }
+
+  @Operation(
+      summary = "FTP 서버에서 파일 다운로드",
+      description = """
+            ### FTP 서버에서 파일 다운로드
+            이 엔드포인트는 지정된 파일 경로를 통해 FTP 서버에서 파일을 다운로드합니다.
+            
+            **매개변수:**
+            - `filePath` (필수): 다운로드할 파일의 FTP 서버 상의 경로입니다.
+            
+            **사용 예시:**
+            - `/api/test/download/file?filePath=/path/to/file.txt`
+            
+            **주의사항:**
+            - `filePath`는 FTP 서버 내에서 유효한 경로여야 합니다.
+            - 잘못된 경로나 권한 문제로 인해 파일을 다운로드할 수 없는 경우 오류가 발생할 수 있습니다.
+        """
+  )
+  @PostMapping(value = "/download/file", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
+  public ResponseEntity<byte[]> downloadFile(
+      @ModelAttribute TestCommand command) {
+    String filePath = command.getFilePath();
+    byte[] fileBytes = testService.downloadFile(filePath);
+
+    // 파일 이름 추출 (filePath의 마지막 부분)
+    String fileName = filePath.substring(filePath.lastIndexOf("/") + 1);
+
+    // MIME 타입 추론 (기본값은 application/octet-stream)
+    String mimeType = "application/octet-stream";
+    try {
+      mimeType = java.nio.file.Files.probeContentType(java.nio.file.Paths.get(fileName));
+      if (mimeType == null) {
+        mimeType = "application/octet-stream";
+      }
+    } catch (Exception e) {
+      // 기본 MIME 타입 사용
+    }
+
+    // ContentDisposition을 사용하여 파일 이름을 안전하게 인코딩 ( 한글 인코딩 오류 )
+    ContentDisposition contentDisposition = ContentDisposition.builder("attachment")
+        .filename(fileName, java.nio.charset.StandardCharsets.UTF_8)
+        .build();
+
+    return ResponseEntity.ok()
+        .header(HttpHeaders.CONTENT_DISPOSITION, contentDisposition.toString())
+        .contentType(MediaType.parseMediaType(mimeType))
+        .body(fileBytes);
   }
 }
