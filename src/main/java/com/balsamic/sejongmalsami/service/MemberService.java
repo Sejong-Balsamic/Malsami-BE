@@ -284,39 +284,55 @@ public class MemberService implements UserDetailsService {
     long totalPopularPost = documentPostRepository.countByMemberAndIsPopularTrue(member);
     log.info("댓글 수: {}, 총 게시글 수: {}, 인기자료 수: {}", totalComment, totalPost, totalPopularPost);
 
-    // 좋아요 관련 변수
+    // 좋아요
     long totalLike = 0;
 
+    // 질문 좋아요 수
     List<QuestionPost> questionPosts = questionPostRepository.findByMember(member);
     List<UUID> questionPostIds = questionPosts.stream()
         .map(QuestionPost::getQuestionPostId)
         .collect(Collectors.toList());
-    totalLike += questionBoardLikeRepository.countByQuestionBoardIdIn(questionPostIds);
+    long questionLikeCount = questionBoardLikeRepository.countByQuestionBoardIdIn(questionPostIds);
+    log.info("질문 게시글 좋아요 수: {}", questionLikeCount);
+    totalLike += questionLikeCount;
 
+    // 답변 좋아요 수
     List<AnswerPost> answerPosts = answerPostRepository.findByMember(member);
     List<UUID> answerPostIds = answerPosts.stream()
         .map(AnswerPost::getAnswerPostId)
         .collect(Collectors.toList());
-    totalLike += questionBoardLikeRepository.countByQuestionBoardIdIn(answerPostIds);
+    long answerLikeCount = questionBoardLikeRepository.countByQuestionBoardIdIn(answerPostIds);
+    log.info("답변 게시글 좋아요 수: {}", answerLikeCount);
+    totalLike += answerLikeCount;
 
+    // 자료글 좋아요 수
     List<DocumentPost> documentPosts = documentPostRepository.findByMember(member);
     List<UUID> documentPostIds = documentPosts.stream()
         .map(DocumentPost::getDocumentPostId)
         .collect(Collectors.toList());
-    totalLike += documentBoardLikeRepository.countByDocumentBoardIdIn(documentPostIds);
+    long documentLikeCount = documentBoardLikeRepository.countByDocumentBoardIdIn(documentPostIds);
+    log.info("문서 게시글 좋아요 수: {}", documentLikeCount);
+    totalLike += documentLikeCount;
 
+    // 자료요청글 좋아요 수
     List<DocumentRequestPost> documentRequestPosts = documentRequestPostRepository.findByMember(member);
     List<UUID> documentRequestPostIds = documentRequestPosts.stream()
         .map(DocumentRequestPost::getDocumentRequestPostId)
         .collect(Collectors.toList());
-    totalLike += documentBoardLikeRepository.countByDocumentBoardIdIn(documentRequestPostIds);
+    long documentRequestLikeCount = documentBoardLikeRepository.countByDocumentBoardIdIn(documentRequestPostIds);
+    log.info("문서 요청 게시글 좋아요 수: {}", documentRequestLikeCount);
+    totalLike += documentRequestLikeCount;
 
+    // 댓글 좋아요 수
     List<Comment> comments = commentRepository.findByMember(member);
     List<UUID> commentIds = comments.stream()
         .map(Comment::getCommentId)
         .collect(Collectors.toList());
-    totalLike += commentLikeRepository.countByCommentIdIn(commentIds);
+    long commentLikeCount = commentLikeRepository.countByCommentIdIn(commentIds);
+    log.info("댓글 좋아요 수: {}", commentLikeCount);
+    totalLike += commentLikeCount;
 
+    // 총 좋아요
     log.info("총 좋아요 수: {}", totalLike);
 
     return MemberDto.builder()
@@ -335,6 +351,7 @@ public class MemberService implements UserDetailsService {
         .totalPopularPost(totalPopularPost)
         .build();
   }
+
 
 
   /**
