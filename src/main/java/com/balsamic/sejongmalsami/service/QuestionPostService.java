@@ -1,5 +1,11 @@
 package com.balsamic.sejongmalsami.service;
 
+import static com.balsamic.sejongmalsami.object.constants.SortType.LATEST;
+import static com.balsamic.sejongmalsami.object.constants.SortType.MOST_LIKED;
+import static com.balsamic.sejongmalsami.object.constants.SortType.REWARD_YEOPJEON;
+import static com.balsamic.sejongmalsami.object.constants.SortType.VIEW_COUNT;
+import static com.balsamic.sejongmalsami.object.constants.SortType.getJpqlSortOrder;
+
 import com.balsamic.sejongmalsami.object.QuestionCommand;
 import com.balsamic.sejongmalsami.object.QuestionDto;
 import com.balsamic.sejongmalsami.object.constants.ChaetaekStatus;
@@ -34,7 +40,6 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
-import org.springframework.data.domain.Sort.Direction;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -56,14 +61,9 @@ public class QuestionPostService {
   private final QuestionPostCustomTagRepository questionPostCustomTagRepository;
 
   /**
-   * 질문 글 등록
-   * 1. 회원 엽전 검증 (현상금 + 작성 비용)
-   * 2. 교과목 별 단과대 설정
-   * 3. 질문글 기본정보 저장
-   * 4. 정적/커스텀 태그 처리
-   * 5. 첨부파일 업로드 및 썸네일 처리
-   * 6. 엽전 차감 (-100냥)
-   * 7. 경험치 증가
+   * 질문 글 등록 1. 회원 엽전 검증 (현상금 + 작성 비용) 2. 교과목 별 단과대 설정 3. 질문글 기본정보 저장 4. 정적/커스텀 태그 처리 5. 첨부파일 업로드 및 썸네일 처리 6. 엽전 차감
+   * (-100냥) 7. 경험치 증가
+   *
    * @return 저장된 질문글, 미디어파일, 커스텀태그 정보
    */
   @Transactional
@@ -82,7 +82,7 @@ public class QuestionPostService {
     // {질문글 등록 시 소모엽전 + 엽전 현상금} 보다 보유 엽전량이 적을 시 오류 발생
     Yeopjeon yeopjeon = yeopjeonService.findMemberYeopjeon(member);
     if (yeopjeon.getYeopjeon() < command.getRewardYeopjeon()
-        + -yeopjeonCalculator.calculateYeopjeon(YeopjeonAction.CREATE_QUESTION_POST)) {
+                                 + -yeopjeonCalculator.calculateYeopjeon(YeopjeonAction.CREATE_QUESTION_POST)) {
       log.error("사용자: {} 의 엽전이 부족합니다.", member.getStudentId());
       log.error("현재 보유 엽전량: {}, 질문글 등록시 필요 엽전량: {}, 엽전 현상금 설정량: {}",
           yeopjeon.getYeopjeon(),
@@ -150,7 +150,7 @@ public class QuestionPostService {
         command.getAttachmentFiles());
 
     // QuestionPost 에 썸네일 지정 : 저장된 사진 중 첫번째 사진
-    if(!savedMediaFiles.isEmpty()){
+    if (!savedMediaFiles.isEmpty()) {
       String thumbnailUrl = savedMediaFiles.get(0).getThumbnailUrl();
       questionPost.setThumbnailUrl(thumbnailUrl);
     }
@@ -169,11 +169,8 @@ public class QuestionPostService {
   }
 
   /**
-   * 특정 질문 글 조회
-   * 1. 조회수 증가
-   * 2. 좋아요 여부 확인
-   * 3. 답변 목록 조회
-   * 4. 커스텀 태그 조회
+   * 특정 질문 글 조회 1. 조회수 증가 2. 좋아요 여부 확인 3. 답변 목록 조회 4. 커스텀 태그 조회
+   *
    * @return 질문글, 답변목록, 커스텀태그 정보
    */
   @Transactional
@@ -208,16 +205,20 @@ public class QuestionPostService {
           .collect(Collectors.toList());
     }
 
+    // 첨부파일 mediaFiles 가져오기
+    List<MediaFile> mediaFiles = mediaFileService.getMediaFilesByPostId(questionPost.getQuestionPostId());
+
     return QuestionDto.builder()
         .questionPost(questionPost)
         .answerPosts(answerPosts)
         .customTags(customTags)
+        .mediaFiles(mediaFiles)
         .build();
   }
 
   /**
-   * 전체 질문 글 페이징 조회
-   * - 최신순 정렬 (createdDate DESC)
+   * 전체 질문 글 페이징 조회 - 최신순 정렬 (createdDate DESC)
+   *
    * @return 질문글 페이지 정보
    */
   @Transactional(readOnly = true)
@@ -235,8 +236,8 @@ public class QuestionPostService {
   }
 
   /**
-   * 미답변 질문글 조회 + 단과대 필터링
-   * - 최신순 정렬 (createdDate DESC)
+   * 미답변 질문글 조회 + 단과대 필터링 - 최신순 정렬 (createdDate DESC)
+   *
    * @return 질문글 페이지 정보
    */
   @Transactional(readOnly = true)
@@ -255,18 +256,10 @@ public class QuestionPostService {
   }
 
   /**
-   * 메인 필터링/정렬 조회
-   * [필터링]
-   * 1. 교과목명
-   * 2. 정적태그 (최대 2개)
-   * 3. 단과대
-   * 4. 채택상태 (전체/채택/미채택)
+   * 메인 필터링/정렬 조회 [필터링] 1. 교과목명 2. 정적태그 (최대 2개) 3. 단과대 4. 채택상태 (전체/채택/미채택)
+   * <p>
+   * [정렬] - 최신순(default) - 좋아요순 - 현상금순 - 조회순
    *
-   * [정렬]
-   * - 최신순(default)
-   * - 좋아요순
-   * - 현상금순
-   * - 조회순
    * @return 필터링/정렬된 질문글 페이지
    */
   @Transactional(readOnly = true)
@@ -292,18 +285,20 @@ public class QuestionPostService {
     }
 
     // 정렬 기준 (default: 최신순)
-    SortType sortType = (command.getSortType() != null) ? command.getSortType() : SortType.LATEST;
-
-    Sort sort;
-    switch (sortType) {
-      case LATEST -> sort = Sort.by(Direction.DESC, "createdDate");
-      case MOST_LIKED -> sort = Sort.by(Direction.DESC, "likeCount");
-      case YEOPJEON_REWARD -> sort = Sort.by(Direction.DESC, "rewardYeopjeon");
-      case VIEW_COUNT -> sort = Sort.by(Direction.DESC, "viewCount");
-      default -> sort = Sort.by(Direction.DESC, "createdDate");
+    SortType sortType = (command.getSortType() != null) ? command.getSortType() : LATEST;
+    if (!sortType.equals(LATEST) &&
+        !sortType.equals(MOST_LIKED) &&
+        !sortType.equals(REWARD_YEOPJEON) &&
+        !sortType.equals(VIEW_COUNT)) {
+      throw new CustomException(ErrorCode.INVALID_SORT_TYPE);
     }
 
-    Pageable pageable = PageRequest.of(command.getPageNumber(), command.getPageSize(), sort);
+    Sort sort = getJpqlSortOrder(sortType);
+
+    Pageable pageable = PageRequest.of(
+        command.getPageNumber(),
+        command.getPageSize(),
+        sort);
 
     // chaetaekStatus를 String으로 변환하여 전달
     Page<QuestionPost> posts = questionPostRepository.findQuestionPostsByFilter(

@@ -184,7 +184,7 @@ class QuestionPostServiceTest {
     switch (sortType) {
       case LATEST -> sort = Sort.by(Direction.DESC, "createdDate");
       case MOST_LIKED -> sort = Sort.by(Direction.DESC, "likeCount");
-      case YEOPJEON_REWARD -> sort = Sort.by(Direction.DESC, "rewardYeopjeon");
+      case REWARD_YEOPJEON -> sort = Sort.by(Direction.DESC, "rewardYeopjeon");
       case VIEW_COUNT -> sort = Sort.by(Direction.DESC, "viewCount");
       default -> sort = Sort.by(Direction.DESC, "createdDate");
     }

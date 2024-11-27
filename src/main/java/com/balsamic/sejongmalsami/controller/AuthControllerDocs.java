@@ -15,6 +15,11 @@ public interface AuthControllerDocs {
 
   @ApiChangeLogs({
       @ApiChangeLog(
+          date = "2024.11.27",
+          author = Author.SUHSAECHAN,
+          description = "반환값에 memberId 추가"
+      ),
+      @ApiChangeLog(
           date = "2024.11.24",
           author = Author.SUHSAECHAN,
           description = "반환값에 studentName 추가"

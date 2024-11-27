@@ -72,6 +72,7 @@ public class AuthService {
     return AuthDto.builder()
         .accessToken(newAccessToken)
         .studentName(userDetails.getMember().getStudentName()) //2024.11.24 : SUH : 학생 이름 반환 추가
+        .memberId(userDetails.getMemberId()) //2024.11.27 : FE#166 : 키 추가 요청
         .build();
   }
 

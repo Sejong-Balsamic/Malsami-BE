@@ -25,31 +25,6 @@ public interface DocumentPostRepository extends JpaRepository<DocumentPost, UUID
   // 주간 인기글 페이징 조회 (weeklyScore 기준 내림차순)
   Page<DocumentPost> findByCreatedDateAfterOrderByWeeklyScoreDesc(LocalDateTime startDate, Pageable pageable);
 
-//  @Query(
-//      value = "SELECT DISTINCT p.* FROM document_post p " +
-//          "LEFT JOIN document_post_document_types dt ON p.document_post_id = dt.document_post_document_post_id " +
-//          "WHERE (:title IS NULL OR LOWER(p.title) LIKE LOWER(CONCAT('%', :title, '%'))) " +
-//          "AND (:subject IS NULL OR LOWER(p.subject) LIKE LOWER(CONCAT('%', :subject, '%'))) " +
-//          "AND (:content IS NULL OR LOWER(p.content) LIKE LOWER(CONCAT('%', :content, '%'))) " +
-//          "AND (:documentTypes IS NULL OR dt.document_type IN (:documentTypes)) " +
-//          "ORDER BY p.createdDate DESC " +
-//          "FETCH FIRST ? rows only",
-//      countQuery = "SELECT COUNT(DISTINCT p.document_post_id) FROM document_post p " +
-//          "LEFT JOIN document_post_document_types dt ON p.document_post_id = dt.document_post_document_post_id " +
-//          "WHERE (:title IS NULL OR LOWER(p.title) LIKE LOWER(CONCAT('%', :title, '%'))) " +
-//          "AND (:subject IS NULL OR LOWER(p.subject) LIKE LOWER(CONCAT('%', :subject, '%'))) " +
-//          "AND (:content IS NULL OR LOWER(p.content) LIKE LOWER(CONCAT('%', :content, '%'))) " +
-//          "AND (:documentTypes IS NULL OR dt.document_type IN (:documentTypes))",
-//      nativeQuery = true
-//  )
-//  Page<DocumentPost> findDocumentPostsByFilter(
-//      @Param("title") String title,
-//      @Param("subject") String subject,
-//      @Param("content") String content,
-//      @Param("documentTypes") List<String> documentTypes,
-//      Pageable pageable
-//  );
-
   // 자료 글 교과목명, 태그 필터링
   @Query("SELECT DISTINCT p FROM DocumentPost p " +
          "LEFT JOIN p.documentTypes dt " +
@@ -63,6 +38,50 @@ public interface DocumentPostRepository extends JpaRepository<DocumentPost, UUID
       @Param("documentTypes") List<DocumentType> documentTypes,
       @Param("faculty") Faculty faculty,
       @Param("postTier") PostTier postTier,
+      Pageable pageable
+  );
+
+//  // 검색
+//  @Query(
+//      value = "SELECT DISTINCT p.* FROM document_post p " +
+//          "LEFT JOIN document_post_document_types dt ON p.document_post_id = dt.document_post_document_post_id " +
+//          "WHERE (:title IS NULL OR LOWER(p.title) LIKE LOWER(CONCAT('%', :title, '%'))) " +
+//          "AND (:subject IS NULL OR LOWER(p.subject) LIKE LOWER(CONCAT('%', :subject, '%'))) " +
+//          "AND (:content IS NULL OR LOWER(p.content) LIKE LOWER(CONCAT('%', :content, '%'))) " +
+//          "AND (:documentTypes IS NULL OR dt.document_types IN (:documentTypes)) " +
+//          "ORDER BY p.created_date DESC " +
+//          "FETCH FIRST ? rows only",
+//      countQuery = "SELECT COUNT(DISTINCT p.document_post_id) FROM document_post p " +
+//          "LEFT JOIN document_post_document_types dt ON p.document_post_id = dt.document_post_document_post_id " +
+//          "WHERE (:title IS NULL OR LOWER(p.title) LIKE LOWER(CONCAT('%', :title, '%'))) " +
+//          "AND (:subject IS NULL OR LOWER(p.subject) LIKE LOWER(CONCAT('%', :subject, '%'))) " +
+//          "AND (:content IS NULL OR LOWER(p.content) LIKE LOWER(CONCAT('%', :content, '%'))) " +
+//          "AND (:documentTypes IS NULL OR dt.document_types IN (:documentTypes))",
+//      nativeQuery = true
+//  )
+//  Page<DocumentPost> findDocumentPostsByFilter(
+//      @Param("title") String title,
+//      @Param("subject") String subject,
+//      @Param("content") String content,
+//      @Param("documentTypes") List<String> documentTypes,
+//      Pageable pageable
+//  );
+
+  // 검색
+  @Query(
+      value = "SELECT DISTINCT p.* FROM document_post p " +
+              "WHERE (:query IS NULL OR LOWER(p.title) LIKE LOWER(CONCAT('%', :query, '%')) " +
+              "OR LOWER(p.content) LIKE LOWER(CONCAT('%', :query, '%'))) " +
+              "AND (:subject IS NULL OR LOWER(p.subject) LIKE LOWER(CONCAT('%', :subject, '%'))) ",
+      countQuery = "SELECT COUNT(DISTINCT p.document_post_id) FROM document_post p " +
+                   "WHERE (:query IS NULL OR LOWER(p.title) LIKE LOWER(CONCAT('%', :query, '%')) " +
+                   "OR LOWER(p.content) LIKE LOWER(CONCAT('%', :query, '%'))) " +
+                   "AND (:subject IS NULL OR LOWER(p.subject) LIKE LOWER(CONCAT('%', :subject, '%'))) ",
+      nativeQuery = true
+  )
+  Page<DocumentPost> findDocumentPostsByQuery(
+      @Param("query") String query,
+      @Param("subject") String subject,
       Pageable pageable
   );
 }
