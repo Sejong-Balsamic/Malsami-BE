@@ -57,8 +57,8 @@ public class TestController {
        - 대량의 데이터를 생성할 경우, 시스템 성능에 영향을 줄 수 있으므로 적절한 값을 설정하는 것이 좋습니다.
       """)
   @PostMapping(value = "/create/question", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
-  public void createMockQuestionPostAndAnswerPost(Integer postCount) {
-    testService.createMockQuestionPostAndAnswerPost(postCount);
+  public void createMockQuestionPostAndAnswerPost(@ModelAttribute TestCommand command) {
+    testService.createMockQuestionPostAndAnswerPost(command);
   }
 
   @Operation(
@@ -92,8 +92,8 @@ public class TestController {
         """
   )
   @PostMapping(value = "/create/document", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
-  public void createMockDocumentPostAndAnswerPost(Integer postCount) {
-    testService.createMockDocumentPostAndDocumentFiles(postCount);
+  public void createMockDocumentPostAndAnswerPost(@ModelAttribute TestCommand command) {
+    testService.createMockDocumentPostAndDocumentFiles(command);
   }
 
   @Operation(summary = "자료 요청 글 Mock 데이터 생성",
@@ -125,8 +125,8 @@ public class TestController {
        - 대량의 데이터를 생성할 경우, 시스템 성능에 영향을 줄 수 있으므로 적절한 값을 설정하는 것이 좋습니다.
       """)
   @PostMapping(value = "/create/document-request", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
-  public void createMockDocumentRequestPost(Integer postCount) {
-    testService.createMockDocumentRequestPost(postCount);
+  public void createMockDocumentRequestPost(@ModelAttribute TestCommand command) {
+    testService.createMockDocumentRequestPost(command);
   }
 
   @Operation(
