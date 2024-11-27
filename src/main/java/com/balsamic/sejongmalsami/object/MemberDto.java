@@ -30,4 +30,24 @@ public class MemberDto {
 
   private Boolean isFirstLogin;
   private Boolean isAdmin;
+
+  // Yeopjeon
+  private Integer yeopjeonRank;
+  private Integer totalYeopjeon;
+  private Double yeopjeonPercentile;
+
+  // Exp
+  private Integer expRank;
+  private Integer totalExp;
+  private Double expPercentile;
+
+  // Total
+  private Long totalLikeCount;
+  private Long totalPopularPostCount;
+  private Long totalCommentCount;
+  private Long totalPostCount;
+  private Long questionPostCount;
+  private Long answerPostCount;
+  private Long documentPostCount;
+  private Long documentRequestPostCount;
 }

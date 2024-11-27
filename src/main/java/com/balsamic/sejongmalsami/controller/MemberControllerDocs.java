@@ -99,6 +99,11 @@ public interface MemberControllerDocs {
 
   @ApiChangeLogs({
       @ApiChangeLog(
+          date = "2024.11.28",
+          author = Author.SUHSAECHAN,
+          description = "마이페이지 엽전, 경험치, 백분율, 전체적인 총 개수 반환"
+      ),
+      @ApiChangeLog(
           date = "2024.10.28",
           author = Author.SUHSAECHAN,
           description = "마이페이지 API init"
@@ -107,22 +112,35 @@ public interface MemberControllerDocs {
   @Operation(
       summary = "마이페이지",
       description = """
-          **마이페이지**
+        **마이페이지 조회**
 
-          **입력 파라미터 값:**
+        **이 API는 인증이 필요하며, JWT 토큰이 존재해야 합니다**
 
-          - **String sejongPortalId**: 세종대학교 포털 ID
-            _예: "18010561"_
+        ### **요청 파라미터**
+        - **없음**
 
-          **반환 파라미터 값:**
+        ### **반환 파라미터 값**
 
-          - **MemberDto**: 로그인 및 인증이 완료된 회원의 정보와 액세스 토큰
-            - **Member member**: 회원 정보
+        - **`MemberDto`**: 회원의 상세 정보 및 통계
+          - **`Member member`** : 회원 정보
+          - **`Yeopjeon yeopjeon`** : 엽전 정보
+          - **`int yeopjeonRank`**: 엽전 랭킹
+          - **`int totalYeopjeon`**: 총 엽전 수
+          - **`double yeopjeonPercentile`**: 엽전 백분위
+          - **`Exp exp`** : 경험치 정보
+          - **`int expRank`**: 경험치 랭킹
+          - **`int totalExp`**: 총 경험치 수
+          - **`double expPercentile`**: 경험치 백분위
+          - **`long questionPostCount`**: 질문 게시글 수
+          - **`long answerPostCount`**: 답변 게시글 수
+          - **`long documentPostCount`**: 문서 게시글 수
+          - **`long documentRequestPostCount`**: 문서 요청 게시글 수
+          - **`long totalPostCount`**: 총 게시글 수
+          - **`long totalCommentCount`**: 총 댓글 수
+          - **`long totalPopularPostCount`**: 총 인기자료 수
+          - **`long totalLikeCount`**: 총 좋아요 수
 
-          **참고 사항:**
-
-          - 이 API를 통해 회원은 세종대학교 포털 인증 정보를 이용하여 로그인할 수 있습니다.
-          """
+        """
   )
   ResponseEntity<MemberDto> myPage(
       @ModelAttribute MemberCommand command,
