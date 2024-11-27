@@ -27,6 +27,7 @@ dependencies {
     // springBoot web, JPA
     implementation 'org.springframework.boot:spring-boot-starter-web'
     implementation 'org.springframework.boot:spring-boot-starter-data-jpa'
+    testImplementation 'org.springframework:spring-test' //2024.11.22 : SUH : MockMultipartFile 사용
     testImplementation 'org.springframework.boot:spring-boot-starter-test'
 
     // security
@@ -53,9 +54,6 @@ dependencies {
     // MongoDB
     implementation 'org.springframework.boot:spring-boot-starter-data-mongodb'
 
-    // mysql
-//    runtimeOnly 'com.mysql:mysql-connector-j'
-
     // Hibernate 호환성문제
     implementation group: 'com.fasterxml', name: 'classmate', version: '1.7.0'
 
@@ -63,12 +61,8 @@ dependencies {
     implementation 'com.squareup.okhttp3:okhttp:4.9.3'
     implementation 'org.jsoup:jsoup:1.15.3'
 
-    // Faker 오늘도 숭배 해야만해....
-    implementation('com.github.javafaker:javafaker:1.0.2') {
-        // Faker 의존성에서 snakeyaml 제외 (버전 충돌) snakeyaml의 2.0버전 명시적으로 추가
-        exclude module: 'snakeyaml'
-    }
-    implementation 'org.yaml:snakeyaml:2.0'
+    // Faker 오늘도 숭배 해야만해....DataFake 의존성
+    implementation 'net.datafaker:datafaker:2.4.1'
 
     // S3
     implementation 'org.springframework.cloud:spring-cloud-starter-aws:2.2.6.RELEASE'
@@ -76,10 +70,43 @@ dependencies {
     // Mockito
     testImplementation 'org.mockito:mockito-core:4.0.0'
 
-    // Apache
+    // Apache POI : MS file
+    implementation 'org.apache.poi:poi:5.2.3'
     implementation 'org.apache.poi:poi-ooxml:5.2.3'
+    implementation 'org.apache.poi:poi-scratchpad:5.2.3'
+
+    // ftp
+    implementation 'commons-net:commons-net:3.8.0'
+
+    // Apache Commons Pool2
+    implementation 'org.apache.commons:commons-pool2:2.11.1'
+
+    // Seida
+    implementation 'org.sejda.imageio:webp-imageio:0.1.6'
+
+    // Thumbnailator
+    implementation('net.coobird:thumbnailator:0.4.14')
+
+    // PDF
+    implementation 'org.apache.pdfbox:pdfbox:2.0.29'
+
+    // FFmepg
+    implementation 'org.bytedeco:javacv-platform:1.5.9'
+    implementation 'org.bytedeco:ffmpeg-platform:6.0-1.5.9'
+
+    // Thymeleaf
+    implementation 'org.springframework.boot:spring-boot-starter-thymeleaf'
+
+    // Spring Boot DevTools
+    developmentOnly 'org.springframework.boot:spring-boot-devtools'
 }
 
 tasks.named('test') {
     useJUnitPlatform()
+}
+
+//2024.11.22 : SUH : ImageThumbnailGenerator 사용중 이미지 생성 오류 수정
+test {
+    minHeapSize = "512m"
+    maxHeapSize = "2048m"
 }

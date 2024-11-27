@@ -1,6 +1,6 @@
 package com.balsamic.sejongmalsami.repository.postgres;
 
-import com.balsamic.sejongmalsami.object.Course;
+import com.balsamic.sejongmalsami.object.postgres.Course;
 import com.balsamic.sejongmalsami.object.constants.Faculty;
 import java.util.List;
 import java.util.UUID;
@@ -16,4 +16,9 @@ public interface CourseRepository extends JpaRepository<Course, UUID> {
   List<String> findDistinctSubjectByFaculty(Faculty faculty);
 
   boolean existsByYearAndSemester(int year, int semester);
+
+  // 교과목 명을 통해 단과대 조회
+  List<Course> findAllBySubject(String subject);
+
+  void deleteByYearAndSemester(Integer year, Integer semester);
 }

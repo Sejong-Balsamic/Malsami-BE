@@ -1,0 +1,53 @@
+<!-- src/main/resources/templates/admin/question.html -->
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{fragments/header :: head}"></head>
+<body>
+<div th:replace="~{fragments/header :: header}"></div>
+<div th:replace="~{fragments/sidebar :: sidebar}"></div>
+
+<div class="ui stackable grid">
+  <div class="three wide column">
+    <!-- 사이드바는 이미 프래그먼트로 불러왔으므로 여기에 다시 호출할 필요 없음 -->
+  </div>
+  <div class="thirteen wide column">
+    <h2 class="ui header">질문답변게시판 관리</h2>
+    <button class="ui primary button" onclick="window.location.href='/admin/question/new'">
+      <i class="add icon"></i> 새 질문 추가
+    </button>
+    <table class="ui celled table">
+      <thead>
+      <tr>
+        <th>ID</th>
+        <th>질문 제목</th>
+        <th>작성자</th>
+        <th>작성일</th>
+        <th>상태</th>
+        <th>액션</th>
+      </tr>
+      </thead>
+      <tbody>
+      <!-- 예시 데이터 -->
+      <tr>
+        <td>1</td>
+        <td>Spring Boot 설정 방법</td>
+        <td>홍길동</td>
+        <td>2024-04-01</td>
+        <td><span class="ui green label">활성</span></td>
+        <td>
+          <div class="ui buttons">
+            <button class="ui button">수정</button>
+            <div class="or"></div>
+            <button class="ui red button">삭제</button>
+          </div>
+        </td>
+      </tr>
+      <!-- 추가 데이터 반복 -->
+      </tbody>
+    </table>
+  </div>
+</div>
+
+<div th:replace="~{fragments/footer :: footer}"></div>
+</body>
+</html>

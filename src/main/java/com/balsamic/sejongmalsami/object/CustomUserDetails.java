@@ -1,12 +1,17 @@
 package com.balsamic.sejongmalsami.object;
 
 import com.balsamic.sejongmalsami.object.constants.AccountStatus;
+import com.balsamic.sejongmalsami.object.constants.Role;
+import com.balsamic.sejongmalsami.object.postgres.Member;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.Map;
+import java.util.Set;
 import java.util.UUID;
+import java.util.stream.Collectors;
 import lombok.Getter;
 import org.springframework.security.core.GrantedAuthority;
+import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 
 @Getter
@@ -26,7 +31,10 @@ public class CustomUserDetails implements UserDetails {
 
   @Override
   public Collection<? extends GrantedAuthority> getAuthorities() {
-    return Collections.singleton(() -> member.getRole().name());
+    Set<Role> roles = member.getRoles();
+    return roles.stream()
+        .map(role -> new SimpleGrantedAuthority(role.name()))
+        .collect(Collectors.toSet());
   }
 
   @Override
