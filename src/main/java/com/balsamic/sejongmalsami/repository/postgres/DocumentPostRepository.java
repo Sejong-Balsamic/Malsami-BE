@@ -71,21 +71,18 @@ public interface DocumentPostRepository extends JpaRepository<DocumentPost, UUID
   // 검색
   @Query(
       value = "SELECT DISTINCT p.* FROM document_post p " +
-              "WHERE (:query IS NULL OR LOWER(p.title) LIKE LOWER(CONCAT('%', :query, '%')) " +
-              "OR LOWER(p.content) LIKE LOWER(CONCAT('%', :query, '%'))) " +
-              "AND (:subject IS NULL OR LOWER(p.subject) LIKE LOWER(CONCAT('%', :subject, '%'))) ",
+          "WHERE (:query IS NULL OR LOWER(p.title) LIKE LOWER(CONCAT('%', :query, '%')) " +
+          "OR LOWER(p.content) LIKE LOWER(CONCAT('%', :query, '%'))) " +
+          "AND (:subject IS NULL OR LOWER(p.subject) LIKE LOWER(CONCAT('%', :subject, '%'))) ",
       countQuery = "SELECT COUNT(DISTINCT p.document_post_id) FROM document_post p " +
-                   "WHERE (:query IS NULL OR LOWER(p.title) LIKE LOWER(CONCAT('%', :query, '%')) " +
-                   "OR LOWER(p.content) LIKE LOWER(CONCAT('%', :query, '%'))) " +
-                   "AND (:subject IS NULL OR LOWER(p.subject) LIKE LOWER(CONCAT('%', :subject, '%'))) ",
+          "WHERE (:query IS NULL OR LOWER(p.title) LIKE LOWER(CONCAT('%', :query, '%')) " +
+          "OR LOWER(p.content) LIKE LOWER(CONCAT('%', :query, '%'))) " +
+          "AND (:subject IS NULL OR LOWER(p.subject) LIKE LOWER(CONCAT('%', :subject, '%'))) ",
       nativeQuery = true
   )
   Page<DocumentPost> findDocumentPostsByQuery(
       @Param("query") String query,
       @Param("subject") String subject,
-      @Param("documentTypes") List<DocumentType> documentTypes,
-      @Param("faculty") Faculty faculty,
-      @Param("postTier") PostTier postTier,
       Pageable pageable
   );
 
