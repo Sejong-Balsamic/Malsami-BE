@@ -77,6 +77,10 @@ public enum ErrorCode {
 
   VIDEO_FRAME_EXTRACTION_ERROR(HttpStatus.BAD_REQUEST, "비디오 프레임 추출 중 오류 발생"),
 
+  FILE_PATH_EMPTY(HttpStatus.BAD_REQUEST, "파일 경로가 비어 있거나 null입니다."),
+
+  PERCENTILE_CALCULATION_ERROR(HttpStatus.BAD_REQUEST, "백분위 계산 오류: 전체 기준이 0 일 수 없습니다."),
+
   // FTP
 
   FTP_FILE_UPLOAD_ERROR(HttpStatus.BAD_REQUEST, "FTP 파일 업로드에 실패했습니다."),
