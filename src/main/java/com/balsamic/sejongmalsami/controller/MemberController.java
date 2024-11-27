@@ -38,7 +38,7 @@ public class MemberController implements MemberControllerDocs {
   public ResponseEntity<MemberDto> myPage(
       @ModelAttribute MemberCommand command,
       @AuthenticationPrincipal CustomUserDetails customUserDetails) {
-    command.setMemberId(customUserDetails.getMemberId());
+    command.setMember(customUserDetails.getMember());
     return ResponseEntity.ok(memberService.myPage(command));
   }
 }

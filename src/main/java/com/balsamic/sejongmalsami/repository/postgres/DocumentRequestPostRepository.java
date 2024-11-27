@@ -3,6 +3,7 @@ package com.balsamic.sejongmalsami.repository.postgres;
 import com.balsamic.sejongmalsami.object.constants.DocumentType;
 import com.balsamic.sejongmalsami.object.constants.Faculty;
 import com.balsamic.sejongmalsami.object.postgres.DocumentRequestPost;
+import com.balsamic.sejongmalsami.object.postgres.Member;
 import java.util.List;
 import java.util.UUID;
 import org.springframework.data.domain.Page;
@@ -46,4 +47,8 @@ public interface DocumentRequestPostRepository extends JpaRepository<DocumentReq
       @Param("subject") String subject,
       Pageable pageable
   );
+
+  List<DocumentRequestPost> findByMember(Member member);
+
+  long countByMember(Member member);
 }
