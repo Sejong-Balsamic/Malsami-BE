@@ -6,12 +6,25 @@ import com.balsamic.sejongmalsami.object.MemberDto;
 import com.balsamic.sejongmalsami.object.constants.AccountStatus;
 import com.balsamic.sejongmalsami.object.constants.Role;
 import com.balsamic.sejongmalsami.object.mongo.RefreshToken;
+import com.balsamic.sejongmalsami.object.postgres.AnswerPost;
+import com.balsamic.sejongmalsami.object.postgres.Comment;
+import com.balsamic.sejongmalsami.object.postgres.DocumentPost;
+import com.balsamic.sejongmalsami.object.postgres.DocumentRequestPost;
 import com.balsamic.sejongmalsami.object.postgres.Exp;
 import com.balsamic.sejongmalsami.object.postgres.Member;
+import com.balsamic.sejongmalsami.object.postgres.QuestionPost;
 import com.balsamic.sejongmalsami.object.postgres.Yeopjeon;
+import com.balsamic.sejongmalsami.repository.mongo.CommentLikeRepository;
+import com.balsamic.sejongmalsami.repository.mongo.DocumentBoardLikeRepository;
+import com.balsamic.sejongmalsami.repository.mongo.QuestionBoardLikeRepository;
 import com.balsamic.sejongmalsami.repository.mongo.RefreshTokenRepository;
+import com.balsamic.sejongmalsami.repository.postgres.AnswerPostRepository;
+import com.balsamic.sejongmalsami.repository.postgres.CommentRepository;
+import com.balsamic.sejongmalsami.repository.postgres.DocumentPostRepository;
+import com.balsamic.sejongmalsami.repository.postgres.DocumentRequestPostRepository;
 import com.balsamic.sejongmalsami.repository.postgres.ExpRepository;
 import com.balsamic.sejongmalsami.repository.postgres.MemberRepository;
+import com.balsamic.sejongmalsami.repository.postgres.QuestionPostRepository;
 import com.balsamic.sejongmalsami.repository.postgres.YeopjeonRepository;
 import com.balsamic.sejongmalsami.util.FileUtil;
 import com.balsamic.sejongmalsami.util.JwtUtil;
@@ -25,8 +38,10 @@ import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletResponse;
 import java.time.LocalDateTime;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Set;
 import java.util.UUID;
+import java.util.stream.Collectors;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
@@ -41,16 +56,29 @@ import org.springframework.transaction.annotation.Transactional;
 @Slf4j
 public class MemberService implements UserDetailsService {
 
-  private final MemberRepository memberRepository;
-  private final RefreshTokenRepository refreshTokenRepository;
-  private final YeopjeonRepository yeopjeonRepository;
-  private final SejongPortalAuthenticator sejongPortalAuthenticator;
-  private final JwtUtil jwtUtil;
   private final YeopjeonConfig yeopjeonConfig;
-  private final ExpRepository expRepository;
   private final AdminConfig adminConfig;
-  private final YeopjeonService yeopjeonService;
+
+  private final JwtUtil jwtUtil;
+  private final SejongPortalAuthenticator sejongPortalAuthenticator;
+
   private final ExpService expService;
+  private final YeopjeonService yeopjeonService;
+
+  private final MemberRepository memberRepository;
+  private final CommentRepository commentRepository;
+  private final ExpRepository expRepository;
+  private final YeopjeonRepository yeopjeonRepository;
+  private final RefreshTokenRepository refreshTokenRepository;
+  private final QuestionPostRepository questionPostRepository;
+  private final DocumentPostRepository documentPostRepository;
+  private final AnswerPostRepository answerPostRepository;
+  private final DocumentRequestPostRepository documentRequestPostRepository;
+  private final DocumentBoardLikeRepository documentBoardLikeRepository;
+  private final QuestionBoardLikeRepository questionBoardLikeRepository;
+  private final CommentLikeRepository commentLikeRepository;
+
+
 
   /**
    * Spring Security에서 회원 정보를 로드하는 메서드
@@ -223,50 +251,91 @@ public class MemberService implements UserDetailsService {
 
   @Transactional(readOnly = true)
   public MemberDto myPage(MemberCommand command) {
-    // 사용자 정보 가져오기
+    // 회원
     Member member = command.getMember();
+    log.info("회원 마이페이지 정보: {}", member);
 
-    // 엽전 내역 가져오기
     Yeopjeon yeopjeon = yeopjeonRepository.findByMember(member)
         .orElseThrow(() -> new CustomException(ErrorCode.YEOPJEON_NOT_FOUND));
+    log.info("엽전 정보: {}", yeopjeon);
 
-    // 엽전 : 현재 순위
+    Exp exp = expRepository.findByMember(member)
+        .orElseThrow(() -> new CustomException(ErrorCode.EXP_NOT_FOUND));
+    log.info("경험치 정보: {}", exp);
+
+    // 랭킹 관련 변수
     int yeopjeonRank = yeopjeonService.getYeopjeonRank(member);
     int totalYeopjeonCount = yeopjeonService.getTotalYeopjeonCount();
     double yeopjeonPercentile = FileUtil.calculatePercentile(totalYeopjeonCount, yeopjeonRank);
+    log.info("엽전 랭킹: {}, 총 엽전 수: {}, Percentile: {}", yeopjeonRank, totalYeopjeonCount, yeopjeonPercentile);
 
-    // 현재 경험치
-    Exp exp = expRepository.findByMember(member)
-        .orElseThrow(() -> new CustomException(ErrorCode.EXP_NOT_FOUND));
-
-    // 경험치 : 현재 순위
     int expRank = expService.getExpRank(member);
     int totalExpCount = expService.getTotalExpCount();
     double expPercentile = FileUtil.calculatePercentile(totalExpCount, expRank);
+    log.info("경험치 랭킹: {}, 총 경험치 수: {}, Percentile: {}", expRank, totalExpCount, expPercentile);
 
-    // 작성한 댓글 개수
+    // 게시글 및 댓글 관련 변수
+    long totalComment = commentRepository.countByMember(member);
+    long questionPostCount = questionPostRepository.countByMember(member);
+    long answerPostCount = answerPostRepository.countByMember(member);
+    long documentPostCount = documentPostRepository.countByMember(member);
+    long documentRequestPostCount = documentRequestPostRepository.countByMember(member);
+    long totalPost = questionPostCount + answerPostCount + documentPostCount + documentRequestPostCount;
+    long totalPopularPost = documentPostRepository.countByMemberAndIsPopularTrue(member);
+    log.info("댓글 수: {}, 총 게시글 수: {}, 인기자료 수: {}", totalComment, totalPost, totalPopularPost);
 
-    // 작성한 글 개수
+    // 좋아요 관련 변수
+    long totalLike = 0;
 
-    // 올린 인기자료 개수
+    List<QuestionPost> questionPosts = questionPostRepository.findByMember(member);
+    List<UUID> questionPostIds = questionPosts.stream()
+        .map(QuestionPost::getQuestionPostId)
+        .collect(Collectors.toList());
+    totalLike += questionBoardLikeRepository.countByQuestionBoardIdIn(questionPostIds);
 
-    // 받은 좋아요 개수
+    List<AnswerPost> answerPosts = answerPostRepository.findByMember(member);
+    List<UUID> answerPostIds = answerPosts.stream()
+        .map(AnswerPost::getAnswerPostId)
+        .collect(Collectors.toList());
+    totalLike += questionBoardLikeRepository.countByQuestionBoardIdIn(answerPostIds);
+
+    List<DocumentPost> documentPosts = documentPostRepository.findByMember(member);
+    List<UUID> documentPostIds = documentPosts.stream()
+        .map(DocumentPost::getDocumentPostId)
+        .collect(Collectors.toList());
+    totalLike += documentBoardLikeRepository.countByDocumentBoardIdIn(documentPostIds);
+
+    List<DocumentRequestPost> documentRequestPosts = documentRequestPostRepository.findByMember(member);
+    List<UUID> documentRequestPostIds = documentRequestPosts.stream()
+        .map(DocumentRequestPost::getDocumentRequestPostId)
+        .collect(Collectors.toList());
+    totalLike += documentBoardLikeRepository.countByDocumentBoardIdIn(documentRequestPostIds);
+
+    List<Comment> comments = commentRepository.findByMember(member);
+    List<UUID> commentIds = comments.stream()
+        .map(Comment::getCommentId)
+        .collect(Collectors.toList());
+    totalLike += commentLikeRepository.countByCommentIdIn(commentIds);
+
+    log.info("총 좋아요 수: {}", totalLike);
 
     return MemberDto.builder()
-        // 회원
         .member(member)
-        // 엽전
         .yeopjeon(yeopjeon)
         .yeopjeonRank(yeopjeonRank)
         .totalYeopjeonCount(totalYeopjeonCount)
         .yeopjeonPercentile(yeopjeonPercentile)
-        // 경험치
         .exp(exp)
         .expRank(expRank)
-        .totalExpCount(totalExpCount)
+        .totalExp(totalExpCount)
         .expPercentile(expPercentile)
+        .totalComment(totalComment)
+        .totalPost(totalPost)
+        .totalLike(totalLike)
+        .totalPopularPost(totalPopularPost)
         .build();
   }
+
 
   /**
    * JWT 토큰에서 Authentication 객체 생성
@@ -280,7 +349,5 @@ public class MemberService implements UserDetailsService {
     CustomUserDetails userDetails = loadUserByUsername(username);
     return new UsernamePasswordAuthenticationToken(userDetails, null, userDetails.getAuthorities());
   }
-
-
 
 }

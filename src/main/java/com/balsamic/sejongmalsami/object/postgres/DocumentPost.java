@@ -88,6 +88,9 @@ public class DocumentPost extends BasePost {
   @Builder.Default
   private Boolean isDepartmentPrivate = false; // 내 학과 비공개
 
+  @Builder.Default
+  private Boolean isPopular = false; //2024.11.26 : #442 : 인기 게시글 여부 추가
+
   public void updateDocumentTypeSet(List<DocumentType> documentTypes) {
     if (documentTypes.size() > MAX_DOCUMENT_TYPES) {
       throw new CustomException(ErrorCode.DOCUMENT_TYPE_LIMIT_EXCEEDED);

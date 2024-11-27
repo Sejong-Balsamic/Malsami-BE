@@ -38,6 +38,12 @@ public class MemberDto {
 
   // Exp
   private int expRank;
-  private int totalExpCount;
+  private int totalExp;
   private double expPercentile;
+
+  // Total
+  private long totalLike;
+  private long totalPopularPost;
+  private long totalComment;
+  private long totalPost;
 }
