@@ -148,9 +148,9 @@ public class YeopjeonService {
     return yeopjeonRepository.findRankByMemberId(member.getMemberId());
   }
 
-  public int getTotalYeopjeonCount() {
+  public int getTotalYeopjeon() {
     //TODO: Member Total Count 와 yeopjeon Total Count 비교 후 예외처리 (Warning 필요)
 //    memberRepository.findTotalMemberCount();
-    return yeopjeonRepository.findTotalYeopjeonCount(); // 전체 개수 가져오기
+    return yeopjeonRepository.findTotalYeopjeon(); // 전체 개수 가져오기
   }
 }

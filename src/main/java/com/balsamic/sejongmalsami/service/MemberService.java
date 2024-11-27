@@ -261,7 +261,7 @@ public class MemberService implements UserDetailsService {
     log.info("엽전 정보: {}", yeopjeon);
 
     int yeopjeonRank = yeopjeonService.getYeopjeonRank(member);
-    int totalYeopjeon = yeopjeonService.getTotalYeopjeonCount();
+    int totalYeopjeon = yeopjeonService.getTotalYeopjeon();
     double yeopjeonPercentile = FileUtil.calculatePercentile(totalYeopjeon, yeopjeonRank);
     log.info("엽전 랭킹: {}, 총 엽전 수: {}, Percentile: {}", yeopjeonRank, totalYeopjeon, yeopjeonPercentile);
 
@@ -271,7 +271,7 @@ public class MemberService implements UserDetailsService {
     log.info("경험치 정보: {}", exp);
 
     int expRank = expService.getExpRank(member);
-    int totalExp = expService.getTotalExpCount();
+    int totalExp = expService.getTotalExp();
     double expPercentile = FileUtil.calculatePercentile(totalExp, expRank);
     log.info("경험치 랭킹: {}, 총 경험치 수: {}, Percentile: {}", expRank, totalExp, expPercentile);
 

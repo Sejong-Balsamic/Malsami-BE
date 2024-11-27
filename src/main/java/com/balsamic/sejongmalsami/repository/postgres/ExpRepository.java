@@ -22,5 +22,5 @@ public interface ExpRepository extends JpaRepository<Exp, UUID> {
   Integer findRankByMemberId(UUID memberId);
 
   @Query(value = "SELECT COUNT(*) FROM exp", nativeQuery = true)
-  Integer findTotalExpCount();
+  Integer findTotalExp();
 }
