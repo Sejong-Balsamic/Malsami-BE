@@ -35,7 +35,7 @@ public class QuestionCommand {
   private String subject; // 질문
   private List<MultipartFile> attachmentFiles; // 질문, 답변
   private List<QuestionPresetTag> questionPresetTags; // 질문
-  private List<String> customTagSet; // 질문
+  private List<String> customTags; // 질문
   private Integer rewardYeopjeon; // 질문
   private ContentType contentType;
   private Boolean isPrivate; // 질문, 답변
