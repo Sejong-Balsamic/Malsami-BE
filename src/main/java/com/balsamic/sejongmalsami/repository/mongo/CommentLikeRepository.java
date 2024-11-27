@@ -10,4 +10,6 @@ public interface CommentLikeRepository extends MongoRepository<CommentLike, Stri
   Boolean existsByCommentIdAndMemberId(UUID commentId, UUID memberId);
 
   List<CommentLike> findAllByCommentIdInAndMemberId(List<UUID> commentIds, UUID memberId);
+
+  long countByCommentIdIn(List<UUID> commentIds);
 }
