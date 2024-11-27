@@ -256,7 +256,7 @@ public class TestDataGenerator {
     List<String> tags = new ArrayList<>();
     int tagCount = random.nextInt(5);
     for (int i = 0; i < tagCount; i++) {
-      String tag = faker.lorem().word().substring(0, 5);
+      String tag = faker.lorem().word().substring(0, 10);
       tags.add(tag);
     }
     questionPostCustomTagService.saveCustomTags(tags, post.getQuestionPostId());
