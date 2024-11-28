@@ -10,6 +10,7 @@ import com.balsamic.sejongmalsami.repository.postgres.DocumentPostRepository;
 import com.balsamic.sejongmalsami.repository.postgres.QuestionPostRepository;
 import com.balsamic.sejongmalsami.util.ScoreCalculator;
 import java.time.LocalDateTime;
+import java.util.Comparator;
 import java.util.List;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -81,8 +82,7 @@ public class PopularPostService {
    * <h3>매일 자정에 일간 인기 자료글 업데이트</h3>
    * <p>자료 글 일간 인기점수 초기화</p>
    * <p>인기글 계산 로직에 따라 일간 인기점수 계산</p>
-   * <p>최소 기준을 만족한 자료 글들에 대해서 상위 최대 50개 글 저장</p>
-   * <p>인기글에 등록 된 글 isPopular = true 변경</p>
+   * <p>인기글에 등록 된 상위 10개 글 isPopular = true 변경</p>
    */
   @Async
   @Transactional
@@ -98,14 +98,25 @@ public class PopularPostService {
       post.updateDailyScore(scoreCalculator.calculateDocumentPostDailyScore(post));
       documentPostRepository.save(post);
     }
+
+    // 일간 인기 점수가 높은 상위 10개 글
+    List<DocumentPost> top10Posts = posts
+        .stream()
+        .sorted(Comparator.comparingLong(DocumentPost::getDailyScore).reversed())
+        .limit(10)
+        .toList();
+
+    // 상위 10개 글 isPopular = true 설정
+    top10Posts.forEach(post -> post.setIsPopular(true));
+
+    documentPostRepository.saveAll(top10Posts);
   }
 
   /**
    * <h3>매주 월요일 자정에 주간 인기 자료글 업데이트</h3>
    * <p>자료 글 일간 인기점수 초기화</p>
    * <p>인기글 계산 로직에 따라 주간 인기점수 계산</p>
-   * <p>최소 기준을 만족한 자료 글들에 대해서 상위 최대 50개 글 저장</p>
-   * <p>인기글에 등록 된 글 isPopular = true 변경</p>
+   * <p>인기글에 등록 된 상위 10개 글 isPopular = true 변경</p>
    */
   @Async
   @Transactional
@@ -121,6 +132,18 @@ public class PopularPostService {
       post.updateWeeklyScore(scoreCalculator.calculateDocumentPostWeeklyScore(post));
       documentPostRepository.save(post);
     }
+
+    // 일간 인기 점수가 높은 상위 10개 글
+    List<DocumentPost> top10Posts = posts
+        .stream()
+        .sorted(Comparator.comparingLong(DocumentPost::getDailyScore).reversed())
+        .limit(10)
+        .toList();
+
+    // 상위 10개 글 isPopular = true 설정
+    top10Posts.forEach(post -> post.setIsPopular(true));
+
+    documentPostRepository.saveAll(top10Posts);
   }
 
   /**
