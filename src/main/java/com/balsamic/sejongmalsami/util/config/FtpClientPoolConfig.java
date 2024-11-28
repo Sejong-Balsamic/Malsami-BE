@@ -24,10 +24,14 @@ public class FtpClientPoolConfig {
     poolConfig.setTestOnBorrow(true);
     poolConfig.setTestOnReturn(true);
     poolConfig.setTestWhileIdle(true);
-    poolConfig.setMinEvictableIdleTimeMillis(60000); // 60초
+    poolConfig.setMinEvictableIdleTimeMillis(300000); // 5분
 
     // JMX MBean 등록 비활성화
     poolConfig.setJmxEnabled(false);
+
+    // 유휴 연결 검사 주기 설정 (예: 5분)
+    poolConfig.setTimeBetweenEvictionRunsMillis(300000);
+    poolConfig.setNumTestsPerEvictionRun(3);
 
     return new GenericObjectPool<>(factory, poolConfig);
   }
