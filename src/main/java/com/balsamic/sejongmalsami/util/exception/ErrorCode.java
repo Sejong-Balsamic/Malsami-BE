@@ -57,6 +57,10 @@ public enum ErrorCode {
 
   FILE_EMPTY(HttpStatus.BAD_REQUEST, "파일이 존재하지 않습니다."),
 
+  FILE_NOT_FOUND(HttpStatus.NOT_FOUND, "파일을 찾을 수 없습니다."),
+
+  FTP_DOWNLOAD_ERROR(HttpStatus.INTERNAL_SERVER_ERROR, "FTP 다운로드 중 오류가 발생했습니다."),
+
   EMPTY_OR_SINGLE_FILE_FOR_ZIP(HttpStatus.BAD_REQUEST, "압축할 파일 목록이 비어있거다 하나입니다"),
 
   FILE_SIZE_EXCEEDED(HttpStatus.BAD_REQUEST, "파일 크기가 너무 큽니다."),
@@ -76,6 +80,10 @@ public enum ErrorCode {
   FILE_LIST_EMPTY(HttpStatus.BAD_REQUEST, "업로드된 파일 목록이 비어있음"),
 
   VIDEO_FRAME_EXTRACTION_ERROR(HttpStatus.BAD_REQUEST, "비디오 프레임 추출 중 오류 발생"),
+
+  FILE_PATH_EMPTY(HttpStatus.BAD_REQUEST, "파일 경로가 비어 있거나 null입니다."),
+
+  PERCENTILE_CALCULATION_ERROR(HttpStatus.BAD_REQUEST, "백분위 계산 오류: 전체 기준이 0 일 수 없습니다."),
 
   // FTP
 

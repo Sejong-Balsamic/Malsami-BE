@@ -4,6 +4,7 @@ import com.balsamic.sejongmalsami.object.constants.DocumentType;
 import com.balsamic.sejongmalsami.object.constants.Faculty;
 import com.balsamic.sejongmalsami.object.constants.PostTier;
 import com.balsamic.sejongmalsami.object.postgres.DocumentPost;
+import com.balsamic.sejongmalsami.object.postgres.Member;
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.UUID;
@@ -52,15 +53,15 @@ public interface DocumentPostRepository extends JpaRepository<DocumentPost, UUID
 //          "WHERE (:title IS NULL OR LOWER(p.title) LIKE LOWER(CONCAT('%', :title, '%'))) " +
 //          "AND (:subject IS NULL OR LOWER(p.subject) LIKE LOWER(CONCAT('%', :subject, '%'))) " +
 //          "AND (:content IS NULL OR LOWER(p.content) LIKE LOWER(CONCAT('%', :content, '%'))) " +
-//          "AND (:documentTypes IS NULL OR dt.document_types IN (:documentTypes)) " +
-//          "ORDER BY p.created_date DESC " +
+//          "AND (:documentTypes IS NULL OR dt.document_type IN (:documentTypes)) " +
+//          "ORDER BY p.createdDate DESC " +
 //          "FETCH FIRST ? rows only",
 //      countQuery = "SELECT COUNT(DISTINCT p.document_post_id) FROM document_post p " +
 //          "LEFT JOIN document_post_document_types dt ON p.document_post_id = dt.document_post_document_post_id " +
 //          "WHERE (:title IS NULL OR LOWER(p.title) LIKE LOWER(CONCAT('%', :title, '%'))) " +
 //          "AND (:subject IS NULL OR LOWER(p.subject) LIKE LOWER(CONCAT('%', :subject, '%'))) " +
 //          "AND (:content IS NULL OR LOWER(p.content) LIKE LOWER(CONCAT('%', :content, '%'))) " +
-//          "AND (:documentTypes IS NULL OR dt.document_types IN (:documentTypes))",
+//          "AND (:documentTypes IS NULL OR dt.document_type IN (:documentTypes))",
 //      nativeQuery = true
 //  )
 //  Page<DocumentPost> findDocumentPostsByFilter(
@@ -74,13 +75,13 @@ public interface DocumentPostRepository extends JpaRepository<DocumentPost, UUID
   // 검색
   @Query(
       value = "SELECT DISTINCT p.* FROM document_post p " +
-              "WHERE (:query IS NULL OR LOWER(p.title) LIKE LOWER(CONCAT('%', :query, '%')) " +
-              "OR LOWER(p.content) LIKE LOWER(CONCAT('%', :query, '%'))) " +
-              "AND (:subject IS NULL OR LOWER(p.subject) LIKE LOWER(CONCAT('%', :subject, '%'))) ",
+          "WHERE (:query IS NULL OR LOWER(p.title) LIKE LOWER(CONCAT('%', :query, '%')) " +
+          "OR LOWER(p.content) LIKE LOWER(CONCAT('%', :query, '%'))) " +
+          "AND (:subject IS NULL OR LOWER(p.subject) LIKE LOWER(CONCAT('%', :subject, '%'))) ",
       countQuery = "SELECT COUNT(DISTINCT p.document_post_id) FROM document_post p " +
-                   "WHERE (:query IS NULL OR LOWER(p.title) LIKE LOWER(CONCAT('%', :query, '%')) " +
-                   "OR LOWER(p.content) LIKE LOWER(CONCAT('%', :query, '%'))) " +
-                   "AND (:subject IS NULL OR LOWER(p.subject) LIKE LOWER(CONCAT('%', :subject, '%'))) ",
+          "WHERE (:query IS NULL OR LOWER(p.title) LIKE LOWER(CONCAT('%', :query, '%')) " +
+          "OR LOWER(p.content) LIKE LOWER(CONCAT('%', :query, '%'))) " +
+          "AND (:subject IS NULL OR LOWER(p.subject) LIKE LOWER(CONCAT('%', :subject, '%'))) ",
       nativeQuery = true
   )
   Page<DocumentPost> findDocumentPostsByQuery(
@@ -88,4 +89,10 @@ public interface DocumentPostRepository extends JpaRepository<DocumentPost, UUID
       @Param("subject") String subject,
       Pageable pageable
   );
+
+  List<DocumentPost> findByMember(Member member);
+
+  long countByMember(Member member);
+
+  long countByMemberAndIsPopularTrue(Member member);
 }

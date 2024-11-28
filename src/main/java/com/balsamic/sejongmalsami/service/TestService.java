@@ -1,5 +1,7 @@
 package com.balsamic.sejongmalsami.service;
 
+import com.amazonaws.util.IOUtils;
+import com.balsamic.sejongmalsami.object.TestCommand;
 import com.balsamic.sejongmalsami.object.constants.ContentType;
 import com.balsamic.sejongmalsami.object.postgres.AnswerPost;
 import com.balsamic.sejongmalsami.object.postgres.Comment;
@@ -14,11 +16,16 @@ import com.balsamic.sejongmalsami.repository.postgres.DocumentPostRepository;
 import com.balsamic.sejongmalsami.repository.postgres.DocumentRequestPostRepository;
 import com.balsamic.sejongmalsami.repository.postgres.QuestionPostRepository;
 import com.balsamic.sejongmalsami.util.TestDataGenerator;
+import com.balsamic.sejongmalsami.util.exception.CustomException;
+import com.balsamic.sejongmalsami.util.exception.ErrorCode;
+import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Random;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.net.ftp.FTPClient;
+import org.apache.commons.pool2.impl.GenericObjectPool;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -33,6 +40,7 @@ public class TestService {
   private final DocumentPostRepository documentPostRepository;
   private final DocumentFileRepository documentFileRepository;
   private final DocumentRequestPostRepository documentRequestPostRepository;
+  private final GenericObjectPool<FTPClient> ftpClientPool;
 
   private final Random random = new Random();
 
@@ -41,11 +49,10 @@ public class TestService {
    * <p>지정된 개수만큼의 질문 글을 생성하고, 각 질문 글에 대해 0개에서 10개 사이의 답변 글을 생성합니다.
    * 답변 글의 작성자는 질문 글 작성자와 다르며, 각 질문 글에 대해 단 하나의 답변 글만 채택될 수 있습니다.</p>
    * <p>답변 및 댓글 작성자는 회원 풀을 미리 생성한 뒤 랜덤으로 작성자를 선택합니다.</p>
-   *
-   * @param postCount 생성할 질문 글의 총 개수
    */
   @Transactional
-  public void createMockQuestionPostAndAnswerPost(Integer postCount) {
+  public void createMockQuestionPostAndAnswerPost(TestCommand command) {
+    Integer postCount = command.getPostCount();
 
     // 잘못된 값 입력시 기본 30개 설정
     if (postCount == null || postCount <= 0) {
@@ -139,11 +146,10 @@ public class TestService {
    * <h3>DocumentPost 및 관련 DocumentFile Mock 데이터 생성</h3>
    * <p>지정된 개수만큼의 DocumentPost를 생성하고, 각 DocumentPost에 대해 0개에서 5개 사이의 DocumentFile을 생성합니다.
    * 회원 풀을 미리 생성하여 게시물 작성 시 이들 중에서 랜덤으로 선택합니다.</p>
-   *
-   * @param postCount 생성할 DocumentPost의 총 개수
    */
   @Transactional
-  public void createMockDocumentPostAndDocumentFiles(Integer postCount) {
+  public void createMockDocumentPostAndDocumentFiles(TestCommand command) {
+    Integer postCount = command.getPostCount();
     // 잘못된 값 입력 시 기본 30개 설정
     if (postCount == null || postCount <= 0) {
       log.warn("잘못된 작성 개수가 입력되었습니다. {} 기본 값 30개로 설정합니다.", postCount);
@@ -207,11 +213,10 @@ public class TestService {
    * <p>지정된 개수만큼의 자료 요청 글을 생성합니다.
    * <p>생성된 자료요청글에 0~5개의 댓글을 작성합니다.</p>
    * <p>댓글 작성자는 회원 풀을 미리 생성하여 댓글 작성 시 랜덤으로 작성자를 선택합니다.</p>
-   *
-   * @param postCount 생성할 자료 요청 글의 총 개수
    */
   @Transactional
-  public void createMockDocumentRequestPost(Integer postCount) {
+  public void createMockDocumentRequestPost(TestCommand command) {
+    Integer postCount = command.getPostCount();
 
     // 잘못된 값 입력시 기본 30개 설정
     if (postCount == null || postCount <= 0) {
@@ -269,5 +274,50 @@ public class TestService {
       memberPool.add(member);
     }
     return memberPool;
+  }
+
+  /**
+   * FTP 서버에서 파일을 다운로드하여 바이트 배열로 반환합니다.
+   *
+   * @param filePath FTP 서버 상의 파일 경로
+   * @return 파일의 바이트 배열
+   */
+  @Transactional(readOnly = true)
+  public byte[] downloadFile(String filePath) {
+    FTPClient ftpClient = null;
+    try {
+      // FTP 클라이언트 풀에서 클라이언트 가져오기
+      ftpClient = ftpClientPool.borrowObject();
+
+      // FTP 서버에서 파일 스트림 가져오기
+      InputStream inputStream = ftpClient.retrieveFileStream(filePath);
+      if (inputStream == null) {
+        throw new CustomException(ErrorCode.FILE_NOT_FOUND);
+      }
+
+      // InputStream을 바이트 배열로 변환
+      byte[] fileBytes = IOUtils.toByteArray(inputStream);
+      inputStream.close();
+
+      // FTP 명령 완료 확인
+      boolean success = ftpClient.completePendingCommand();
+      if (!success) {
+        throw new CustomException(ErrorCode.FTP_DOWNLOAD_ERROR);
+      }
+
+      return fileBytes;
+    } catch (Exception e) {
+      log.error("파일 다운로드 중 오류 발생: {}", e.getMessage());
+      throw new CustomException(ErrorCode.FTP_DOWNLOAD_ERROR);
+    } finally {
+      if (ftpClient != null) {
+        try {
+          // FTP 클라이언트를 풀로 반환
+          ftpClientPool.returnObject(ftpClient);
+        } catch (Exception e) {
+          log.error("FTP 클라이언트를 풀에 반환하는 중 오류 발생: {}", e.getMessage());
+        }
+      }
+    }
   }
 }

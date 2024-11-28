@@ -43,6 +43,7 @@ import com.balsamic.sejongmalsami.repository.postgres.ExpRepository;
 import com.balsamic.sejongmalsami.repository.postgres.MemberRepository;
 import com.balsamic.sejongmalsami.repository.postgres.QuestionPostRepository;
 import com.balsamic.sejongmalsami.repository.postgres.YeopjeonRepository;
+import com.balsamic.sejongmalsami.service.QuestionPostCustomTagService;
 import com.balsamic.sejongmalsami.util.config.PostTierConfig;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -72,6 +73,7 @@ public class TestDataGenerator {
   private final DocumentFileRepository documentFileRepository;
   private final DocumentRequestPostRepository documentRequestPostRepository;
   private final QuestionPostRepository questionPostRepository;
+  private final QuestionPostCustomTagService questionPostCustomTagService;
   private final AnswerPostRepository answerPostRepository;
   private final CommentRepository commentRepository;
   private final CourseRepository courseRepository;
@@ -191,7 +193,7 @@ public class TestDataGenerator {
     // Mock 회원의 엽전 테이블 생성
     Yeopjeon yeopjeon = Yeopjeon.builder()
         .member(member)
-        .yeopjeon(1000000)
+        .yeopjeon(faker.number().numberBetween(500, 10000))
         .build();
     yeopjeonRepository.save(yeopjeon);
 
@@ -247,6 +249,17 @@ public class TestDataGenerator {
         .createdDate(LocalDateTime.now().minusDays(faker.number().numberBetween(1, 10)))
         .updatedDate(LocalDateTime.now().minusDays(faker.number().numberBetween(1, 10)))
         .build();
+
+    questionPostRepository.save(post);
+
+    // 커스텀 태그 추가 (0 ~ 4개 랜덤)
+    List<String> tags = new ArrayList<>();
+    int tagCount = random.nextInt(5);
+    for (int i = 0; i < tagCount; i++) {
+      String tag = faker.lorem().word().substring(0, 10);
+      tags.add(tag);
+    }
+    questionPostCustomTagService.saveCustomTags(tags, post.getQuestionPostId());
 
     return questionPostRepository.save(post);
   }

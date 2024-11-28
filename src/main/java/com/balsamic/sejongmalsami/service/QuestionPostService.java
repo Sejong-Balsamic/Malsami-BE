@@ -138,9 +138,9 @@ public class QuestionPostService {
 
     // 커스텀 태그 추가
     List<String> customTags = null;
-    if (command.getCustomTagSet() != null) {
+    if (command.getCustomTags() != null) {
       customTags = questionPostCustomTagService
-          .saveCustomTags(command.getCustomTagSet(), savedQuestionPost.getQuestionPostId());
+          .saveCustomTags(command.getCustomTags(), savedQuestionPost.getQuestionPostId());
     }
 
     // 첨부파일 파일 업로드 및 썸네일 저장 -> 저장된 미디어파일 리스트 반환
@@ -171,6 +171,7 @@ public class QuestionPostService {
   /**
    * 특정 질문 글 조회 1. 조회수 증가 2. 좋아요 여부 확인 3. 답변 목록 조회 4. 커스텀 태그 조회
    *
+   * @param command postId
    * @return 질문글, 답변목록, 커스텀태그 정보
    */
   @Transactional
@@ -198,17 +199,21 @@ public class QuestionPostService {
 
     // 커스텀 태그 조회 (없으면 null 반환)
     List<String> customTags = null;
-    if (questionPostCustomTagRepository.existsByQuestionPostId(command.getQuestionPostId())) {
+    if (questionPostCustomTagRepository.existsByQuestionPostId(command.getPostId())) {
       customTags = questionPostCustomTagRepository
           .findAllByQuestionPostId(command.getPostId())
           .stream().map(QuestionPostCustomTag::getCustomTag)
           .collect(Collectors.toList());
     }
 
+    // 첨부파일 mediaFiles 가져오기
+    List<MediaFile> mediaFiles = mediaFileService.getMediaFilesByPostId(questionPost.getQuestionPostId());
+
     return QuestionDto.builder()
         .questionPost(questionPost)
         .answerPosts(answerPosts)
         .customTags(customTags)
+        .mediaFiles(mediaFiles)
         .build();
   }
 

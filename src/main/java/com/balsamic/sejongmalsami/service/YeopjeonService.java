@@ -4,6 +4,7 @@ import com.balsamic.sejongmalsami.object.constants.YeopjeonAction;
 import com.balsamic.sejongmalsami.object.mongo.YeopjeonHistory;
 import com.balsamic.sejongmalsami.object.postgres.Member;
 import com.balsamic.sejongmalsami.object.postgres.Yeopjeon;
+import com.balsamic.sejongmalsami.repository.postgres.MemberRepository;
 import com.balsamic.sejongmalsami.repository.postgres.YeopjeonRepository;
 import com.balsamic.sejongmalsami.util.YeopjeonCalculator;
 import com.balsamic.sejongmalsami.util.exception.CustomException;
@@ -21,6 +22,7 @@ public class YeopjeonService {
   private final YeopjeonRepository yeopjeonRepository;
   private final YeopjeonCalculator yeopjeonCalculator;
   private final YeopjeonHistoryService yeopjeonHistoryService;
+  private final MemberRepository memberRepository;
 
   // 엽전 변동 로직 및 엽전 히스토리 내역 저장 (롤백 포함)
   @Transactional
@@ -139,5 +141,16 @@ public class YeopjeonService {
   public Yeopjeon findMemberYeopjeon(Member member) {
     return yeopjeonRepository.findByMember(member)
         .orElseThrow(() -> new CustomException(ErrorCode.YEOPJEON_NOT_FOUND));
+  }
+
+  // 엽전 랭킹 반환
+  public int getYeopjeonRank(Member member) {
+    return yeopjeonRepository.findRankByMemberId(member.getMemberId());
+  }
+
+  public int getTotalYeopjeon() {
+    //TODO: Member Total Count 와 yeopjeon Total Count 비교 후 예외처리 (Warning 필요)
+//    memberRepository.findTotalMemberCount();
+    return yeopjeonRepository.findTotalYeopjeon(); // 전체 개수 가져오기
   }
 }

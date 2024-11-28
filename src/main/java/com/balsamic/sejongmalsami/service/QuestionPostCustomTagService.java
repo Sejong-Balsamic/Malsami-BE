@@ -6,6 +6,7 @@ import com.balsamic.sejongmalsami.util.exception.CustomException;
 import com.balsamic.sejongmalsami.util.exception.ErrorCode;
 import java.util.List;
 import java.util.UUID;
+import java.util.stream.Collectors;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
@@ -44,6 +45,6 @@ public class QuestionPostCustomTagService {
                 .customTag(tag)
                 .build()
         ).getCustomTag()) // 저장 후 태그 반환
-        .toList();
+        .collect(Collectors.toList());
   }
 }

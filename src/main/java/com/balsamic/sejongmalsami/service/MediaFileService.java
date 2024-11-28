@@ -212,6 +212,20 @@ public class MediaFileService {
     log.info("파일 검증 성공: 파일명={}, MIME 타입={}, 크기={}MB", file.getOriginalFilename(), mimeType, fileSizeInMB);
   }
 
+  @Transactional(readOnly = true)
+  public List<MediaFile> getMediaFilesByPostId(UUID postId) {
+    List<MediaFile> mediaFiles = mediaFileRepository.findAllByPostId(postId);
+    log.info("postId: {} 에 대한 미디어 파일 개수: {}", postId, mediaFiles.size());
+    return mediaFiles;
+  }
+
+  @Transactional(readOnly = true)
+  public List<MediaFile> getMediaFilesByPostIdAndContentType(UUID postId, ContentType contentType) {
+    List<MediaFile> mediaFiles = mediaFileRepository.findAllByPostIdAndContentType(postId, contentType);
+    log.info("postId: {} 및 ContentType: {} 에 대한 미디어 파일 개수: {}", postId, contentType, mediaFiles.size());
+    return mediaFiles;
+  }
+
 /**
  * 썸네일 URL 생성
  * 1. 빈 파일 체크

@@ -3,6 +3,7 @@ package com.balsamic.sejongmalsami.repository.postgres;
 import com.balsamic.sejongmalsami.object.constants.Faculty;
 import com.balsamic.sejongmalsami.object.constants.QuestionPresetTag;
 import com.balsamic.sejongmalsami.object.postgres.AnswerPost;
+import com.balsamic.sejongmalsami.object.postgres.Member;
 import com.balsamic.sejongmalsami.object.postgres.QuestionPost;
 import java.time.LocalDateTime;
 import java.util.List;
@@ -79,4 +80,8 @@ public interface QuestionPostRepository extends JpaRepository<QuestionPost, UUID
       @Param("subject") String subject,
       Pageable pageable
   );
+
+  List<QuestionPost> findByMember(Member member);
+
+  Long countByMember(Member member);
 }

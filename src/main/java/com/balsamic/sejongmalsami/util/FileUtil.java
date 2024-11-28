@@ -124,7 +124,7 @@ public class FileUtil {
    */
   public static String extractFileName(String filePath) {
     if (!StringUtils.hasText(filePath)) {
-      throw new IllegalArgumentException("파일 경로가 비어 있거나 null입니다.");
+      throw new CustomException(ErrorCode.FILE_PATH_EMPTY);
     }
 
     int lastSeparatorIndex = filePath.lastIndexOf('/');
@@ -133,5 +133,22 @@ public class FileUtil {
     }
 
     return filePath.substring(lastSeparatorIndex + 1);
+  }
+
+  /**
+   * 백분위 계산
+   * @param total 전체 회원 수
+   * @param value 특정 회원의 순위 (1위, 2위 등)
+   * @return 백분위 (소숫점 두 자리까지)
+   */
+  public static Double calculatePercentile(int total, int value) {
+    if (total == 0) {
+      throw new CustomException(ErrorCode.PERCENTILE_CALCULATION_ERROR);
+    }
+    // 백분위 계산: 1등 → 1.00%, rank 2등 → 2.00% ... , rank 마지막등수 → 100.00%
+    double rawPercentile = ((double) value / total) * 100;
+    // 소숫점 두 자리까지 반올림
+    double roundedPercentile = Math.round(rawPercentile * 100.0) / 100.0;
+    return roundedPercentile;
   }
 }
