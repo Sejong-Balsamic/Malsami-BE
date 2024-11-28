@@ -38,6 +38,21 @@ jobs:
         run: |
           echo "${{ secrets.SCORE_YML }}" > ./src/main/resources/score.yml
 
+      # exp.yml 파일을 빌드 전에 생성
+      - name: Create exp.yml from secret
+        run: |
+          echo "${{ secrets.EXP_YML }}" > ./src/main/resources/exp.yml
+
+      # admin.yml 파일을 빌드 전에 생성
+      - name: Create admin.yml from secret
+        run: |
+          echo "${{ secrets.ADMIN_YML }}" > ./src/main/resources/admin.yml
+
+      # post-tier.yml 파일을 빌드 전에 생성
+      - name: Create post-tier.yml from secret
+        run: |
+          echo "${{ secrets.POSTTIER_YML }}" > ./src/main/resources/post-tier.yml
+
       # prod 프로파일을 활성화하여 빌드
       - name: Build with Gradle
         run: ./gradlew clean build -x test -Dspring.profiles.active=prod
@@ -110,6 +125,7 @@ jobs:
               -e TZ=Asia/Seoul \
               -e "SPRING_PROFILES_ACTIVE=prod" \
               -v /etc/localtime:/etc/localtime:ro \
+              -v /volume1/projects/sejong-malsami:/mnt/sejong-malsami \
               ${{ secrets.DOCKERHUB_USERNAME }}/sejong-malsami-back-container:${BRANCH}
 
             echo "배포가 성공적으로 완료되었습니다."

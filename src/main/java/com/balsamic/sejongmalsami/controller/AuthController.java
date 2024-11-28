@@ -3,12 +3,14 @@ package com.balsamic.sejongmalsami.controller;
 import com.balsamic.sejongmalsami.object.AuthCommand;
 import com.balsamic.sejongmalsami.object.AuthDto;
 import com.balsamic.sejongmalsami.service.AuthService;
+import com.balsamic.sejongmalsami.util.JwtUtil;
 import com.balsamic.sejongmalsami.util.exception.CustomException;
 import com.balsamic.sejongmalsami.util.exception.ErrorCode;
 import com.balsamic.sejongmalsami.util.log.LogMonitoringInvocation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -25,6 +27,7 @@ import org.springframework.web.bind.annotation.RestController;
 public class AuthController implements AuthControllerDocs {
 
   private final AuthService authService;
+  private final JwtUtil jwtUtil;
 
   @PostMapping(value = "/refresh")
   @LogMonitoringInvocation
@@ -36,6 +39,14 @@ public class AuthController implements AuthControllerDocs {
             .refreshToken(extractRefreshTokenFromCookies(request.getCookies()))
             .build());
     return ResponseEntity.ok(authDto);
+  }
+
+  @PostMapping(value = "/logout")
+  @LogMonitoringInvocation
+  @Override
+  public ResponseEntity<Void> logout(HttpServletRequest request, HttpServletResponse response) {
+    authService.logout(request, response);
+    return ResponseEntity.ok().build();
   }
 
   /**

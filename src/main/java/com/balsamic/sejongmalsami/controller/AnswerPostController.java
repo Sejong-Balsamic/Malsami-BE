@@ -17,7 +17,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 @RestController
 @RequiredArgsConstructor
-@RequestMapping("/api/answers")
+@RequestMapping("/api/answer")
 @Tag(
     name = "질문게시판 답변글 API",
     description = "답변글 관련 API 제공"
@@ -34,5 +34,25 @@ public class AnswerPostController implements AnswerPostControllerDocs {
       @ModelAttribute QuestionCommand command) {
     command.setMemberId(customUserDetails.getMemberId());
     return ResponseEntity.ok(answerPostService.saveAnswer(command));
+  }
+
+  @Override
+  @PostMapping(value = "/get/all", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
+  @LogMonitoringInvocation
+  public ResponseEntity<QuestionDto> getAnswersByQuestion(
+      @AuthenticationPrincipal CustomUserDetails customUserDetails,
+      @ModelAttribute QuestionCommand command) {
+    command.setMemberId(customUserDetails.getMemberId());
+    return ResponseEntity.ok(answerPostService.getAnswersByQuestion(command));
+  }
+
+  @Override
+  @PostMapping(value = "/chaetaek", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
+  @LogMonitoringInvocation
+  public ResponseEntity<QuestionDto> chaetaekAnswerPost(
+      @AuthenticationPrincipal CustomUserDetails customUserDetails,
+      @ModelAttribute QuestionCommand command) {
+    command.setMemberId(customUserDetails.getMemberId());
+    return ResponseEntity.ok(answerPostService.chaetaekAnswer(command));
   }
 }

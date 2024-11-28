@@ -1,5 +1,8 @@
 package com.balsamic.sejongmalsami.object;
 
+import com.balsamic.sejongmalsami.object.postgres.Exp;
+import com.balsamic.sejongmalsami.object.postgres.Member;
+import com.balsamic.sejongmalsami.object.postgres.Yeopjeon;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.ToString;
@@ -21,4 +24,30 @@ public class MemberDto {
   // token
   private String accessToken;
   private String refreshToken;
+
+  private Yeopjeon yeopjeon;
+  private Exp exp;
+
+  private Boolean isFirstLogin;
+  private Boolean isAdmin;
+
+  // Yeopjeon
+  private Integer yeopjeonRank;
+  private Integer totalYeopjeon;
+  private Double yeopjeonPercentile;
+
+  // Exp
+  private Integer expRank;
+  private Integer totalExp;
+  private Double expPercentile;
+
+  // Total
+  private Long totalLikeCount;
+  private Long totalPopularPostCount;
+  private Long totalCommentCount;
+  private Long totalPostCount;
+  private Long questionPostCount;
+  private Long answerPostCount;
+  private Long documentPostCount;
+  private Long documentRequestPostCount;
 }

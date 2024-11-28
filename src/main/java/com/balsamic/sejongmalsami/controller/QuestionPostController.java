@@ -18,7 +18,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 @RestController
 @RequiredArgsConstructor
-@RequestMapping("/api/questions")
+@RequestMapping("/api/question")
 @Tag(
     name = "질문 게시글 API",
     description = "질문 게시글 관련 API 제공"
@@ -39,11 +39,47 @@ public class QuestionPostController implements QuestionPostControllerDocs {
   }
 
   @Override
+  @PostMapping(value = "/get", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
+  @LogMonitoringInvocation
+  public ResponseEntity<QuestionDto> getQuestionPost(
+      @AuthenticationPrincipal CustomUserDetails customUserDetails,
+      @ModelAttribute QuestionCommand command) {
+    command.setMemberId(customUserDetails.getMemberId());
+    return ResponseEntity.ok(questionPostService.getQuestionPost(command));
+  }
+
+  @Override
+  @PostMapping(value = "/get/all", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
+  @LogMonitoringInvocation
+  public ResponseEntity<QuestionDto> getAllQuestionPost(
+      @ModelAttribute QuestionCommand command
+  ) {
+    return ResponseEntity.ok(questionPostService.findAllQuestionPost(command));
+  }
+
+  @Override
+  @PostMapping(value = "/unanswered", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
+  @LogMonitoringInvocation
+  public ResponseEntity<QuestionDto> getAllQuestionPostsNotAnswered(
+      @ModelAttribute QuestionCommand command) {
+    return ResponseEntity
+        .ok(questionPostService.findAllQuestionPostsNotAnswered(command));
+  }
+
+  @Override
+  @PostMapping(value = "/filter", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
+  @LogMonitoringInvocation
+  public ResponseEntity<QuestionDto> getFilteredQuestionPosts(
+      @ModelAttribute QuestionCommand command) {
+    return ResponseEntity.ok(questionPostService.filteredQuestions(command));
+  }
+
+  @Override
   @PostMapping(value = "/popular/daily", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
   @LogMonitoringInvocation
   public ResponseEntity<QuestionDto> getDailyPopularQuestionPost(
       @ModelAttribute QuestionCommand command) {
-    return ResponseEntity.ok(popularPostService.getDailyPopularQuestionPosts());
+    return ResponseEntity.ok(popularPostService.getDailyPopularQuestionPosts(command));
   }
 
   @Override
@@ -51,6 +87,6 @@ public class QuestionPostController implements QuestionPostControllerDocs {
   @LogMonitoringInvocation
   public ResponseEntity<QuestionDto> getWeeklyPopularQuestionPost(
       @ModelAttribute QuestionCommand command) {
-    return ResponseEntity.ok(popularPostService.getWeeklyPopularQuestionPosts());
+    return ResponseEntity.ok(popularPostService.getWeeklyPopularQuestionPosts(command));
   }
 }

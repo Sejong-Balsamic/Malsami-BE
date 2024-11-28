@@ -28,29 +28,49 @@ public class DocumentPostController implements DocumentPostControllerDocs {
   private final DocumentPostService documentPostService;
   private final PopularPostService popularPostService;
 
-
   @Override
   @PostMapping(value = "/post", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
   @LogMonitoringInvocation
   public ResponseEntity<DocumentDto> saveDocumentPost(
       @AuthenticationPrincipal CustomUserDetails customUserDetails,
       @ModelAttribute DocumentCommand command) {
+    command.setMemberId(customUserDetails.getMemberId());
     return ResponseEntity.ok(documentPostService.saveDocumentPost(command));
   }
 
   @Override
-  @PostMapping(value = "/daily/popular", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
+  @PostMapping(value = "/popular/daily", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
   @LogMonitoringInvocation
   public ResponseEntity<DocumentDto> getDailyPopularDocumentPost(
       @ModelAttribute DocumentCommand command) {
-    return ResponseEntity.ok(popularPostService.getDailyPopularDocumentPosts());
+    return ResponseEntity.ok(popularPostService.getDailyPopularDocumentPosts(command));
   }
 
   @Override
-  @PostMapping(value = "/weekly/popular", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
+  @PostMapping(value = "/popular/weekly", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
   @LogMonitoringInvocation
-  public ResponseEntity<DocumentDto> getWeeklyPopularDocumentPost(DocumentCommand command) {
-    return ResponseEntity.ok(popularPostService.getWeeklyPopularDocumentPosts());
+  public ResponseEntity<DocumentDto> getWeeklyPopularDocumentPost(
+      @ModelAttribute DocumentCommand command) {
+    return ResponseEntity.ok(popularPostService.getWeeklyPopularDocumentPosts(command));
   }
 
+  @Override
+  @PostMapping(value = "/get", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
+  @LogMonitoringInvocation
+  public ResponseEntity<DocumentDto> getDocumentPost(
+      @AuthenticationPrincipal CustomUserDetails customUserDetails,
+      @ModelAttribute DocumentCommand command) {
+    command.setMemberId(customUserDetails.getMemberId());
+    return ResponseEntity.ok(documentPostService.getDocumentPost(command));
+  }
+
+  @Override
+  @PostMapping(value = "/filter", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
+  @LogMonitoringInvocation
+  public ResponseEntity<DocumentDto> filteredDocumentPost(
+      @AuthenticationPrincipal CustomUserDetails customUserDetails,
+      @ModelAttribute DocumentCommand command) {
+    command.setMemberId(customUserDetails.getMemberId());
+    return ResponseEntity.ok(documentPostService.filteredDocumentPost(command));
+  }
 }

@@ -1,0 +1,97 @@
+<!-- src/main/resources/templates/login.html -->
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{fragments/header :: head}"></head>
+<body>
+<div th:replace="~{fragments/header :: header}"></div>
+
+<div class="ui container" style="margin-top:5em;">
+  <div class="ui placeholder segment raised" style="max-width:700px; margin: 0 auto;">
+    <!-- 로고 및 타이틀 섹션 -->
+    <div class="ui padded basic segment center aligned">
+      <div class="ui header">
+        <i class="cogs circular malsami-green icon"></i>
+        <div class="content">
+          SEJONG MALSAMI
+          <div class="sub header">Configuration Manager</div>
+        </div>
+      </div>
+      <div class="ui divider"></div>
+      <div class="ui info message">
+        <p>관리자용 페이지에 오신 것을 환영합니다.</p>
+      </div>
+    </div>
+
+    <!-- 로그인 폼 섹션 -->
+    <div class="ui basic segment">
+      <form class="ui form" id="loginForm">
+        <div class="ui raised stacked segment">
+          <div class="field">
+            <div class="ui left icon input">
+              <i class="user malsami-green-text icon"></i>
+              <input type="text" name="sejongPortalId" placeholder="세종대학교 포털 아이디">
+            </div>
+          </div>
+          <div class="field">
+            <div class="ui left icon input">
+              <i class="lock malsami-green-text icon"></i>
+              <input type="password" name="sejongPortalPassword" placeholder="세종대학교 포털 비밀번호">
+            </div>
+          </div>
+          <button type="submit" class="ui fluid submit button malsami-green">
+            <i class="sign-in icon"></i> 로그인
+          </button>
+        </div>
+        <div class="ui error message"></div>
+      </form>
+    </div>
+  </div>
+
+
+  <!-- Loading dimmer -->
+  <div class="ui dimmer">
+    <div class="ui text loader">로그인 중...</div>
+  </div>
+
+</div>
+
+<div th:replace="~{fragments/footer :: footer}"></div>
+
+<script th:inline="javascript">
+  document.getElementById('loginForm').addEventListener('submit', function (e) {
+    e.preventDefault();
+
+    document.querySelector('.ui.dimmer').classList.add('active');
+
+    const formData = new FormData(this);
+
+    fetch('/admin/auth/login', {
+      method: 'POST',
+      body: formData
+    })
+    .then(response => response.json())
+    .then(data => {
+      document.querySelector('.ui.dimmer').classList.remove('active');
+
+      if (data.success && data.accessToken) {
+        localStorage.setItem('accessToken', data.accessToken);
+        window.location.href = '/admin/dashboard?accessToken=' + data.accessToken;
+      } else {
+        const errorDiv = document.querySelector('.ui.error.message');
+        errorDiv.textContent = data.message || '로그인에 실패했습니다.';
+        errorDiv.style.display = 'block';
+        console.log('로그인 실패:', data.message);
+      }
+    })
+    .catch(error => {
+      document.querySelector('.ui.dimmer').classList.remove('active');
+
+      const errorDiv = document.querySelector('.ui.error.message');
+      errorDiv.textContent = '로그인 처리 중 오류가 발생했습니다.';
+      errorDiv.style.display = 'block';
+      console.error('로그인 처리 오류:', error);
+    });
+  });
+</script>
+</body>
+</html>
