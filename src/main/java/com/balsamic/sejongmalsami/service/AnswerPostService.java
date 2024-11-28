@@ -106,9 +106,11 @@ public class AnswerPostService {
     List<AnswerPost> answerPosts = answerPostRepository
         .findAllByQuestionPostOrderByIsChaetaekDescCreatedDateDesc(questionPost).orElse(null);
 
-    // 각 답변에 대해 좋아요 여부 설정
+    // 각 답변에 대해 첨부파일 반환 및 좋아요 여부 설정
     if (answerPosts != null) {
       answerPosts.forEach(answerPost -> {
+        List<MediaFile> mediaFiles = mediaFileService.getMediaFilesByPostId(answerPost.getAnswerPostId());
+        answerPost.setMediaFiles(mediaFiles);
         Boolean isLiked = questionBoardLikeRepository
             .existsByQuestionBoardIdAndMemberId(answerPost.getAnswerPostId(), command.getMemberId());
         answerPost.updateIsLiked(isLiked); // isLiked 필드 설정
