@@ -190,6 +190,8 @@ public class TestDataGenerator {
         .isFirstLogin(false) // 첫 로그인 X : 고정
         .build();
 
+    memberRepository.save(member);
+
     // Mock 회원의 엽전 테이블 생성
     Yeopjeon yeopjeon = Yeopjeon.builder()
         .member(member)
