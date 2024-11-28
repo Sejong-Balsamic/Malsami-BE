@@ -10,16 +10,20 @@ import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.ManyToOne;
+import jakarta.persistence.Transient;
+import java.util.List;
 import java.util.UUID;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
+import lombok.Setter;
 import lombok.ToString;
 import lombok.experimental.SuperBuilder;
 
 @Entity
 @Getter
+@Setter
 @SuperBuilder
 @AllArgsConstructor
 @NoArgsConstructor
@@ -57,6 +61,10 @@ public class AnswerPost extends BaseEntity {
   // 닉네임 비공개 여부
   @Builder.Default
   private Boolean isPrivate = false;
+
+  // 답변 첨부파일
+  @Transient
+  private List<MediaFile> mediaFiles;
 
   // 답변 좋아요 증가
   public void increaseLikeCount() {
