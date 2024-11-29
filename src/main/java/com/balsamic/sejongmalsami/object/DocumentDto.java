@@ -20,6 +20,7 @@ public class DocumentDto {
   private DocumentRequestPost documentRequestPost; // 자료요청
   private Page<DocumentRequestPost> documentRequestPostsPage; // 자료요청
   private DocumentBoardLike documentBoardLike; // 자료 or 자료요청 좋아요 내역
+  private List<String> customTags; // 커스텀 태그 리스트
 
   private List<DocumentFile> documentFiles;
 }
