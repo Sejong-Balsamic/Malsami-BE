@@ -25,10 +25,7 @@ public interface QuestionPostRepository extends JpaRepository<QuestionPost, UUID
   Integer countByCreatedDateAfter(LocalDateTime startDate);
 
   // 글 작성일이 startDate 보다 나중인 질문 게시글
-  Page<QuestionPost> findByCreatedDateAfter(LocalDateTime startDate, Pageable pageable);
-
-  // createdDate 이후에 작성 된 인기글 상위 n개 조회
-  Page<QuestionPost> findAllByCreatedDateAfter(LocalDateTime createdDate, Pageable pageable);
+  Page<QuestionPost> findAllByCreatedDateAfter(LocalDateTime startDate, Pageable pageable);
 
   // 아직 답변하지 않은 질문글 조회 및 단과대 필터링 (최신순)
   @Query("""
