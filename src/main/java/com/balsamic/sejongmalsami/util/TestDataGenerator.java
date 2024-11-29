@@ -175,11 +175,18 @@ public class TestDataGenerator {
    * @return Member
    */
   public Member createMockMember() {
+
+    // 전공에 따른 단과대 설정
+    String major = majors.get(random.nextInt(majors.size())); // 미리 정의한 전공 목록에서 선택
+    List<Course> courses = courseRepository.findByDepartment(major);
+    Faculty faculty = courses.get(0).getFaculty();
+
     Member member = Member.builder()
         .studentId(Long.parseLong(generateStudentId())) // 임의의 8자리 학생 ID
         .studentName(faker.name().fullName().replace(" ", "").trim()) // 임의의 학생 이름 (한국어)
         .uuidNickname(faker.internet().uuid().substring(0, 8)) // 임의의 UUID 닉네임
-        .major(majors.get(random.nextInt(majors.size()))) // 미리 정의한 전공 목록에서 선택
+        .major(major)
+        .faculty(faculty)
         .academicYear(faker.options().option("1", "2", "3", "4", "초과학기")) // 학년
         .enrollmentStatus(faker.options().option("재학", "휴학", "졸업")) // 재학 상태
         .profileUrl(faker.internet().image()) // 프로필 이미지 URL
