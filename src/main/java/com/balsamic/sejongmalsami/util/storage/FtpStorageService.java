@@ -31,40 +31,61 @@ public class FtpStorageService implements StorageService {
   private final FtpConfig ftpConfig;
   private final ImageThumbnailGenerator imageThumbnailGenerator;
 
+  private static final int MAX_RETRY_ATTEMPTS = 3; // 최대 재시도 횟수
+  private static final int RETRY_DELAY_SECONDS = 5; // 재시도 지연 시간 (초 단위)
+
   // 파일 Path 반환
   @Override
   @LogMonitoringInvocation
   public String uploadFile(ContentType contentType, MultipartFile multipartFile) {
+    if (multipartFile.isEmpty()) {
+      log.error("FTP 파일 업로드 실패: 크기가 0MB인 파일 업로드 : {}", multipartFile.getOriginalFilename());
+      throw new CustomException(ErrorCode.FILE_EMPTY);
+    }
+
     String uploadFileName = FileUtil.generateFileName(contentType, multipartFile.getOriginalFilename());
     String remoteFilePath = getFileSavePath(contentType) + "/" + uploadFileName;
 
     log.info("FTP 파일 업로드 시작: {} -> {}", multipartFile.getOriginalFilename(), remoteFilePath);
 
-    FTPClient ftpClient = null;
-    try {
-      ftpClient = ftpClientPool.borrowObject();
-      try (InputStream inputStream = multipartFile.getInputStream()) {
-        boolean success = ftpClient.storeFile(remoteFilePath, inputStream);
-        if (success) {
-          log.info("FTP 파일 업로드 성공: {}", remoteFilePath);
-          return remoteFilePath;
-        } else {
-          String reply = ftpClient.getReplyString();
-          log.error("FTP 파일 업로드 실패: {}. 서버 응답: {}", remoteFilePath, reply);
+    for (int attempt = 1; attempt <= MAX_RETRY_ATTEMPTS; attempt++) {
+      FTPClient ftpClient = null;
+      try {
+        ftpClient = ftpClientPool.borrowObject();
+        try (InputStream inputStream = multipartFile.getInputStream()) {
+          boolean success = ftpClient.storeFile(remoteFilePath, inputStream);
+          if (success) {
+            log.info("FTP 파일 업로드 성공: {}", remoteFilePath);
+            return remoteFilePath;
+          } else {
+            String reply = ftpClient.getReplyString();
+            log.error("FTP 파일 업로드 실패: {}. 서버 응답: {}", remoteFilePath, reply);
+            throw new CustomException(ErrorCode.FTP_FILE_UPLOAD_ERROR);
+          }
+        }
+      } catch (CustomException ce) {
+        throw ce; // 커스텀 예외는 다시 던집니다.
+      } catch (Exception e) {
+        log.error("FTP 파일 업로드 중 예외 발생 (시도 {}): {}", attempt, e.getMessage(), e);
+        if (attempt == MAX_RETRY_ATTEMPTS) {
           throw new CustomException(ErrorCode.FTP_FILE_UPLOAD_ERROR);
         }
-      }
-    } catch (CustomException ce) {
-      throw ce; // 커스텀 예외는 다시 던집니다.
-    } catch (Exception e) {
-      log.error("FTP 파일 업로드 중 예외 발생: {}", e.getMessage(), e);
-      throw new CustomException(ErrorCode.FTP_FILE_UPLOAD_ERROR);
-    } finally {
-      if (ftpClient != null) {
-        ftpClientPool.returnObject(ftpClient);
-        log.debug("FTPClient 반환 완료: {}", ftpClient);
+        // 재시도 로그 추가
+        log.warn("FTP 파일 업로드 재시도: {}번째 시도 실패. {}초 뒤에 다시 시도합니다...", attempt, RETRY_DELAY_SECONDS);
+        try {
+          Thread.sleep(RETRY_DELAY_SECONDS * 1000L); // 밀리초 단위 변환
+        } catch (InterruptedException ie) {
+          Thread.currentThread().interrupt();
+          log.error("재시도 대기 중 인터럽트 발생", ie);
+        }
+      } finally {
+        if (ftpClient != null) {
+          ftpClientPool.returnObject(ftpClient);
+          log.debug("FTPClient 반환 완료: {}", ftpClient);
+        }
       }
     }
+    throw new CustomException(ErrorCode.FTP_FILE_UPLOAD_ERROR); // 재시도 실패 시 예외 던지기
   }
 
   // 썸네일 URL 반환

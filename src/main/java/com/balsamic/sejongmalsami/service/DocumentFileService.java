@@ -43,9 +43,6 @@ public class DocumentFileService {
 
   /**
    * 첨부 파일 처리, 업로드, 저장
-   *
-   * @param command            DocumentCommand
-   * @param savedDocumentFiles 저장된 파일 리스트
    */
   public List<DocumentFile> handleDocumentFiles(
       List<MultipartFile> attachmentFiles,

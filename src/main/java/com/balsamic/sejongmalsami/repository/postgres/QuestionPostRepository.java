@@ -27,11 +27,8 @@ public interface QuestionPostRepository extends JpaRepository<QuestionPost, UUID
   // 글 작성일이 startDate 보다 나중인 질문 게시글
   Page<QuestionPost> findByCreatedDateAfter(LocalDateTime startDate, Pageable pageable);
 
-  // 일간 인기글 상위 n개 조회 (24시간 이내에 등록된 글만 조회)
-  List<QuestionPost> findTop50ByCreatedDateAfterOrderByDailyScoreDesc(LocalDateTime yesterday);
-
-  // 주간 인기글 상위 n개 조회 (7일 이내에 등록된 글만 조회)
-  List<QuestionPost> findTop50ByCreatedDateAfterOrderByWeeklyScoreDesc(LocalDateTime lastWeek);
+  // createdDate 이후에 작성 된 인기글 상위 n개 조회
+  Page<QuestionPost> findAllByCreatedDateAfter(LocalDateTime createdDate, Pageable pageable);
 
   // 아직 답변하지 않은 질문글 조회 및 단과대 필터링 (최신순)
   @Query("""
