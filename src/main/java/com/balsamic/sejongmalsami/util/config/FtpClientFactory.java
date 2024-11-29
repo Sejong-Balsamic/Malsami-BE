@@ -25,10 +25,13 @@ public class FtpClientFactory extends BasePooledObjectFactory<FTPClient>{
     // 타임아웃 설정 (밀리초 단위)
     ftpClient.setConnectTimeout(10000); // 연결 타임아웃 10초
     ftpClient.setDataTimeout(30000);    // 데이터 타임아웃 30초
-    ftpClient.setSoTimeout(30000);      // 소켓 타임아웃 30초
 
     try {
       ftpClient.connect(ftpConfig.getServer(), ftpConfig.getPort());
+
+      // 연결 후 소켓 타임아웃 설정
+      ftpClient.setSoTimeout(30000);      // 소켓 타임아웃 30초
+
       int replyCode = ftpClient.getReplyCode();
       if (!FTPReply.isPositiveCompletion(replyCode)) {
         throw new CustomException(ErrorCode.FTP_CONNECTION_ERROR);
