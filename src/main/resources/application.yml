@@ -18,7 +18,7 @@ spring:
     multipart:
       enabled: true  # 파일 업로드를 허용
       max-file-size: 200MB  # 업로드할 수 있는 파일의 최대 크기
-      max-request-size: 200MB  # 요청 전체의 최대 크기
+      max-request-size: 1000MB  # 요청 전체의 최대 크기
       file-size-threshold: 10MB
 mvc:
   path-match:

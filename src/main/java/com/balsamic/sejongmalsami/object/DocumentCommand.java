@@ -12,7 +12,6 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
 import lombok.AllArgsConstructor;
-import lombok.Builder;
 import lombok.Getter;
 import lombok.Setter;
 import lombok.ToString;
@@ -20,7 +19,6 @@ import org.springframework.web.multipart.MultipartFile;
 
 @ToString
 @AllArgsConstructor
-@Builder
 @Getter
 @Setter
 public class DocumentCommand {
@@ -38,8 +36,10 @@ public class DocumentCommand {
   private Faculty faculty; // 자료 요청
   private List<DocumentType> documentTypes; // 자료, 자료 요청
   private List<MultipartFile> attachmentFiles; // 첨부된 파일들
+  private Integer attendedYear;
   private Boolean isDepartmentPrivate; // 자료
   private Boolean isPrivate; // 자료 요청
+  private List<String> customTags; // 커스텀 태그
 
   private UUID documentPostId;
   private Member member;
