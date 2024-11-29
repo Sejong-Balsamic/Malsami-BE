@@ -60,12 +60,14 @@ import java.util.Set;
 import java.util.UUID;
 import java.util.stream.Collectors;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import net.datafaker.Faker;
 import org.springframework.stereotype.Component;
 
 // TODO: ENUM 타입 랜덤으로 입력받기
 @Component
 @RequiredArgsConstructor
+@Slf4j
 public class TestDataGenerator {
 
   private final MemberRepository memberRepository;
@@ -258,8 +260,8 @@ public class TestDataGenerator {
     List<String> tags = new ArrayList<>();
     int tagCount = random.nextInt(5);
     for (int i = 0; i < tagCount; i++) {
-      String tag = faker.lorem().word().substring(0, 10);
-      tags.add(tag);
+      String tag = faker.lorem().word();
+      tags.add(tag.substring(0, Math.min(tag.length(), 10)));
     }
     questionPostCustomTagService.saveCustomTags(tags, post.getQuestionPostId());
 

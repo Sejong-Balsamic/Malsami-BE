@@ -3,6 +3,7 @@ package com.balsamic.sejongmalsami.util.config;
 import com.balsamic.sejongmalsami.util.exception.CustomException;
 import com.balsamic.sejongmalsami.util.exception.ErrorCode;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.net.ftp.FTPClient;
 import org.apache.commons.net.ftp.FTPReply;
 import org.apache.commons.pool2.PooledObject;
@@ -11,6 +12,7 @@ import org.apache.commons.pool2.BasePooledObjectFactory;
 import java.io.IOException;
 
 @RequiredArgsConstructor
+@Slf4j
 public class FtpClientFactory extends BasePooledObjectFactory<FTPClient>{
   private final FtpConfig ftpConfig;
 
@@ -20,8 +22,16 @@ public class FtpClientFactory extends BasePooledObjectFactory<FTPClient>{
     ftpClient.setControlEncoding("UTF-8");
     ftpClient.setAutodetectUTF8(true);
 
+    // 타임아웃 설정 (밀리초 단위)
+    ftpClient.setConnectTimeout(10000); // 연결 타임아웃 10초
+    ftpClient.setDataTimeout(30000);    // 데이터 타임아웃 30초
+
     try {
       ftpClient.connect(ftpConfig.getServer(), ftpConfig.getPort());
+
+      // 연결 후 소켓 타임아웃 설정
+      ftpClient.setSoTimeout(30000);      // 소켓 타임아웃 30초
+
       int replyCode = ftpClient.getReplyCode();
       if (!FTPReply.isPositiveCompletion(replyCode)) {
         throw new CustomException(ErrorCode.FTP_CONNECTION_ERROR);
@@ -52,8 +62,21 @@ public class FtpClientFactory extends BasePooledObjectFactory<FTPClient>{
   @Override
   public boolean validateObject(PooledObject<FTPClient> p) {
     FTPClient ftpClient = p.getObject();
-    return ftpClient.isConnected() && ftpClient.isAvailable();
+    if (ftpClient.isConnected()) {
+      try {
+        boolean noopResult = ftpClient.sendNoOp();
+        log.debug("FTPClient 연결 상태 확인: {}, NOOP 결과: {}", ftpClient, noopResult);
+        return noopResult;
+      } catch (IOException e) {
+        log.warn("FTPClient 연결 상태 확인 중 예외 발생: {}", e.getMessage(), e);
+        return false;
+      }
+    } else {
+      log.warn("FTPClient 연결 상태 확인 실패: FTPClient가 연결되어 있지 않습니다. {}", ftpClient);
+      return false;
+    }
   }
+
 
   @Override
   public void destroyObject(PooledObject<FTPClient> p) throws Exception {
