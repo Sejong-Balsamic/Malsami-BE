@@ -41,4 +41,12 @@ public class MemberController implements MemberControllerDocs {
     command.setMember(customUserDetails.getMember());
     return ResponseEntity.ok(memberService.myPage(command));
   }
+
+  // 기본 회원 반환
+  @Override
+  @PostMapping(value = "/my-info", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
+  public ResponseEntity<MemberDto> myInfo(
+      MemberCommand command, CustomUserDetails customUserDetails) {
+    return ResponseEntity.ok(MemberDto.builder().member(customUserDetails.getMember()).build());
+  }
 }
