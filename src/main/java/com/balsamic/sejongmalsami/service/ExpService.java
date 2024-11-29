@@ -22,6 +22,7 @@ public class ExpService {
   private final ExpCalculator expCalculator;
   private final ExpHistoryService expHistoryService;
 
+
   // 경험치 증가 로직 및 경험치 히스토리 내역 저장 (롤백 포함)
   @Transactional
   public ExpHistory updateExpAndSaveExpHistory(Member member, ExpAction action) {
@@ -102,4 +103,6 @@ public class ExpService {
   public int getTotalExp() {
     return expRepository.findTotalExp();
   }
+
+
 }
