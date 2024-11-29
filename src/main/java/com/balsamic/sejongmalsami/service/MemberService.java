@@ -4,6 +4,7 @@ import com.balsamic.sejongmalsami.object.CustomUserDetails;
 import com.balsamic.sejongmalsami.object.MemberCommand;
 import com.balsamic.sejongmalsami.object.MemberDto;
 import com.balsamic.sejongmalsami.object.constants.AccountStatus;
+import com.balsamic.sejongmalsami.object.constants.ExpTier;
 import com.balsamic.sejongmalsami.object.constants.Role;
 import com.balsamic.sejongmalsami.object.mongo.RefreshToken;
 import com.balsamic.sejongmalsami.object.postgres.AnswerPost;
@@ -149,6 +150,10 @@ public class MemberService implements UserDetailsService {
               Exp.builder()
                   .member(newMember)
                   .exp(0)
+                  .expTier(ExpTier.R)
+                  .tierStartExp(0)
+                  .tierEndExp(500)
+                  .progressPercent(0.0)
                   .build());
 
           log.info("신규 회원 : Exp 객체 생성 : {}", exp.getExpId());
@@ -251,6 +256,7 @@ public class MemberService implements UserDetailsService {
   }
 
 
+
   @Transactional(readOnly = true)
   public MemberDto myPage(MemberCommand command) {
     // 회원
@@ -338,6 +344,11 @@ public class MemberService implements UserDetailsService {
     // 총 좋아요
     log.info("총 좋아요 수: {}", totalLikeCount);
 
+    // 경험치 레벨 정보
+    ExpTier expTier = exp.getExpTier();
+    Integer levelStartExp = exp.getTierStartExp();
+    Integer levelEndExp = exp.getTierEndExp();
+    Double progressPercent = exp.getProgressPercent();
 
     return MemberDto.builder()
         .member(member)                                     // 회원 정보
@@ -357,6 +368,10 @@ public class MemberService implements UserDetailsService {
         .totalCommentCount(totalCommentCount)               // 총 댓글 수
         .totalPopularPostCount(totalPopularPostCount)       // 총 인기자료 수
         .totalLikeCount(totalLikeCount)                     // 총 좋아요 수
+        .expTier(expTier)                                   // 현재 경험치 티어
+        .levelStartExp(levelStartExp)                       // 티어 시작 경혐치량
+        .levelEndExp(levelEndExp)                           // 티어 끝 경험치량
+        .progressPercent(progressPercent)                   // 다음 경험치 티어까지 퍼센트
         .build();
   }
 

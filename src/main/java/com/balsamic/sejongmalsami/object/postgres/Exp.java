@@ -1,5 +1,6 @@
 package com.balsamic.sejongmalsami.object.postgres;
 
+import com.balsamic.sejongmalsami.object.constants.ExpTier;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
@@ -21,6 +22,7 @@ import lombok.ToString;
 @ToString
 public class Exp {
 
+
   @Id
   @GeneratedValue(strategy = GenerationType.AUTO)
   @Column(columnDefinition = "uuid DEFAULT uuid_generate_v4()", updatable = false)
@@ -32,7 +34,31 @@ public class Exp {
   // 총 경험치량
   private Integer exp;
 
+  // 현재 레벨
+  private ExpTier expTier;
+
+  // 현재 레벨의 시작 경험치
+  private Integer tierStartExp;
+
+  // 현재 레벨의 끝 경험치
+  private Integer tierEndExp;
+
+  // 다음 티어까지 진행률 (퍼센트)
+  private Double progressPercent;
+
   public void updateExp(int exp) {
     this.exp = exp;
+    updateExpTierInfo();
+  }
+
+  private void updateExpTierInfo() {
+    ExpTier expTier = ExpTier.getTierByExp(this.exp);
+    expTier = expTier;
+    tierStartExp = expTier.getMinExp();
+    tierEndExp = expTier.getMaxExp();
+
+    int expInLevel = exp - tierStartExp;
+    int levelRange = tierEndExp - tierStartExp;
+    this.progressPercent = (double) expInLevel / levelRange * 100;
   }
 }
