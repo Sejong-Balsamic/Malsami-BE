@@ -125,11 +125,11 @@ public interface MemberControllerDocs {
           - **`Member member`** : 회원 정보
           - **`Yeopjeon yeopjeon`** : 엽전 정보
           - **`int yeopjeonRank`**: 엽전 랭킹
-          - **`int totalYeopjeon`**: 총 엽전 수
+          - **`int totalYeopjeonMembers`**: 총 (엽전을가진) 사람수 (전체 회원수)
           - **`double yeopjeonPercentile`**: 엽전 백분위
           - **`Exp exp`** : 경험치 정보
           - **`int expRank`**: 경험치 랭킹
-          - **`int totalExp`**: 총 경험치 수
+          - **`int totalExpMembers`**: 총 (경험치를가진) 사람수 (전체 회원수)
           - **`double expPercentile`**: 경험치 백분위
           - **`long questionPostCount`**: 질문 게시글 수
           - **`long answerPostCount`**: 답변 게시글 수
@@ -145,4 +145,32 @@ public interface MemberControllerDocs {
   ResponseEntity<MemberDto> myPage(
       @ModelAttribute MemberCommand command,
       @AuthenticationPrincipal CustomUserDetails customUserDetails);
+
+  @ApiChangeLogs({
+      @ApiChangeLog(
+          date = "2024.11.30",
+          author = Author.SUHSAECHAN,
+          description = "마이페이지 API init"
+      )
+  })
+  @Operation(
+      summary = "내정보 반환",
+      description = """
+        **마이페이지 조회**
+
+        **이 API는 인증이 필요하며, JWT 토큰이 존재해야 합니다**
+
+        ### **요청 파라미터**
+        - **없음**
+
+        ### **반환 파라미터 값**
+
+        - **`MemberDto`**: 회원의 상세 정보 및 통계
+          - **`Member member`** : 회원 정보
+        """
+  )
+  ResponseEntity<MemberDto> myInfo(
+      @ModelAttribute MemberCommand command,
+      @AuthenticationPrincipal CustomUserDetails customUserDetails);
+
 }

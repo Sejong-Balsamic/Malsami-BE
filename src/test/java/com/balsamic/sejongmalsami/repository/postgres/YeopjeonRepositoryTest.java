@@ -74,7 +74,7 @@ class YeopjeonRepositoryTest {
     testDataGenerator.createMockMember();
     testDataGenerator.createMockMember();
 
-    Integer totalMemberCount = yeopjeonRepository.findTotalYeopjeon();
+    Integer totalMemberCount = yeopjeonRepository.findYeopjeonHolderCount();
     superLog(totalMemberCount);
   }
 }
