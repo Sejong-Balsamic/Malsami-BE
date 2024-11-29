@@ -44,6 +44,8 @@ public class PopularPostService {
   private final ScoreCalculator scoreCalculator;
   private static final long QUESTION_DAILY_SCHEDULED_RATE = 30 * 60 * 1000L; // 30분
   private static final long QUESTION_WEEKLY_SCHEDULED_RATE = 6 * 60 * 60 * 1000L; // 6시간
+  private static final long DOCUMENT_DAILY_SCHEDULED_RATE = 24 * 60 * 60 * 1000L; // 24시간
+  private static final long DOCUMENT_WEEKLY_SCHEDULED_RATE = 7 * 24 * 60 * 60 * 1000L; // 7일
   private static final int SAVE_POPULAR_POST_COUNT = 30; // 저장할 인기글 개수
 
   // 30분마다 일간 인기 질문글 점수 계산 후 상위 30개 데이터 저장
@@ -126,7 +128,9 @@ public class PopularPostService {
    */
   @Async
   @Transactional
-  @Scheduled(cron = "0 0 0 * * *")
+  @Scheduled(fixedRate = DOCUMENT_DAILY_SCHEDULED_RATE)
+  // FIXME: 배포시 주석 처리 된 코드로 변경
+//  @Scheduled(cron = "0 0 0 * * *")
   public void calculateDocumentDailyScore() {
 
     // 자료 글 일간 인기점수 초기화
@@ -169,7 +173,9 @@ public class PopularPostService {
    */
   @Async
   @Transactional
-  @Scheduled(cron = "0 0 0 * * Mon")
+  @Scheduled(fixedRate = DOCUMENT_WEEKLY_SCHEDULED_RATE)
+  // FIXME: 배포시 주석 처리 된 코드로 변경
+//  @Scheduled(cron = "0 0 0 * * Mon")
   public void calculateDocumentWeeklyScore() {
 
     // 자료 글 주간 인기점수 초기화

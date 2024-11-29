@@ -5,6 +5,8 @@ import com.balsamic.sejongmalsami.object.constants.PopularType;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
+import jakarta.persistence.EnumType;
+import jakarta.persistence.Enumerated;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
@@ -33,8 +35,10 @@ public class PopularPost {
 
   private UUID postId;
 
+  @Enumerated(EnumType.STRING)
   private ContentType contentType;
 
+  @Enumerated(EnumType.STRING)
   private PopularType popularType;
 
 }
