@@ -269,9 +269,9 @@ public class MemberService implements UserDetailsService {
     log.info("엽전 정보: {}", yeopjeon);
 
     int yeopjeonRank = yeopjeonService.getYeopjeonRank(member);
-    int totalYeopjeon = yeopjeonService.getTotalYeopjeon();
-    double yeopjeonPercentile = FileUtil.calculatePercentile(totalYeopjeon, yeopjeonRank);
-    log.info("엽전 랭킹: {}, 총 엽전 수: {}, Percentile: {}", yeopjeonRank, totalYeopjeon, yeopjeonPercentile);
+    int totalYeopjeonMembers = yeopjeonService.getCountOfMembersWithYeopjeon();
+    double yeopjeonPercentile = FileUtil.calculatePercentile(totalYeopjeonMembers, yeopjeonRank);
+    log.info("엽전 랭킹: {}, 총 엽전을 가진 사람수: {}, Percentile: {}", yeopjeonRank, totalYeopjeonMembers, yeopjeonPercentile);
 
     // 경험치
     Exp exp = expRepository.findByMember(member)
@@ -279,9 +279,9 @@ public class MemberService implements UserDetailsService {
     log.info("경험치 정보: {}", exp);
 
     int expRank = expService.getExpRank(member);
-    int totalExp = expService.getTotalExp();
-    double expPercentile = FileUtil.calculatePercentile(totalExp, expRank);
-    log.info("경험치 랭킹: {}, 총 경험치 수: {}, Percentile: {}", expRank, totalExp, expPercentile);
+    int totalExpMembers = expService.getCountOfMembersWithExp();
+    double expPercentile = FileUtil.calculatePercentile(totalExpMembers, expRank);
+    log.info("경험치 랭킹: {}, 총 경험치를 가진 사람수: {}, Percentile: {}", expRank, totalExpMembers, expPercentile);
 
     // 게시글 및 댓글
     long questionPostCount = questionPostRepository.countByMember(member);
@@ -344,21 +344,15 @@ public class MemberService implements UserDetailsService {
     // 총 좋아요
     log.info("총 좋아요 수: {}", totalLikeCount);
 
-    // 경험치 레벨 정보
-    ExpTier expTier = exp.getExpTier();
-    Integer levelStartExp = exp.getTierStartExp();
-    Integer levelEndExp = exp.getTierEndExp();
-    Double progressPercent = exp.getProgressPercent();
-
     return MemberDto.builder()
         .member(member)                                     // 회원 정보
         .yeopjeon(yeopjeon)                                 // 엽전 정보
         .yeopjeonRank(yeopjeonRank)                         // 엽전 랭킹
-        .totalYeopjeon(totalYeopjeon)                       // 총 엽전 수
+        .totalYeopjeonMembers(totalYeopjeonMembers)         // 총 (엽전을가진) 사람수
         .yeopjeonPercentile(yeopjeonPercentile)             // 엽전 백분위
         .exp(exp)                                           // 경험치 정보
         .expRank(expRank)                                   // 경험치 랭킹
-        .totalExp(totalExp)                                 // 총 경험치 수
+        .totalExpMembers(totalExpMembers)                   // 총 (경험치를가진) 사람수
         .expPercentile(expPercentile)                       // 경험치 백분위
         .questionPostCount(questionPostCount)               // 질문 게시글 수
         .answerPostCount(answerPostCount)                   // 답변 게시글 수
@@ -368,10 +362,6 @@ public class MemberService implements UserDetailsService {
         .totalCommentCount(totalCommentCount)               // 총 댓글 수
         .totalPopularPostCount(totalPopularPostCount)       // 총 인기자료 수
         .totalLikeCount(totalLikeCount)                     // 총 좋아요 수
-        .expTier(expTier)                                   // 현재 경험치 티어
-        .levelStartExp(levelStartExp)                       // 티어 시작 경혐치량
-        .levelEndExp(levelEndExp)                           // 티어 끝 경험치량
-        .progressPercent(progressPercent)                   // 다음 경험치 티어까지 퍼센트
         .build();
   }
 
