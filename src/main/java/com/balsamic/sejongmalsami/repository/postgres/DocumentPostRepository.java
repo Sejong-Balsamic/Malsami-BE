@@ -5,7 +5,6 @@ import com.balsamic.sejongmalsami.object.constants.Faculty;
 import com.balsamic.sejongmalsami.object.constants.PostTier;
 import com.balsamic.sejongmalsami.object.postgres.DocumentPost;
 import com.balsamic.sejongmalsami.object.postgres.Member;
-import java.time.LocalDateTime;
 import java.util.List;
 import java.util.UUID;
 import org.springframework.data.domain.Page;
@@ -26,9 +25,6 @@ public interface DocumentPostRepository extends JpaRepository<DocumentPost, UUID
   @Modifying
   @Query("UPDATE DocumentPost p SET p.weeklyScore = 0")
   void resetWeeklyScore();
-
-  // createdDate 이후에 작성 된 인기글 상위 n개 조회
-  Page<DocumentPost> findAllByCreatedDateAfter(LocalDateTime createdDate, Pageable pageable);
 
   // 자료 글 교과목명, 태그 필터링
   @Query("SELECT DISTINCT p FROM DocumentPost p " +
