@@ -13,6 +13,11 @@ public interface DocumentPostControllerDocs {
 
   @ApiChangeLogs({
       @ApiChangeLog(
+          date = "2024.11.29",
+          author = Author.SUHSAECHAN,
+          description = "DocumentPost 파라미터 추가 : documentType 필수로 변경, attendedYear, 및 커스텀태그로직추가"
+      ),
+      @ApiChangeLog(
           date = "2024.11.22",
           author = Author.SUHSAECHAN,
           description = "첨부자료 로직 전체적으로 리펙토링"
@@ -53,40 +58,32 @@ public interface DocumentPostControllerDocs {
       description = """
         **자료 글 등록 요청**
 
-        이 API는 인증이 필요하며, JWT 토큰이 존재해야 합니다. 클라이언트는 Bearer 토큰을 통해 인증을 수행해야 합니다.
+        **인증 : JWT 토큰 필요**
 
-        ### **요청 파라미터**
-        
-        - **`title`** (`String`, **필수**)
-        
-        - **`content`** (`String`, **필수**)
-        
-        - **`subject`** (`String`, **필수**): 교과목명
-        
-        - **`documentTypeSet`** (`String`, **선택**)
-        
-        - **`isDepartmentPrivate`** (`Boolean`, **선택**): 내 학과 비공개 여부 : 기본값 `false` (공개)
-       
-        - **`attachmentFiles`** (`MultipartFile`, **선택**): 업로드 자료 파일 리스트
-        
+        #### 요청 파라미터
+        - **`title`** (`String`, **필수**): 자료 게시글 제목
+        - **`content`** (`String`, **필수**): 자료 게시글 본문
+        - **`subject`** (`String`, **필수**): 교과목 명
+        - **`documentTypes`** (`List<DocumentType>`, **선택**): 자료 유형 (최대 2개)
+        - **`attendedYear`** (`Integer`, **선택**): 수강 년도
+        - **`isDepartmentPrivate`** (`Boolean`, **선택**): 내 학과 비공개 여부 (기본값 = `false`)
+        - **`attachmentFiles`** (`List<MultipartFile>`, **선택**): 첨부파일 
+        - **`customTags`** (`List<String>`, **선택**): 커스텀태그
+
         ### **DocumentType**
-
-        최대 2개까지의 카테고리를 설정 가능
-
+        최대 2개까지의 카테고리를 설정 가능합니다.
         - **DOCUMENT**: 필기 자료, 교안, 녹화본, 실험/실습 자료 등
         - **PAST_EXAM**: 퀴즈, 기출 문제, 과제 등
         - **SOLUTION**: 솔루션 등
 
-        ### **반환 파라미터 값**
+        #### 반환 파라미터
+          - **`DocumentPost documentPost`**: 자료 글 상세 정보
+          - **`List<DocumentFile> documentFiles`**: 첨부파일 리스트
+          - **`List<String> customTags`**: 커스텀 태그 리스트
 
-        - **`DocumentDto`**: 자료 게시판 정보 반환
-          - **`DocumentPost documentPost`**: 자료 글 정보
-
-        ### **참고 사항**
-
+        #### 참고 사항
         - 자료 글은 닉네임 비공개 기능이 없습니다.
-        - 자료 글 등록 시 게시물 등급은 "천민" 등급 
-        - 개별 파일의 최대 크기는 50MB
+        - 자료 글 등록 시 게시물 등급은 "천민" 등급으로 설정됩니다.
         """
   )
   ResponseEntity<DocumentDto> saveDocumentPost(
