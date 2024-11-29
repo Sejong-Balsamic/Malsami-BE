@@ -29,6 +29,10 @@ public class ScoreCalculator {
   // 자료 글 일간 점수 로직
   // TODO: 자료 다운로드 수 로직에 추가해야 합니다.
   public long calculateDocumentPostDailyScore(DocumentPost post) {
+    // 인기글 최소 좋아요 수
+    if (post.getLikeCount() < scoreConfig.getDocumentMinimumLikeCount()) {
+      return 0;
+    }
     return (long) post.getViewCount() * scoreConfig.getDocumentDailyViewCountWeight()
         + (long) post.getLikeCount() * scoreConfig.getDocumentDailyLikeCountWeight()
         + (long) post.getDislikeCount() * scoreConfig.getDocumentDailyDislikeCountWeight();
@@ -37,6 +41,10 @@ public class ScoreCalculator {
   // 자료 글 주간 점수 로직
   // TODO: 자료 다운로드 수 로직에 추가해야 합니다.
   public long calculateDocumentPostWeeklyScore(DocumentPost post) {
+    // 인기글 최소 좋아요 수
+    if (post.getLikeCount() < scoreConfig.getDocumentMinimumLikeCount()) {
+      return 0;
+    }
     return (long) post.getViewCount() * scoreConfig.getDocumentWeeklyViewCountWeight()
         + (long) post.getLikeCount() * scoreConfig.getDocumentWeeklyLikeCountWeight()
         + (long) post.getDislikeCount() * scoreConfig.getDocumentWeeklyDislikeCountWeight();
