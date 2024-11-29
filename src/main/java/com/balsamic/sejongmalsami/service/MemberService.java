@@ -4,10 +4,12 @@ import com.balsamic.sejongmalsami.object.CustomUserDetails;
 import com.balsamic.sejongmalsami.object.MemberCommand;
 import com.balsamic.sejongmalsami.object.MemberDto;
 import com.balsamic.sejongmalsami.object.constants.AccountStatus;
+import com.balsamic.sejongmalsami.object.constants.Faculty;
 import com.balsamic.sejongmalsami.object.constants.Role;
 import com.balsamic.sejongmalsami.object.mongo.RefreshToken;
 import com.balsamic.sejongmalsami.object.postgres.AnswerPost;
 import com.balsamic.sejongmalsami.object.postgres.Comment;
+import com.balsamic.sejongmalsami.object.postgres.Course;
 import com.balsamic.sejongmalsami.object.postgres.DocumentPost;
 import com.balsamic.sejongmalsami.object.postgres.DocumentRequestPost;
 import com.balsamic.sejongmalsami.object.postgres.Exp;
@@ -20,6 +22,7 @@ import com.balsamic.sejongmalsami.repository.mongo.QuestionBoardLikeRepository;
 import com.balsamic.sejongmalsami.repository.mongo.RefreshTokenRepository;
 import com.balsamic.sejongmalsami.repository.postgres.AnswerPostRepository;
 import com.balsamic.sejongmalsami.repository.postgres.CommentRepository;
+import com.balsamic.sejongmalsami.repository.postgres.CourseRepository;
 import com.balsamic.sejongmalsami.repository.postgres.DocumentPostRepository;
 import com.balsamic.sejongmalsami.repository.postgres.DocumentRequestPostRepository;
 import com.balsamic.sejongmalsami.repository.postgres.ExpRepository;
@@ -77,6 +80,7 @@ public class MemberService implements UserDetailsService {
   private final DocumentBoardLikeRepository documentBoardLikeRepository;
   private final QuestionBoardLikeRepository questionBoardLikeRepository;
   private final CommentLikeRepository commentLikeRepository;
+  private final CourseRepository courseRepository;
 
 
 
@@ -116,6 +120,10 @@ public class MemberService implements UserDetailsService {
     String studentIdString = dto.getStudentIdString();
     Long studentId = Long.parseLong(studentIdString);
 
+    // 전공에 따른 단과대 설정
+    List<Course> courses = courseRepository.findByDepartment(dto.getMajor());
+    Faculty faculty = courses.get(0).getFaculty();
+
     // 회원 조회 또는 신규 등록
     Member member = memberRepository.findByStudentId(studentId)
         .orElseGet(() -> {
@@ -134,6 +142,7 @@ public class MemberService implements UserDetailsService {
                   .studentName(dto.getStudentName())
                   .uuidNickname(UUID.randomUUID().toString().substring(0, 6))
                   .major(dto.getMajor())
+                  .faculty(faculty)
                   .academicYear(dto.getAcademicYear())
                   .enrollmentStatus(dto.getEnrollmentStatus())
                   .isNotificationEnabled(true)
