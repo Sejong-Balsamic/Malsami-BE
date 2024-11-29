@@ -1,6 +1,5 @@
 package com.balsamic.sejongmalsami.object;
 
-import com.balsamic.sejongmalsami.object.constants.ExpTier;
 import com.balsamic.sejongmalsami.object.postgres.Exp;
 import com.balsamic.sejongmalsami.object.postgres.Member;
 import com.balsamic.sejongmalsami.object.postgres.Yeopjeon;
@@ -34,17 +33,13 @@ public class MemberDto {
 
   // Yeopjeon
   private Integer yeopjeonRank;
-  private Integer totalYeopjeon;
+  private Integer totalYeopjeonMembers;
   private Double yeopjeonPercentile;
 
   // Exp
   private Integer expRank;
-  private Integer totalExp;
+  private Integer totalExpMembers;
   private Double expPercentile;
-  private ExpTier expTier;
-  private Integer levelStartExp;
-  private Integer levelEndExp;
-  private Double progressPercent;
 
   // Total
   private Long totalLikeCount;

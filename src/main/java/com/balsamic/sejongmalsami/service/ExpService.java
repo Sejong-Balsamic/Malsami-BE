@@ -100,9 +100,7 @@ public class ExpService {
   }
 
   // 전체 경험치 수 반환
-  public int getTotalExp() {
-    return expRepository.findTotalExp();
+  public int getCountOfMembersWithExp() {
+    return expRepository.findExpHolderCount();
   }
-
-
 }

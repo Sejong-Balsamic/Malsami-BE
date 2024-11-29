@@ -22,5 +22,5 @@ public interface YeopjeonRepository extends JpaRepository<Yeopjeon, UUID> {
   Integer findRankByMemberId(UUID memberId);
 
   @Query(value = "SELECT COUNT(*) FROM yeopjeon", nativeQuery = true)
-  Integer findTotalYeopjeon();
+  Integer findYeopjeonHolderCount();
 }
