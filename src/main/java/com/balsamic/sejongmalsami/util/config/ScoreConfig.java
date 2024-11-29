@@ -53,4 +53,7 @@ public class ScoreConfig {
 
   @Value("${score.document.weekly.download-count-weight}")
   private int documentWeeklyDownloadCountWeight;
+
+  @Value("${score.document.common.minimum-like-count}")
+  private int documentMinimumLikeCount;
 }

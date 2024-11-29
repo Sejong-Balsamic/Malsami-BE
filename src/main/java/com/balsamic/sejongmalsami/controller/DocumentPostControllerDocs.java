@@ -92,6 +92,11 @@ public interface DocumentPostControllerDocs {
 
   @ApiChangeLogs({
       @ApiChangeLog(
+          date = "2024.11.28",
+          author = Author.BAEKJIHOON,
+          description = "자료 글 일간 인기점수 24시간마다 초기화"
+      ),
+      @ApiChangeLog(
           date = "2024.11.15",
           author = Author.SUHSAECHAN,
           description = "자료 게시글 최근 5년간 글중에 dailyScore 큰 순으로 Pageable 반환으로 수정"
@@ -116,17 +121,18 @@ public interface DocumentPostControllerDocs {
 
           **입력 파라미터 값:**
 
-          없음
+          #### 요청 파라미터
+          - **`pageNumber`** (`Integer`, 선택): 페이지 번호 (기본값 = 0)
+        
+          - **`pageSize`** (`Integer`, 선택): 조회하고 싶은 주간 인기 질문 글 개수 (기본값 = 30)
 
-          **반환 파라미터 값:**
-
+          ####반환 파라미터 값
           - **DocumentDto**: 자료 게시판 정보 반환
-            - **List\\<DocumentPost\\> documentPosts**: 일간 자료 인기글 리스트
+            - **Page\\<DocumentPost\\> documentPostsPage**: 일간 자료 인기글 리스트
 
-          **참고 사항:**
-
+          ####참고 사항
           - 이 API를 통해 사용자는 일간 인기 자료글을 조회할 수 있습니다.
-          - 요청 시각으로부터 24시간 이내에 작성된 상위 30개의 일간 인기글을 조회합니다.
+          - 자료 게시판 일간 인기 점수는 매일 자정마다 초기화됩니다.
           - Swagger에서 테스트 시 mediaFiles에 있는 "Send empty value" 체크박스 해제해야합니다.
           """
   )
@@ -134,6 +140,11 @@ public interface DocumentPostControllerDocs {
       DocumentCommand command);
 
   @ApiChangeLogs({
+      @ApiChangeLog(
+          date = "2024.11.28",
+          author = Author.BAEKJIHOON,
+          description = "자료 글 주간 인기점수 7일마다 초기화"
+      ),
       @ApiChangeLog(
           date = "2024.11.15",
           author = Author.SUHSAECHAN,
@@ -157,19 +168,18 @@ public interface DocumentPostControllerDocs {
 
           **이 API는 인증이 필요하며, JWT 토큰이 존재해야합니다.**
 
-          **입력 파라미터 값:**
+          #### 요청 파라미터
+          - **`pageNumber`** (`Integer`, 선택): 페이지 번호 (기본값 = 0)
+        
+          - **`pageSize`** (`Integer`, 선택): 조회하고 싶은 주간 인기 질문 글 개수 (기본값 = 30)
 
-          없음
-
-          **반환 파라미터 값:**
-
+          ####반환 파라미터 값
           - **DocumentDto**: 자료 게시판 정보 반환
-            - **List\\<DocumentPost\\> documentPosts**: 주간 자료 인기글 리스트
+            - **Page\\<DocumentPost\\> documentPostsPage**: 주간 자료 인기글 리스트
 
-          **참고 사항:**
-
+          ####참고 사항
           - 이 API를 통해 사용자는 주간 인기 자료글을 조회할 수 있습니다.
-          - 요청 시각으로부터 7일 이내에 작성된 상위 30개의 주간 인기글을 조회합니다.
+          - 자료 게시판 일간 인기 점수는 매주 월요일 자정마다 초기화됩니다.
           - Swagger에서 테스트 시 mediaFiles에 있는 "Send empty value" 체크박스 해제해야합니다.
           """
   )

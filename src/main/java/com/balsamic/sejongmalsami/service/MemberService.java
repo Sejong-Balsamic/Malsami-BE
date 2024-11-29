@@ -20,6 +20,7 @@ import com.balsamic.sejongmalsami.repository.mongo.QuestionBoardLikeRepository;
 import com.balsamic.sejongmalsami.repository.mongo.RefreshTokenRepository;
 import com.balsamic.sejongmalsami.repository.postgres.AnswerPostRepository;
 import com.balsamic.sejongmalsami.repository.postgres.CommentRepository;
+import com.balsamic.sejongmalsami.repository.postgres.CourseRepository;
 import com.balsamic.sejongmalsami.repository.postgres.DocumentPostRepository;
 import com.balsamic.sejongmalsami.repository.postgres.DocumentRequestPostRepository;
 import com.balsamic.sejongmalsami.repository.postgres.ExpRepository;
@@ -77,6 +78,7 @@ public class MemberService implements UserDetailsService {
   private final DocumentBoardLikeRepository documentBoardLikeRepository;
   private final QuestionBoardLikeRepository questionBoardLikeRepository;
   private final CommentLikeRepository commentLikeRepository;
+  private final CourseRepository courseRepository;
 
 
 

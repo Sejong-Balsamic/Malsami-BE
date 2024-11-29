@@ -5,26 +5,26 @@ import com.balsamic.sejongmalsami.object.constants.Faculty;
 import com.balsamic.sejongmalsami.object.constants.PostTier;
 import com.balsamic.sejongmalsami.object.postgres.DocumentPost;
 import com.balsamic.sejongmalsami.object.postgres.Member;
-import java.time.LocalDateTime;
 import java.util.List;
 import java.util.UUID;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 
 public interface DocumentPostRepository extends JpaRepository<DocumentPost, UUID> {
 
-  // 일간 인기글 계산 (글 작성일이 startDate 보다 나중인 질문 게시글)
-  @Query("SELECT p FROM DocumentPost p WHERE p.createdDate >= :startDate")
-  List<DocumentPost> findDocumentPostsAfter(LocalDateTime startDate);
+  // 모든 자료 글 dailyScore 초기화
+  @Modifying
+  @Query("UPDATE DocumentPost p SET p.dailyScore = 0")
+  void resetDailyScore();
 
-  // 일간 인기글 페이징 조회 (dailyScore 기준 내림차순)
-  Page<DocumentPost> findByCreatedDateAfterOrderByDailyScoreDesc(LocalDateTime startDate, Pageable pageable);
-
-  // 주간 인기글 페이징 조회 (weeklyScore 기준 내림차순)
-  Page<DocumentPost> findByCreatedDateAfterOrderByWeeklyScoreDesc(LocalDateTime startDate, Pageable pageable);
+  // 모든 자료 글 weeklyScore 초기화
+  @Modifying
+  @Query("UPDATE DocumentPost p SET p.weeklyScore = 0")
+  void resetWeeklyScore();
 
   // 자료 글 교과목명, 태그 필터링
   @Query("SELECT DISTINCT p FROM DocumentPost p " +
