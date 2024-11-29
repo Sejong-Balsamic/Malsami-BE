@@ -1,6 +1,7 @@
 package com.balsamic.sejongmalsami.object.postgres;
 
 import com.balsamic.sejongmalsami.object.constants.AccountStatus;
+import com.balsamic.sejongmalsami.object.constants.Faculty;
 import com.balsamic.sejongmalsami.object.constants.Role;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
@@ -48,6 +49,8 @@ public class Member extends BaseEntity {
   private String uuidNickname;
 
   private String major;
+
+  private Faculty faculty;
 
   private String academicYear;
 
