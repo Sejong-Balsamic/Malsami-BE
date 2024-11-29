@@ -17,6 +17,7 @@ import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.ManyToOne;
+import jakarta.validation.constraints.NotNull;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
@@ -64,6 +65,7 @@ public class DocumentPost extends BasePost {
   @ElementCollection(targetClass = DocumentType.class, fetch = FetchType.LAZY)
   @CollectionTable
   @Enumerated(EnumType.STRING)
+  @NotNull
   private List<DocumentType> documentTypes = new ArrayList<>();
 
   @Builder.Default
@@ -72,6 +74,8 @@ public class DocumentPost extends BasePost {
 
   // 파일 미리보기 이미지 URL
   private String thumbnailUrl;
+
+  private Integer attendedYear;
 
   @Builder.Default
   private Integer likeCount = 0; // 좋아요수
