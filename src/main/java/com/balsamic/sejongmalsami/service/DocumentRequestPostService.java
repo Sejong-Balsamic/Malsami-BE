@@ -105,7 +105,6 @@ public class DocumentRequestPostService {
 
   /**
    * <h3>자료요청글 필터링 로직</h3>
-   * <p>자료요청 게시판은 '중인(엽전 수 : 1000개)' 이상 접근 가능합니다.</p>
    * <p>1. 교과목명 기준 검색 - String subject (ex.컴퓨터구조, 인터렉티브 디자인)
    * <p>2. 학부 기준 검색 - Faculty (ex.대양휴머니티칼리지)</p>
    * <p>3. 카테고리 검색 - DocumentType (ex.DocumentType.SOLUTION)</p>
@@ -113,16 +112,10 @@ public class DocumentRequestPostService {
    * <h3>정렬 타입 (SortType)</h3>
    * <p>최신순, 좋아요순, 댓글순, 조회순</p>
    *
-   * @param command memberId, subject, faculty, documentType, sortType
+   * @param command ubject, faculty, documentType, sortType
    * @return
    */
   public DocumentDto filteredDocumentRequests(DocumentCommand command) {
-
-    Member member = memberRepository.findById(command.getMemberId())
-        .orElseThrow(() -> new CustomException(ErrorCode.MEMBER_NOT_FOUND));
-
-    // 해당 사용자가 중인 이상인지 검증
-    validateJunginOrAbove(member);
 
     // 과목명이 비어있는 경우 null 설정 (비어있는 경우 쿼리문에서 오류 발생)
     if (command.getSubject() != null && command.getSubject().isEmpty()) {
@@ -164,10 +157,7 @@ public class DocumentRequestPostService {
 
   /**
    * <h3>특정 자료 요청 글 조회</h3>
-   * <p>자료요청 게시판은 '중인(엽전 수: 1000개)' 이상 접근 가능합니다.
-   * <ul>
-   *   <li>해당 글 조회 수 증가</li>
-   * </ul>
+   * <p>해당 글 조회 수 증가
    *
    * @param command memberId, documentPostId
    * @return
@@ -176,9 +166,6 @@ public class DocumentRequestPostService {
 
     Member member = memberRepository.findById(command.getMemberId())
         .orElseThrow(() -> new CustomException(ErrorCode.MEMBER_NOT_FOUND));
-
-    // 해당 사용자가 중인 이상인지 검증
-    validateJunginOrAbove(member);
 
     DocumentRequestPost post = documentRequestPostRepository
         .findById(command.getDocumentPostId())
