@@ -35,9 +35,11 @@ public class DocumentCommand {
   private String subject; // 자료
   private Faculty faculty; // 자료 요청
   private List<DocumentType> documentTypes; // 자료, 자료 요청
-  private List<MultipartFile> attachmentFiles = new ArrayList<>(); // 첨부된 파일들
+  private List<MultipartFile> attachmentFiles; // 첨부된 파일들
+  private Integer attendedYear;
   private Boolean isDepartmentPrivate; // 자료
   private Boolean isPrivate; // 자료 요청
+  private List<String> customTags; // 커스텀 태그
 
   private UUID documentPostId;
   private Member member;

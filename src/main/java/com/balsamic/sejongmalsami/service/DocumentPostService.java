@@ -12,6 +12,7 @@ import static com.balsamic.sejongmalsami.object.constants.YeopjeonAction.VIEW_DO
 import com.balsamic.sejongmalsami.object.DocumentCommand;
 import com.balsamic.sejongmalsami.object.DocumentDto;
 import com.balsamic.sejongmalsami.object.constants.ContentType;
+import com.balsamic.sejongmalsami.object.constants.ExpAction;
 import com.balsamic.sejongmalsami.object.constants.Faculty;
 import com.balsamic.sejongmalsami.object.constants.PostTier;
 import com.balsamic.sejongmalsami.object.constants.SortType;
@@ -27,6 +28,7 @@ import com.balsamic.sejongmalsami.repository.postgres.MemberRepository;
 import com.balsamic.sejongmalsami.util.config.YeopjeonConfig;
 import com.balsamic.sejongmalsami.util.exception.CustomException;
 import com.balsamic.sejongmalsami.util.exception.ErrorCode;
+import java.time.Year;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -47,6 +49,8 @@ public class DocumentPostService {
   private final static int MAX_DOCUMENT_TYPES = 2; // 태그 최대 개수 제한
 
   private final DocumentPostRepository documentPostRepository;
+  private final DocumentPostCustomTagService documentPostCustomTagService;
+  private final ExpService expService;
   private final MemberRepository memberRepository;
   private final DocumentFileService documentFileService;
   private final DocumentBoardLikeRepository documentBoardLikeRepository;
@@ -64,12 +68,8 @@ public class DocumentPostService {
   public DocumentDto saveDocumentPost(DocumentCommand command) {
 
     // 회원 검증
-    Member member = memberRepository.findById(command.getMemberId())
-        .orElseThrow(() -> {
-          log.error("회원이 존재하지 않습니다: memberId={}", command.getMemberId());
-          return new CustomException(ErrorCode.MEMBER_NOT_FOUND);
-        });
-    log.info("회원 검증 완료: studentId={}", member.getStudentId());
+    Member member = command.getMember();
+    log.info("자료 등록 회원 : studentId={}", member.getStudentId());
 
     // 입력된 교과목에 따른 단과대 설정
     List<Faculty> faculties = courseRepository
@@ -81,10 +81,27 @@ public class DocumentPostService {
     log.info("단과대 List : {}", faculties);
 
     if (faculties.isEmpty()) {
+      log.error("단과대를 찾을 수 없습니다. 교과목명을 확인해주세요 : Subject : {}",command.getSubject());
       throw new CustomException(ErrorCode.FACULTY_NOT_FOUND);
     }
 
-    // 자료 게시글 객체 생성 및 저장
+    // 수강년도 검증
+    Integer attendedYear = command.getAttendedYear();
+    if (attendedYear == null) {
+      log.warn("수강년도가 입력되지 않았습니다.");
+    }
+    int currentYear = Year.now().getValue();
+    int minimumValidYear = 2000; // 필요한 최소 연도
+    if (attendedYear < minimumValidYear) {
+      log.error("수강년도가 너무 과거입니다: attendedYear={}", attendedYear);
+      throw new CustomException(ErrorCode.INVALID_ATTENDED_YEAR);
+    }
+    if (attendedYear > currentYear) {
+      log.error("수강년도가 미래입니다: attendedYear={}", attendedYear);
+      throw new CustomException(ErrorCode.INVALID_ATTENDED_YEAR);
+    }
+
+      // 자료 게시글 객체 생성 및 저장
     DocumentPost savedDocument = documentPostRepository.save(
         DocumentPost.builder()
             .member(member)
@@ -92,6 +109,7 @@ public class DocumentPostService {
             .content(command.getContent())
             .subject(command.getSubject())
             .faculties(faculties)
+            .attendedYear(command.getAttendedYear())
             .postTier(PostTier.CHEONMIN)
             .thumbnailUrl(null)
             .documentTypes(command.getDocumentTypes() != null ? new ArrayList<>(command.getDocumentTypes()) : null)
@@ -104,6 +122,12 @@ public class DocumentPostService {
             .build());
     log.info("자료 게시글 저장 완료: 제목={} id={}", command.getTitle(), savedDocument.getDocumentPostId());
 
+    // 커스텀 태그 추가
+    List<String> customTags = null;
+    if (command.getCustomTags() != null) {
+      customTags = documentPostCustomTagService.saveCustomTags(command.getCustomTags(), savedDocument.getDocumentPostId());
+    }
+
     // 첨부 자료 처리 및 저장 : 저장된 자료 파일은 savedDocumentFiles 에 추가
     List<DocumentFile> savedDocumentFiles = documentFileService.handleDocumentFiles(
         command.getAttachmentFiles(),
@@ -111,14 +135,18 @@ public class DocumentPostService {
         savedDocument.getDocumentPostId(),
         member);
 
-    // 첨부자료 존재시 썸네일 추가
+    // documentPost 에 썸네일 지정 : 첫번째 파일의 썸네일
     if(!savedDocumentFiles.isEmpty()){
       savedDocument.setThumbnailUrl(savedDocumentFiles.get(0).getThumbnailUrl());
     }
 
+    // 자료 글 등록 시 경험치 증가
+    expService.updateExpAndSaveExpHistory(member, ExpAction.CREATE_DOCUMENT_POST);
+
     return DocumentDto.builder()
         .documentPost(savedDocument)
         .documentFiles(savedDocumentFiles)
+        .customTags(customTags)
         .build();
   }
 

@@ -34,7 +34,7 @@ public class DocumentPostController implements DocumentPostControllerDocs {
   public ResponseEntity<DocumentDto> saveDocumentPost(
       @AuthenticationPrincipal CustomUserDetails customUserDetails,
       @ModelAttribute DocumentCommand command) {
-    command.setMemberId(customUserDetails.getMemberId());
+    command.setMember(customUserDetails.getMember());
     return ResponseEntity.ok(documentPostService.saveDocumentPost(command));
   }
 
