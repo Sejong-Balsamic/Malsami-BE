@@ -25,6 +25,7 @@ import com.balsamic.sejongmalsami.repository.mongo.DocumentBoardLikeRepository;
 import com.balsamic.sejongmalsami.repository.postgres.CourseRepository;
 import com.balsamic.sejongmalsami.repository.postgres.DocumentPostRepository;
 import com.balsamic.sejongmalsami.repository.postgres.MemberRepository;
+import com.balsamic.sejongmalsami.repository.postgres.YeopjeonRepository;
 import com.balsamic.sejongmalsami.util.config.YeopjeonConfig;
 import com.balsamic.sejongmalsami.util.exception.CustomException;
 import com.balsamic.sejongmalsami.util.exception.ErrorCode;
@@ -57,6 +58,7 @@ public class DocumentPostService {
   private final CourseRepository courseRepository;
   private final YeopjeonService yeopjeonService;
   private final YeopjeonConfig yeopjeonConfig;
+  private final YeopjeonRepository yeopjeonRepository;
 
   /**
    * <h3>자료 글 저장
@@ -242,13 +244,13 @@ public class DocumentPostService {
     // 게시글 등급에 따라 사용자 엽전 변동 및 엽전 히스토리 저장
     switch (postTier) {
       case CHEONMIN -> yeopjeonService
-          .updateYeopjeonAndSaveYeopjeonHistory(member, VIEW_DOCUMENT_CHEONMIN_POST);
+          .processYeopjeon(member, VIEW_DOCUMENT_CHEONMIN_POST);
       case JUNGIN -> yeopjeonService
-          .updateYeopjeonAndSaveYeopjeonHistory(member, VIEW_DOCUMENT_JUNGIN_POST);
+          .processYeopjeon(member, VIEW_DOCUMENT_JUNGIN_POST);
       case YANGBAN -> yeopjeonService
-          .updateYeopjeonAndSaveYeopjeonHistory(member, VIEW_DOCUMENT_YANGBAN_POST);
+          .processYeopjeon(member, VIEW_DOCUMENT_YANGBAN_POST);
       case KING -> yeopjeonService
-          .updateYeopjeonAndSaveYeopjeonHistory(member, VIEW_DOCUMENT_KING_POST);
+          .processYeopjeon(member, VIEW_DOCUMENT_KING_POST);
     }
 
     // 해당 자료 글 조회수 증가
@@ -293,5 +295,16 @@ public class DocumentPostService {
     } else {
       throw new CustomException(ErrorCode.INVALID_POST_TIER);
     }
+  }
+
+  // 파일 다운로드
+  public DocumentDto downloadDocumentFile(DocumentCommand command) {
+    Member member = command.getMember();
+
+    // 엽전
+    Yeopjeon yeopjeon = yeopjeonRepository.findByMember(member)
+        .orElseThrow(() -> new CustomException(ErrorCode.YEOPJEON_NOT_FOUND));
+
+    return null;
   }
 }

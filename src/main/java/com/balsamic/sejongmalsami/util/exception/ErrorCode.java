@@ -186,6 +186,8 @@ public enum ErrorCode {
 
   INSUFFICIENT_YEOPJEON(HttpStatus.BAD_REQUEST, "사용자의 엽전이 부족합니다."),
 
+  YEOPJEON_ROLLBACK_ERROR(HttpStatus.BAD_REQUEST, "엽전 로직 롤백 중 오류가 발생하였습니다."),
+
   YEOPJEON_SAVE_ERROR(HttpStatus.INTERNAL_SERVER_ERROR, "엽전 저장 시 오류가 발생했습니다."),
 
   YEOPJEON_HISTORY_SAVE_ERROR(HttpStatus.INTERNAL_SERVER_ERROR, "엽전 히스토리 저장 중 오류가 발생했습니다."),

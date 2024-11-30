@@ -153,14 +153,14 @@ public class AnswerPostService {
 
     // 답변 작성자 엽전 변동 및 엽전 히스토리 저장 - A
     YeopjeonHistory answerMemberYeopjeonHistory = yeopjeonService
-        .updateYeopjeonAndSaveYeopjeonHistory(answerMember, YeopjeonAction.CHAETAEK_CHOSEN);
+        .processYeopjeon(answerMember, YeopjeonAction.CHAETAEK_CHOSEN);
 
     YeopjeonHistory curMemberYeopjeonHistory = null;
     try { // 로그인 사용자 엽전 변동 및 엽전 히스토리 저장 - B
       curMemberYeopjeonHistory = yeopjeonService
-          .updateYeopjeonAndSaveYeopjeonHistory(curMember, YeopjeonAction.CHAETAEK_ACCEPT);
+          .processYeopjeon(curMember, YeopjeonAction.CHAETAEK_ACCEPT);
     } catch (Exception e) { // B 실패시 A 롤백
-      yeopjeonService.rollbackYeopjeonAndDeleteYeopjeonHistory(
+      yeopjeonService.rollbackYeopjeonTransaction(
           answerMember,
           YeopjeonAction.CHAETAEK_CHOSEN,
           answerMemberYeopjeonHistory
@@ -173,12 +173,12 @@ public class AnswerPostService {
       answerMemberExpHistory = expService
           .updateExpAndSaveExpHistory(answerMember, ExpAction.CHAETAEK_CHOSEN);
     } catch (Exception e) { // C 실패시 A, B 롤백
-      yeopjeonService.rollbackYeopjeonAndDeleteYeopjeonHistory(
+      yeopjeonService.rollbackYeopjeonTransaction(
           curMember,
           YeopjeonAction.CHAETAEK_ACCEPT,
           curMemberYeopjeonHistory
       );
-      yeopjeonService.rollbackYeopjeonAndDeleteYeopjeonHistory(
+      yeopjeonService.rollbackYeopjeonTransaction(
           answerMember,
           YeopjeonAction.CHAETAEK_CHOSEN,
           answerMemberYeopjeonHistory
@@ -193,12 +193,12 @@ public class AnswerPostService {
           ExpAction.CHAETAEK_CHOSEN,
           answerMemberExpHistory
       );
-      yeopjeonService.rollbackYeopjeonAndDeleteYeopjeonHistory(
+      yeopjeonService.rollbackYeopjeonTransaction(
           curMember,
           YeopjeonAction.CHAETAEK_ACCEPT,
           curMemberYeopjeonHistory
       );
-      yeopjeonService.rollbackYeopjeonAndDeleteYeopjeonHistory(
+      yeopjeonService.rollbackYeopjeonTransaction(
           answerMember,
           YeopjeonAction.CHAETAEK_CHOSEN,
           answerMemberYeopjeonHistory
@@ -219,7 +219,7 @@ public class AnswerPostService {
           answerMember.getStudentId(), answerMemberYeopjeon.getYeopjeon());
 
       try { // 답변 작성자 엽전 변동 및 엽전 히스토리 저장 - E
-        yeopjeonService.updateYeopjeonAndSaveYeopjeonHistory(
+        yeopjeonService.processYeopjeon(
             answerMember,
             YeopjeonAction.REWARD_YEOPJEON,
             questionPost.getRewardYeopjeon());
@@ -235,12 +235,12 @@ public class AnswerPostService {
             ExpAction.CHAETAEK_CHOSEN,
             answerMemberExpHistory
         );
-        yeopjeonService.rollbackYeopjeonAndDeleteYeopjeonHistory(
+        yeopjeonService.rollbackYeopjeonTransaction(
             curMember,
             YeopjeonAction.CHAETAEK_ACCEPT,
             curMemberYeopjeonHistory
         );
-        yeopjeonService.rollbackYeopjeonAndDeleteYeopjeonHistory(
+        yeopjeonService.rollbackYeopjeonTransaction(
             answerMember,
             YeopjeonAction.CHAETAEK_CHOSEN,
             answerMemberYeopjeonHistory

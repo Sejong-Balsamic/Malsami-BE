@@ -91,7 +91,7 @@ public class QuestionPostService {
       throw new CustomException(ErrorCode.INSUFFICIENT_YEOPJEON);
     }
     // 질문글 작성자가 등록한 엽전 현상금 만큼 엽전 수 감소
-    yeopjeonService.updateYeopjeonAndSaveYeopjeonHistory(
+    yeopjeonService.processYeopjeon(
         member,
         YeopjeonAction.REWARD_YEOPJEON,
         -command.getRewardYeopjeon());
@@ -156,7 +156,7 @@ public class QuestionPostService {
     }
 
     // 질문 글 등록 시 엽전 100냥 감소
-    yeopjeonService.updateYeopjeonAndSaveYeopjeonHistory(member, YeopjeonAction.CREATE_QUESTION_POST);
+    yeopjeonService.processYeopjeon(member, YeopjeonAction.CREATE_QUESTION_POST);
 
     // 질문 글 등록 시 경험치 증가
     expService.updateExpAndSaveExpHistory(member, ExpAction.CREATE_QUESTION_POST);

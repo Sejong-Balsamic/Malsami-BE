@@ -11,10 +11,12 @@ import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
+import lombok.Setter;
 import lombok.ToString;
 
 @Entity
 @Getter
+@Setter
 @Builder
 @AllArgsConstructor
 @NoArgsConstructor
@@ -31,8 +33,4 @@ public class Yeopjeon {
 
   // 총 엽전량
   private Integer yeopjeon;
-
-  public void updateYeopjeon(int yeopjeon) {
-    this.yeopjeon = yeopjeon;
-  }
 }
