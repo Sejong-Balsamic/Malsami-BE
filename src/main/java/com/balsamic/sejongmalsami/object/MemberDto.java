@@ -36,6 +36,11 @@ public class MemberDto {
   private Integer totalYeopjeonMembers;
   private Double yeopjeonPercentile;
 
+  private boolean canAccessCheonmin;
+  private boolean canAccessJungin;
+  private boolean canAccessYangban;
+  private boolean canAccessKing;
+
   // Exp
   private Integer expRank;
   private Integer totalExpMembers;
