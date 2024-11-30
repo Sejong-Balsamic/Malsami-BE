@@ -394,6 +394,10 @@ public class MemberService implements UserDetailsService {
     boolean canAccessKing = yeopjeon.getYeopjeon() >= yeopjeonConfig.getKingRequirement();
 
     return MemberDto.builder()
+        .cheonminRequirement(yeopjeonConfig.getCheonminRequirement())
+        .junginRequirement(yeopjeonConfig.getJunginRequirement())
+        .yangbanRequirement(yeopjeonConfig.getYangbanRequirement())
+        .kingRequirement(yeopjeonConfig.getKingRequirement())
         .canAccessCheonmin(canAccessCheonmin)
         .canAccessJungin(canAccessJungin)
         .canAccessYangban(canAccessYangban)

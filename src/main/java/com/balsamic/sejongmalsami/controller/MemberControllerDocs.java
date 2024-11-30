@@ -193,6 +193,10 @@ public interface MemberControllerDocs {
           - **`boolean canAccessYangban`**: 양반 게시판 접근 가능 여부
           - **`boolean canAccessKing`**: 왕 게시판 접근 가능 여부
           - **`Integer yeopjeon`**: 현재 회원의 엽전값
+          - **`Integer cheonminRequirement`**: 천민 게시판 접근 요구 엽전
+          - **`Integer junginRequirement`**: 중인 게시판 접근 요구 엽전
+          - **`Integer yangbanRequirement`**: 양반 게시판 접근 요구 엽전
+          - **`Integer kingRequirement`**: 왕 게시판 접근 요구 엽전
         """
   )
   ResponseEntity<MemberDto> getDocumentBoardAccessByTier(

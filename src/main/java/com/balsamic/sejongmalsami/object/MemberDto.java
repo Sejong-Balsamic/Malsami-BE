@@ -41,6 +41,11 @@ public class MemberDto {
   private boolean canAccessYangban;
   private boolean canAccessKing;
 
+  private Integer cheonminRequirement;
+  private Integer junginRequirement;
+  private Integer yangbanRequirement;
+  private Integer kingRequirement;
+
   // Exp
   private Integer expRank;
   private Integer totalExpMembers;
