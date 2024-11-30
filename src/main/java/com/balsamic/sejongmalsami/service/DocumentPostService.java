@@ -166,10 +166,6 @@ public class DocumentPostService {
    */
   @Transactional(readOnly = true)
   public DocumentDto filteredDocumentPost(DocumentCommand command) {
-
-    Member member = memberRepository.findById(command.getMemberId())
-        .orElseThrow(() -> new CustomException(ErrorCode.MEMBER_NOT_FOUND));
-
     PostTier postTier = command.getPostTier();
 
     // 과목명이 비어있는 경우 null 설정 (비어있는 경우 쿼리문에서 오류 발생)
@@ -180,11 +176,6 @@ public class DocumentPostService {
     // 태그 List 사이즈가 0인 경우 null로 설정 (비어있는 List의 경우 쿼리문에서 오류 발생)
     if (command.getDocumentTypes() != null && command.getDocumentTypes().isEmpty()) {
       command.setDocumentTypes(null);
-    }
-
-    // 현재 사용자의 해당 게시판 접근 가능 여부 확인
-    if (postTier != null) {
-      canAccessDocumentBoard(member, postTier);
     }
 
     // 태그 필터링 최대 2개까지 선택가능
