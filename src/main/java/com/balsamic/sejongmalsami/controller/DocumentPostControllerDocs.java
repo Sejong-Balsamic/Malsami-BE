@@ -225,6 +225,11 @@ public interface DocumentPostControllerDocs {
 
   @ApiChangeLogs({
       @ApiChangeLog(
+          date = "2024.11.30",
+          author = Author.SUHSAECHAN,
+          description = "member 정보 없어도 접근 가능한 API여야함 : 자료티어 확인 로직 제거"
+      ),
+      @ApiChangeLog(
           date = "2024.11.21",
           author = Author.BAEKJIHOON,
           description = "단과대 필터링 추가"
