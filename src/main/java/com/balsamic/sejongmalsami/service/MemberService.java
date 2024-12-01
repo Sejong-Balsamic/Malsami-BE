@@ -378,4 +378,31 @@ public class MemberService implements UserDetailsService {
     return new UsernamePasswordAuthenticationToken(userDetails, null, userDetails.getAuthorities());
   }
 
+  /**
+   * 회원의 yeopjeon -> 각 자료게시판 접근 가능 여부 반환
+   */
+  public MemberDto getDocumentBoardAccessByTier(MemberCommand command) {
+    Member member = command.getMember();
+
+    // 엽전 정보
+    Yeopjeon yeopjeon = yeopjeonService.findMemberYeopjeon(member);
+
+    // 게시판 정보
+    boolean canAccessCheonmin = true; // 천민 게시판은 모든 회원이 접근 가능
+    boolean canAccessJungin = yeopjeon.getYeopjeon() >= yeopjeonConfig.getJunginRequirement();
+    boolean canAccessYangban = yeopjeon.getYeopjeon() >= yeopjeonConfig.getYangbanRequirement();
+    boolean canAccessKing = yeopjeon.getYeopjeon() >= yeopjeonConfig.getKingRequirement();
+
+    return MemberDto.builder()
+        .cheonminRequirement(yeopjeonConfig.getCheonminRequirement())
+        .junginRequirement(yeopjeonConfig.getJunginRequirement())
+        .yangbanRequirement(yeopjeonConfig.getYangbanRequirement())
+        .kingRequirement(yeopjeonConfig.getKingRequirement())
+        .canAccessCheonmin(canAccessCheonmin)
+        .canAccessJungin(canAccessJungin)
+        .canAccessYangban(canAccessYangban)
+        .canAccessKing(canAccessKing)
+        .yeopjeon(yeopjeon)
+        .build();
+  }
 }

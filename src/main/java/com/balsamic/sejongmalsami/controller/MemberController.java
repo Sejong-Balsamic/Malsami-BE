@@ -4,6 +4,7 @@ import com.balsamic.sejongmalsami.object.CustomUserDetails;
 import com.balsamic.sejongmalsami.object.MemberCommand;
 import com.balsamic.sejongmalsami.object.MemberDto;
 import com.balsamic.sejongmalsami.service.MemberService;
+import com.balsamic.sejongmalsami.util.log.LogMonitoringInvocation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
@@ -27,6 +28,7 @@ public class MemberController implements MemberControllerDocs {
   private final MemberService memberService;
 
   @Override
+  @LogMonitoringInvocation
   @PostMapping(value = "/signin", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
   public ResponseEntity<MemberDto> signIn(
       @ModelAttribute MemberCommand command, HttpServletResponse response) {
@@ -34,6 +36,7 @@ public class MemberController implements MemberControllerDocs {
   }
 
   @Override
+  @LogMonitoringInvocation
   @PostMapping(value = "/my-page", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
   public ResponseEntity<MemberDto> myPage(
       @ModelAttribute MemberCommand command,
@@ -44,9 +47,20 @@ public class MemberController implements MemberControllerDocs {
 
   // 기본 회원 반환
   @Override
+  @LogMonitoringInvocation
   @PostMapping(value = "/my-info", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
   public ResponseEntity<MemberDto> myInfo(
       MemberCommand command, CustomUserDetails customUserDetails) {
     return ResponseEntity.ok(MemberDto.builder().member(customUserDetails.getMember()).build());
+  }
+
+  @Override
+  @LogMonitoringInvocation
+  @PostMapping(value = "/document/access-info", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
+  public ResponseEntity<MemberDto> getDocumentBoardAccessByTier(
+      MemberCommand command,
+      CustomUserDetails customUserDetails) {
+    command.setMember(customUserDetails.getMember());
+    return ResponseEntity.ok(memberService.getDocumentBoardAccessByTier(command));
   }
 }

@@ -4,6 +4,7 @@ import static com.balsamic.sejongmalsami.object.constants.SortType.LATEST;
 import static com.balsamic.sejongmalsami.object.constants.SortType.MOST_LIKED;
 import static com.balsamic.sejongmalsami.object.constants.SortType.VIEW_COUNT;
 import static com.balsamic.sejongmalsami.object.constants.SortType.getJpqlSortOrder;
+import static com.balsamic.sejongmalsami.object.constants.YeopjeonAction.PURCHASE_DOCUMENT;
 import static com.balsamic.sejongmalsami.object.constants.YeopjeonAction.VIEW_DOCUMENT_CHEONMIN_POST;
 import static com.balsamic.sejongmalsami.object.constants.YeopjeonAction.VIEW_DOCUMENT_JUNGIN_POST;
 import static com.balsamic.sejongmalsami.object.constants.YeopjeonAction.VIEW_DOCUMENT_KING_POST;
@@ -16,15 +17,20 @@ import com.balsamic.sejongmalsami.object.constants.ExpAction;
 import com.balsamic.sejongmalsami.object.constants.Faculty;
 import com.balsamic.sejongmalsami.object.constants.PostTier;
 import com.balsamic.sejongmalsami.object.constants.SortType;
+import com.balsamic.sejongmalsami.object.mongo.PurchaseHistory;
+import com.balsamic.sejongmalsami.object.mongo.YeopjeonHistory;
 import com.balsamic.sejongmalsami.object.postgres.Course;
 import com.balsamic.sejongmalsami.object.postgres.DocumentFile;
 import com.balsamic.sejongmalsami.object.postgres.DocumentPost;
 import com.balsamic.sejongmalsami.object.postgres.Member;
 import com.balsamic.sejongmalsami.object.postgres.Yeopjeon;
 import com.balsamic.sejongmalsami.repository.mongo.DocumentBoardLikeRepository;
+import com.balsamic.sejongmalsami.repository.mongo.PurchaseHistoryRepository;
 import com.balsamic.sejongmalsami.repository.postgres.CourseRepository;
+import com.balsamic.sejongmalsami.repository.postgres.DocumentFileRepository;
 import com.balsamic.sejongmalsami.repository.postgres.DocumentPostRepository;
 import com.balsamic.sejongmalsami.repository.postgres.MemberRepository;
+import com.balsamic.sejongmalsami.repository.postgres.YeopjeonRepository;
 import com.balsamic.sejongmalsami.util.config.YeopjeonConfig;
 import com.balsamic.sejongmalsami.util.exception.CustomException;
 import com.balsamic.sejongmalsami.util.exception.ErrorCode;
@@ -46,6 +52,8 @@ import org.springframework.transaction.annotation.Transactional;
 @RequiredArgsConstructor
 public class DocumentPostService {
 
+  private final DocumentFileRepository documentFileRepository;
+
   private final static int MAX_DOCUMENT_TYPES = 2; // 태그 최대 개수 제한
 
   private final DocumentPostRepository documentPostRepository;
@@ -57,6 +65,8 @@ public class DocumentPostService {
   private final CourseRepository courseRepository;
   private final YeopjeonService yeopjeonService;
   private final YeopjeonConfig yeopjeonConfig;
+  private final YeopjeonRepository yeopjeonRepository;
+  private final PurchaseHistoryRepository purchaseHistoryRepository;
 
   /**
    * <h3>자료 글 저장
@@ -242,13 +252,13 @@ public class DocumentPostService {
     // 게시글 등급에 따라 사용자 엽전 변동 및 엽전 히스토리 저장
     switch (postTier) {
       case CHEONMIN -> yeopjeonService
-          .updateYeopjeonAndSaveYeopjeonHistory(member, VIEW_DOCUMENT_CHEONMIN_POST);
+          .processYeopjeon(member, VIEW_DOCUMENT_CHEONMIN_POST);
       case JUNGIN -> yeopjeonService
-          .updateYeopjeonAndSaveYeopjeonHistory(member, VIEW_DOCUMENT_JUNGIN_POST);
+          .processYeopjeon(member, VIEW_DOCUMENT_JUNGIN_POST);
       case YANGBAN -> yeopjeonService
-          .updateYeopjeonAndSaveYeopjeonHistory(member, VIEW_DOCUMENT_YANGBAN_POST);
+          .processYeopjeon(member, VIEW_DOCUMENT_YANGBAN_POST);
       case KING -> yeopjeonService
-          .updateYeopjeonAndSaveYeopjeonHistory(member, VIEW_DOCUMENT_KING_POST);
+          .processYeopjeon(member, VIEW_DOCUMENT_KING_POST);
     }
 
     // 해당 자료 글 조회수 증가
@@ -293,5 +303,39 @@ public class DocumentPostService {
     } else {
       throw new CustomException(ErrorCode.INVALID_POST_TIER);
     }
+  }
+
+  // 파일 다운로드
+  public DocumentDto downloadDocumentFile(DocumentCommand command) {
+
+    // 회원
+    Member member = command.getMember();
+
+    // 자료 파일 검즘
+    DocumentFile documentFile = documentFileRepository.findById(command.getDocumentFileId())
+        .orElseThrow(() -> new CustomException(ErrorCode.DOCUMENT_FILE_NOT_FOUND));
+
+    // 엽전 소모
+    YeopjeonHistory yeopjeonHistory = yeopjeonService.processYeopjeon(member, PURCHASE_DOCUMENT);
+
+    // path 받기
+    String filePath = command.getFilePath();
+
+    // 다운로드
+
+    // 자료 게시글 PurchaseHistory 저장
+    purchaseHistoryRepository.save(
+        PurchaseHistory.builder()
+            .member(member)
+            .documentPost(documentFile.getDocumentPost())
+            .documentFile(documentFile)
+            .yeopjeonHistory(yeopjeonHistory)
+            .build()
+    );
+
+    // 경험치 증가
+    expService.updateExpAndSaveExpHistory(member, ExpAction.PURCHASE_DOCUMENT);
+
+    return null;
   }
 }
