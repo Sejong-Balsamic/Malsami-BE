@@ -52,4 +52,7 @@ public class DocumentCommand {
   private ReactionType reactionType; // 글 좋아요/싫어요
   private SortType sortType; // 최신순, 좋아요순
   private PostTier postTier;
+
+  private String filePath;
+  private UUID documentFileId;
 }

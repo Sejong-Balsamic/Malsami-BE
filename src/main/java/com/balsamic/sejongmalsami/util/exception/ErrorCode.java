@@ -149,6 +149,10 @@ public enum ErrorCode {
 
   INVALID_ATTENDED_YEAR(HttpStatus.BAD_REQUEST, "적절하지않은 수강년도입니다"),
 
+  // DocumentFile
+
+  DOCUMENT_FILE_NOT_FOUND(HttpStatus.NOT_FOUND, "자료파일을 찾을 수 없습니다."),
+
   // DocumentRequestPost
 
   DOCUMENT_REQUEST_POST_NOT_FOUND(HttpStatus.BAD_REQUEST, "자료 요청 글을 찾을 수 없습니다."),

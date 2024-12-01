@@ -157,8 +157,7 @@ public class AnswerPostService {
 
     YeopjeonHistory curMemberYeopjeonHistory = null;
     try { // 로그인 사용자 엽전 변동 및 엽전 히스토리 저장 - B
-      curMemberYeopjeonHistory = yeopjeonService
-          .processYeopjeon(curMember, YeopjeonAction.CHAETAEK_ACCEPT);
+      curMemberYeopjeonHistory = yeopjeonService.processYeopjeon(curMember, YeopjeonAction.CHAETAEK_ACCEPT);
     } catch (Exception e) { // B 실패시 A 롤백
       yeopjeonService.rollbackYeopjeonTransaction(
           answerMember,

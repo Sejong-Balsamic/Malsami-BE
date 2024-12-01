@@ -81,13 +81,9 @@ public class QuestionPostService {
 
     // {질문글 등록 시 소모엽전 + 엽전 현상금} 보다 보유 엽전량이 적을 시 오류 발생
     Yeopjeon yeopjeon = yeopjeonService.findMemberYeopjeon(member);
-    if (yeopjeon.getYeopjeon() < command.getRewardYeopjeon()
-                                 + -yeopjeonCalculator.calculateYeopjeon(YeopjeonAction.CREATE_QUESTION_POST)) {
+    if (yeopjeon.getYeopjeon() < command.getRewardYeopjeon() + -yeopjeonCalculator.calculateYeopjeon(YeopjeonAction.CREATE_QUESTION_POST)) {
       log.error("사용자: {} 의 엽전이 부족합니다.", member.getStudentId());
-      log.error("현재 보유 엽전량: {}, 질문글 등록시 필요 엽전량: {}, 엽전 현상금 설정량: {}",
-          yeopjeon.getYeopjeon(),
-          -yeopjeonCalculator.calculateYeopjeon(YeopjeonAction.CREATE_QUESTION_POST),
-          command.getRewardYeopjeon());
+      log.error("현재 보유 엽전량: {}, 질문글 등록시 필요 엽전량: {}, 엽전 현상금 설정량: {}", yeopjeon.getYeopjeon(), -yeopjeonCalculator.calculateYeopjeon(YeopjeonAction.CREATE_QUESTION_POST), command.getRewardYeopjeon());
       throw new CustomException(ErrorCode.INSUFFICIENT_YEOPJEON);
     }
     // 질문글 작성자가 등록한 엽전 현상금 만큼 엽전 수 감소
