@@ -23,4 +23,7 @@ public class DocumentDto {
   private List<String> customTags; // 커스텀 태그 리스트
 
   private List<DocumentFile> documentFiles;
+  private byte[] fileBytes;
+  private String fileName;
+  private String mimeType;
 }

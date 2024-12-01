@@ -64,6 +64,7 @@ public class WebSecurityConfig {
             .requestMatchers(SecurityUrls.ADMIN_PATHS.toArray(new String[0])).hasRole("ADMIN")
             // 회원
             .requestMatchers(HttpMethod.POST, "/api/member/my-page").hasAnyRole("ADMIN", "MEMBER")
+            .requestMatchers(HttpMethod.POST, "/api/member/my-info").hasAnyRole("ADMIN", "MEMBER")
             // 교과목명
             .requestMatchers(HttpMethod.POST, "/api/course/upload").hasAnyRole("ADMIN", "MEMBER")
             // 질문
@@ -79,6 +80,7 @@ public class WebSecurityConfig {
             .requestMatchers(HttpMethod.POST, "/api/document/popular/daily").hasAnyRole("ADMIN", "MEMBER")
             .requestMatchers(HttpMethod.POST, "/api/document/popular/weekly").hasAnyRole("ADMIN", "MEMBER")
             .requestMatchers(HttpMethod.POST, "/api/document/filter").hasAnyRole("ADMIN", "MEMBER")
+            .requestMatchers(HttpMethod.POST, "/api/document/file/download").hasAnyRole("ADMIN", "MEMBER")
             // 댓글
             .requestMatchers(HttpMethod.POST, "/api/comment/post").hasAnyRole("ADMIN", "MEMBER")
             .requestMatchers(HttpMethod.POST, "/api/comment/get/all").hasAnyRole("ADMIN", "MEMBER")
