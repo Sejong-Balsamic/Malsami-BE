@@ -73,4 +73,12 @@ public class DocumentPostController implements DocumentPostControllerDocs {
     command.setMemberId(customUserDetails.getMemberId());
     return ResponseEntity.ok(documentPostService.filteredDocumentPost(command));
   }
+
+  @Override
+  public ResponseEntity<DocumentDto> downloadDocumentFile(
+      CustomUserDetails customUserDetails,
+      DocumentCommand command) {
+    command.setMember(customUserDetails.getMember());
+    return ResponseEntity.ok(documentPostService.downloadDocumentFile(command));
+  }
 }
