@@ -66,7 +66,7 @@ public class LikeService {
   private final CommentRepository commentRepository;
 
   /**
-   * <h3>질문글 or 답변글 좋아요 로직
+   * <h3>질문글 or 답변글 좋아요 로직</h3>
    * <ul>
    *   <li>본인이 작성한 글에 좋아요 불가</li>
    *   <li>이미 좋아요 누른 글에 중복 요청 불가</li>
@@ -110,18 +110,19 @@ public class LikeService {
 
     // 좋아요 받은 사용자 엽전 개수 증가 및 엽전 히스토리 저장 - A
     YeopjeonHistory writerYeopjeonHistory = yeopjeonService
-        .updateYeopjeonAndSaveYeopjeonHistory(writer, YeopjeonAction.RECEIVE_LIKE);
+        .processYeopjeon(writer, YeopjeonAction.RECEIVE_LIKE);
 
     // 좋아요 받은 사용자 경험치 증가 및 경험치 히스토리 저장 - B
     ExpHistory writerExpHistory = null;
     try {
       writerExpHistory = expService.updateExpAndSaveExpHistory(writer, ExpAction.RECEIVE_LIKE);
     } catch (Exception e) { // B 실패시 A 롤백
-      yeopjeonService.rollbackYeopjeonAndDeleteYeopjeonHistory(
+      yeopjeonService.rollbackYeopjeonTransaction(
           writer,
           YeopjeonAction.RECEIVE_LIKE,
           writerYeopjeonHistory
       );
+      throw new CustomException(ErrorCode.EXP_SAVE_ERROR); // 트랜잭션 롤백을 위해 예외 던지기
     }
 
     // 좋아요 증가 및 MongoDB에 좋아요 내역 저장 - C
@@ -144,7 +145,7 @@ public class LikeService {
       // 엽전, 경험치 및 히스토리 롤백 - C 실패시 A, B 롤백
       expService.rollbackExpAndDeleteExpHistory(
           writer, ExpAction.RECEIVE_LIKE, writerExpHistory);
-      yeopjeonService.rollbackYeopjeonAndDeleteYeopjeonHistory(
+      yeopjeonService.rollbackYeopjeonTransaction(
           writer, YeopjeonAction.RECEIVE_LIKE, writerYeopjeonHistory);
       throw new CustomException(ErrorCode.QUESTION_BOARD_LIKE_SAVE_ERROR);
     }
@@ -201,103 +202,105 @@ public class LikeService {
           .orElseThrow(() -> new CustomException(ErrorCode.DOCUMENT_REQUEST_POST_NOT_FOUND));
       writer = documentRequestPost.getMember();
       validateSelfLike(curMember, writer); // 본인이 작성한 글에 좋아요 불가
-      isMemberAlreadyAction(postId, curMember.getMemberId()); // 이미 좋아요 누른 글에 중복 요청 불가
+      isMemberAlreadyAction(postId, curMember.getMemberId()); // 이미 좋아요/싫어요 누른 글에 중복 요청 불가
       canAccessDocumentBoard(curMember, JUNGIN); // '중인' 이상 유저 접근 가능
     } else {
       throw new CustomException(ErrorCode.INVALID_CONTENT_TYPE);
     }
 
-      // 2. 좋아요/싫어요에 따른 엽전 및 경험치 증감 로직
-      if (command.getReactionType().equals(ReactionType.LIKE)) { // 좋아요를 누른 경우
-        // 좋아요 받은 사용자 (writer) 엽전 증가 및 엽전 히스토리 저장 - A
-        YeopjeonHistory writerYeopjeonHistory = yeopjeonService
-            .updateYeopjeonAndSaveYeopjeonHistory(writer, YeopjeonAction.RECEIVE_LIKE);
-        // 좋아요 받은 사용자 (writer) 경험치 증가 및 경험치 히스토리 저장 - B
-        ExpHistory writerExpHistory = null;
-        try {
-          writerExpHistory = expService.updateExpAndSaveExpHistory(writer, ExpAction.RECEIVE_LIKE);
-        } catch (Exception e) { // B 실패시 A 롤백
-          yeopjeonService.rollbackYeopjeonAndDeleteYeopjeonHistory(
-              writer,
-              YeopjeonAction.RECEIVE_LIKE,
-              writerYeopjeonHistory
-          );
-        }
-        // 좋아요 증가 및 MongoDB에 좋아요 내역 저장 - C
-        PostTier previousTier = null;
-        try {
-          // 좋아요 증가
-          increaseLikeCount(null, null, documentPost, documentRequestPost);
-          if (documentPost != null) { // 자료글에 좋아요를 누른 경우
-            previousTier = documentPost.getPostTier(); // 등급 변동 전 등급 저장
-            updatePostTier(documentPost, command.getReactionType()); // 등급 변동 로직 호출
-          }
-          return DocumentDto.builder()
-              .documentBoardLike(documentBoardLikeRepository.save(DocumentBoardLike.builder()
-                  .memberId(curMember.getMemberId())
-                  .documentBoardId(postId)
-                  .contentType(command.getContentType())
-                  .reactionType(command.getReactionType())
-                  .build()))
-              .build();
-        } catch (Exception e) { // C 실패시 A, B 롤백
-          log.error("좋아요 내역 저장 실패 및 롤백: {}", e.getMessage());
-
-          // 등급 변동 롤백
-          if (documentPost != null) {
-            rollbackPostTier(documentPost, previousTier); // 등급 롤백
-          }
-
-          // 좋아요 수 롤백
-          rollbackLikeCount(null, null, documentPost, documentRequestPost);
-
-          // 엽전, 경험치 및 히스토리 롤백
-          expService.rollbackExpAndDeleteExpHistory(
-              writer, ExpAction.RECEIVE_LIKE, writerExpHistory);
-          yeopjeonService.rollbackYeopjeonAndDeleteYeopjeonHistory(
-              writer, YeopjeonAction.RECEIVE_LIKE, writerYeopjeonHistory);
-          throw new CustomException(ErrorCode.DOCUMENT_BOARD_LIKE_SAVE_ERROR);
-        }
-      } else if (command.getReactionType().equals(ReactionType.DISLIKE)) { // 싫어요를 누른 경우
-        if (documentPost == null) {
-          log.error("요청한 PK값에 해당하는 자료 글이 존재하지 않습니다. 싫어요는 자료글에만 요청할 수 있습니다. 요청 postId: {}", postId);
-          throw new CustomException(ErrorCode.INVALID_REQUEST);
-        }
-        // 싫어요 받은 사용자 (writer) 엽전 감소 및 엽전 히스토리 저장 - A
-        YeopjeonHistory writerYeopjeonHistory = yeopjeonService
-            .updateYeopjeonAndSaveYeopjeonHistory(writer, YeopjeonAction.RECEIVE_DISLIKE);
-        // 싫어요 증가 및 MongoDB에 싫어요 내역 저장 - B
-        PostTier previousTier = null;
-        try {
-          // 싫어요 증가
-          documentPost.increaseDislikeCount();
+    // 2. 좋아요/싫어요에 따른 엽전 및 경험치 증감 로직
+    if (command.getReactionType().equals(ReactionType.LIKE)) { // 좋아요를 누른 경우
+      // 좋아요 받은 사용자 (writer) 엽전 증가 및 엽전 히스토리 저장 - A
+      YeopjeonHistory writerYeopjeonHistory = yeopjeonService
+          .processYeopjeon(writer, YeopjeonAction.RECEIVE_LIKE);
+      // 좋아요 받은 사용자 (writer) 경험치 증가 및 경험치 히스토리 저장 - B
+      ExpHistory writerExpHistory = null;
+      try {
+        writerExpHistory = expService.updateExpAndSaveExpHistory(writer, ExpAction.RECEIVE_LIKE);
+      } catch (Exception e) { // B 실패시 A 롤백
+        yeopjeonService.rollbackYeopjeonTransaction(
+            writer,
+            YeopjeonAction.RECEIVE_LIKE,
+            writerYeopjeonHistory
+        );
+        throw new CustomException(ErrorCode.EXP_SAVE_ERROR); // 트랜잭션 롤백을 위해 예외 던지기
+      }
+      // 좋아요 증가 및 MongoDB에 좋아요 내역 저장 - C
+      PostTier previousTier = null;
+      try {
+        // 좋아요 증가
+        increaseLikeCount(null, null, documentPost, documentRequestPost);
+        if (documentPost != null) { // 자료글에 좋아요를 누른 경우
           previousTier = documentPost.getPostTier(); // 등급 변동 전 등급 저장
           updatePostTier(documentPost, command.getReactionType()); // 등급 변동 로직 호출
-          return DocumentDto.builder()
-              .documentBoardLike(documentBoardLikeRepository.save(DocumentBoardLike.builder()
-                  .memberId(curMember.getMemberId())
-                  .documentBoardId(postId)
-                  .contentType(command.getContentType())
-                  .reactionType(command.getReactionType())
-                  .build()))
-              .build();
-        } catch (Exception e) { // B 실패시 A 롤백
-          log.error("싫어요 내역 저장 실패 및 롤백: {}", e.getMessage());
-
-          rollbackPostTier(documentPost, previousTier); // 등급 롤백
-
-          // 싫어요 수 롤백
-          documentPost.decreaseDislikeCount();
-
-          // 엽전 및 히스토리 롤백
-          yeopjeonService.rollbackYeopjeonAndDeleteYeopjeonHistory(
-              writer, YeopjeonAction.RECEIVE_DISLIKE, writerYeopjeonHistory);
-          throw new CustomException(ErrorCode.DOCUMENT_BOARD_LIKE_SAVE_ERROR);
         }
-      } else { // 요청이 잘못된 경우
-        log.error("잘못된 ReactionType 입니다. 요청한 type: {}", command.getReactionType());
-        throw new CustomException(ErrorCode.INVALID_REACTION_TYPE);
+        return DocumentDto.builder()
+            .documentBoardLike(documentBoardLikeRepository.save(DocumentBoardLike.builder()
+                .memberId(curMember.getMemberId())
+                .documentBoardId(postId)
+                .contentType(command.getContentType())
+                .reactionType(command.getReactionType())
+                .build()))
+            .build();
+      } catch (Exception e) { // C 실패시 A, B 롤백
+        log.error("좋아요 내역 저장 실패 및 롤백: {}", e.getMessage());
+
+        // 등급 변동 롤백
+        if (documentPost != null) {
+          rollbackPostTier(documentPost, previousTier); // 등급 롤백
+        }
+
+        // 좋아요 수 롤백
+        rollbackLikeCount(null, null, documentPost, documentRequestPost);
+
+        // 엽전, 경험치 및 히스토리 롤백
+        expService.rollbackExpAndDeleteExpHistory(
+            writer, ExpAction.RECEIVE_LIKE, writerExpHistory);
+        yeopjeonService.rollbackYeopjeonTransaction(
+            writer, YeopjeonAction.RECEIVE_LIKE, writerYeopjeonHistory);
+        throw new CustomException(ErrorCode.DOCUMENT_BOARD_LIKE_SAVE_ERROR);
       }
+    } else if (command.getReactionType().equals(ReactionType.DISLIKE)) { // 싫어요를 누른 경우
+      if (documentPost == null) {
+        log.error("요청한 PK값에 해당하는 자료 글이 존재하지 않습니다. 싫어요는 자료글에만 요청할 수 있습니다. 요청 postId: {}", postId);
+        throw new CustomException(ErrorCode.INVALID_REQUEST);
+      }
+      // 싫어요 받은 사용자 (writer) 엽전 감소 및 엽전 히스토리 저장 - A
+      YeopjeonHistory writerYeopjeonHistory = yeopjeonService
+          .processYeopjeon(writer, YeopjeonAction.RECEIVE_DISLIKE);
+      // 싫어요 증가 및 MongoDB에 싫어요 내역 저장 - B
+      PostTier previousTier = null;
+      try {
+        // 싫어요 증가
+        documentPost.increaseDislikeCount();
+        previousTier = documentPost.getPostTier(); // 등급 변동 전 등급 저장
+        updatePostTier(documentPost, command.getReactionType()); // 등급 변동 로직 호출
+        return DocumentDto.builder()
+            .documentBoardLike(documentBoardLikeRepository.save(DocumentBoardLike.builder()
+                .memberId(curMember.getMemberId())
+                .documentBoardId(postId)
+                .contentType(command.getContentType())
+                .reactionType(command.getReactionType())
+                .build()))
+            .build();
+      } catch (Exception e) { // B 실패시 A 롤백
+        log.error("싫어요 내역 저장 실패 및 롤백: {}", e.getMessage());
+
+        rollbackPostTier(documentPost, previousTier); // 등급 롤백
+
+        // 싫어요 수 롤백
+        documentPost.decreaseDislikeCount();
+        documentPostRepository.save(documentPost);
+
+        // 엽전 및 히스토리 롤백
+        yeopjeonService.rollbackYeopjeonTransaction(
+            writer, YeopjeonAction.RECEIVE_DISLIKE, writerYeopjeonHistory);
+        throw new CustomException(ErrorCode.DOCUMENT_BOARD_LIKE_SAVE_ERROR);
+      }
+    } else { // 요청이 잘못된 경우
+      log.error("잘못된 ReactionType 입니다. 요청한 type: {}", command.getReactionType());
+      throw new CustomException(ErrorCode.INVALID_REACTION_TYPE);
+    }
   }
 
   /**
@@ -335,25 +338,26 @@ public class LikeService {
 
     // 좋아요 받은 사용자 엽전 개수 증가 및 엽전 히스토리 저장 - A
     YeopjeonHistory writerYeopjeonHistory = yeopjeonService
-        .updateYeopjeonAndSaveYeopjeonHistory(commentWriter, YeopjeonAction.RECEIVE_LIKE);
+        .processYeopjeon(commentWriter, YeopjeonAction.RECEIVE_LIKE);
 
     // 좋아요 받은 사용자 경험치 증가 및 경험치 히스토리 저장 - B
     ExpHistory writerExpHistory = null;
     try {
-      writerExpHistory = expService
-          .updateExpAndSaveExpHistory(commentWriter, ExpAction.RECEIVE_LIKE);
-    } catch (Exception e) {
-      yeopjeonService.rollbackYeopjeonAndDeleteYeopjeonHistory(
+      writerExpHistory = expService.updateExpAndSaveExpHistory(commentWriter, ExpAction.RECEIVE_LIKE);
+    } catch (Exception e) { // B 실패시 A 롤백
+      yeopjeonService.rollbackYeopjeonTransaction(
           commentWriter,
           YeopjeonAction.RECEIVE_LIKE,
           writerYeopjeonHistory
       );
+      throw new CustomException(ErrorCode.EXP_SAVE_ERROR); // 트랜잭션 롤백을 위해 예외 던지기
     }
 
     // 좋아요 증가 및 MongoDB에 좋아요 내역 저장 - C
     try {
       // 좋아요 증가, contentType 댓글 고정
       comment.increaseLikeCount();
+      commentRepository.save(comment); // 변경 사항 저장
       return CommentDto.builder()
           .commentLike(commentLikeRepository.save(CommentLike.builder()
               .memberId(command.getMemberId())
@@ -366,15 +370,13 @@ public class LikeService {
 
       // 좋아요 수 롤백
       comment.rollbackLikeCount();
+      commentRepository.save(comment); // 변경 사항 저장
 
       // 엽전, 경험치 및 히스토리 롤백 - C 실패시 A, B 롤백
       expService.rollbackExpAndDeleteExpHistory(
           commentWriter, ExpAction.RECEIVE_LIKE, writerExpHistory);
-      yeopjeonService.rollbackYeopjeonAndDeleteYeopjeonHistory(
-          commentWriter,
-          YeopjeonAction.RECEIVE_LIKE,
-          writerYeopjeonHistory
-      );
+      yeopjeonService.rollbackYeopjeonTransaction(
+          commentWriter, YeopjeonAction.RECEIVE_LIKE, writerYeopjeonHistory);
       throw new CustomException(ErrorCode.COMMENT_LIKE_HISTORY_SAVE_ERROR);
     }
   }

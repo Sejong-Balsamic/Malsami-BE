@@ -149,6 +149,10 @@ public enum ErrorCode {
 
   INVALID_ATTENDED_YEAR(HttpStatus.BAD_REQUEST, "적절하지않은 수강년도입니다"),
 
+  // DocumentFile
+
+  DOCUMENT_FILE_NOT_FOUND(HttpStatus.NOT_FOUND, "자료파일을 찾을 수 없습니다."),
+
   // DocumentRequestPost
 
   DOCUMENT_REQUEST_POST_NOT_FOUND(HttpStatus.BAD_REQUEST, "자료 요청 글을 찾을 수 없습니다."),
@@ -185,6 +189,8 @@ public enum ErrorCode {
   // Yeopjeon
 
   INSUFFICIENT_YEOPJEON(HttpStatus.BAD_REQUEST, "사용자의 엽전이 부족합니다."),
+
+  YEOPJEON_ROLLBACK_ERROR(HttpStatus.BAD_REQUEST, "엽전 로직 롤백 중 오류가 발생하였습니다."),
 
   YEOPJEON_SAVE_ERROR(HttpStatus.INTERNAL_SERVER_ERROR, "엽전 저장 시 오류가 발생했습니다."),
 
