@@ -302,9 +302,9 @@ public interface DocumentPostControllerDocs {
 
   @ApiChangeLogs({
       @ApiChangeLog(
-          date = "2024.11.30",
+          date = "2024.12.01",
           author = Author.SUHSAECHAN,
-          description = ""
+          description = "파일 다운로드 로직 구현"
       )
   })
   @Operation(
@@ -315,15 +315,13 @@ public interface DocumentPostControllerDocs {
         **이 API는 인증이 필요하며, JWT 토큰이 존재해야 합니다**
 
         ### **요청 파라미터**
-        - **`String filePath`** : 파일 경로
+        - **`String documentFileId`** : 자료파일id
 
-        ### **반환 파라미터 값**
-
-        - **`MemberDto`**: 회원의 상세 정보 및 통계
-          - **`Member member`** : 회원 정보
+        ### **반환값**
+        - **`byte[]`** : 파일 바이트 배열
         """
   )
-  ResponseEntity<DocumentDto> downloadDocumentFile(
+  ResponseEntity<byte[]> downloadDocumentFile(
       CustomUserDetails customUserDetails,
       DocumentCommand command);
 }

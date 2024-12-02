@@ -7,7 +7,10 @@ import com.balsamic.sejongmalsami.service.DocumentPostService;
 import com.balsamic.sejongmalsami.service.PopularPostService;
 import com.balsamic.sejongmalsami.util.log.LogMonitoringInvocation;
 import io.swagger.v3.oas.annotations.tags.Tag;
+import java.nio.charset.StandardCharsets;
 import lombok.RequiredArgsConstructor;
+import org.springframework.http.ContentDisposition;
+import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
@@ -75,10 +78,23 @@ public class DocumentPostController implements DocumentPostControllerDocs {
   }
 
   @Override
-  public ResponseEntity<DocumentDto> downloadDocumentFile(
-      CustomUserDetails customUserDetails,
-      DocumentCommand command) {
+  @PostMapping(value = "/file/download", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
+  @LogMonitoringInvocation
+  public ResponseEntity<byte[]> downloadDocumentFile(
+      @AuthenticationPrincipal CustomUserDetails customUserDetails,
+      @ModelAttribute DocumentCommand command) {
+
     command.setMember(customUserDetails.getMember());
-    return ResponseEntity.ok(documentPostService.downloadDocumentFile(command));
+    DocumentDto dto = documentPostService.downloadDocumentFile(command);
+
+    // Content-Disposition 설정 (파일 이름 안전하게 인코딩)
+    ContentDisposition contentDisposition = ContentDisposition.builder("attachment")
+        .filename(dto.getFileName(), StandardCharsets.UTF_8)
+        .build();
+
+    return ResponseEntity.ok()
+        .header(HttpHeaders.CONTENT_DISPOSITION, contentDisposition.toString())
+        .contentType(MediaType.parseMediaType(dto.getMimeType()))
+        .body(dto.getFileBytes());
   }
 }
