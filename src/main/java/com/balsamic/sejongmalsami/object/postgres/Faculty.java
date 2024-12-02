@@ -1,5 +1,6 @@
 package com.balsamic.sejongmalsami.object.postgres;
 
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import jakarta.persistence.*;
 import java.util.UUID;
@@ -12,7 +13,8 @@ import lombok.*;
 @AllArgsConstructor
 @Builder
 @ToString
-public class Faculty {
+@JsonIgnoreProperties({"hibernateLazyInitializer", "handler"})
+public class Faculty extends BaseEntity {
 
   @Id
   @GeneratedValue(strategy = GenerationType.AUTO)

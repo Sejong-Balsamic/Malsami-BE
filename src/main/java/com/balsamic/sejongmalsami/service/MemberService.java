@@ -173,7 +173,7 @@ public class MemberService implements UserDetailsService {
     // Faculty 설정
     String major = member.getMajor(); // dept_m_print 또는 dept_s_print
     Optional<Department> departmentOpt = Optional.ofNullable(departmentRepository.findByDeptMPrint(major)
-        .orElse(departmentRepository.findByDeptSPrint(major)));
+        .orElse(departmentRepository.findTopByDeptSPrint(major)));
 
     if (departmentOpt.isPresent()) {
       Faculty faculty = departmentOpt.get().getFaculty();

@@ -23,4 +23,6 @@ public interface DepartmentRepository extends JpaRepository<Department, UUID> {
   Optional<Department> findTopByDeptMPrintOrDeptSPrint(String deptMPrint, String deptSPrint);
 
   Optional<Department> findTopByDeptMPrintOrDeptSPrintOrDeptLPrint(String departmentName, String departmentName1, String departmentName2);
+
+  Department findTopByDeptSPrint(String major);
 }
