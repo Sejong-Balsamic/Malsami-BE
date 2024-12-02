@@ -23,20 +23,33 @@ public class ExpService {
   private final ExpHistoryService expHistoryService;
 
 
-  // 경험치 증가 로직 및 경험치 히스토리 내역 저장 (롤백 포함)
+  /**
+   * <h3>경험치 처리 수행 메서드</h3>
+   * <p>calculateAndValidateExp 메소드를 통해 ExpAction에 따른 경험치 변동량 계싼</p>
+   * <p>applyExp 메소드를 통해 사용자 경험치 변동 적용</p>
+   *
+   * @param member 경험치 변동 회원
+   * @param action 경험치 액션
+   * @return 저장된 경험치 히스토리 내역
+   */
   @Transactional
-  public ExpHistory updateExpAndSaveExpHistory(Member member, ExpAction action) {
+  public ExpHistory processExp(Member member, ExpAction action) {
+
+    // 경험치 계산 및 검증
+    int newExp = calculateAndValidateExp(member, action, false);
+
+    // 경험치 변동 적용
+    applyExpChange(member, newExp);
+
+    // 경험치 히스토리 저장
     ExpHistory expHistory;
-
-    updateMemberExp(member, action);
-
     try {
       expHistory = expHistoryService.saveExpHistory(member, action);
       log.info("회원: {} 경험치 히스토리 저장 성공", member.getStudentId());
     } catch (Exception e) {
-      log.error("회원: {} 경험치 히스토리 저장 시 오류가 발생했습니다. 오류내용: {}", member.getStudentId(), e.getMessage());
-      log.info("회원: {} 경험치 롤백을 진행합니다.", member.getStudentId());
-      rollbackExp(member, action);
+      log.error("회원: {} 경험치 히스토리 저장 중 오류 발생: {}", member.getStudentId(), e.getMessage());
+      int rollbackExp = calculateAndValidateExp(member, action, true);
+      applyExpChange(member, rollbackExp);
       throw new CustomException(ErrorCode.EXP_SAVE_ERROR);
     }
 
@@ -44,48 +57,73 @@ public class ExpService {
   }
 
   // 경험치 및 경험치 히스토리백 전체 롤백 (다른 메서드에서 문제가 발생했을 시 전체 롤백을 위한 메서드)
+
+  /**
+   * <h3>경험치 트랜잭션을 롤백하고 히스토리를 삭제하는 메서드</h3>
+   * <p>calculateAndValidateExp 메소드를 통해 ExpAction 따른 경험치 변동량 계산 </p>
+   * <p>applyExp 메소드를 통해 사용자 경험치 변동 적용</p>
+   * <p>경험치 히스토리 삭제</p>
+   *
+   * @param member 롤백할 사용자
+   * @param action 경험치 액션
+   * @param history 롤백할 경험치 히스토리 내역
+   */
   @Transactional
-  public void rollbackExpAndDeleteExpHistory(
-      Member member,
-      ExpAction action,
-      ExpHistory expHistory) {
+  public void rollbackExpTransaction(Member member, ExpAction action, ExpHistory history) {
+
+    // 경험치 계산 및 검증
+    int rollbackExp = calculateAndValidateExp(member, action, true);
+
+    // 경험치 변동 적용
+    applyExpChange(member, rollbackExp);
+
     try {
-      log.info("회원: {} 경험치 롤백 및 경험치 내역 삭제를 진행합니다.", member.getStudentId());
-      expHistoryService.deleteExpHistory(expHistory);
-      rollbackExp(member, action);
+      // 경험치 히스토리 삭제
+      expHistoryService.deleteExpHistory(history);
+      log.info("ExpHistory 삭제 성공: HistoryId = {}", history.getExpHistoryId());
     } catch (Exception e) {
-      log.error("회원: {} 경험치 롤백 과정에서 오류가 발생했습니다.", member.getStudentId());
-      throw new CustomException(ErrorCode.INTERNAL_SERVER_ERROR);
+      // 경험치 롤백 취소
+      int newExp = calculateAndValidateExp(member, action, false);
+      applyExpChange(member, newExp);
+      log.error("경험치 변경 롤백 중 오류 발생", e.getMessage());
+      throw new CustomException(ErrorCode.EXP_ROLLBACK_ERROR);
     }
   }
 
-  // 경험치 증가 로직
-  private void updateMemberExp(Member member, ExpAction action) {
-
+  /**
+   * <h3>경험치 계산 및 검증</h3>
+   * <p>Member, ExpAction을 파라미터로 받아 해당 경험치 액션이 적용가능한지 여부를 판단합니다.</p>
+   * <p>롤백 시 isRollback = true 요청</p>
+   *
+   * @param member 경험치 변동 회원
+   * @param action 경험치 액션
+   * @param isRollback 롤백 여부 (롤백 시 true 요청)
+   * @return
+   */
+  private int calculateAndValidateExp(Member member, ExpAction action, Boolean isRollback) {
     Exp exp = findMemberExp(member);
+    int calculatedExp;
 
-    // 경험치 증가
-    int calculatedExp = exp.getExp() + expCalculator.calculateExp(action);
+    if (!isRollback) { // 요청 시
+      calculatedExp = exp.getExp() + expCalculator.calculateExp(action);
+    } else { // 롤백 시
+      calculatedExp = exp.getExp() - expCalculator.calculateExp(action);
+    }
 
     if (calculatedExp < 0) {
-      log.error("경험치가 부족합니다. {}의 현재 경험치: {}", member.getStudentId(), exp.getExp());
+      log.error("경험치 부족: 회원 {}의 현재 경험치: {}", member.getStudentId(), exp.getExp());
       throw new CustomException(ErrorCode.INSUFFICIENT_EXP);
-    } else {
-      exp.updateExp(calculatedExp);
-      log.info("경험치 변동 완료. 변동 후 {}의 경험치: {}", member.getStudentId(), exp.getExp());
     }
 
-    expRepository.save(exp);
+    return calculatedExp;
   }
 
-  // 경험치 롤백
-  private void rollbackExp(Member member, ExpAction action) {
-
+  // 경험치 변동 적용
+  private void applyExpChange(Member member, int newExp) {
     Exp exp = findMemberExp(member);
-
-    log.info("경험치 롤백 전 - 회원: {}, 경험치: {}", member.getStudentId(), exp.getExp());
-    exp.updateExp(exp.getExp() - expCalculator.calculateExp(action));
-    log.info("경험치 롤백 후 - 회원: {}, 경험치: {}", member.getStudentId(), exp.getExp());
+    exp.updateExp(newExp);
+    expRepository.save(exp);
+    log.info("회원 {}의 경험치 변경 완료: 새로운 경험치 = {}", member.getStudentId(), newExp);
   }
 
   // 사용자의 경험치 테이블 반환 메서드

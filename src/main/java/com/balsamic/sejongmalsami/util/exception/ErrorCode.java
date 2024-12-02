@@ -190,7 +190,7 @@ public enum ErrorCode {
 
   INSUFFICIENT_YEOPJEON(HttpStatus.BAD_REQUEST, "사용자의 엽전이 부족합니다."),
 
-  YEOPJEON_ROLLBACK_ERROR(HttpStatus.BAD_REQUEST, "엽전 로직 롤백 중 오류가 발생하였습니다."),
+  YEOPJEON_ROLLBACK_ERROR(HttpStatus.BAD_REQUEST, "엽전 롤백 중 오류가 발생했습니다."),
 
   YEOPJEON_SAVE_ERROR(HttpStatus.INTERNAL_SERVER_ERROR, "엽전 저장 시 오류가 발생했습니다."),
 
@@ -203,6 +203,8 @@ public enum ErrorCode {
   INSUFFICIENT_EXP(HttpStatus.BAD_REQUEST, "사용자의 경험치가 0 미만입니다."),
 
   EXP_SAVE_ERROR(HttpStatus.INTERNAL_SERVER_ERROR, "경험치 저장 시 올류가 발생했습니다."),
+
+  EXP_ROLLBACK_ERROR(HttpStatus.INTERNAL_SERVER_ERROR, "경험치 롤백 중 오류가 발생했습니다."),
 
   EXP_HISTORY_SAVE_ERROR(HttpStatus.INTERNAL_SERVER_ERROR, "경험치 히스토리 저장 중 오류가 발생했습니다."),
 

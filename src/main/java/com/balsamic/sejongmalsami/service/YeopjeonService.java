@@ -25,7 +25,7 @@ public class YeopjeonService {
   private final YeopjeonHistoryService yeopjeonHistoryService;
 
   /**
-   * <h3>엽전 처리 수행 메인 메서드 (엽전현상금 없음)</h3>
+   * <h3>엽전 처리 수행 메서드 (엽전현상금 없음)</h3>
    *
    * @param member 엽전 변동 회원
    * @param action 엽전 액션
@@ -87,7 +87,7 @@ public class YeopjeonService {
    * <h3>엽전 트랜잭션을 롤백하고 히스토리를 삭제하는 메인 메서드 (엽전 현상금 포함)</h3>
    * <p>calculateAndValidateYeopjeon 메소드를 통해 YeopjeonAction에 따른 엽전 변동량 계산</p>
    * <p>applyYeopjeon 메소드를 통해 사용자 엽전 변동 적용</p>
-   * <p>엽전 히스토리 저장</p>
+   * <p>엽전 히스토리 삭제</p>
    *
    * @param member         롤백할 회원
    * @param action         엽전 액션
