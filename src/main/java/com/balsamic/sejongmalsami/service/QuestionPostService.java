@@ -21,14 +21,12 @@ import com.balsamic.sejongmalsami.object.postgres.Course;
 import com.balsamic.sejongmalsami.object.postgres.MediaFile;
 import com.balsamic.sejongmalsami.object.postgres.Member;
 import com.balsamic.sejongmalsami.object.postgres.QuestionPost;
-import com.balsamic.sejongmalsami.object.postgres.Yeopjeon;
 import com.balsamic.sejongmalsami.repository.mongo.QuestionBoardLikeRepository;
 import com.balsamic.sejongmalsami.repository.mongo.QuestionPostCustomTagRepository;
 import com.balsamic.sejongmalsami.repository.postgres.AnswerPostRepository;
 import com.balsamic.sejongmalsami.repository.postgres.CourseRepository;
 import com.balsamic.sejongmalsami.repository.postgres.MemberRepository;
 import com.balsamic.sejongmalsami.repository.postgres.QuestionPostRepository;
-import com.balsamic.sejongmalsami.util.YeopjeonCalculator;
 import com.balsamic.sejongmalsami.util.exception.CustomException;
 import com.balsamic.sejongmalsami.util.exception.ErrorCode;
 import java.util.ArrayList;
@@ -55,16 +53,24 @@ public class QuestionPostService {
   private final CourseRepository courseRepository;
   private final QuestionBoardLikeRepository questionBoardLikeRepository;
   private final YeopjeonService yeopjeonService;
-  private final YeopjeonCalculator yeopjeonCalculator;
   private final ExpService expService;
   private final AnswerPostRepository answerPostRepository;
   private final QuestionPostCustomTagRepository questionPostCustomTagRepository;
 
   /**
-   * 질문 글 등록 1. 회원 엽전 검증 (현상금 + 작성 비용) 2. 교과목 별 단과대 설정 3. 질문글 기본정보 저장 4. 정적/커스텀 태그 처리 5. 첨부파일 업로드 및 썸네일 처리 6. 엽전 차감
-   * (-100냥) 7. 경험치 증가
+   * <h3>질문 글 등록</h3>
+   * <ol>
+   *   <li>회원 엽전 검증 (현상금 + 작성 비용)</li>
+   *   <li>교과목 별 단과대 설정</li>
+   *   <li>질문글 기본정보 저장</li>
+   *   <li>정적/커스텀 태그 처리</li>
+   *   <li>첨부파일 업로드 및 썸네일 처리</li>
+   *   <li>엽전 차감(-100냥)</li>
+   *   <li>경험치 증가</li>
+   * </ol>
    *
-   * @return 저장된 질문글, 미디어파일, 커스텀태그 정보
+   * @param command memberId, title, content, subject, attachmentFiles, questionPresetTags, customTags, rewardYeopjeon, isPrivate
+   * @return 저장된 질문글, 첨부파일, 커스텀태그 정보
    */
   @Transactional
   public QuestionDto saveQuestionPost(QuestionCommand command) {
@@ -72,25 +78,8 @@ public class QuestionPostService {
     Member member = memberRepository.findById(command.getMemberId())
         .orElseThrow(() -> new CustomException(ErrorCode.MEMBER_NOT_FOUND));
 
-    // 엽전 현상금 null인 경우 기본 0으로 설정
-    if (command.getRewardYeopjeon() == null) {
-      command.setRewardYeopjeon(0);
-    } else if (command.getRewardYeopjeon() < 0) { // 음수 값으로 설정될 경우 오류
-      throw new CustomException(ErrorCode.QUESTION_INVALID_REWARD_YEOPJEON);
-    }
-
-    // {질문글 등록 시 소모엽전 + 엽전 현상금} 보다 보유 엽전량이 적을 시 오류 발생
-    Yeopjeon yeopjeon = yeopjeonService.findMemberYeopjeon(member);
-    if (yeopjeon.getYeopjeon() < command.getRewardYeopjeon() + -yeopjeonCalculator.calculateYeopjeon(YeopjeonAction.CREATE_QUESTION_POST)) {
-      log.error("사용자: {} 의 엽전이 부족합니다.", member.getStudentId());
-      log.error("현재 보유 엽전량: {}, 질문글 등록시 필요 엽전량: {}, 엽전 현상금 설정량: {}", yeopjeon.getYeopjeon(), -yeopjeonCalculator.calculateYeopjeon(YeopjeonAction.CREATE_QUESTION_POST), command.getRewardYeopjeon());
-      throw new CustomException(ErrorCode.INSUFFICIENT_YEOPJEON);
-    }
-    // 질문글 작성자가 등록한 엽전 현상금 만큼 엽전 수 감소
-    yeopjeonService.processYeopjeon(
-        member,
-        YeopjeonAction.REWARD_YEOPJEON,
-        -command.getRewardYeopjeon());
+    // 질문 글 등록시 필요한 엽전 검증
+    yeopjeonService.validateYeopjeonForQuestionPost(member, command.getRewardYeopjeon());
 
     // 입력된 교과목에 따른 단과대 설정
     List<Faculty> faculties = courseRepository
@@ -154,6 +143,9 @@ public class QuestionPostService {
     // 질문 글 등록 시 엽전 100냥 감소
     yeopjeonService.processYeopjeon(member, YeopjeonAction.CREATE_QUESTION_POST);
 
+    // 질문 글 등록 시 설정한 엽전 현상금 감소
+    yeopjeonService.processYeopjeon(member, YeopjeonAction.REWARD_YEOPJEON, command.getRewardYeopjeon());
+
     // 질문 글 등록 시 경험치 증가
     expService.processExp(member, ExpAction.CREATE_QUESTION_POST);
 
@@ -165,7 +157,13 @@ public class QuestionPostService {
   }
 
   /**
-   * 특정 질문 글 조회 1. 조회수 증가 2. 좋아요 여부 확인 3. 답변 목록 조회 4. 커스텀 태그 조회
+   * <h3>특정 질문 글 조회</h3>
+   * <ol>
+   *   <li>조회수 증가</li>
+   *   <li>좋아요 여부 확인</li>
+   *   <li>답변 목록 조회</li>
+   *   <li>커스텀 태그 조회</li>
+   * </ol>
    *
    * @param command postId
    * @return 질문글, 답변목록, 커스텀태그 정보
@@ -214,7 +212,8 @@ public class QuestionPostService {
   }
 
   /**
-   * 전체 질문 글 페이징 조회 - 최신순 정렬 (createdDate DESC)
+   * <h3>전체 질문 글 페이징 조회</h3>
+   * <p>질문 게시글에 등록 된 모든 글을 최신순으로 정렬하여 반환합니다.</p>
    *
    * @return 질문글 페이지 정보
    */

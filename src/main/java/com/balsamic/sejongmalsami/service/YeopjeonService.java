@@ -161,6 +161,36 @@ public class YeopjeonService {
     log.info("회원 {}의 엽전 변경 완료: 새로운 엽전 개수 = {}", member.getStudentId(), newYeopjeon);
   }
 
+  /**
+   * <h3>질문 글 등록 시 필요한 엽전 개수 검증</h3>
+   *
+   * @param member
+   * @param rewardYeopjeon
+   */
+  public void validateYeopjeonForQuestionPost(Member member, Integer rewardYeopjeon) {
+    // 엽전 현상금이 null인 경우 0으로 설정
+    if (rewardYeopjeon == null) {
+      rewardYeopjeon = 0;
+    } else if (rewardYeopjeon < 0) { // 음수 값인 경우 오류
+      throw new CustomException(ErrorCode.QUESTION_INVALID_REWARD_YEOPJEON);
+    }
+
+    // 질문 글 등록 시 소모되는 엽전
+    int createQuestionPostYeopjeon = yeopjeonCalculator.calculateYeopjeon(CREATE_QUESTION_POST);
+
+    // 총 필요한 엽전: 질문 글 등록 시 + 엽전 현상금
+    int totalRequiredYeopjeon = createQuestionPostYeopjeon + rewardYeopjeon;
+
+    // 글 등록 가능 여부 확인
+    Yeopjeon yeopjeon = findMemberYeopjeon(member);
+    if (yeopjeon.getYeopjeon() < totalRequiredYeopjeon) {
+      log.error("회원: {} 의 엽전이 부족합니다.", member.getStudentId());
+      log.error("현재 보유 엽전량: {}, 질문글 등록시 필요 엽전량: {}, 엽전 현상금 설정량: {}",
+          yeopjeon.getYeopjeon(), createQuestionPostYeopjeon, rewardYeopjeon);
+      throw new CustomException(ErrorCode.INSUFFICIENT_YEOPJEON);
+    }
+  }
+
   // 회원 엽전 정보 조회
   public Yeopjeon findMemberYeopjeon(Member member) {
     return yeopjeonRepository.findByMember(member)
