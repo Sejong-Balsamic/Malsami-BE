@@ -64,6 +64,8 @@ public class WebSecurityConfig {
             .requestMatchers(SecurityUrls.ADMIN_PATHS.toArray(new String[0])).hasRole("ADMIN")
             // 회원
             .requestMatchers(HttpMethod.POST, "/api/member/my-page").hasAnyRole("ADMIN", "USER")
+            .requestMatchers(HttpMethod.POST, "/api/member/my-info").hasAnyRole("ADMIN", "USER")
+            .requestMatchers(HttpMethod.POST, "/api/member/my-page").hasAnyRole("ADMIN", "USER")
             // 교과목명
             .requestMatchers(HttpMethod.POST, "/api/course/upload").hasAnyRole("ADMIN", "USER")
             // 질문
