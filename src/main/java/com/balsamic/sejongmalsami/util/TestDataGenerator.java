@@ -21,7 +21,6 @@ import static com.balsamic.sejongmalsami.object.constants.QuestionPresetTag.UNKN
 
 import com.balsamic.sejongmalsami.object.constants.AccountStatus;
 import com.balsamic.sejongmalsami.object.constants.ContentType;
-import com.balsamic.sejongmalsami.object.constants.Faculty;
 import com.balsamic.sejongmalsami.object.constants.Role;
 import com.balsamic.sejongmalsami.object.postgres.AnswerPost;
 import com.balsamic.sejongmalsami.object.postgres.Comment;
@@ -30,6 +29,7 @@ import com.balsamic.sejongmalsami.object.postgres.DocumentFile;
 import com.balsamic.sejongmalsami.object.postgres.DocumentPost;
 import com.balsamic.sejongmalsami.object.postgres.DocumentRequestPost;
 import com.balsamic.sejongmalsami.object.postgres.Exp;
+import com.balsamic.sejongmalsami.object.postgres.Faculty;
 import com.balsamic.sejongmalsami.object.postgres.Member;
 import com.balsamic.sejongmalsami.object.postgres.QuestionPost;
 import com.balsamic.sejongmalsami.object.postgres.Yeopjeon;
@@ -222,7 +222,7 @@ public class TestDataGenerator {
 
     String subject = subjects.get(random.nextInt(subjects.size()));
 
-    List<Faculty> faculties = courseRepository
+    List<com.balsamic.sejongmalsami.object.postgres.Faculty> faculties = courseRepository
         .findAllBySubject(subject)
         .stream().map(Course::getFaculty)
         .collect(Collectors.toList());

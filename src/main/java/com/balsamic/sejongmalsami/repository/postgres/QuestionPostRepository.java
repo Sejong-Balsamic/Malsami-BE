@@ -1,8 +1,8 @@
 package com.balsamic.sejongmalsami.repository.postgres;
 
-import com.balsamic.sejongmalsami.object.constants.Faculty;
 import com.balsamic.sejongmalsami.object.constants.QuestionPresetTag;
 import com.balsamic.sejongmalsami.object.postgres.AnswerPost;
+import com.balsamic.sejongmalsami.object.postgres.Faculty;
 import com.balsamic.sejongmalsami.object.postgres.Member;
 import com.balsamic.sejongmalsami.object.postgres.QuestionPost;
 import java.time.LocalDateTime;

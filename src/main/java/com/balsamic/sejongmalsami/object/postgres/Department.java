@@ -3,9 +3,12 @@ package com.balsamic.sejongmalsami.object.postgres;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
+import jakarta.persistence.FetchType;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
+import jakarta.persistence.JoinColumn;
+import jakarta.persistence.ManyToOne;
 import jakarta.persistence.Table;
 import java.util.UUID;
 import lombok.AllArgsConstructor;
@@ -31,7 +34,7 @@ public class Department extends BaseEntity {
   private UUID departmentId;
 
   // 고유 필드
-  @Column(name = "dept_cd", nullable = false, unique = true)
+  @Column(name = "dept_cd")
   @JsonProperty("DEPT_CD")
   private String deptCd;
 
@@ -258,4 +261,9 @@ public class Department extends BaseEntity {
   @Column(name = "dept_m_degree")
   @JsonProperty("DEPT_M_DEGREE")
   private String deptMDegree;
+
+  @ManyToOne(fetch = FetchType.LAZY)
+  @JoinColumn(name = "faculty_id")
+  @JsonProperty("faculty")
+  private Faculty faculty;
 }

@@ -1,7 +1,6 @@
 package com.balsamic.sejongmalsami.object.postgres;
 
 import com.balsamic.sejongmalsami.object.constants.DocumentType;
-import com.balsamic.sejongmalsami.object.constants.Faculty;
 import jakarta.persistence.CollectionTable;
 import jakarta.persistence.Column;
 import jakarta.persistence.ElementCollection;

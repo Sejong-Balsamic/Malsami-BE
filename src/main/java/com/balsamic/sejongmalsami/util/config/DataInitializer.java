@@ -34,18 +34,23 @@ public class DataInitializer implements ApplicationRunner {
 
     LocalDateTime overallStartTime = LocalDateTime.now();
 
-    // 비동기 : Course 파싱
+    // Department 파싱 동기적 실행
+    try {
+      Path deptPath = determineDepartmentFilePath();
+      departmentService.loadDepartments(deptPath);
+    } catch (Exception e) {
+      lineLogError("서버 시작 DB 세팅 중 오류 발생");
+      log.error("서버 시작 DB 세팅 중 오류 발생", e);
+      lineLogError(null);
+      throw e; // 애플리케이션 시작 중단
+    }
+
+    // Course 파싱 실행
     CompletableFuture<Void> courseFuture = CompletableFuture.runAsync(() -> {
       courseFileGenerator.initCourse();
     });
 
-    // 비동기 : Department 파싱
-    CompletableFuture<Void> departmentFuture = CompletableFuture.runAsync(() -> {
-      Path deptPath = determineDepartmentFilePath();
-      departmentService.loadDepartments(deptPath);
-    });
-
-    CompletableFuture.allOf(courseFuture, departmentFuture)
+    courseFuture
         .thenRun(() -> {
           LocalDateTime overallEndTime = LocalDateTime.now();
           Duration overallDuration = Duration.between(overallStartTime, overallEndTime);
@@ -60,7 +65,11 @@ public class DataInitializer implements ApplicationRunner {
           lineLogError(null);
           return null;
         });
+
+    // 동기적 실행이 아닌 비동기로 진행되므로, 메인 스레드가 종료되지 않도록 대기
+    courseFuture.get();
   }
+
 
   /**
    * 시스템 타입에 따라 departments.json 파일의 경로를 결정합니다.

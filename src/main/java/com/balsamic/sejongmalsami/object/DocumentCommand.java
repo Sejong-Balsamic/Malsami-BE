@@ -2,10 +2,10 @@ package com.balsamic.sejongmalsami.object;
 
 import com.balsamic.sejongmalsami.object.constants.ContentType;
 import com.balsamic.sejongmalsami.object.constants.DocumentType;
-import com.balsamic.sejongmalsami.object.constants.Faculty;
 import com.balsamic.sejongmalsami.object.constants.PostTier;
 import com.balsamic.sejongmalsami.object.constants.ReactionType;
 import com.balsamic.sejongmalsami.object.constants.SortType;
+import com.balsamic.sejongmalsami.object.postgres.Faculty;
 import com.balsamic.sejongmalsami.object.postgres.Member;
 import io.swagger.v3.oas.annotations.media.Schema;
 import java.util.ArrayList;

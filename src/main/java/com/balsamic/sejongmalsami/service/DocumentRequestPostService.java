@@ -9,10 +9,10 @@ import static com.balsamic.sejongmalsami.object.constants.SortType.getJpqlSortOr
 import com.balsamic.sejongmalsami.object.DocumentCommand;
 import com.balsamic.sejongmalsami.object.DocumentDto;
 import com.balsamic.sejongmalsami.object.constants.DocumentType;
-import com.balsamic.sejongmalsami.object.constants.Faculty;
 import com.balsamic.sejongmalsami.object.constants.SortType;
 import com.balsamic.sejongmalsami.object.postgres.Course;
 import com.balsamic.sejongmalsami.object.postgres.DocumentRequestPost;
+import com.balsamic.sejongmalsami.object.postgres.Faculty;
 import com.balsamic.sejongmalsami.object.postgres.Member;
 import com.balsamic.sejongmalsami.object.postgres.Yeopjeon;
 import com.balsamic.sejongmalsami.repository.mongo.DocumentBoardLikeRepository;

@@ -3,8 +3,10 @@ package com.balsamic.sejongmalsami.util;
 import com.balsamic.sejongmalsami.object.constants.FileStatus;
 import com.balsamic.sejongmalsami.object.postgres.Department;
 import com.balsamic.sejongmalsami.object.postgres.DepartmentFile;
+import com.balsamic.sejongmalsami.object.postgres.Faculty;
 import com.balsamic.sejongmalsami.repository.postgres.DepartmentFileRepository;
 import com.balsamic.sejongmalsami.repository.postgres.DepartmentRepository;
+import com.balsamic.sejongmalsami.repository.postgres.FacultyRepository;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import jakarta.transaction.Transactional;
@@ -14,11 +16,7 @@ import java.nio.file.Path;
 import java.security.MessageDigest;
 import java.time.Duration;
 import java.time.LocalDateTime;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Map;
-import java.util.Objects;
-import java.util.Optional;
+import java.util.*;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 import lombok.RequiredArgsConstructor;
@@ -32,10 +30,11 @@ public class DepartmentService {
 
   private final DepartmentRepository departmentRepository;
   private final DepartmentFileRepository departmentFileRepository;
+  private final FacultyRepository facultyRepository;
   private final ObjectMapper objectMapper;
 
   /**
-   * JSON 파일을 로드하고 Department 데이터를 저장합니다.
+   * JSON 파일을 로드하고 Faculty 및 Department 데이터를 저장합니다.
    * 파일의 해시값을 확인하여 중복 처리를 방지합니다.
    *
    * @param filePath JSON 파일의 경로
@@ -108,6 +107,41 @@ public class DepartmentService {
       if (departments.isEmpty()) {
         log.warn("저장할 Department 데이터가 없습니다.");
       } else {
+        // 1. Faculty 정보 추출 및 저장
+        Set<String> facultyNames = departments.stream()
+            .map(Department::getDeptLDegree) // 'dept_l_degree' 필드를 facultyName으로 사용
+            .filter(Objects::nonNull)
+            .map(String::trim)
+            .collect(Collectors.toSet());
+
+        // 기존 Faculty 조회
+        List<Faculty> existingFaculties = facultyRepository.findByFacultyNameIn(facultyNames);
+        Map<String, Faculty> existingFacultyMap = existingFaculties.stream()
+            .collect(Collectors.toMap(Faculty::getFacultyName, Function.identity()));
+
+        List<Faculty> facultiesToSave = new ArrayList<>();
+
+        for (String facultyName : facultyNames) {
+          if (!existingFacultyMap.containsKey(facultyName)) {
+            Faculty faculty = Faculty.builder()
+                .facultyName(facultyName)
+                .build();
+            facultiesToSave.add(faculty);
+            log.info("새로운 Faculty 추가: {}", facultyName);
+          }
+        }
+
+        if (!facultiesToSave.isEmpty()) {
+          facultyRepository.saveAll(facultiesToSave);
+          log.info("새로운 Faculty 저장 완료: {}개", facultiesToSave.size());
+        }
+
+        // 업데이트된 Faculty 목록 다시 조회
+        existingFaculties = facultyRepository.findByFacultyNameIn(facultyNames);
+        existingFacultyMap = existingFaculties.stream()
+            .collect(Collectors.toMap(Faculty::getFacultyName, Function.identity()));
+
+        // 2. Department 정보 업데이트 및 저장
         // deptCd 리스트 추출
         List<String> deptCds = departments.stream()
             .map(Department::getDeptCd)
@@ -124,6 +158,14 @@ public class DepartmentService {
         for (Department dept : departments) {
           if (dept.getDeptCd() == null || dept.getDeptCd().trim().isEmpty()) {
             continue; // 유효하지 않은 데이터는 건너뜁니다
+          }
+
+          // Faculty 매핑
+          String facultyName = dept.getDeptLDegree();
+          Faculty faculty = existingFacultyMap.get(facultyName);
+          if (faculty == null) {
+            log.warn("해당 Faculty를 찾을 수 없습니다: {}", facultyName);
+            continue; // Faculty가 없으면 Department를 저장하지 않음
           }
 
           if (existingDeptMap.containsKey(dept.getDeptCd())) {
@@ -187,15 +229,22 @@ public class DepartmentService {
             existingDept.setDeptSNmEng(dept.getDeptSNmEng());
             existingDept.setDeptMDegree(dept.getDeptMDegree());
 
+            // Faculty 설정
+            existingDept.setFaculty(faculty);
+
             departmentsToSave.add(existingDept);
+            log.debug("Department 업데이트됨: dept_cd={}, dept_nm={}", existingDept.getDeptCd(), existingDept.getDeptNm());
           } else {
             // 새로운 Department 삽입
+            dept.setFaculty(faculty);
             departmentsToSave.add(dept);
+            log.debug("새로운 Department 추가됨: dept_cd={}, dept_nm={}", dept.getDeptCd(), dept.getDeptNm());
           }
         }
 
         // 데이터베이스에 저장
         departmentRepository.saveAll(departmentsToSave);
+        log.info("Departments 데이터 저장 완료: {}개", departmentsToSave.size());
       }
 
       // 처리 시간 계산
@@ -208,7 +257,7 @@ public class DepartmentService {
       departmentFile.setDurationSeconds(duration.getSeconds());
       departmentFileRepository.save(departmentFile);
 
-      log.info("Departments 데이터 저장 완료: {}개, 소요 시간: {}초", departments.size(), duration.getSeconds());
+      log.info("Departments 데이터 저장 완료: 소요 시간: {}초", duration.getSeconds());
     } catch (Exception e) {
       log.error("Departments 데이터 로드 실패: {}", e.getMessage(), e);
 

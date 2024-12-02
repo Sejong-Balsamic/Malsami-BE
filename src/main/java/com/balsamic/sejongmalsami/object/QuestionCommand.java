@@ -2,9 +2,9 @@ package com.balsamic.sejongmalsami.object;
 
 import com.balsamic.sejongmalsami.object.constants.ChaetaekStatus;
 import com.balsamic.sejongmalsami.object.constants.ContentType;
-import com.balsamic.sejongmalsami.object.constants.Faculty;
 import com.balsamic.sejongmalsami.object.constants.QuestionPresetTag;
 import com.balsamic.sejongmalsami.object.constants.SortType;
+import com.balsamic.sejongmalsami.object.postgres.Faculty;
 import io.swagger.v3.oas.annotations.media.Schema;
 import java.util.List;
 import java.util.UUID;
