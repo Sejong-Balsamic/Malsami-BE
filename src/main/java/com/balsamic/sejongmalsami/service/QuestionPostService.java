@@ -155,7 +155,7 @@ public class QuestionPostService {
     yeopjeonService.processYeopjeon(member, YeopjeonAction.CREATE_QUESTION_POST);
 
     // 질문 글 등록 시 경험치 증가
-    expService.updateExpAndSaveExpHistory(member, ExpAction.CREATE_QUESTION_POST);
+    expService.processExp(member, ExpAction.CREATE_QUESTION_POST);
 
     return QuestionDto.builder()
         .questionPost(savedQuestionPost)

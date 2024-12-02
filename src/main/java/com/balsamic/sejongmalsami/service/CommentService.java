@@ -113,7 +113,7 @@ public class CommentService {
     }
 
     // 댓글 작성자 경험치 증가 및 경험치 히스토리 저장
-    expService.updateExpAndSaveExpHistory(member, ExpAction.CREATE_COMMENT);
+    expService.processExp(member, ExpAction.CREATE_COMMENT);
 
     // 댓글 엔티티 저장
     Comment comment = commentRepository.save(Comment.builder()

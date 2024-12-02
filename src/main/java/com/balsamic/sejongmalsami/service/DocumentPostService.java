@@ -151,7 +151,7 @@ public class DocumentPostService {
     }
 
     // 자료 글 등록 시 경험치 증가
-    expService.updateExpAndSaveExpHistory(member, ExpAction.CREATE_DOCUMENT_POST);
+    expService.processExp(member, ExpAction.CREATE_DOCUMENT_POST);
 
     return DocumentDto.builder()
         .documentPost(savedDocument)
@@ -275,6 +275,17 @@ public class DocumentPostService {
         .build();
   }
 
+  /**
+   * <h3>HOT 다운로드 조회</h3>
+   * <p>자료 첨부파일 중 가장 높은 다운로드 수를 기준으로 정렬</p>
+   *
+   * @param command pageNumber, pageSize
+   * @return
+   */
+  public DocumentDto getHotDownload(DocumentCommand command) {
+    return null;
+  }
+
   // 해당 자료 게시판 접근 가능 여부 판단 메소드
   private void canAccessDocumentBoard(Member member, PostTier postTier) {
     Yeopjeon yeopjeon = yeopjeonService.findMemberYeopjeon(member);
@@ -334,7 +345,7 @@ public class DocumentPostService {
     );
 
     // 경험치 증가
-    expService.updateExpAndSaveExpHistory(member, ExpAction.PURCHASE_DOCUMENT);
+    expService.processExp(member, ExpAction.PURCHASE_DOCUMENT);
 
     return null;
   }
