@@ -41,6 +41,7 @@ public class YeopjeonService {
    * <p>calculateAndValidateYeopjeon 메소드를 통해 YeopjeonAction에 따른 엽전 변동량 계산</p>
    * <p>applyYeopjeon 메소드를 통해 사용자 엽전 변동 적용</p>
    * <p>엽전 히스토리 저장</p>
+   * <p>엽전 현상금이 0으로 설정된 경우 엽전 히스토리 저장X</p>
    *
    * @param member         엽전 변동 회원
    * @param action         엽전 액션
@@ -49,6 +50,11 @@ public class YeopjeonService {
    */
   @Transactional
   public YeopjeonHistory processYeopjeon(Member member, YeopjeonAction action, Integer rewardYeopjeon) {
+
+    // 엽전 현상금이 0인경우
+    if (rewardYeopjeon == 0) {
+      return null;
+    }
 
     // 엽전 계산 및 검증
     int newYeopjeon = calculateAndValidateYeopjeon(member, action, rewardYeopjeon, false);
@@ -88,6 +94,7 @@ public class YeopjeonService {
    * <p>calculateAndValidateYeopjeon 메소드를 통해 YeopjeonAction에 따른 엽전 변동량 계산</p>
    * <p>applyYeopjeon 메소드를 통해 사용자 엽전 변동 적용</p>
    * <p>엽전 히스토리 삭제</p>
+   * <p>엽전 현상금이 0인 경우 변동X</p>
    *
    * @param member         롤백할 회원
    * @param action         엽전 액션
@@ -96,6 +103,11 @@ public class YeopjeonService {
    */
   @Transactional
   public void rollbackYeopjeonTransaction(Member member, YeopjeonAction action, Integer rewardYeopjeon, YeopjeonHistory history) {
+
+    // 엽전 현상금이 0인 경우
+    if (rewardYeopjeon == 0) {
+      return;
+    }
 
     // 엽전 계산 및 검증
     int rollbackYeopjeon = calculateAndValidateYeopjeon(member, action, rewardYeopjeon, true);
