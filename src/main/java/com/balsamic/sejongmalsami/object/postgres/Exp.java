@@ -53,7 +53,6 @@ public class Exp {
 
   private void updateExpTierInfo() {
     ExpTier expTier = ExpTier.getTierByExp(this.exp);
-    expTier = expTier;
     tierStartExp = expTier.getMinExp();
     tierEndExp = expTier.getMaxExp();
 
