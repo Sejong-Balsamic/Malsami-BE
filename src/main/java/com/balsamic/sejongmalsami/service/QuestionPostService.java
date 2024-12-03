@@ -11,7 +11,6 @@ import com.balsamic.sejongmalsami.object.QuestionDto;
 import com.balsamic.sejongmalsami.object.constants.ChaetaekStatus;
 import com.balsamic.sejongmalsami.object.constants.ContentType;
 import com.balsamic.sejongmalsami.object.constants.ExpAction;
-import com.balsamic.sejongmalsami.object.constants.Faculty;
 import com.balsamic.sejongmalsami.object.constants.QuestionPresetTag;
 import com.balsamic.sejongmalsami.object.constants.SortType;
 import com.balsamic.sejongmalsami.object.constants.YeopjeonAction;
@@ -82,9 +81,11 @@ public class QuestionPostService {
     yeopjeonService.validateYeopjeonForQuestionPost(member, command.getRewardYeopjeon());
 
     // 입력된 교과목에 따른 단과대 설정
-    List<Faculty> faculties = courseRepository
-        .findAllBySubject(command.getSubject())
-        .stream().map(Course::getFaculty)
+    List<String> faculties = courseRepository.findAllBySubject(command.getSubject())
+        .stream()
+        .map(Course::getFaculty)
+        .filter(faculty -> faculty != null && !faculty.trim().isEmpty())
+        .distinct()
         .collect(Collectors.toList());
 
     log.info("입력된 교과목명 : {}", command.getSubject());

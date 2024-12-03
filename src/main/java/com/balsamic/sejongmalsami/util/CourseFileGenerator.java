@@ -39,6 +39,7 @@ public class CourseFileGenerator {
   private final CourseService courseService;
   private final CourseFileRepository courseFileRepository;
   private final SubjectRepository subjectRepository;
+  private final SubjectService subjectService; // SubjectService 주입
 
   /**
    * 교과목 파일을 초기화합니다.
@@ -132,6 +133,7 @@ public class CourseFileGenerator {
    * 교과목명을 초기화합니다.
    * 기존 Course 엔티티에서 중복 없는 subject 이름을 추출하여 Subject 테이블에 저장합니다.
    */
+  @Transactional
   public void initSubject() {
     lineLog("Subject 확인 시작");
     log.info("중복 없는 교과목명 초기화 시작 = {}", LocalDateTime.now());
@@ -146,19 +148,24 @@ public class CourseFileGenerator {
         // 새로운 Subject 엔티티 생성 및 저장
         Subject subject = Subject.builder()
             .name(subjectName)
+            .dailyDocumentScore(0L)
+            .weeklyDocumentScore(0L)
+            .monthlyDocumentScore(0L)
+            .totalDocumentScore(0L)
+            .dailyQuestionScore(0L)
+            .weeklyQuestionScore(0L)
+            .monthlyQuestionScore(0L)
+            .totalQuestionScore(0L)
             .build();
         subjectRepository.save(subject);
         addedSubjects++;
-        log.info("새로운 교과목 추가: {}", subjectName);
+        log.info("새로운 Subject 추가됨: {}", subjectName);
       } else {
-        log.info("이미 존재하는 교과목명: {}", subjectName);
+        log.info("이미 존재하는 Subject: {}", subjectName);
       }
     }
 
-    lineLog("Subject 실행 결과");
-    log.info("처리 종료 시간: {}", LocalDateTime.now());
-    log.info("추가된 교과목 수: {}", addedSubjects);
-    lineLog("Subject 확인 종료");
+    log.info("Subject 처리 완료: 추가된 교과목 수 = {}", addedSubjects);
   }
 
   /**

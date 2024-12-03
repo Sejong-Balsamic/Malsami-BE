@@ -1,7 +1,7 @@
 package com.balsamic.sejongmalsami.repository.postgres;
 
 import com.balsamic.sejongmalsami.object.postgres.Course;
-import com.balsamic.sejongmalsami.object.constants.Faculty;
+import com.balsamic.sejongmalsami.object.postgres.Faculty;
 import java.util.List;
 import java.util.UUID;
 import org.springframework.data.jpa.repository.JpaRepository;
