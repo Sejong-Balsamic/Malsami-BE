@@ -1,6 +1,5 @@
 package com.balsamic.sejongmalsami.object.postgres;
 
-import com.balsamic.sejongmalsami.object.constants.Faculty;
 import com.balsamic.sejongmalsami.object.constants.QuestionPresetTag;
 import com.balsamic.sejongmalsami.util.exception.CustomException;
 import com.balsamic.sejongmalsami.util.exception.ErrorCode;
@@ -61,12 +60,9 @@ public class QuestionPost extends BasePost {
   private String subject;
 
   // 단과대
-  @ElementCollection(targetClass = Faculty.class, fetch = FetchType.LAZY)
-  @Enumerated(EnumType.STRING)
-  @CollectionTable(name = "question_faculties", joinColumns = @JoinColumn(name = "question_post_id"))
+  @ElementCollection(fetch = FetchType.LAZY)
   @Builder.Default
-  @Column
-  private List<Faculty> faculties = new ArrayList<>();
+  private List<String> faculties = new ArrayList<>();
 
   // 정적 태그
   @ElementCollection(targetClass = QuestionPresetTag.class, fetch = FetchType.LAZY)

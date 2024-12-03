@@ -1,6 +1,6 @@
 package com.balsamic.sejongmalsami.object;
 
-import com.balsamic.sejongmalsami.object.constants.Faculty;
+import com.balsamic.sejongmalsami.object.postgres.Faculty;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.ToString;

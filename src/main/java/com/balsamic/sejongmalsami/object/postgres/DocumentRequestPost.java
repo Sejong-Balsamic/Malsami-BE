@@ -1,7 +1,6 @@
 package com.balsamic.sejongmalsami.object.postgres;
 
 import com.balsamic.sejongmalsami.object.constants.DocumentType;
-import com.balsamic.sejongmalsami.object.constants.Faculty;
 import jakarta.persistence.CollectionTable;
 import jakarta.persistence.Column;
 import jakarta.persistence.ElementCollection;
@@ -52,12 +51,9 @@ public class DocumentRequestPost extends BaseEntity {
   private String subject;
 
   // 단과대
-  @ElementCollection(targetClass = Faculty.class, fetch = FetchType.LAZY)
-  @Enumerated(EnumType.STRING)
-  @CollectionTable
+  @ElementCollection(fetch = FetchType.LAZY)
   @Builder.Default
-  @Column
-  private List<Faculty> faculties = new ArrayList<>();
+  private List<String> faculties = new ArrayList<>();
 
   // 자료 타입
   @ElementCollection(targetClass = DocumentType.class, fetch = FetchType.LAZY)

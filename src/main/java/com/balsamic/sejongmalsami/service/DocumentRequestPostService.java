@@ -9,7 +9,6 @@ import static com.balsamic.sejongmalsami.object.constants.SortType.getJpqlSortOr
 import com.balsamic.sejongmalsami.object.DocumentCommand;
 import com.balsamic.sejongmalsami.object.DocumentDto;
 import com.balsamic.sejongmalsami.object.constants.DocumentType;
-import com.balsamic.sejongmalsami.object.constants.Faculty;
 import com.balsamic.sejongmalsami.object.constants.SortType;
 import com.balsamic.sejongmalsami.object.postgres.Course;
 import com.balsamic.sejongmalsami.object.postgres.DocumentRequestPost;
@@ -21,8 +20,8 @@ import com.balsamic.sejongmalsami.repository.postgres.DocumentRequestPostReposit
 import com.balsamic.sejongmalsami.repository.postgres.MemberRepository;
 import com.balsamic.sejongmalsami.util.exception.CustomException;
 import com.balsamic.sejongmalsami.util.exception.ErrorCode;
+import java.util.ArrayList;
 import java.util.List;
-import java.util.stream.Collectors;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
@@ -62,11 +61,15 @@ public class DocumentRequestPostService {
     validateJunginOrAbove(member);
 
     // 입력한 교과목명에 따른 단과대 설정 (교과목명 존재할 경우)
-    List<Faculty> faculties = null;
+    List<String> faculties = new ArrayList<>();
     if (command.getSubject() != null) {
-      faculties = courseRepository
-          .findAllBySubject(command.getSubject())
-          .stream().map(Course::getFaculty).collect(Collectors.toList());
+      List<Course> courses = courseRepository.findAllBySubject(command.getSubject());
+      for (Course course : courses) {
+        String faculty = course.getFaculty();
+        if (faculty != null && !faculties.contains(faculty)) {
+          faculties.add(faculty);
+        }
+      }
       log.info("입력된 교과목명 : {}", command.getSubject());
       log.info("단과대 List : {}", faculties);
 
