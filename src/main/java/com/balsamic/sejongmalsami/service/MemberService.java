@@ -4,6 +4,7 @@ import com.balsamic.sejongmalsami.object.CustomUserDetails;
 import com.balsamic.sejongmalsami.object.MemberCommand;
 import com.balsamic.sejongmalsami.object.MemberDto;
 import com.balsamic.sejongmalsami.object.constants.AccountStatus;
+import com.balsamic.sejongmalsami.object.constants.DefaultValue;
 import com.balsamic.sejongmalsami.object.constants.ExpTier;
 import com.balsamic.sejongmalsami.object.constants.Role;
 import com.balsamic.sejongmalsami.object.mongo.RefreshToken;
@@ -177,11 +178,11 @@ public class MemberService implements UserDetailsService {
 
     if (departmentOpt.isPresent()) {
       Faculty faculty = departmentOpt.get().getFaculty();
-      member.setFaculty(faculty);
-      log.info("Faculty 설정 완료: {} -> {}", member.getMemberId(), faculty.getFacultyName());
+      member.setFaculty(faculty.getName());
+      log.info("Faculty 설정 완료: {} -> {}", member.getMemberId(), faculty.getName());
     } else {
+      member.setFaculty(DefaultValue.NOT_FOUND.getDescription());
       log.warn("Member의 major에 해당하는 Department를 찾을 수 없습니다: {}", major);
-      // 필요에 따라 기본 Faculty 설정 또는 예외 처리
     }
 
     // 첫 로그인 여부 확인

@@ -2,12 +2,9 @@ package com.balsamic.sejongmalsami.object.postgres;
 
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
-import jakarta.persistence.FetchType;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
-import jakarta.persistence.JoinColumn;
-import jakarta.persistence.ManyToOne;
 import java.util.UUID;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -30,11 +27,11 @@ public class Course extends BaseEntity {
 
   private String subject; // 교과목명
 
-  @ManyToOne(fetch = FetchType.LAZY)
-  @JoinColumn(name = "faculty_id", nullable = false)
-  private Faculty faculty; // 단과대학
+  private String faculty; // 단과대학
 
   private String department; // 학과
+
   private Integer year; // 년도
+
   private Integer semester; // 학기
 }

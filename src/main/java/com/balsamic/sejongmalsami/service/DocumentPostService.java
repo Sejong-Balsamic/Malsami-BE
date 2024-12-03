@@ -21,7 +21,6 @@ import com.balsamic.sejongmalsami.object.mongo.YeopjeonHistory;
 import com.balsamic.sejongmalsami.object.postgres.Course;
 import com.balsamic.sejongmalsami.object.postgres.DocumentFile;
 import com.balsamic.sejongmalsami.object.postgres.DocumentPost;
-import com.balsamic.sejongmalsami.object.postgres.Faculty;
 import com.balsamic.sejongmalsami.object.postgres.Member;
 import com.balsamic.sejongmalsami.object.postgres.Yeopjeon;
 import com.balsamic.sejongmalsami.repository.mongo.DocumentBoardLikeRepository;
@@ -37,7 +36,6 @@ import com.balsamic.sejongmalsami.util.exception.ErrorCode;
 import java.time.Year;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.stream.Collectors;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
@@ -82,10 +80,12 @@ public class DocumentPostService {
     log.info("자료 등록 회원 : studentId={}", member.getStudentId());
 
     // 입력된 교과목에 따른 단과대 설정
-    List<Faculty> faculties = courseRepository
-        .findAllBySubject(command.getSubject())
-        .stream().map(Course::getFaculty)
-        .collect(Collectors.toList());
+    List<Course> courses = courseRepository.findAllBySubject(command.getSubject());
+    List<String> faculties = new ArrayList<>();
+
+    for (Course course : courses) {
+      faculties.add(course.getFaculty());
+    }
 
     log.info("입력된 교과목명 : {}", command.getSubject());
     log.info("단과대 List : {}", faculties);

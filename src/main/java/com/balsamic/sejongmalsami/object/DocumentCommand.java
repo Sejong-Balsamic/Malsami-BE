@@ -5,7 +5,6 @@ import com.balsamic.sejongmalsami.object.constants.DocumentType;
 import com.balsamic.sejongmalsami.object.constants.PostTier;
 import com.balsamic.sejongmalsami.object.constants.ReactionType;
 import com.balsamic.sejongmalsami.object.constants.SortType;
-import com.balsamic.sejongmalsami.object.postgres.Faculty;
 import com.balsamic.sejongmalsami.object.postgres.Member;
 import io.swagger.v3.oas.annotations.media.Schema;
 import java.util.ArrayList;
@@ -33,7 +32,7 @@ public class DocumentCommand {
   private String title; // 자료, 자료 요청
   private String content; // 자료, 자료 요청
   private String subject; // 자료
-  private Faculty faculty; // 자료 요청
+  private String faculty; // 자료 요청
   private List<DocumentType> documentTypes; // 자료, 자료 요청
   private List<MultipartFile> attachmentFiles; // 첨부된 파일들
   private Integer attendedYear;

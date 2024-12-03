@@ -4,7 +4,6 @@ import com.balsamic.sejongmalsami.object.constants.AccountStatus;
 import com.balsamic.sejongmalsami.object.constants.Role;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
-import com.fasterxml.jackson.annotation.JsonProperty;
 import jakarta.persistence.CollectionTable;
 import jakarta.persistence.Column;
 import jakarta.persistence.ElementCollection;
@@ -16,7 +15,6 @@ import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
-import jakarta.persistence.ManyToOne;
 import java.time.LocalDateTime;
 import java.util.HashSet;
 import java.util.Set;
@@ -60,10 +58,7 @@ public class Member extends BaseEntity {
   @Column
   private String profileUrl;
 
-  @JoinColumn(name = "faculty_id")
-  @JsonProperty("faculty")
-  @ManyToOne(fetch = FetchType.LAZY)
-  private Faculty faculty;
+  private String faculty;
 
   @Builder.Default
   @Column(nullable = false)

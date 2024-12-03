@@ -52,11 +52,9 @@ public class DocumentPost extends BasePost {
 
   private String subject; // 교과목명
 
+  @ElementCollection(fetch = FetchType.LAZY)
   @Builder.Default
-  @ElementCollection(targetClass = Faculty.class, fetch = FetchType.LAZY)
-  @CollectionTable
-  @Enumerated(EnumType.STRING)
-  private List<Faculty> faculties = new ArrayList<>(); // 교과목명에 해당하는 단과대
+  private List<String> faculties = new ArrayList<>(); // 교과목명에 해당하는 단과대
 
   private String content; // 내용
 

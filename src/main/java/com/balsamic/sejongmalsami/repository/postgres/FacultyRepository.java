@@ -8,7 +8,7 @@ import java.util.Optional;
 import java.util.UUID;
 
 public interface FacultyRepository extends JpaRepository<Faculty, UUID> {
-  Optional<Faculty> findByFacultyName(String facultyName);
+  Optional<Faculty> findByName(String name);
 
-  List<Faculty> findByFacultyNameIn(Set<String> facultyNames);
+  List<Faculty> findByNameIn(Set<String> name);
 }

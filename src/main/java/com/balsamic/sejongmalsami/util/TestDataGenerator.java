@@ -29,7 +29,6 @@ import com.balsamic.sejongmalsami.object.postgres.DocumentFile;
 import com.balsamic.sejongmalsami.object.postgres.DocumentPost;
 import com.balsamic.sejongmalsami.object.postgres.DocumentRequestPost;
 import com.balsamic.sejongmalsami.object.postgres.Exp;
-import com.balsamic.sejongmalsami.object.postgres.Faculty;
 import com.balsamic.sejongmalsami.object.postgres.Member;
 import com.balsamic.sejongmalsami.object.postgres.QuestionPost;
 import com.balsamic.sejongmalsami.object.postgres.Yeopjeon;
@@ -90,6 +89,7 @@ public class TestDataGenerator {
   // 연도 범위 계산 저장
   private final int startYear = calculateStartYear();
   private final int endYear = calculateEndYear();
+
   // 전공 정의
   private final List<String> majors = Arrays.asList(
       "건축공학부",
@@ -140,8 +140,7 @@ public class TestDataGenerator {
   // 교과목명 정의 (외부 JSON 파일에서 읽어오기)
   private List<String> loadSubjectsFromJson() {
     try (InputStream inputStream = getClass().getResourceAsStream("/courses/subject.json")) {
-      return objectMapper.readValue(inputStream, new TypeReference<List<String>>() {
-      });
+      return objectMapper.readValue(inputStream, new TypeReference<List<String>>() {});
     } catch (IOException e) {
       throw new RuntimeException("교과목명 로딩 실패", e);
     }
@@ -222,17 +221,19 @@ public class TestDataGenerator {
 
     String subject = subjects.get(random.nextInt(subjects.size()));
 
-    List<com.balsamic.sejongmalsami.object.postgres.Faculty> faculties = courseRepository
-        .findAllBySubject(subject)
-        .stream().map(Course::getFaculty)
-        .collect(Collectors.toList());
+    // 교과목에 따른 단과대명 리스트를 String으로 대체
+    List<String> faculties = new ArrayList<>();
+    List<Course> courses = courseRepository.findAllBySubject(subject);
+    for (Course course : courses) {
+      faculties.add(course.getFaculty());
+    }
 
     QuestionPost post = QuestionPost.builder()
         .member(member)
         .title(faker.lorem().sentence()) // 임의의 제목
         .content(faker.lorem().paragraph()) // 임의의 본문
         .subject(subject) // 임의의 교과목명
-        .faculties(faculties)
+        .faculties(faculties) // String 리스트 설정
         .questionPresetTags(new ArrayList<>(faker.options().option(
             List.of(OUT_OF_CLASS),
             List.of(OUT_OF_CLASS, UNKNOWN_CONCEPT),
@@ -300,16 +301,18 @@ public class TestDataGenerator {
 
     String subject = subjects.get(random.nextInt(subjects.size()));
 
-    List<Faculty> faculties = courseRepository
-        .findAllBySubject(subject)
-        .stream().map(Course::getFaculty)
-        .collect(Collectors.toList());
+    // 교과목에 따른 단과대명 리스트를 String으로 대체
+    List<String> faculties = new ArrayList<>();
+    List<Course> courses = courseRepository.findAllBySubject(subject);
+    for (Course course : courses) {
+      faculties.add(course.getFaculty());
+    }
 
     DocumentPost post = DocumentPost.builder()
         .member(member)
         .title(faker.lorem().sentence()) // 임의의 제목
         .subject(subject) // 임의의 교과목명
-        .faculties(faculties)
+        .faculties(faculties) // String 리스트 설정
         .content(faker.lorem().paragraph()) // 임의의 내용
         .postTier(CHEONMIN) // 글 작성시 천민 계급
         .likeCount(faker.number().numberBetween(0, 130)) // 임의의 좋아요 수
@@ -381,21 +384,23 @@ public class TestDataGenerator {
 
     String subject = subjects.get(random.nextInt(subjects.size()));
 
-    List<Faculty> faculties = courseRepository
-        .findAllBySubject(subject)
-        .stream().map(Course::getFaculty)
-        .collect(Collectors.toList());
+    // 교과목에 따른 단과대명 리스트를 String으로 대체
+    List<String> faculties = new ArrayList<>();
+    List<Course> courses = courseRepository.findAllBySubject(subject);
+    for (Course course : courses) {
+      faculties.add(course.getFaculty());
+    }
 
     DocumentRequestPost post = DocumentRequestPost.builder()
         .member(member)
         .title(faker.lorem().sentence())
         .content(faker.lorem().paragraph())
         .subject(subject)
-        .faculties(faculties)
+        .faculties(faculties) // String 리스트 설정
         .documentTypes(new ArrayList<>(faker.options().option(
-            List.of(DOCUMENT),
-            List.of(DOCUMENT, PAST_EXAM),
-            List.of(SOLUTION)
+            Arrays.asList(DOCUMENT),
+            Arrays.asList(DOCUMENT, PAST_EXAM),
+            Arrays.asList(SOLUTION)
         )))
         .viewCount(faker.number().numberBetween(0, 30000))
         .likeCount(faker.number().numberBetween(0, 1000))

@@ -2,7 +2,6 @@ package com.balsamic.sejongmalsami.repository.postgres;
 
 import com.balsamic.sejongmalsami.object.constants.QuestionPresetTag;
 import com.balsamic.sejongmalsami.object.postgres.AnswerPost;
-import com.balsamic.sejongmalsami.object.postgres.Faculty;
 import com.balsamic.sejongmalsami.object.postgres.Member;
 import com.balsamic.sejongmalsami.object.postgres.QuestionPost;
 import java.time.LocalDateTime;
@@ -29,47 +28,48 @@ public interface QuestionPostRepository extends JpaRepository<QuestionPost, UUID
 
   // 아직 답변하지 않은 질문글 조회 및 단과대 필터링 (최신순)
   @Query("""
-        select q
-        from QuestionPost q
-        where (:faculty is null or :faculty member of q.faculties)
-        and (q.answerCount = 0)
-        """)
-  Page<QuestionPost> findNotAnsweredQuestionByFilter(
-      @Param("faculty") Faculty faculty,
+      select q
+      from QuestionPost q
+      where (:faculty is null or :faculty member of q.faculties)
+      and (q.answerCount = 0)
+      """)
+  public Page<QuestionPost> findNotAnsweredQuestionByFilter(
+      @Param("faculty") String faculty,
       Pageable pageable);
 
   // 과목 및 채택 상태 필터링
   @Query("""
-        select distinct q
-        from QuestionPost q
-        left join q.questionPresetTags qt
-        where
-            (:subject is null or q.subject = :subject)
-            and (:faculty is null or :faculty member of q.faculties)
-            and (:questionPresetTags is null or qt in :questionPresetTags)
-            and (
-                :chaetaekStatus = 'ALL'
-                or (:chaetaekStatus = 'CHAETAEK' and q.chaetaekStatus = true)
-                or (:chaetaekStatus = 'NO_CHAETAEK' and q.chaetaekStatus = false)
-            )
-        """)
+      select distinct q
+      from QuestionPost q
+      left join q.questionPresetTags qt
+      where
+          (:subject is null or q.subject = :subject)
+          and (:faculty is null or :faculty member of q.faculties)
+          and (:questionPresetTags is null or qt in :questionPresetTags)
+          and (
+              :chaetaekStatus = 'ALL'
+              or (:chaetaekStatus = 'CHAETAEK' and q.chaetaekStatus = true)
+              or (:chaetaekStatus = 'NO_CHAETAEK' and q.chaetaekStatus = false)
+          )
+      """)
   Page<QuestionPost> findQuestionPostsByFilter(
       @Param("subject") String subject,
-      @Param("faculty") Faculty faculty,
+      @Param("faculty") String faculty,
       @Param("questionPresetTags") List<QuestionPresetTag> questionPresetTags,
       @Param("chaetaekStatus") String chaetaekStatus,
       Pageable pageable);
 
+
   // 검색
   @Query(
       value = "SELECT DISTINCT p.* FROM question_post p " +
-              "WHERE (:query IS NULL OR LOWER(p.title) LIKE LOWER(CONCAT('%', :query, '%')) " +
-              "OR LOWER(p.content) LIKE LOWER(CONCAT('%', :query, '%'))) " +
-              "AND (:subject IS NULL OR LOWER(p.subject) LIKE LOWER(CONCAT('%', :subject, '%'))) ",
+          "WHERE (:query IS NULL OR LOWER(p.title) LIKE LOWER(CONCAT('%', :query, '%')) " +
+          "OR LOWER(p.content) LIKE LOWER(CONCAT('%', :query, '%'))) " +
+          "AND (:subject IS NULL OR LOWER(p.subject) LIKE LOWER(CONCAT('%', :subject, '%'))) ",
       countQuery = "SELECT COUNT(DISTINCT p.question_post_id) FROM question_post p " +
-                   "WHERE (:query IS NULL OR LOWER(p.title) LIKE LOWER(CONCAT('%', :query, '%')) " +
-                   "OR LOWER(p.content) LIKE LOWER(CONCAT('%', :query, '%'))) " +
-                   "AND (:subject IS NULL OR LOWER(p.subject) LIKE LOWER(CONCAT('%', :subject, '%'))) ",
+          "WHERE (:query IS NULL OR LOWER(p.title) LIKE LOWER(CONCAT('%', :query, '%')) " +
+          "OR LOWER(p.content) LIKE LOWER(CONCAT('%', :query, '%'))) " +
+          "AND (:subject IS NULL OR LOWER(p.subject) LIKE LOWER(CONCAT('%', :subject, '%'))) ",
       nativeQuery = true
   )
   Page<QuestionPost> findQuestionPostsByQuery(

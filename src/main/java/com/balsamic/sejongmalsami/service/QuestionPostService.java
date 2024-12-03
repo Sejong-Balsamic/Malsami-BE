@@ -17,7 +17,6 @@ import com.balsamic.sejongmalsami.object.constants.YeopjeonAction;
 import com.balsamic.sejongmalsami.object.mongo.QuestionPostCustomTag;
 import com.balsamic.sejongmalsami.object.postgres.AnswerPost;
 import com.balsamic.sejongmalsami.object.postgres.Course;
-import com.balsamic.sejongmalsami.object.postgres.Faculty;
 import com.balsamic.sejongmalsami.object.postgres.MediaFile;
 import com.balsamic.sejongmalsami.object.postgres.Member;
 import com.balsamic.sejongmalsami.object.postgres.QuestionPost;
@@ -86,6 +85,7 @@ public class QuestionPostService {
       log.error("현재 보유 엽전량: {}, 질문글 등록시 필요 엽전량: {}, 엽전 현상금 설정량: {}", yeopjeon.getYeopjeon(), -yeopjeonCalculator.calculateYeopjeon(YeopjeonAction.CREATE_QUESTION_POST), command.getRewardYeopjeon());
       throw new CustomException(ErrorCode.INSUFFICIENT_YEOPJEON);
     }
+
     // 질문글 작성자가 등록한 엽전 현상금 만큼 엽전 수 감소
     yeopjeonService.processYeopjeon(
         member,
@@ -93,9 +93,11 @@ public class QuestionPostService {
         -command.getRewardYeopjeon());
 
     // 입력된 교과목에 따른 단과대 설정
-    List<Faculty> faculties = courseRepository
-        .findAllBySubject(command.getSubject())
-        .stream().map(Course::getFaculty)
+    List<String> faculties = courseRepository.findAllBySubject(command.getSubject())
+        .stream()
+        .map(Course::getFaculty)
+        .filter(faculty -> faculty != null && !faculty.trim().isEmpty())
+        .distinct()
         .collect(Collectors.toList());
 
     log.info("입력된 교과목명 : {}", command.getSubject());

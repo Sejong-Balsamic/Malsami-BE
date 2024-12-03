@@ -1,10 +1,18 @@
 package com.balsamic.sejongmalsami.object.postgres;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
-import com.fasterxml.jackson.annotation.JsonProperty;
-import jakarta.persistence.*;
+import jakarta.persistence.Column;
+import jakarta.persistence.Entity;
+import jakarta.persistence.GeneratedValue;
+import jakarta.persistence.GenerationType;
+import jakarta.persistence.Id;
 import java.util.UUID;
-import lombok.*;
+import lombok.AllArgsConstructor;
+import lombok.Builder;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.Setter;
+import lombok.ToString;
 
 @Entity
 @Getter
@@ -14,7 +22,7 @@ import lombok.*;
 @Builder
 @ToString
 @JsonIgnoreProperties({"hibernateLazyInitializer", "handler"})
-public class Faculty extends BaseEntity {
+public class Faculty{
 
   @Id
   @GeneratedValue(strategy = GenerationType.AUTO)
@@ -22,6 +30,5 @@ public class Faculty extends BaseEntity {
   private UUID facultyId;
 
   @Column(nullable = false, unique = true)
-  @JsonProperty("faculty_name")
-  private String facultyName;
+  private String name; // 단과대
 }

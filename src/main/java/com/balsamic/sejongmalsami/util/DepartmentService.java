@@ -115,16 +115,16 @@ public class DepartmentService {
             .collect(Collectors.toSet());
 
         // 기존 Faculty 조회
-        List<Faculty> existingFaculties = facultyRepository.findByFacultyNameIn(facultyNames);
+        List<Faculty> existingFaculties = facultyRepository.findByNameIn(facultyNames);
         Map<String, Faculty> existingFacultyMap = existingFaculties.stream()
-            .collect(Collectors.toMap(Faculty::getFacultyName, Function.identity()));
+            .collect(Collectors.toMap(Faculty::getName, Function.identity()));
 
         List<Faculty> facultiesToSave = new ArrayList<>();
 
         for (String facultyName : facultyNames) {
           if (!existingFacultyMap.containsKey(facultyName)) {
             Faculty faculty = Faculty.builder()
-                .facultyName(facultyName)
+                .name(facultyName)
                 .build();
             facultiesToSave.add(faculty);
             log.info("새로운 Faculty 추가: {}", facultyName);
@@ -137,9 +137,9 @@ public class DepartmentService {
         }
 
         // 업데이트된 Faculty 목록 다시 조회
-        existingFaculties = facultyRepository.findByFacultyNameIn(facultyNames);
+        existingFaculties = facultyRepository.findByNameIn(facultyNames);
         existingFacultyMap = existingFaculties.stream()
-            .collect(Collectors.toMap(Faculty::getFacultyName, Function.identity()));
+            .collect(Collectors.toMap(Faculty::getName, Function.identity()));
 
         // 2. Department 정보 업데이트 및 저장
         // deptCd 리스트 추출

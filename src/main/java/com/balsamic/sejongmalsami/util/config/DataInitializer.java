@@ -5,6 +5,7 @@ import static com.balsamic.sejongmalsami.util.LogUtils.lineLogError;
 
 import com.balsamic.sejongmalsami.util.CourseFileGenerator;
 import com.balsamic.sejongmalsami.util.DepartmentService;
+import com.balsamic.sejongmalsami.util.SubjectService; // Subject 관련 서비스 추가
 import com.balsamic.sejongmalsami.util.FileUtil;
 import com.balsamic.sejongmalsami.object.constants.SystemType;
 import java.nio.file.Path;
@@ -25,6 +26,7 @@ public class DataInitializer implements ApplicationRunner {
 
   private final CourseFileGenerator courseFileGenerator;
   private final DepartmentService departmentService;
+  private final SubjectService subjectService;
 
   // 애플리케이션이 시작될 때 실행
   @Override
@@ -34,7 +36,7 @@ public class DataInitializer implements ApplicationRunner {
 
     LocalDateTime overallStartTime = LocalDateTime.now();
 
-    // Department 파싱 동기적 실행
+    // 1. Department 파싱 동기적 실행
     try {
       Path deptPath = determineDepartmentFilePath();
       departmentService.loadDepartments(deptPath);
@@ -45,12 +47,17 @@ public class DataInitializer implements ApplicationRunner {
       throw e; // 애플리케이션 시작 중단
     }
 
-    // Course 파싱 실행
+    // 2. Course 파싱 비동기 실행
     CompletableFuture<Void> courseFuture = CompletableFuture.runAsync(() -> {
       courseFileGenerator.initCourse();
     });
 
-    courseFuture
+    // 3. Course 파싱 완료 후 Subject 처리
+    CompletableFuture<Void> subjectFuture = courseFuture.thenRun(() -> {
+      subjectService.processDistinctSubjects();
+    });
+
+    subjectFuture
         .thenRun(() -> {
           LocalDateTime overallEndTime = LocalDateTime.now();
           Duration overallDuration = Duration.between(overallStartTime, overallEndTime);
@@ -66,10 +73,9 @@ public class DataInitializer implements ApplicationRunner {
           return null;
         });
 
-    // 동기적 실행이 아닌 비동기로 진행되므로, 메인 스레드가 종료되지 않도록 대기
-    courseFuture.get();
+    // 비동기로 실행되므로, 메인 스레드가 종료되지 않도록 대기
+    subjectFuture.get();
   }
-
 
   /**
    * 시스템 타입에 따라 departments.json 파일의 경로를 결정합니다.
