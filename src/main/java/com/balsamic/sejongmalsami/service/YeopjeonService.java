@@ -52,7 +52,7 @@ public class YeopjeonService {
   public YeopjeonHistory processYeopjeon(Member member, YeopjeonAction action, Integer rewardYeopjeon) {
 
     // 엽전 현상금이 0인경우
-    if (rewardYeopjeon == 0) {
+    if (rewardYeopjeon == null || rewardYeopjeon == 0) {
       return null;
     }
 
@@ -105,7 +105,7 @@ public class YeopjeonService {
   public void rollbackYeopjeonTransaction(Member member, YeopjeonAction action, Integer rewardYeopjeon, YeopjeonHistory history) {
 
     // 엽전 현상금이 0인 경우
-    if (rewardYeopjeon == 0) {
+    if (rewardYeopjeon == null || rewardYeopjeon == 0) {
       return;
     }
 
