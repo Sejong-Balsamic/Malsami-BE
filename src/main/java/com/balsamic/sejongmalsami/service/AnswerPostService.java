@@ -80,7 +80,7 @@ public class AnswerPostService {
     log.info("{} 질문 글에 작성된 답변 수 : {}", questionPost.getQuestionPostId(), questionPost.getAnswerCount());
 
     // 답변 작성 시 경험치 증가 및 경험치 히스토리 내역 추가
-    expService.updateExpAndSaveExpHistory(member, ExpAction.CREATE_COMMENT);
+    expService.processExp(member, ExpAction.CREATE_COMMENT);
 
     return QuestionDto.builder()
         .answerPost(savedAnswerPost)
@@ -170,7 +170,7 @@ public class AnswerPostService {
     ExpHistory answerMemberExpHistory = null;
     try { // 답변 작성자 경험치 변동 및 경험치 히스토리 저장 - C
       answerMemberExpHistory = expService
-          .updateExpAndSaveExpHistory(answerMember, ExpAction.CHAETAEK_CHOSEN);
+          .processExp(answerMember, ExpAction.CHAETAEK_CHOSEN);
     } catch (Exception e) { // C 실패시 A, B 롤백
       yeopjeonService.rollbackYeopjeonTransaction(
           curMember,
@@ -185,9 +185,9 @@ public class AnswerPostService {
     }
     ExpHistory curMemberExpHistory = null;
     try { // 로그인 사용자 경험치 변동 및 경험치 히스토리 저장 - D
-      curMemberExpHistory = expService.updateExpAndSaveExpHistory(curMember, ExpAction.CHAETAEK_ACCEPT);
+      curMemberExpHistory = expService.processExp(curMember, ExpAction.CHAETAEK_ACCEPT);
     } catch (Exception e) { // D 실패시 A, B, C 롤백
-      expService.rollbackExpAndDeleteExpHistory(
+      expService.rollbackExpTransaction(
           answerMember,
           ExpAction.CHAETAEK_CHOSEN,
           answerMemberExpHistory
@@ -224,12 +224,12 @@ public class AnswerPostService {
             questionPost.getRewardYeopjeon());
       } catch (Exception e) { // E 실패시 A, B, C, D 롤백
         answerPost.rollbackChaetaek();
-        expService.rollbackExpAndDeleteExpHistory(
+        expService.rollbackExpTransaction(
             curMember,
             ExpAction.CHAETAEK_ACCEPT,
             curMemberExpHistory
         );
-        expService.rollbackExpAndDeleteExpHistory(
+        expService.rollbackExpTransaction(
             answerMember,
             ExpAction.CHAETAEK_CHOSEN,
             answerMemberExpHistory

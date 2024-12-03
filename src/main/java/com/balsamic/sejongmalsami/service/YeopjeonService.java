@@ -1,10 +1,11 @@
 package com.balsamic.sejongmalsami.service;
 
+import static com.balsamic.sejongmalsami.object.constants.YeopjeonAction.*;
+
 import com.balsamic.sejongmalsami.object.constants.YeopjeonAction;
 import com.balsamic.sejongmalsami.object.mongo.YeopjeonHistory;
 import com.balsamic.sejongmalsami.object.postgres.Member;
 import com.balsamic.sejongmalsami.object.postgres.Yeopjeon;
-import com.balsamic.sejongmalsami.repository.postgres.MemberRepository;
 import com.balsamic.sejongmalsami.repository.postgres.YeopjeonRepository;
 import com.balsamic.sejongmalsami.util.YeopjeonCalculator;
 import com.balsamic.sejongmalsami.util.exception.CustomException;
@@ -22,25 +23,44 @@ public class YeopjeonService {
   private final YeopjeonRepository yeopjeonRepository;
   private final YeopjeonCalculator yeopjeonCalculator;
   private final YeopjeonHistoryService yeopjeonHistoryService;
-  private final MemberRepository memberRepository;
 
-  // 엽전 처리 수행 메인 메서드 (엽전현상금 없음)
+  /**
+   * <h3>엽전 처리 수행 메서드 (엽전현상금 없음)</h3>
+   *
+   * @param member 엽전 변동 회원
+   * @param action 엽전 액션
+   * @return 저장된 엽전 히스토리
+   */
+  @Transactional
   public YeopjeonHistory processYeopjeon(Member member, YeopjeonAction action) {
-    return processYeopjeon(member, action, 0);
+    return processYeopjeon(member, action, null);
   }
 
-  // 엽전 처리 수행 메인 메서드 (엽전현상금 포함)
+  /**
+   * <h3>엽전 처리 수행 메인 메서드 (엽전현상금 포함)</h3>
+   * <p>calculateAndValidateYeopjeon 메소드를 통해 YeopjeonAction에 따른 엽전 변동량 계산</p>
+   * <p>applyYeopjeon 메소드를 통해 사용자 엽전 변동 적용</p>
+   * <p>엽전 히스토리 저장</p>
+   * <p>엽전 현상금이 0으로 설정된 경우 엽전 히스토리 저장X</p>
+   *
+   * @param member         엽전 변동 회원
+   * @param action         엽전 액션
+   * @param rewardYeopjeon 엽전 현상금 (커스텀)
+   * @return 저장된 엽전 히스토리 내역
+   */
   @Transactional
   public YeopjeonHistory processYeopjeon(Member member, YeopjeonAction action, Integer rewardYeopjeon) {
 
-    // rewardYeopjeon 기본값 처리
-    rewardYeopjeon = (rewardYeopjeon != null) ? rewardYeopjeon : 0;
+    // 엽전 현상금이 0인경우
+    if (rewardYeopjeon == null || rewardYeopjeon == 0) {
+      return null;
+    }
 
     // 엽전 계산 및 검증
-    int newYeopjeon = calculateAndValidateYeopjeon(member, action, rewardYeopjeon);
+    int newYeopjeon = calculateAndValidateYeopjeon(member, action, rewardYeopjeon, false);
 
     // 엽전 변동 적용
-    applyYeopjeonChanges(member, newYeopjeon);
+    applyYeopjeonChange(member, newYeopjeon);
 
     // 엽전 히스토리 저장
     YeopjeonHistory yeopjeonHistory;
@@ -49,22 +69,92 @@ public class YeopjeonService {
       log.info("회원: {} 엽전 히스토리 저장 성공", member.getStudentId());
     } catch (Exception e) {
       log.error("회원: {} 엽전 히스토리 저장 중 오류 발생: {}", member.getStudentId(), e.getMessage());
-      revertYeopjeonChange(member, action, rewardYeopjeon);
+      int rollbackYeopjeon = calculateAndValidateYeopjeon(member, action, rewardYeopjeon, true);
+      applyYeopjeonChange(member, rollbackYeopjeon);
       throw new CustomException(ErrorCode.YEOPJEON_SAVE_ERROR);
     }
 
     return yeopjeonHistory;
   }
 
-  // 엽전 계산 및 검증
-  private int calculateAndValidateYeopjeon(Member member, YeopjeonAction action, Integer rewardYeopjeon) {
+  /**
+   * <h3>엽전 트랜잭션을 롤백하고 히스토리를 삭제하는 메서드 (엽전 현상금 없음)</h3>
+   *
+   * @param member  롤백할 회원
+   * @param action  엽전 액션
+   * @param history 롤백할 엽전 히스토리
+   */
+  @Transactional
+  public void rollbackYeopjeonTransaction(Member member, YeopjeonAction action, YeopjeonHistory history) {
+    rollbackYeopjeonTransaction(member, action, null, history);
+  }
+
+  /**
+   * <h3>엽전 트랜잭션을 롤백하고 히스토리를 삭제하는 메인 메서드 (엽전 현상금 포함)</h3>
+   * <p>calculateAndValidateYeopjeon 메소드를 통해 YeopjeonAction에 따른 엽전 변동량 계산</p>
+   * <p>applyYeopjeon 메소드를 통해 사용자 엽전 변동 적용</p>
+   * <p>엽전 히스토리 삭제</p>
+   * <p>엽전 현상금이 0인 경우 변동X</p>
+   *
+   * @param member         롤백할 회원
+   * @param action         엽전 액션
+   * @param rewardYeopjeon 엽전 현상금 (커스텀)
+   * @param history        롤백할 엽전 히스토리 내역
+   */
+  @Transactional
+  public void rollbackYeopjeonTransaction(Member member, YeopjeonAction action, Integer rewardYeopjeon, YeopjeonHistory history) {
+
+    // 엽전 현상금이 0인 경우
+    if (rewardYeopjeon == null || rewardYeopjeon == 0) {
+      return;
+    }
+
+    // 엽전 계산 및 검증
+    int rollbackYeopjeon = calculateAndValidateYeopjeon(member, action, rewardYeopjeon, true);
+
+    // 엽전 변동 적용
+    applyYeopjeonChange(member, rollbackYeopjeon);
+
+    try {
+      // 엽전 히스토리 삭제
+      yeopjeonHistoryService.deleteYeopjeonHistory(history);
+      log.info("YeopjeonHistory 삭제 성공: HistoryId = {}", history.getYeopjeonHistoryId());
+    } catch (Exception e) {
+      // 엽전 롤백 취소
+      int newYeopjeon = calculateAndValidateYeopjeon(member, action, rewardYeopjeon, false);
+      applyYeopjeonChange(member, newYeopjeon);
+      log.error("엽전 변경 롤백 중 오류 발생: {}", e.getMessage());
+      throw new CustomException(ErrorCode.YEOPJEON_ROLLBACK_ERROR);
+    }
+  }
+
+  /**
+   * <h3>엽전 계산 및 검증</h3>
+   * <p>Member, YeopjeonAction을 파라미터로 받아 해당 엽전 액션이 적용가능한지 여부를 판단합니다.</p>
+   * <p>롤백 시 isRollback = true 요청</p>
+   *
+   * @param member         엽전 변동 회원
+   * @param action         엽전 액션
+   * @param rewardYeopjeon 엽전 현상금 (커스텀)
+   * @param isRollback     롤백 여부 (롤백 시 true 요청)
+   * @return
+   */
+  private int calculateAndValidateYeopjeon(Member member, YeopjeonAction action, Integer rewardYeopjeon, Boolean isRollback) {
     Yeopjeon yeopjeon = findMemberYeopjeon(member);
     int calculatedYeopjeon;
 
-    if (action.equals(YeopjeonAction.REWARD_YEOPJEON)) {
-      calculatedYeopjeon = yeopjeon.getYeopjeon() + yeopjeonCalculator.calculateYeopjeon(action, rewardYeopjeon);
-    } else {
-      calculatedYeopjeon = yeopjeon.getYeopjeon() + yeopjeonCalculator.calculateYeopjeon(action);
+    if (!isRollback) { // 요청 시
+      if (action.equals(REWARD_YEOPJEON)) { // 엽전 현상금 존재하는 경우
+        calculatedYeopjeon = yeopjeon.getYeopjeon() + yeopjeonCalculator.calculateYeopjeon(action, rewardYeopjeon);
+      } else { // 엽전 현상금 요청이 아닌경우
+        calculatedYeopjeon = yeopjeon.getYeopjeon() + yeopjeonCalculator.calculateYeopjeon(action);
+      }
+    } else { // 롤백 시
+      if (action.equals(REWARD_YEOPJEON)) { // 엽전 현상금 존재하는 경우
+        calculatedYeopjeon = yeopjeon.getYeopjeon() - yeopjeonCalculator.calculateYeopjeon(action, rewardYeopjeon);
+      } else { // 엽전 현상금 요청이 아닌경우
+        calculatedYeopjeon = yeopjeon.getYeopjeon() - yeopjeonCalculator.calculateYeopjeon(action);
+      }
     }
 
     if (calculatedYeopjeon < 0) {
@@ -76,43 +166,40 @@ public class YeopjeonService {
   }
 
   // 엽전 변동 적용
-  private void applyYeopjeonChanges(Member member, int newYeopjeon) {
+  private void applyYeopjeonChange(Member member, int newYeopjeon) {
     Yeopjeon yeopjeon = findMemberYeopjeon(member);
     yeopjeon.setYeopjeon(newYeopjeon);
     yeopjeonRepository.save(yeopjeon);
     log.info("회원 {}의 엽전 변경 완료: 새로운 엽전 개수 = {}", member.getStudentId(), newYeopjeon);
   }
 
-  // 엽전 롤백
-  private void revertYeopjeonChange(Member member, YeopjeonAction action, Integer rewardYeopjeon) {
-    int rollbackAmount = rewardYeopjeon != null ? -rewardYeopjeon : 0;
-    log.info("회원 {}의 엽전 롤백 진행: 롤백 금액 = {}", member.getStudentId(), rollbackAmount);
-    Yeopjeon yeopjeon = findMemberYeopjeon(member);
-    int rollbackYeopjeon = calculateAndValidateYeopjeon(member, action, rollbackAmount);
-    applyYeopjeonChanges(member, rollbackYeopjeon);
-  }
-
-
   /**
-   * 엽전 트랜잭션을 롤백하고 히스토리를 삭제하는 메서드
+   * <h3>질문 글 등록 시 필요한 엽전 개수 검증</h3>
    *
-   * @param member  롤백할 회원
-   * @param action  엽전 액션
-   * @param history 롤백할 엽전 히스토리
+   * @param member
+   * @param rewardYeopjeon
    */
-  @Transactional
-  public void rollbackYeopjeonTransaction(Member member, YeopjeonAction action, YeopjeonHistory history) {
-    try {
-      // 엽전 히스토리 삭제
-      yeopjeonHistoryService.deleteYeopjeonHistory(history);
-      log.info("YeopjeonHistory 삭제 성공: HistoryId = {}", history.getYeopjeonHistoryId());
+  public void validateYeopjeonForQuestionPost(Member member, Integer rewardYeopjeon) {
+    // 엽전 현상금이 null인 경우 0으로 설정
+    if (rewardYeopjeon == null) {
+      rewardYeopjeon = 0;
+    } else if (rewardYeopjeon < 0) { // 음수 값인 경우 오류
+      throw new CustomException(ErrorCode.QUESTION_INVALID_REWARD_YEOPJEON);
+    }
 
-      // 엽전 변경 되돌리기
-      revertYeopjeonChange(member, action, history.getYeopjeonChange());
-      log.info("Yeopjeon 변경 되돌리기: studentId = {}", member.getStudentId());
-    } catch (Exception e) {
-      log.error("Yeopjeon 변경 되돌리기 중 오류 발생: {}", e.getMessage());
-      throw new CustomException(ErrorCode.YEOPJEON_ROLLBACK_ERROR);
+    // 질문 글 등록 시 소모되는 엽전
+    int createQuestionPostYeopjeon = yeopjeonCalculator.calculateYeopjeon(CREATE_QUESTION_POST);
+
+    // 총 필요한 엽전: 질문 글 등록 시 + 엽전 현상금
+    int totalRequiredYeopjeon = createQuestionPostYeopjeon + rewardYeopjeon;
+
+    // 글 등록 가능 여부 확인
+    Yeopjeon yeopjeon = findMemberYeopjeon(member);
+    if (yeopjeon.getYeopjeon() < totalRequiredYeopjeon) {
+      log.error("회원: {} 의 엽전이 부족합니다.", member.getStudentId());
+      log.error("현재 보유 엽전량: {}, 질문글 등록시 필요 엽전량: {}, 엽전 현상금 설정량: {}",
+          yeopjeon.getYeopjeon(), createQuestionPostYeopjeon, rewardYeopjeon);
+      throw new CustomException(ErrorCode.INSUFFICIENT_YEOPJEON);
     }
   }
 

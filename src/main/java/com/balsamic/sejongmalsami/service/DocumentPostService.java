@@ -10,6 +10,7 @@ import static com.balsamic.sejongmalsami.object.constants.YeopjeonAction.VIEW_DO
 import static com.balsamic.sejongmalsami.object.constants.YeopjeonAction.VIEW_DOCUMENT_KING_POST;
 import static com.balsamic.sejongmalsami.object.constants.YeopjeonAction.VIEW_DOCUMENT_YANGBAN_POST;
 
+import com.amazonaws.util.IOUtils;
 import com.balsamic.sejongmalsami.object.DocumentCommand;
 import com.balsamic.sejongmalsami.object.DocumentDto;
 import com.balsamic.sejongmalsami.object.constants.ContentType;
@@ -29,15 +30,20 @@ import com.balsamic.sejongmalsami.repository.postgres.CourseRepository;
 import com.balsamic.sejongmalsami.repository.postgres.DocumentFileRepository;
 import com.balsamic.sejongmalsami.repository.postgres.DocumentPostRepository;
 import com.balsamic.sejongmalsami.repository.postgres.MemberRepository;
-import com.balsamic.sejongmalsami.repository.postgres.YeopjeonRepository;
 import com.balsamic.sejongmalsami.util.config.YeopjeonConfig;
 import com.balsamic.sejongmalsami.util.exception.CustomException;
 import com.balsamic.sejongmalsami.util.exception.ErrorCode;
+import java.io.IOException;
+import java.io.InputStream;
+import java.nio.file.Files;
+import java.nio.file.Paths;
 import java.time.Year;
 import java.util.ArrayList;
 import java.util.List;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.net.ftp.FTPClient;
+import org.apache.commons.pool2.impl.GenericObjectPool;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
@@ -63,8 +69,8 @@ public class DocumentPostService {
   private final CourseRepository courseRepository;
   private final YeopjeonService yeopjeonService;
   private final YeopjeonConfig yeopjeonConfig;
-  private final YeopjeonRepository yeopjeonRepository;
   private final PurchaseHistoryRepository purchaseHistoryRepository;
+  private final GenericObjectPool<FTPClient> ftpClientPool;
 
   /**
    * <h3>자료 글 저장
@@ -151,7 +157,7 @@ public class DocumentPostService {
     }
 
     // 자료 글 등록 시 경험치 증가
-    expService.updateExpAndSaveExpHistory(member, ExpAction.CREATE_DOCUMENT_POST);
+    expService.processExp(member, ExpAction.CREATE_DOCUMENT_POST);
 
     return DocumentDto.builder()
         .documentPost(savedDocument)
@@ -275,6 +281,17 @@ public class DocumentPostService {
         .build();
   }
 
+  /**
+   * <h3>HOT 다운로드 조회</h3>
+   * <p>자료 첨부파일 중 가장 높은 다운로드 수를 기준으로 정렬</p>
+   *
+   * @param command pageNumber, pageSize
+   * @return
+   */
+  public DocumentDto getHotDownload(DocumentCommand command) {
+    return null;
+  }
+
   // 해당 자료 게시판 접근 가능 여부 판단 메소드
   private void canAccessDocumentBoard(Member member, PostTier postTier) {
     Yeopjeon yeopjeon = yeopjeonService.findMemberYeopjeon(member);
@@ -319,9 +336,10 @@ public class DocumentPostService {
     YeopjeonHistory yeopjeonHistory = yeopjeonService.processYeopjeon(member, PURCHASE_DOCUMENT);
 
     // path 받기
-    String filePath = command.getFilePath();
+    String filePath = documentFile.getFilePath();
 
     // 다운로드
+    byte[] fileBytes = downloadFile(filePath);
 
     // 자료 게시글 PurchaseHistory 저장
     purchaseHistoryRepository.save(
@@ -334,8 +352,62 @@ public class DocumentPostService {
     );
 
     // 경험치 증가
-    expService.updateExpAndSaveExpHistory(member, ExpAction.PURCHASE_DOCUMENT);
+    expService.processExp(member, ExpAction.PURCHASE_DOCUMENT);
 
-    return null;
+    // 파일명과 MIME 타입 추출
+    String fileName = Paths.get(filePath).getFileName().toString();
+    String mimeType;
+    try {
+      mimeType = Files.probeContentType(Paths.get(fileName));
+      if (mimeType == null) {
+        mimeType = "application/octet-stream";
+      }
+    } catch (IOException e) {
+      mimeType = "application/octet-stream";
+    }
+
+    return DocumentDto.builder()
+        .fileBytes(fileBytes)
+        .fileName(fileName)
+        .mimeType(mimeType)
+        .build();
+  }
+
+  public byte[] downloadFile(String filePath) {
+    FTPClient ftpClient = null;
+    try {
+      // FTP 클라이언트 풀에서 클라이언트 가져오기
+      ftpClient = ftpClientPool.borrowObject();
+
+      // FTP 서버에서 파일 스트림 가져오기
+      InputStream inputStream = ftpClient.retrieveFileStream(filePath);
+      if (inputStream == null) {
+        throw new CustomException(ErrorCode.FILE_NOT_FOUND);
+      }
+
+      // InputStream을 바이트 배열로 변환
+      byte[] fileBytes = IOUtils.toByteArray(inputStream);
+      inputStream.close();
+
+      // FTP 명령 완료 확인
+      boolean success = ftpClient.completePendingCommand();
+      if (!success) {
+        throw new CustomException(ErrorCode.FTP_DOWNLOAD_ERROR);
+      }
+
+      return fileBytes;
+    } catch (Exception e) {
+      log.error("파일 다운로드 중 오류 발생: {}", e.getMessage());
+      throw new CustomException(ErrorCode.FTP_DOWNLOAD_ERROR);
+    } finally {
+      if (ftpClient != null) {
+        try {
+          // FTP 클라이언트를 풀로 반환
+          ftpClientPool.returnObject(ftpClient);
+        } catch (Exception e) {
+          log.error("FTP 클라이언트를 풀에 반환하는 중 오류 발생: {}", e.getMessage());
+        }
+      }
+    }
   }
 }

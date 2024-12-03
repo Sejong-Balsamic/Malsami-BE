@@ -52,6 +52,7 @@ public class DocumentCommand {
   private SortType sortType; // 최신순, 좋아요순
   private PostTier postTier;
 
+  @Schema(defaultValue = "/projects/sejong-malsami/document/DOCUMENT_sejong-malsami-test_b482d4cc-722c-42e7-b042-b4a3d5903ae5.mp4")
   private String filePath;
   private UUID documentFileId;
 }

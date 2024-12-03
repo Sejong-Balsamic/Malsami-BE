@@ -115,7 +115,7 @@ public class LikeService {
     // 좋아요 받은 사용자 경험치 증가 및 경험치 히스토리 저장 - B
     ExpHistory writerExpHistory = null;
     try {
-      writerExpHistory = expService.updateExpAndSaveExpHistory(writer, ExpAction.RECEIVE_LIKE);
+      writerExpHistory = expService.processExp(writer, ExpAction.RECEIVE_LIKE);
     } catch (Exception e) { // B 실패시 A 롤백
       yeopjeonService.rollbackYeopjeonTransaction(
           writer,
@@ -143,7 +143,7 @@ public class LikeService {
       rollbackLikeCount(questionPost, answerPost, null, null);
 
       // 엽전, 경험치 및 히스토리 롤백 - C 실패시 A, B 롤백
-      expService.rollbackExpAndDeleteExpHistory(
+      expService.rollbackExpTransaction(
           writer, ExpAction.RECEIVE_LIKE, writerExpHistory);
       yeopjeonService.rollbackYeopjeonTransaction(
           writer, YeopjeonAction.RECEIVE_LIKE, writerYeopjeonHistory);
@@ -216,7 +216,7 @@ public class LikeService {
       // 좋아요 받은 사용자 (writer) 경험치 증가 및 경험치 히스토리 저장 - B
       ExpHistory writerExpHistory = null;
       try {
-        writerExpHistory = expService.updateExpAndSaveExpHistory(writer, ExpAction.RECEIVE_LIKE);
+        writerExpHistory = expService.processExp(writer, ExpAction.RECEIVE_LIKE);
       } catch (Exception e) { // B 실패시 A 롤백
         yeopjeonService.rollbackYeopjeonTransaction(
             writer,
@@ -254,7 +254,7 @@ public class LikeService {
         rollbackLikeCount(null, null, documentPost, documentRequestPost);
 
         // 엽전, 경험치 및 히스토리 롤백
-        expService.rollbackExpAndDeleteExpHistory(
+        expService.rollbackExpTransaction(
             writer, ExpAction.RECEIVE_LIKE, writerExpHistory);
         yeopjeonService.rollbackYeopjeonTransaction(
             writer, YeopjeonAction.RECEIVE_LIKE, writerYeopjeonHistory);
@@ -343,7 +343,7 @@ public class LikeService {
     // 좋아요 받은 사용자 경험치 증가 및 경험치 히스토리 저장 - B
     ExpHistory writerExpHistory = null;
     try {
-      writerExpHistory = expService.updateExpAndSaveExpHistory(commentWriter, ExpAction.RECEIVE_LIKE);
+      writerExpHistory = expService.processExp(commentWriter, ExpAction.RECEIVE_LIKE);
     } catch (Exception e) { // B 실패시 A 롤백
       yeopjeonService.rollbackYeopjeonTransaction(
           commentWriter,
@@ -373,7 +373,7 @@ public class LikeService {
       commentRepository.save(comment); // 변경 사항 저장
 
       // 엽전, 경험치 및 히스토리 롤백 - C 실패시 A, B 롤백
-      expService.rollbackExpAndDeleteExpHistory(
+      expService.rollbackExpTransaction(
           commentWriter, ExpAction.RECEIVE_LIKE, writerExpHistory);
       yeopjeonService.rollbackYeopjeonTransaction(
           commentWriter, YeopjeonAction.RECEIVE_LIKE, writerYeopjeonHistory);
