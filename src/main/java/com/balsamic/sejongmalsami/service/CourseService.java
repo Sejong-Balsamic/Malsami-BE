@@ -1,10 +1,13 @@
 package com.balsamic.sejongmalsami.service;
 
-import com.balsamic.sejongmalsami.object.postgres.Course;
 import com.balsamic.sejongmalsami.object.CourseCommand;
 import com.balsamic.sejongmalsami.object.CourseDto;
-import com.balsamic.sejongmalsami.object.constants.Faculty;
+import com.balsamic.sejongmalsami.object.postgres.Course;
+import com.balsamic.sejongmalsami.object.postgres.Subject;
 import com.balsamic.sejongmalsami.repository.postgres.CourseRepository;
+import com.balsamic.sejongmalsami.repository.postgres.DepartmentRepository;
+import com.balsamic.sejongmalsami.repository.postgres.FacultyRepository;
+import com.balsamic.sejongmalsami.repository.postgres.SubjectRepository;
 import com.balsamic.sejongmalsami.util.exception.CustomException;
 import com.balsamic.sejongmalsami.util.exception.ErrorCode;
 import java.io.File;
@@ -12,6 +15,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.nio.file.Files;
 import java.util.List;
+import java.util.Map;
 import java.util.Objects;
 import java.util.stream.Collectors;
 import lombok.RequiredArgsConstructor;
@@ -30,6 +34,20 @@ import org.springframework.web.multipart.MultipartFile;
 public class CourseService {
 
   private final CourseRepository courseRepository;
+  private final FacultyRepository facultyRepository;
+  private final DepartmentRepository departmentRepository;
+  private final SubjectRepository subjectRepository;
+
+  // 매핑을 위한 상수 정의
+  private static final String DEFAULT_FACULTY_NAME = "사회과학대학";
+  private static final String SPECIAL_FACULTY_MAPPING = "대학"; // 실제는 사회과학대학
+  private static final String SPECIAL_DEPARTMENT_NAME = "법학부 법학전공"; // 예외 처리할 법학부 법학전공 학과명
+
+  // 예외 매핑을 위한 Map (추후 확장 가능)
+  private static final Map<String, String> SPECIAL_DEPARTMENT_MAPPINGS = Map.of(
+      "법학부 법학전공", "법학과"
+      // 필요한 경우 추가 예외 매핑을 여기에 추가할 수 있습니다.
+  );
 
   @Transactional
   public int parseAndSaveCourses(MultipartFile multipartFile) {
@@ -88,35 +106,58 @@ public class CourseService {
         Row row = sheet.getRow(i);
         if (row == null) continue;
 
-        String facultyName = row.getCell(0).getStringCellValue(); // 단과대학명
-        String department = row.getCell(1).getStringCellValue(); // 학과명
-        String subject = row.getCell(2).getStringCellValue(); // 교과목명
+        String facultyName = row.getCell(0).getStringCellValue().trim(); // 단과대학명
+        String departmentName = row.getCell(1).getStringCellValue().trim(); // 학과명
+        String subjectName = row.getCell(2).getStringCellValue().trim(); // 교과목명
 
-        log.debug("읽은 행: facultyName={}, department={}, subject={}", facultyName, department, subject);
+        log.debug("읽은 행: facultyName={}, departmentName={}, subject={}", facultyName, departmentName, subjectName);
 
-        Faculty faculty;
-        // 단과대학명이 "대학"이라고 적힌 경우, "법학부 법학전공"으로 처리
-        if (facultyName.equals("대학")) {
-          faculty = Faculty.법학부법학전공;
-        } else {
-          try {
-            faculty = Faculty.valueOf(facultyName); // 해당 enum을 찾는다
-          } catch (IllegalArgumentException e) {
-            log.error("잘못된 단과대학명: {}", facultyName);
-            throw new CustomException(ErrorCode.WRONG_FACULTY_NAME);
-          }
+        // 예외처리: "대학"인 경우 "사회과학대학"으로 매핑
+        if (SPECIAL_FACULTY_MAPPING.equals(facultyName)) {
+          log.info("단과대학명이 '{}'이므로 '{}'으로 매핑합니다.", facultyName, DEFAULT_FACULTY_NAME);
+          facultyName = DEFAULT_FACULTY_NAME;
         }
+
+        // 예외 매핑 적용
+        if (SPECIAL_DEPARTMENT_MAPPINGS.containsKey(departmentName)) {
+          log.info("특별 매핑 적용: '{}'을 '{}'으로 매핑합니다.", departmentName, SPECIAL_DEPARTMENT_MAPPINGS.get(departmentName));
+          departmentName = SPECIAL_DEPARTMENT_MAPPINGS.get(departmentName);
+        }
+
+        // Faculty 유효성 검사
+        boolean facultyExists = facultyRepository.findByName(facultyName).isPresent();
+        if (!facultyExists) {
+          throw new CustomException(ErrorCode.FACULTY_NOT_FOUND);
+        }
+
+        // Subject 조회 또는 생성
+        Subject subject = subjectRepository.findByName(subjectName)
+            .orElseGet(() -> {
+              Subject newSubject = Subject.builder()
+                  .name(subjectName)
+                  .dailyDocumentScore(0L)
+                  .weeklyDocumentScore(0L)
+                  .monthlyDocumentScore(0L)
+                  .totalDocumentScore(0L)
+                  .dailyQuestionScore(0L)
+                  .weeklyQuestionScore(0L)
+                  .monthlyQuestionScore(0L)
+                  .totalQuestionScore(0L)
+                  .build();
+              log.info("새로운 Subject 추가됨: {}", subjectName);
+              return subjectRepository.save(newSubject);
+            });
 
         // Course 객체 생성 및 저장
         Course course = Course.builder()
-            .faculty(faculty)
-            .department(department)
-            .subject(subject)
+            .faculty(facultyName) // String으로 설정
+            .department(departmentName)
+            .subject(subjectName)
             .year(year)
             .semester(semester)
             .build();
 
-        log.info("교과목명 저장됨: faculty: {}, department: {}, subject: {}", faculty, department, subject);
+        log.info("교과목명 저장됨: faculty: {}, department: {}, subject: {}", facultyName, departmentName, subjectName);
         courseRepository.save(course); // DB에 저장
         addedCourses++;
       }
@@ -124,6 +165,9 @@ public class CourseService {
     } catch (IOException e) {
       log.error("교과목명 파일 InputStream 생성 중 오류 발생: {}", fileName, e);
       throw new CustomException(ErrorCode.COURSE_SAVE_ERROR);
+    } catch (CustomException e) {
+      // 예외가 발생하면 추가 처리할 수 있음 (예: 롤백)
+      throw e;
     }
 
     return addedCourses;

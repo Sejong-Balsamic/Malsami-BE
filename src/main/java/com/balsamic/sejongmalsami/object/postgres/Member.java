@@ -23,10 +23,12 @@ import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
+import lombok.Setter;
 import lombok.ToString;
 
 @Entity
 @Getter
+@Setter
 @Builder
 @AllArgsConstructor
 @NoArgsConstructor
@@ -56,6 +58,8 @@ public class Member extends BaseEntity {
   @Column
   private String profileUrl;
 
+  private String faculty;
+
   @Builder.Default
   @Column(nullable = false)
   private Boolean isNotificationEnabled = true;
@@ -77,10 +81,6 @@ public class Member extends BaseEntity {
   @Builder.Default
   @JsonIgnore
   private Boolean isFirstLogin = true;
-
-  public void updateLastLoginTime(LocalDateTime lastLoginTime) {
-    this.lastLoginTime = lastLoginTime;
-  }
 
   public void disableFirstLogin() {
     this.isFirstLogin = false;
