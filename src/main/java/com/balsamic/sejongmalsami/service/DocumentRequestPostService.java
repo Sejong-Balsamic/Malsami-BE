@@ -130,6 +130,11 @@ public class DocumentRequestPostService {
       command.setDocumentTypes(null);
     }
 
+    // 단과대가 비어있는 경우 null 설정 (비어있는 경우 쿼리문에서 오류 발생)
+    if (command.getFaculty() != null && command.getFaculty().isEmpty()) {
+      command.setFaculty(null);
+    }
+
     // 정렬 기준 (default: 최신순)
     SortType sortType = (command.getSortType() != null) ? command.getSortType() : LATEST;
     if (!sortType.equals(LATEST) &&
