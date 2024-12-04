@@ -97,4 +97,13 @@ public class DocumentPostController implements DocumentPostControllerDocs {
         .contentType(MediaType.parseMediaType(dto.getMimeType()))
         .body(dto.getFileBytes());
   }
+
+  @Override
+  @PostMapping(value = "/hot-download", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
+  @LogMonitoringInvocation
+  public ResponseEntity<DocumentDto> getHotDownload(
+      @ModelAttribute DocumentCommand command
+  ) {
+    return ResponseEntity.ok(documentPostService.getHotDownload(command));
+  }
 }
