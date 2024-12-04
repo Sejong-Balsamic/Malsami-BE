@@ -41,6 +41,15 @@ public interface DocumentPostRepository extends JpaRepository<DocumentPost, UUID
       Pageable pageable
   );
 
+  // Hot 다운로드
+  @Query("""
+        select dp from DocumentPost dp
+        left join DocumentFile df on df.documentPost = dp
+        group by dp
+        order by max (df.downloadCount) desc
+      """)
+  Page<DocumentPost> findHotDownloads(Pageable pageable);
+
   // 검색
   @Query(
       value = "SELECT DISTINCT p.* FROM document_post p " +

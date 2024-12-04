@@ -294,7 +294,11 @@ public class DocumentPostService {
    * @return
    */
   public DocumentDto getHotDownload(DocumentCommand command) {
-    return null;
+    Pageable pageable = PageRequest.of(command.getPageNumber(), command.getPageSize());
+
+    return DocumentDto.builder()
+        .documentPostsPage(documentPostRepository.findHotDownloads(pageable))
+        .build();
   }
 
   // 해당 자료 게시판 접근 가능 여부 판단 메소드
