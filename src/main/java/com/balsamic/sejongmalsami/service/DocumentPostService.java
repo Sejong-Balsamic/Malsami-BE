@@ -201,6 +201,11 @@ public class DocumentPostService {
       }
     }
 
+    // 단과대가 비어있는 경우 null 설정 (비어있는 경우 쿼리문에서 오류 발생)
+    if (command.getFaculty() != null && command.getFaculty().isEmpty()) {
+      command.setFaculty(null);
+    }
+
     // 정렬 (최신순, 좋아요순, 조회순)
     SortType sortType = command.getSortType() != null ? command.getSortType() : LATEST;
     if (!sortType.equals(LATEST) &&
