@@ -1,7 +1,6 @@
 package com.balsamic.sejongmalsami.repository.postgres;
 
 import com.balsamic.sejongmalsami.object.constants.DocumentType;
-import com.balsamic.sejongmalsami.object.constants.Faculty;
 import com.balsamic.sejongmalsami.object.constants.PostTier;
 import com.balsamic.sejongmalsami.object.postgres.DocumentPost;
 import com.balsamic.sejongmalsami.object.postgres.Member;
@@ -28,45 +27,19 @@ public interface DocumentPostRepository extends JpaRepository<DocumentPost, UUID
 
   // 자료 글 교과목명, 태그 필터링
   @Query("SELECT DISTINCT p FROM DocumentPost p " +
-         "LEFT JOIN p.documentTypes dt " +
-         "WHERE " +
-         "(:subject IS NULL OR p.subject = :subject) " +
-         "AND (:documentTypes IS NULL OR dt IN :documentTypes)" +
-         "AND (:faculty IS NULL OR :faculty MEMBER OF p.faculties)" +
-         "AND(:postTier IS NULL OR p.postTier = :postTier)")
+      "LEFT JOIN p.documentTypes dt " +
+      "WHERE " +
+      "(:subject IS NULL OR p.subject = :subject) " +
+      "AND (:documentTypes IS NULL OR dt IN :documentTypes) " +
+      "AND (:faculty IS NULL OR :faculty member of p.faculties) " +
+      "AND (:postTier IS NULL OR p.postTier = :postTier)")
   Page<DocumentPost> findDocumentPostsByFilter(
       @Param("subject") String subject,
       @Param("documentTypes") List<DocumentType> documentTypes,
-      @Param("faculty") Faculty faculty,
+      @Param("faculty") String faculty,
       @Param("postTier") PostTier postTier,
       Pageable pageable
   );
-
-//  // 검색
-//  @Query(
-//      value = "SELECT DISTINCT p.* FROM document_post p " +
-//          "LEFT JOIN document_post_document_types dt ON p.document_post_id = dt.document_post_document_post_id " +
-//          "WHERE (:title IS NULL OR LOWER(p.title) LIKE LOWER(CONCAT('%', :title, '%'))) " +
-//          "AND (:subject IS NULL OR LOWER(p.subject) LIKE LOWER(CONCAT('%', :subject, '%'))) " +
-//          "AND (:content IS NULL OR LOWER(p.content) LIKE LOWER(CONCAT('%', :content, '%'))) " +
-//          "AND (:documentTypes IS NULL OR dt.document_type IN (:documentTypes)) " +
-//          "ORDER BY p.createdDate DESC " +
-//          "FETCH FIRST ? rows only",
-//      countQuery = "SELECT COUNT(DISTINCT p.document_post_id) FROM document_post p " +
-//          "LEFT JOIN document_post_document_types dt ON p.document_post_id = dt.document_post_document_post_id " +
-//          "WHERE (:title IS NULL OR LOWER(p.title) LIKE LOWER(CONCAT('%', :title, '%'))) " +
-//          "AND (:subject IS NULL OR LOWER(p.subject) LIKE LOWER(CONCAT('%', :subject, '%'))) " +
-//          "AND (:content IS NULL OR LOWER(p.content) LIKE LOWER(CONCAT('%', :content, '%'))) " +
-//          "AND (:documentTypes IS NULL OR dt.document_type IN (:documentTypes))",
-//      nativeQuery = true
-//  )
-//  Page<DocumentPost> findDocumentPostsByFilter(
-//      @Param("title") String title,
-//      @Param("subject") String subject,
-//      @Param("content") String content,
-//      @Param("documentTypes") List<String> documentTypes,
-//      Pageable pageable
-//  );
 
   // 검색
   @Query(

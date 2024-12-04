@@ -15,7 +15,6 @@ import com.balsamic.sejongmalsami.object.DocumentCommand;
 import com.balsamic.sejongmalsami.object.DocumentDto;
 import com.balsamic.sejongmalsami.object.constants.ContentType;
 import com.balsamic.sejongmalsami.object.constants.ExpAction;
-import com.balsamic.sejongmalsami.object.constants.Faculty;
 import com.balsamic.sejongmalsami.object.constants.PostTier;
 import com.balsamic.sejongmalsami.object.constants.SortType;
 import com.balsamic.sejongmalsami.object.mongo.PurchaseHistory;
@@ -41,7 +40,6 @@ import java.nio.file.Paths;
 import java.time.Year;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.stream.Collectors;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.net.ftp.FTPClient;
@@ -88,10 +86,12 @@ public class DocumentPostService {
     log.info("자료 등록 회원 : studentId={}", member.getStudentId());
 
     // 입력된 교과목에 따른 단과대 설정
-    List<Faculty> faculties = courseRepository
-        .findAllBySubject(command.getSubject())
-        .stream().map(Course::getFaculty)
-        .collect(Collectors.toList());
+    List<Course> courses = courseRepository.findAllBySubject(command.getSubject());
+    List<String> faculties = new ArrayList<>();
+
+    for (Course course : courses) {
+      faculties.add(course.getFaculty());
+    }
 
     log.info("입력된 교과목명 : {}", command.getSubject());
     log.info("단과대 List : {}", faculties);

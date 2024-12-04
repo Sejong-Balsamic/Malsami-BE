@@ -85,6 +85,8 @@ public enum ErrorCode {
 
   PERCENTILE_CALCULATION_ERROR(HttpStatus.BAD_REQUEST, "백분위 계산 오류: 전체 기준이 0 일 수 없습니다."),
 
+  INVALID_JSON_STRUCTURE(HttpStatus.BAD_REQUEST, "JSON 구조에 문제가 있습니다."),
+
   // FTP
 
   FTP_FILE_UPLOAD_ERROR(HttpStatus.BAD_REQUEST, "FTP 파일 업로드에 실패했습니다."),

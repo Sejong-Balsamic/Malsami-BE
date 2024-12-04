@@ -4,14 +4,17 @@ import com.balsamic.sejongmalsami.object.CustomUserDetails;
 import com.balsamic.sejongmalsami.object.MemberCommand;
 import com.balsamic.sejongmalsami.object.MemberDto;
 import com.balsamic.sejongmalsami.object.constants.AccountStatus;
+import com.balsamic.sejongmalsami.object.constants.DefaultValue;
 import com.balsamic.sejongmalsami.object.constants.ExpTier;
 import com.balsamic.sejongmalsami.object.constants.Role;
 import com.balsamic.sejongmalsami.object.mongo.RefreshToken;
 import com.balsamic.sejongmalsami.object.postgres.AnswerPost;
 import com.balsamic.sejongmalsami.object.postgres.Comment;
+import com.balsamic.sejongmalsami.object.postgres.Department;
 import com.balsamic.sejongmalsami.object.postgres.DocumentPost;
 import com.balsamic.sejongmalsami.object.postgres.DocumentRequestPost;
 import com.balsamic.sejongmalsami.object.postgres.Exp;
+import com.balsamic.sejongmalsami.object.postgres.Faculty;
 import com.balsamic.sejongmalsami.object.postgres.Member;
 import com.balsamic.sejongmalsami.object.postgres.QuestionPost;
 import com.balsamic.sejongmalsami.object.postgres.Yeopjeon;
@@ -22,6 +25,7 @@ import com.balsamic.sejongmalsami.repository.mongo.RefreshTokenRepository;
 import com.balsamic.sejongmalsami.repository.postgres.AnswerPostRepository;
 import com.balsamic.sejongmalsami.repository.postgres.CommentRepository;
 import com.balsamic.sejongmalsami.repository.postgres.CourseRepository;
+import com.balsamic.sejongmalsami.repository.postgres.DepartmentRepository;
 import com.balsamic.sejongmalsami.repository.postgres.DocumentPostRepository;
 import com.balsamic.sejongmalsami.repository.postgres.DocumentRequestPostRepository;
 import com.balsamic.sejongmalsami.repository.postgres.ExpRepository;
@@ -41,6 +45,7 @@ import jakarta.servlet.http.HttpServletResponse;
 import java.time.LocalDateTime;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Optional;
 import java.util.Set;
 import java.util.UUID;
 import java.util.stream.Collectors;
@@ -80,7 +85,7 @@ public class MemberService implements UserDetailsService {
   private final QuestionBoardLikeRepository questionBoardLikeRepository;
   private final CommentLikeRepository commentLikeRepository;
   private final CourseRepository courseRepository;
-
+  private final DepartmentRepository departmentRepository;
 
 
   /**
@@ -166,6 +171,20 @@ public class MemberService implements UserDetailsService {
       isAdmin = true;
     }
 
+    // Faculty 설정
+    String major = member.getMajor(); // dept_m_print 또는 dept_s_print
+    Optional<Department> departmentOpt = Optional.ofNullable(departmentRepository.findByDeptMPrint(major)
+        .orElse(departmentRepository.findTopByDeptSPrint(major)));
+
+    if (departmentOpt.isPresent()) {
+      Faculty faculty = departmentOpt.get().getFaculty();
+      member.setFaculty(faculty.getName());
+      log.info("Faculty 설정 완료: {} -> {}", member.getMemberId(), faculty.getName());
+    } else {
+      member.setFaculty(DefaultValue.NOT_FOUND.getDescription());
+      log.warn("Member의 major에 해당하는 Department를 찾을 수 없습니다: {}", major);
+    }
+
     // 첫 로그인 여부 확인
     if (member.getIsFirstLogin()) {
       isFirstLogin = true;
@@ -183,7 +202,7 @@ public class MemberService implements UserDetailsService {
     }
 
     // 마지막 로그인 시간 업데이트
-    member.updateLastLoginTime(LocalDateTime.now());
+    member.setLastLoginTime(LocalDateTime.now());
     log.info("회원 로그인 완료: studentId = {} , memberId = {}", studentId, member.getMemberId());
     memberRepository.save(member);
 

@@ -1,7 +1,6 @@
 package com.balsamic.sejongmalsami.object.postgres;
 
 import com.balsamic.sejongmalsami.object.constants.DocumentType;
-import com.balsamic.sejongmalsami.object.constants.Faculty;
 import com.balsamic.sejongmalsami.object.constants.PostTier;
 import com.balsamic.sejongmalsami.util.exception.CustomException;
 import com.balsamic.sejongmalsami.util.exception.ErrorCode;
@@ -53,11 +52,9 @@ public class DocumentPost extends BasePost {
 
   private String subject; // 교과목명
 
+  @ElementCollection(fetch = FetchType.LAZY)
   @Builder.Default
-  @ElementCollection(targetClass = Faculty.class, fetch = FetchType.LAZY)
-  @CollectionTable
-  @Enumerated(EnumType.STRING)
-  private List<Faculty> faculties = new ArrayList<>(); // 교과목명에 해당하는 단과대
+  private List<String> faculties = new ArrayList<>(); // 교과목명에 해당하는 단과대
 
   private String content; // 내용
 

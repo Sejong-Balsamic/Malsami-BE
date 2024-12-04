@@ -4,6 +4,12 @@ import static com.balsamic.sejongmalsami.util.LogUtils.lineLog;
 import static com.balsamic.sejongmalsami.util.LogUtils.lineLogError;
 
 import com.balsamic.sejongmalsami.util.CourseFileGenerator;
+import com.balsamic.sejongmalsami.util.DepartmentService;
+import com.balsamic.sejongmalsami.util.SubjectService; // Subject 관련 서비스 추가
+import com.balsamic.sejongmalsami.util.FileUtil;
+import com.balsamic.sejongmalsami.object.constants.SystemType;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.time.Duration;
 import java.time.LocalDateTime;
 import java.util.concurrent.CompletableFuture;
@@ -19,6 +25,8 @@ import org.springframework.stereotype.Component;
 public class DataInitializer implements ApplicationRunner {
 
   private final CourseFileGenerator courseFileGenerator;
+  private final DepartmentService departmentService;
+  private final SubjectService subjectService;
 
   // 애플리케이션이 시작될 때 실행
   @Override
@@ -28,29 +36,79 @@ public class DataInitializer implements ApplicationRunner {
 
     LocalDateTime overallStartTime = LocalDateTime.now();
 
-    // 비동기 : Course 파싱
+    // 1. Department 파싱 동기적 실행
+    try {
+      Path deptPath = determineDepartmentFilePath();
+      departmentService.loadDepartments(deptPath);
+    } catch (Exception e) {
+      lineLogError("서버 시작 DB 세팅 중 오류 발생");
+      log.error("서버 시작 DB 세팅 중 오류 발생", e);
+      lineLogError(null);
+      throw e; // 애플리케이션 시작 중단
+    }
+
+    // 2. Course 파싱 비동기 실행
     CompletableFuture<Void> courseFuture = CompletableFuture.runAsync(() -> {
       courseFileGenerator.initCourse();
     });
 
-    // 비동기 : Course 저장 -> 이후 -> Subject 저장
-    courseFuture.thenRun(() -> {
-      courseFileGenerator.initSubject();
-    }).thenRun(() -> {
-      LocalDateTime overallEndTime = LocalDateTime.now();
-      Duration overallDuration = Duration.between(overallStartTime, overallEndTime);
-
-      lineLog("DB 세팅 완료");
-      log.info("총 소요 시간: {}초", overallDuration.getSeconds());
-      lineLog(null);
-
-    }).exceptionally(e -> {
-
-      lineLogError("서버 시작중 오류 발생");
-      log.error("서버 시작 DB 세팅 중 오류 발생", e);
-      lineLogError(null);
-
-      return null;
+    // 3. Course 파싱 완료 후 Subject 처리
+    CompletableFuture<Void> subjectFuture = courseFuture.thenRun(() -> {
+      subjectService.processDistinctSubjects();
     });
+
+    subjectFuture
+        .thenRun(() -> {
+          LocalDateTime overallEndTime = LocalDateTime.now();
+          Duration overallDuration = Duration.between(overallStartTime, overallEndTime);
+
+          lineLog("DB 세팅 완료");
+          log.info("총 소요 시간: {}초", overallDuration.getSeconds());
+          lineLog(null);
+        })
+        .exceptionally(e -> {
+          lineLogError("서버 시작중 오류 발생");
+          log.error("서버 시작 DB 세팅 중 오류 발생", e);
+          lineLogError(null);
+          return null;
+        });
+
+    // 비동기로 실행되므로, 메인 스레드가 종료되지 않도록 대기
+    subjectFuture.get();
+  }
+
+  /**
+   * 시스템 타입에 따라 departments.json 파일의 경로를 결정합니다.
+   *
+   * @return departments.json 파일의 Path
+   */
+  private Path determineDepartmentFilePath() {
+    SystemType systemType = FileUtil.getCurrentSystem();
+    Path deptPath;
+
+    switch (systemType) {
+      case LINUX:
+        // 서버 환경: /mnt/sejong-malsami/department/departments.json
+        deptPath = Paths.get("/mnt/sejong-malsami/department/departments.json");
+        log.info("서버 환경: departments.json 경로 설정됨 = {}", deptPath);
+        break;
+      case WINDOWS:
+      case MAC:
+      case OTHER:
+      default:
+        // 로컬 환경: src/main/resources/departments.json
+        try {
+          deptPath = Paths.get(
+              getClass().getClassLoader().getResource("departments.json").toURI()
+          );
+          log.info("로컬 환경: departments.json 경로 설정됨 = {}", deptPath);
+        } catch (Exception e) {
+          log.error("로컬 환경에서 departments.json 파일을 찾을 수 없습니다.", e);
+          throw new RuntimeException("departments.json 파일을 찾을 수 없습니다.", e);
+        }
+        break;
+    }
+
+    return deptPath;
   }
 }
