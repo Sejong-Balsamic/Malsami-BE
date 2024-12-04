@@ -14,7 +14,6 @@ import com.balsamic.sejongmalsami.object.postgres.Department;
 import com.balsamic.sejongmalsami.object.postgres.DocumentPost;
 import com.balsamic.sejongmalsami.object.postgres.DocumentRequestPost;
 import com.balsamic.sejongmalsami.object.postgres.Exp;
-import com.balsamic.sejongmalsami.object.postgres.Faculty;
 import com.balsamic.sejongmalsami.object.postgres.Member;
 import com.balsamic.sejongmalsami.object.postgres.QuestionPost;
 import com.balsamic.sejongmalsami.object.postgres.Yeopjeon;
@@ -43,6 +42,7 @@ import io.jsonwebtoken.Claims;
 import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletResponse;
 import java.time.LocalDateTime;
+import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Optional;
@@ -172,16 +172,18 @@ public class MemberService implements UserDetailsService {
     }
 
     // Faculty 설정
-    String major = member.getMajor(); // dept_m_print 또는 dept_s_print
-    Optional<Department> departmentOpt = Optional.ofNullable(departmentRepository.findByDeptMPrint(major)
-        .orElse(departmentRepository.findTopByDeptSPrint(major)));
+    String major = member.getMajor();
+    Optional<List<Department>> departments = departmentRepository.findDeptMPrintOrDeptSPrint(major, major);
 
-    if (departmentOpt.isPresent()) {
-      Faculty faculty = departmentOpt.get().getFaculty();
-      member.setFaculty(faculty.getName());
-      log.info("Faculty 설정 완료: {} -> {}", member.getMemberId(), faculty.getName());
+    if (departments.isPresent() && !departments.get().isEmpty()) {
+      List<String> facultyNames = departments.get().stream()
+          .map(dept -> dept.getFaculty().getName())
+          .distinct()
+          .collect(Collectors.toList());
+      member.setFaculties(facultyNames);
+      log.info("Faculties 설정 완료: {} -> {}", member.getMemberId(), facultyNames);
     } else {
-      member.setFaculty(DefaultValue.NOT_FOUND.getDescription());
+      member.setFaculties(Collections.singletonList(DefaultValue.NOT_FOUND.getDescription()));
       log.warn("Member의 major에 해당하는 Department를 찾을 수 없습니다: {}", major);
     }
 
