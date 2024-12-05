@@ -19,6 +19,7 @@ public class YeopjeonCalculator {
       case VIEW_DOCUMENT_YANGBAN_POST -> yeopjeonConfig.getViewYangbanCost();
       case VIEW_DOCUMENT_KING_POST -> yeopjeonConfig.getViewKingCost();
       case PURCHASE_DOCUMENT -> yeopjeonConfig.getPurchaseDocument();
+      case DOCUMENT_UPLOADER_REWARD -> yeopjeonConfig.getDocumentFileUploaderReward();
       case RECEIVE_LIKE -> yeopjeonConfig.getLikeReward();
       case RECEIVE_DISLIKE -> yeopjeonConfig.getDislikePenalty();
       case ATTENDANCE_BONUS -> yeopjeonConfig.getAttendanceBonus();
