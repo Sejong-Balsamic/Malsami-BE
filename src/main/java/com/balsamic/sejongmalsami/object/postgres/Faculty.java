@@ -31,4 +31,7 @@ public class Faculty{
 
   @Column(nullable = false, unique = true)
   private String name; // 단과대
+
+  @Builder.Default
+  private Boolean isActive = true;
 }
