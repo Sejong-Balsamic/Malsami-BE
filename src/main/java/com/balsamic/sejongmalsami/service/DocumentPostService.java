@@ -4,6 +4,7 @@ import static com.balsamic.sejongmalsami.object.constants.SortType.LATEST;
 import static com.balsamic.sejongmalsami.object.constants.SortType.MOST_LIKED;
 import static com.balsamic.sejongmalsami.object.constants.SortType.VIEW_COUNT;
 import static com.balsamic.sejongmalsami.object.constants.SortType.getJpqlSortOrder;
+import static com.balsamic.sejongmalsami.object.constants.YeopjeonAction.DOCUMENT_UPLOADER_REWARD;
 import static com.balsamic.sejongmalsami.object.constants.YeopjeonAction.PURCHASE_DOCUMENT;
 import static com.balsamic.sejongmalsami.object.constants.YeopjeonAction.VIEW_DOCUMENT_CHEONMIN_POST;
 import static com.balsamic.sejongmalsami.object.constants.YeopjeonAction.VIEW_DOCUMENT_JUNGIN_POST;
@@ -97,7 +98,7 @@ public class DocumentPostService {
     log.info("단과대 List : {}", faculties);
 
     if (faculties.isEmpty()) {
-      log.error("단과대를 찾을 수 없습니다. 교과목명을 확인해주세요 : Subject : {}",command.getSubject());
+      log.error("단과대를 찾을 수 없습니다. 교과목명을 확인해주세요 : Subject : {}", command.getSubject());
       throw new CustomException(ErrorCode.FACULTY_NOT_FOUND);
     }
 
@@ -117,7 +118,7 @@ public class DocumentPostService {
       throw new CustomException(ErrorCode.INVALID_ATTENDED_YEAR);
     }
 
-      // 자료 게시글 객체 생성 및 저장
+    // 자료 게시글 객체 생성 및 저장
     DocumentPost savedDocument = documentPostRepository.save(
         DocumentPost.builder()
             .member(member)
@@ -141,7 +142,8 @@ public class DocumentPostService {
     // 커스텀 태그 추가
     List<String> customTags = null;
     if (command.getCustomTags() != null) {
-      customTags = documentPostCustomTagService.saveCustomTags(command.getCustomTags(), savedDocument.getDocumentPostId());
+      customTags = documentPostCustomTagService.saveCustomTags(command.getCustomTags(),
+          savedDocument.getDocumentPostId());
     }
 
     // 첨부 자료 처리 및 저장 : 저장된 자료 파일은 savedDocumentFiles 에 추가
@@ -152,7 +154,7 @@ public class DocumentPostService {
         member);
 
     // documentPost 에 썸네일 지정 : 첫번째 파일의 썸네일
-    if(!savedDocumentFiles.isEmpty()){
+    if (!savedDocumentFiles.isEmpty()) {
       savedDocument.setThumbnailUrl(savedDocumentFiles.get(0).getThumbnailUrl());
     }
 
@@ -342,7 +344,8 @@ public class DocumentPostService {
         .orElseThrow(() -> new CustomException(ErrorCode.DOCUMENT_FILE_NOT_FOUND));
 
     // 엽전 소모
-    YeopjeonHistory yeopjeonHistory = yeopjeonService.processYeopjeon(member, PURCHASE_DOCUMENT);
+    YeopjeonHistory yeopjeonHistory
+        = yeopjeonService.processYeopjeon(member, PURCHASE_DOCUMENT);
 
     // path 받기
     String filePath = documentFile.getFilePath();
@@ -360,9 +363,6 @@ public class DocumentPostService {
             .build()
     );
 
-    // 경험치 증가
-    expService.processExp(member, ExpAction.PURCHASE_DOCUMENT);
-
     // 파일명과 MIME 타입 추출
     String fileName = Paths.get(filePath).getFileName().toString();
     String mimeType;
@@ -374,6 +374,12 @@ public class DocumentPostService {
     } catch (IOException e) {
       mimeType = "application/octet-stream";
     }
+
+    // 경험치 증가
+    expService.processExp(member, ExpAction.PURCHASE_DOCUMENT);
+
+    // 업로더 엽전 증가
+    yeopjeonService.processYeopjeon(documentFile.getUploader(), DOCUMENT_UPLOADER_REWARD);
 
     return DocumentDto.builder()
         .fileBytes(fileBytes)
