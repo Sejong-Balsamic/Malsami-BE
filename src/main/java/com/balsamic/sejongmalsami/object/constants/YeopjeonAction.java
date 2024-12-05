@@ -12,6 +12,7 @@ public enum YeopjeonAction {
   VIEW_DOCUMENT_YANGBAN_POST("양반 자료 게시글 열람"), // 양반 게시글 조회 시 엽전 소모
   VIEW_DOCUMENT_KING_POST("왕 자료 게시글 열람"), // 왕 게시글 조회 시 엽전 소모
   PURCHASE_DOCUMENT("자료 구매"), // 자료 구매 시 엽전 소모
+  DOCUMENT_UPLOADER_REWARD("파일 다운로드시 업로더 보상"), // 자료 구매 시 엽전 소모
   RECEIVE_LIKE("좋아요 받음"), // 좋아요 수신 시 엽전 획득
   RECEIVE_DISLIKE("싫어요 받음"), // 싫어요 수신 시 엽전 회수
   ATTENDANCE_BONUS("출석 보너스"), // 출석 보너스 시 엽전 획득

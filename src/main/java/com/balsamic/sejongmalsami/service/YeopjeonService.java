@@ -51,8 +51,7 @@ public class YeopjeonService {
   @Transactional
   public YeopjeonHistory processYeopjeon(Member member, YeopjeonAction action, Integer rewardYeopjeon) {
 
-    // 엽전 현상금이 0인경우
-    if (rewardYeopjeon == null || rewardYeopjeon == 0) {
+    if (rewardYeopjeon != null && rewardYeopjeon == 0) {
       return null;
     }
 
