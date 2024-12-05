@@ -33,6 +33,9 @@ public class YeopjeonConfig {
   @Value("${yeopjeon.purchase-document}")
   private Integer purchaseDocument;
 
+  @Value("${yeopjeon.file-uploader-reward}")
+  private Integer DocumentFileUploaderReward;
+
   @Value("${yeopjeon.copyright-violation}")
   private Integer copyrightViolation;
 

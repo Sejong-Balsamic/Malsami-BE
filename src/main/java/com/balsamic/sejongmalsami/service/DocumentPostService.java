@@ -4,6 +4,7 @@ import static com.balsamic.sejongmalsami.object.constants.SortType.LATEST;
 import static com.balsamic.sejongmalsami.object.constants.SortType.MOST_LIKED;
 import static com.balsamic.sejongmalsami.object.constants.SortType.VIEW_COUNT;
 import static com.balsamic.sejongmalsami.object.constants.SortType.getJpqlSortOrder;
+import static com.balsamic.sejongmalsami.object.constants.YeopjeonAction.DOCUMENT_UPLOADER_REWARD;
 import static com.balsamic.sejongmalsami.object.constants.YeopjeonAction.PURCHASE_DOCUMENT;
 import static com.balsamic.sejongmalsami.object.constants.YeopjeonAction.VIEW_DOCUMENT_CHEONMIN_POST;
 import static com.balsamic.sejongmalsami.object.constants.YeopjeonAction.VIEW_DOCUMENT_JUNGIN_POST;
@@ -351,9 +352,6 @@ public class DocumentPostService {
             .build()
     );
 
-    // 경험치 증가
-    expService.processExp(member, ExpAction.PURCHASE_DOCUMENT);
-
     // 파일명과 MIME 타입 추출
     String fileName = Paths.get(filePath).getFileName().toString();
     String mimeType;
@@ -365,6 +363,12 @@ public class DocumentPostService {
     } catch (IOException e) {
       mimeType = "application/octet-stream";
     }
+
+    // 경험치 증가
+    expService.processExp(member, ExpAction.PURCHASE_DOCUMENT);
+
+    // 업로더 엽전 증가
+    yeopjeonService.processYeopjeon(documentFile.getUploader(), DOCUMENT_UPLOADER_REWARD);
 
     return DocumentDto.builder()
         .fileBytes(fileBytes)
