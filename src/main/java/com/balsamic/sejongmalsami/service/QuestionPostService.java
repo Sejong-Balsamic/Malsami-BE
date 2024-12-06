@@ -68,7 +68,8 @@ public class QuestionPostService {
    *   <li>경험치 증가</li>
    * </ol>
    *
-   * @param command memberId, title, content, subject, attachmentFiles, questionPresetTags, customTags, rewardYeopjeon, isPrivate
+   * @param command memberId, title, content, subject, attachmentFiles, questionPresetTags, customTags, rewardYeopjeon,
+   *                isPrivate
    * @return 저장된 질문글, 첨부파일, 커스텀태그 정보
    */
   @Transactional
@@ -258,9 +259,23 @@ public class QuestionPostService {
   }
 
   /**
-   * 메인 필터링/정렬 조회 [필터링] 1. 교과목명 2. 정적태그 (최대 2개) 3. 단과대 4. 채택상태 (전체/채택/미채택)
-   * <p>
-   * [정렬] - 최신순(default) - 좋아요순 - 현상금순 - 조회순
+   * <h3>메인 필터링/정렬 조회</h3>
+   * <p>[필터링]
+   * <ol>
+   *   <li>교과목명</li>
+   *   <li>정적태그 (최대 2개)</li>
+   *   <li>단과대</li>
+   *   <li>채택상태 (전체/채택/미채택)</li>
+   * </ol>
+   * <p>[정렬]</p>
+   * <ul>
+   *   <li>최신순 (default)</li>
+   *   <li>좋아요순</li>
+   *   <li>현상금순</li>
+   *   <li>조회순</li>
+   * </ul>
+   *
+   * <p>엽전 현상금 순 조회 시 자동으로 미채택된 글만 조회합니다.</p>
    *
    * @return 필터링/정렬된 질문글 페이지
    */
@@ -298,6 +313,12 @@ public class QuestionPostService {
         !sortType.equals(REWARD_YEOPJEON) &&
         !sortType.equals(VIEW_COUNT)) {
       throw new CustomException(ErrorCode.INVALID_SORT_TYPE);
+    }
+
+    // 엽전현상금순으로 정렬 시 미채택 글만 조회
+    if (sortType.equals(REWARD_YEOPJEON) && !chaetaekStatus.equals(ChaetaekStatus.NO_CHAETAEK)) {
+      log.info("엽전 현상금 순으로 정렬 시 미채택된 글만 조회 가능합니다. 요청 chaetaekStatue: {}", chaetaekStatus);
+      chaetaekStatus = ChaetaekStatus.NO_CHAETAEK;
     }
 
     Sort sort = getJpqlSortOrder(sortType);
