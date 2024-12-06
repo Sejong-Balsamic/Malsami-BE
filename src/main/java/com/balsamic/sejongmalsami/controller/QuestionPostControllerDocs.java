@@ -201,6 +201,11 @@ public interface QuestionPostControllerDocs {
 
   @ApiChangeLogs({
       @ApiChangeLog(
+          date = "2024.12.6",
+          author = Author.BAEKJIHOON,
+          description = "엽전 현상금 순 정렬 시 자동으로 미채택 된 글만 조회"
+      ),
+      @ApiChangeLog(
           date = "2024.11.6",
           author = Author.SUHSAECHAN,
           description = "필터링 로직 수정, 현상금 범위 삭제, 채택여부 로직 변경"
