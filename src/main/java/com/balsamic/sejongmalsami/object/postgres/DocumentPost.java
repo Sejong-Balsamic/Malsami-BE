@@ -56,6 +56,7 @@ public class DocumentPost extends BasePost {
   @Builder.Default
   private List<String> faculties = new ArrayList<>(); // 교과목명에 해당하는 단과대
 
+  @Column(nullable = false, length = 1024)
   private String content; // 내용
 
   @Builder.Default
