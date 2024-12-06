@@ -240,6 +240,11 @@ public class QuestionPostService {
   @Transactional(readOnly = true)
   public QuestionDto findAllQuestionPostsNotAnswered(QuestionCommand command) {
 
+    // 단과대가 비어있는 경우 null 설정 (비어있는 경우 쿼리문에서 오류 발생)
+    if (command.getFaculty() != null && command.getFaculty().isEmpty()) {
+      command.setFaculty(null);
+    }
+
     Pageable pageable = PageRequest.of(command.getPageNumber(),
         command.getPageSize(),
         Sort.by("createdDate").descending());
