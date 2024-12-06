@@ -128,9 +128,4 @@ public class DocumentPost extends BasePost {
   public void decreaseDislikeCount() {
     dislikeCount--;
   }
-
-  // 게시물 등급 변경
-  public void updatePostTier(PostTier postTier) {
-    this.postTier = postTier;
-  }
 }

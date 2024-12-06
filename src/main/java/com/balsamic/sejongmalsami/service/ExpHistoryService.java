@@ -30,17 +30,29 @@ public class ExpHistoryService {
     Exp exp = expRepository.findByMember(member)
         .orElseThrow(() -> new CustomException(ErrorCode.EXP_NOT_FOUND));
 
-    return ExpHistory.builder()
+    ExpHistory expHistory = ExpHistory.builder()
         .memberId(member.getMemberId())
         .expChange(expCalculator.calculateExp(action))
         .expAction(action)
         .resultExp(exp.getExp())
         .build();
+
+    try {
+      return expHistoryRepository.save(expHistory);
+    } catch (Exception e) {
+      log.error("사용자: {}, 경험치 히스토리 저장 실패: {}", member.getStudentId(), e.getMessage());
+      throw new CustomException(ErrorCode.EXP_HISTORY_SAVE_ERROR);
+    }
   }
 
   // 경험치 히스토리 내역 삭제
   @Transactional
   public void deleteExpHistory(ExpHistory expHistory) {
-    expHistoryRepository.delete(expHistory);
+    try {
+      expHistoryRepository.delete(expHistory);
+    } catch (Exception e) {
+      log.error("경험치 히스토리 삭제 실패: {}", e.getMessage());
+      throw new CustomException(ErrorCode.EXP_HISTORY_DELETE_ERROR);
+    }
   }
 }
