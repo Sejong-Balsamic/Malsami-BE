@@ -1,52 +1,207 @@
 <!-- src/main/resources/templates/admin/member.html -->
 <!DOCTYPE html>
 <html xmlns:th="http://www.thymeleaf.org">
-<head th:replace="fragments/header :: head(title='회원 관리')"></head>
-<body>
+<head th:replace="fragments/header :: head(title='회원 관리')">
+  <link href="https://unpkg.com/tabulator-tables/dist/css/tabulator.min.css" rel="stylesheet">
+  <script type="text/javascript" src="https://unpkg.com/tabulator-tables/dist/js/tabulator.min.js"></script>
+</head>
+
+<body class="admin-dashboard">
 <div th:replace="fragments/header :: header"></div>
 
-<div class="ui stackable grid">
-  <div class="three wide column">
-    <div th:replace="fragments/sidebar :: sidebar"></div>
+<div class="ui container u-margin-vertical-large u-padding-horizontal-medium">
+  <!-- 페이지 제목 -->
+  <div class="ui main text container u-margin-bottom-large">
+    <h1 class="ui header">회원 관리</h1>
   </div>
-  <div class="thirteen wide column">
-    <h2 class="ui header">회원 관리</h2>
-    <button class="ui primary button" onclick="window.location.href='/admin/member/new'">
-      <i class="add user icon"></i> 새 회원 추가
-    </button>
-    <table class="ui celled table">
-      <thead>
-      <tr>
-        <th>ID</th>
-        <th>이름</th>
-        <th>이메일</th>
-        <th>역할</th>
-        <th>가입일</th>
-        <th>액션</th>
-      </tr>
-      </thead>
-      <tbody>
-      <!-- 예시 데이터 -->
-      <tr>
-        <td>1</td>
-        <td>홍길동</td>
-        <td>hong@example.com</td>
-        <td>ADMIN</td>
-        <td>2024-01-15</td>
-        <td>
-          <div class="ui buttons">
-            <button class="ui button">수정</button>
-            <div class="or"></div>
-            <button class="ui red button">삭제</button>
-          </div>
-        </td>
-      </tr>
-      <!-- 추가 데이터 반복 -->
-      </tbody>
-    </table>
+
+  <!-- 검색 및 필터 섹션 -->
+  <div class="ui segment">
+    <div class="ui form">
+      <div class="three fields">
+        <div class="field">
+          <label>검색</label>
+          <input type="text" id="quickSearch" placeholder="이름, 학번, 전공 검색...">
+        </div>
+        <div class="field">
+          <label>계정 상태</label>
+          <select class="ui dropdown" id="statusFilter">
+            <option value="">전체</option>
+            <option value="ACTIVE">활성</option>
+            <option value="INACTIVE">비활성</option>
+            <option value="SUSPENDED">정지</option>
+          </select>
+        </div>
+        <div class="field">
+          <label>역할</label>
+          <select class="ui dropdown" id="roleFilter">
+            <option value="">전체</option>
+            <option value="ADMIN">관리자</option>
+            <option value="USER">일반사용자</option>
+          </select>
+        </div>
+      </div>
+    </div>
   </div>
+
+  <!-- Tabulator 테이블 -->
+  <div id="member-table"></div>
 </div>
 
 <div th:replace="fragments/footer :: footer"></div>
+
+<script type="text/javascript">
+  document.addEventListener('DOMContentLoaded', function () {
+    // Tabulator 초기화
+    var table = new Tabulator("#member-table", {
+      ajaxURL: "/admin/member/all",
+      ajaxConfig: {
+        method: "POST",
+        headers: {
+          "Authorization": "Bearer " + localStorage.getItem("accessToken")
+        },
+      },
+      ajaxParams: {
+        page: 0,
+        size: 10,
+        sortField: "createdAt",
+        sortDirection: "desc"
+      },
+      ajaxResponse: function(url, params, response) {
+        // MemberDto에서 membersPage를 가져와서 Tabulator 형식으로 변환
+        return {
+          last_page: response.membersPage.totalPages,
+          data: response.membersPage.content
+        };
+      },
+      layout: "fitColumns",
+      pagination: true,
+      paginationSize: 10,
+      paginationSizeSelector: [10, 25, 50, 100],
+      columns: [
+        {title: "학번", field: "studentId", sorter: "number", headerFilter: true},
+        {title: "이름", field: "studentName", sorter: "string", headerFilter: true},
+        {title: "전공", field: "major", sorter: "string", headerFilter: true},
+        {title: "학년", field: "academicYear", sorter: "string", width: 100},
+        {title: "재학상태", field: "enrollmentStatus", width: 120},
+        {
+          title: "계정상태",
+          field: "accountStatus",
+          width: 120,
+          formatter: function (cell) {
+            const value = cell.getValue();
+            let color = "";
+            switch (value) {
+              case "ACTIVE":
+                color = "green";
+                break;
+              case "INACTIVE":
+                color = "grey";
+                break;
+              case "SUSPENDED":
+                color = "red";
+                break;
+            }
+            return `<div class="ui ${color} label">${value}</div>`;
+          }
+        },
+        {
+          title: "역할",
+          field: "roles",
+          formatter: function (cell) {
+            const roles = cell.getValue();
+            return roles.map(role =>
+                `<div class="ui blue tiny label">${role}</div>`
+            ).join(" ");
+          }
+        },
+        {
+          title: "관리",
+          formatter: function (cell) {
+            const memberId = cell.getRow().getData().memberId;
+            return `
+                        <div class="ui tiny buttons">
+                            <button class="ui button" onclick="editMember('${memberId}')">
+                                <i class="edit icon"></i> 수정
+                            </button>
+                            <button class="ui red button" onclick="deleteMember('${memberId}')">
+                                <i class="trash icon"></i> 삭제
+                            </button>
+                        </div>
+                    `;
+          }
+        }
+      ],
+      locale: true,
+      langs: {
+        "en": {
+          "pagination": {
+            "first": "처음",
+            "first_title": "첫 페이지",
+            "last": "마지막",
+            "last_title": "마지막 페이지",
+            "prev": "이전",
+            "prev_title": "이전 페이지",
+            "next": "다음",
+            "next_title": "다음 페이지",
+          }
+        }
+      }
+    });
+
+    // 퀵서치 이벤트 핸들러
+    document.getElementById("quickSearch").addEventListener("keyup", function (e) {
+      table.setFilter("studentName", "like", e.target.value);
+    });
+
+    // 상태 필터 이벤트 핸들러
+    document.getElementById("statusFilter").addEventListener("change", function (e) {
+      if (e.target.value === "") {
+        table.removeFilter("accountStatus");
+      } else {
+        table.setFilter("accountStatus", "=", e.target.value);
+      }
+    });
+
+    // 역할 필터 이벤트 핸들러
+    document.getElementById("roleFilter").addEventListener("change", function (e) {
+      if (e.target.value === "") {
+        table.removeFilter("roles");
+      } else {
+        table.setFilter("roles", "contains", e.target.value);
+      }
+    });
+  });
+
+  // 회원 수정 함수
+  function editMember(memberId) {
+    // TODO: 회원 수정 모달 또는 페이지로 이동
+    console.log("Edit member:", memberId);
+  }
+
+  // 회원 삭제 함수
+  function deleteMember(memberId) {
+    if (confirm("정말 이 회원을 삭제하시겠습니까?")) {
+      fetch(`/api/member/${memberId}`, {
+        method: 'DELETE',
+        headers: {
+          'Authorization': 'Bearer ' + localStorage.getItem('accessToken')
+        }
+      })
+      .then(response => {
+        if (response.ok) {
+          table.refreshData();
+        } else {
+          throw new Error('회원 삭제 실패');
+        }
+      })
+      .catch(error => {
+        console.error('Error:', error);
+        alert('회원 삭제 중 오류가 발생했습니다.');
+      });
+    }
+  }
+</script>
+
 </body>
 </html>
