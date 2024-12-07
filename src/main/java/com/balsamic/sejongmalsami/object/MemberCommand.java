@@ -27,4 +27,16 @@ public class MemberCommand {
   // auth
   private String sejongPortalId;
   private String sejongPortalPassword;
+
+  // Tabulator
+  // 페이징 관련 필드 추가
+  private Integer page;        // 현재 페이지 (0부터 시작)
+  private Integer size;        // 페이지 크기
+  private String sortField;    // 정렬 필드
+  private String sortDirection; // 정렬 방향 (asc/desc)
+
+  // 검색 필터 관련 필드
+  private String searchTerm;    // 통합 검색어
+  private String accountStatus; // 계정 상태 필터
+  private String role;         // 역할 필터
 }

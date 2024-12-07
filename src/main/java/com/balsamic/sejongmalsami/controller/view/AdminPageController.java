@@ -8,6 +8,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 
 @Controller
 @RequiredArgsConstructor
@@ -19,36 +20,80 @@ public class AdminPageController {
 
   private final JwtUtil jwtUtil;
 
+  /**
+   * 인덱스 페이지 - 토큰 검증 필요 없음
+   */
   @GetMapping("/")
-  public String IndexPage(Model model) {
+  public String indexPage(Model model) {
     return "index";
   }
 
+  /**
+   * 로그인 페이지 - 토큰 검증 필요 없음
+   */
   @GetMapping("/login")
   public String loginPage() {
     return "login";
   }
 
+  /**
+   * 관리자 질문 페이지 - 토큰 검증 필요
+   */
   @GetMapping("/admin/question")
-  public String questionPage() {
+  public String questionPage(@RequestParam String accessToken, Model model) {
+    if (!jwtUtil.validateToken(accessToken)) {
+      return "redirect:/error/403";
+    }
     return "admin/question";
   }
 
+  /**
+   * 관리자 문서 페이지 - 토큰 검증 필요
+   */
   @GetMapping("/admin/document")
-  public String documentPage() {
+  public String documentPage(@RequestParam String accessToken, Model model) {
+    if (!jwtUtil.validateToken(accessToken)) {
+      return "redirect:/error/403";
+    }
     return "admin/document";
   }
 
+  /**
+   * 관리자 대시보드 페이지 - 토큰 검증 필요
+   */
   @GetMapping("/admin/dashboard")
-  public String dashboardPage() {
+  public String dashboardPage(@RequestParam String accessToken, Model model) {
+    if (!jwtUtil.validateToken(accessToken)) {
+      return "redirect:/error/403";
+    }
     return "admin/dashboard";
   }
 
+  /**
+   * 관리자 테스트 페이지 1 - 토큰 검증 필요
+   */
   @GetMapping("/admin/testPage1")
-  public String testPage1() {
+  public String testPage1(@RequestParam String accessToken, Model model) {
+    if (!jwtUtil.validateToken(accessToken)) {
+      return "redirect:/error/403";
+    }
     return "admin/testPage1";
   }
 
+  /**
+   * 관리자 멤버 페이지 - 토큰 검증 필요
+   */
+  @GetMapping("/admin/member")
+  public String membersPage(@RequestParam String accessToken, Model model) {
+    if (!jwtUtil.validateToken(accessToken)) {
+      return "redirect:/error/403";
+    }
+    return "admin/member";
+  }
+
+  /**
+   * 로그아웃 - 토큰 검증 필요 없음
+   */
   @GetMapping("/logout")
   public String logout(HttpServletResponse response) {
     // 리프레시 토큰 쿠키 삭제
