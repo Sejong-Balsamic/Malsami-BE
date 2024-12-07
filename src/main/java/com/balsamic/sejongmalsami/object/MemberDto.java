@@ -6,6 +6,7 @@ import com.balsamic.sejongmalsami.object.postgres.Yeopjeon;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.ToString;
+import org.springframework.data.domain.Page;
 
 @Builder
 @Getter
@@ -60,4 +61,6 @@ public class MemberDto {
   private Long answerPostCount;
   private Long documentPostCount;
   private Long documentRequestPostCount;
+
+  private Page<Member> membersPage;
 }

@@ -1,0 +1,31 @@
+/* dashboard.css */
+.admin-dashboard .ui.card.fluid {
+  box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+}
+
+.admin-dashboard .ui.button {
+  width: 140px;  /* 또는 원하시는 크기로 조정 */
+}
+
+.admin-dashboard .ui.card.fluid .button {
+  width: 100%;
+  margin: 0;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.admin-dashboard .ui.card.fluid .grid {
+  padding: 1rem;
+}
+
+/* 반응형 조정 */
+@media (max-width: 767px) {
+  .admin-dashboard .ui.five.column.grid {
+    margin: 0 !important;
+  }
+
+  .admin-dashboard .column {
+    padding: 0.5rem !important;
+  }
+}
