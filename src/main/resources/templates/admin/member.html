@@ -1,10 +1,7 @@
 <!-- src/main/resources/templates/admin/member.html -->
 <!DOCTYPE html>
 <html xmlns:th="http://www.thymeleaf.org">
-<head th:replace="fragments/header :: head(title='회원 관리')">
-  <link href="https://unpkg.com/tabulator-tables/dist/css/tabulator.min.css" rel="stylesheet">
-  <script type="text/javascript" src="https://unpkg.com/tabulator-tables/dist/js/tabulator.min.js"></script>
-</head>
+<head th:replace="~{fragments/header :: head}"></head>
 
 <body class="admin-dashboard">
 <div th:replace="fragments/header :: header"></div>
@@ -50,157 +47,52 @@
 
 <div th:replace="fragments/footer :: footer"></div>
 
+<!-- Tabulator 리소스 -->
+<link href="https://unpkg.com/tabulator-tables/dist/css/tabulator.min.css" rel="stylesheet">
+<link href="https://unpkg.com/tabulator-tables/dist/css/tabulator_semantic-ui.css" rel="stylesheet">
+<script type="text/javascript" src="https://unpkg.com/tabulator-tables/dist/js/tabulator.min.js"></script>
+
 <script type="text/javascript">
   document.addEventListener('DOMContentLoaded', function () {
-    // Tabulator 초기화
     var table = new Tabulator("#member-table", {
+      layout: "fitColumns",
       ajaxURL: "/admin/member/all",
       ajaxConfig: {
         method: "POST",
         headers: {
           "Authorization": "Bearer " + localStorage.getItem("accessToken")
-        },
+        }
       },
-      ajaxParams: {
-        page: 0,
-        size: 10,
-        sortField: "createdAt",
-        sortDirection: "desc"
+      ajaxRequestFunc: function(url, config, params) {
+        const formData = new FormData();
+        formData.append("page", 0);
+        formData.append("size", 10);
+        formData.append("sortField", "createdDate");
+        formData.append("sortDirection", "desc");
+
+        return fetch(url + "?accessToken=" + localStorage.getItem("accessToken"), {
+          method: "POST",
+          headers: config.headers,
+          body: formData
+        })
+        .then(response => response.json())
+        .then(data => data.membersPage.content);
       },
-      ajaxResponse: function(url, params, response) {
-        // MemberDto에서 membersPage를 가져와서 Tabulator 형식으로 변환
-        return {
-          last_page: response.membersPage.totalPages,
-          data: response.membersPage.content
-        };
-      },
-      layout: "fitColumns",
-      pagination: true,
-      paginationSize: 10,
-      paginationSizeSelector: [10, 25, 50, 100],
       columns: [
-        {title: "학번", field: "studentId", sorter: "number", headerFilter: true},
-        {title: "이름", field: "studentName", sorter: "string", headerFilter: true},
-        {title: "전공", field: "major", sorter: "string", headerFilter: true},
-        {title: "학년", field: "academicYear", sorter: "string", width: 100},
-        {title: "재학상태", field: "enrollmentStatus", width: 120},
-        {
-          title: "계정상태",
-          field: "accountStatus",
-          width: 120,
-          formatter: function (cell) {
-            const value = cell.getValue();
-            let color = "";
-            switch (value) {
-              case "ACTIVE":
-                color = "green";
-                break;
-              case "INACTIVE":
-                color = "grey";
-                break;
-              case "SUSPENDED":
-                color = "red";
-                break;
-            }
-            return `<div class="ui ${color} label">${value}</div>`;
-          }
-        },
-        {
-          title: "역할",
-          field: "roles",
-          formatter: function (cell) {
-            const roles = cell.getValue();
-            return roles.map(role =>
-                `<div class="ui blue tiny label">${role}</div>`
-            ).join(" ");
-          }
-        },
-        {
-          title: "관리",
-          formatter: function (cell) {
-            const memberId = cell.getRow().getData().memberId;
-            return `
-                        <div class="ui tiny buttons">
-                            <button class="ui button" onclick="editMember('${memberId}')">
-                                <i class="edit icon"></i> 수정
-                            </button>
-                            <button class="ui red button" onclick="deleteMember('${memberId}')">
-                                <i class="trash icon"></i> 삭제
-                            </button>
-                        </div>
-                    `;
-          }
-        }
+        {title: "학번", field: "studentId"},
+        {title: "이름", field: "studentName"},
+        {title: "전공", field: "major"},
+        {title: "학년", field: "academicYear"},
+        {title: "재학상태", field: "enrollmentStatus"},
+        {title: "계정상태", field: "accountStatus"},
+        {title: "역할", field: "roles", formatter: function(cell) {
+            return cell.getValue().join(", ");
+          }}
       ],
-      locale: true,
-      langs: {
-        "en": {
-          "pagination": {
-            "first": "처음",
-            "first_title": "첫 페이지",
-            "last": "마지막",
-            "last_title": "마지막 페이지",
-            "prev": "이전",
-            "prev_title": "이전 페이지",
-            "next": "다음",
-            "next_title": "다음 페이지",
-          }
-        }
-      }
-    });
-
-    // 퀵서치 이벤트 핸들러
-    document.getElementById("quickSearch").addEventListener("keyup", function (e) {
-      table.setFilter("studentName", "like", e.target.value);
-    });
-
-    // 상태 필터 이벤트 핸들러
-    document.getElementById("statusFilter").addEventListener("change", function (e) {
-      if (e.target.value === "") {
-        table.removeFilter("accountStatus");
-      } else {
-        table.setFilter("accountStatus", "=", e.target.value);
-      }
-    });
-
-    // 역할 필터 이벤트 핸들러
-    document.getElementById("roleFilter").addEventListener("change", function (e) {
-      if (e.target.value === "") {
-        table.removeFilter("roles");
-      } else {
-        table.setFilter("roles", "contains", e.target.value);
-      }
+      pagination: true,
+      paginationSize: 10
     });
   });
-
-  // 회원 수정 함수
-  function editMember(memberId) {
-    // TODO: 회원 수정 모달 또는 페이지로 이동
-    console.log("Edit member:", memberId);
-  }
-
-  // 회원 삭제 함수
-  function deleteMember(memberId) {
-    if (confirm("정말 이 회원을 삭제하시겠습니까?")) {
-      fetch(`/api/member/${memberId}`, {
-        method: 'DELETE',
-        headers: {
-          'Authorization': 'Bearer ' + localStorage.getItem('accessToken')
-        }
-      })
-      .then(response => {
-        if (response.ok) {
-          table.refreshData();
-        } else {
-          throw new Error('회원 삭제 실패');
-        }
-      })
-      .catch(error => {
-        console.error('Error:', error);
-        alert('회원 삭제 중 오류가 발생했습니다.');
-      });
-    }
-  }
 </script>
 
 </body>
