@@ -56,6 +56,7 @@ public class DocumentPost extends BasePost {
   @Builder.Default
   private List<String> faculties = new ArrayList<>(); // 교과목명에 해당하는 단과대
 
+  @Column(nullable = false, length = 1024)
   private String content; // 내용
 
   @Builder.Default
@@ -127,10 +128,5 @@ public class DocumentPost extends BasePost {
   // 싫어요 수 롤백
   public void decreaseDislikeCount() {
     dislikeCount--;
-  }
-
-  // 게시물 등급 변경
-  public void updatePostTier(PostTier postTier) {
-    this.postTier = postTier;
   }
 }

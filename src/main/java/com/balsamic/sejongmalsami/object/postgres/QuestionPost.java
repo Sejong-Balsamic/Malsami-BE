@@ -52,7 +52,7 @@ public class QuestionPost extends BasePost {
   private String title;
 
   // 본문
-  @Column(nullable = false)
+  @Column(nullable = false, length = 2048)
   private String content;
 
   // 과목 명

@@ -102,8 +102,7 @@ public class DocumentPostController implements DocumentPostControllerDocs {
   @PostMapping(value = "/hot-download", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
   @LogMonitoringInvocation
   public ResponseEntity<DocumentDto> getHotDownload(
-      @ModelAttribute DocumentCommand command
-  ) {
+      @ModelAttribute DocumentCommand command) {
     return ResponseEntity.ok(documentPostService.getHotDownload(command));
   }
 }
