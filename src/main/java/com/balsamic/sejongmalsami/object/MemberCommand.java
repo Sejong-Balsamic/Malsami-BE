@@ -30,8 +30,8 @@ public class MemberCommand {
 
   // Tabulator
   // 페이징 관련 필드 추가
-  private Integer page;        // 현재 페이지 (0부터 시작)
-  private Integer size;        // 페이지 크기
+  private Integer pageNumber;        // 현재 페이지 (0부터 시작)
+  private Integer pageSize;        // 페이지 크기
   private String sortField;    // 정렬 필드
   private String sortDirection; // 정렬 방향 (asc/desc)
 
