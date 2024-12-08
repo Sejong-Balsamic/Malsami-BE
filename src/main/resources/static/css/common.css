@@ -29,3 +29,102 @@
     padding: 0.5rem !important;
   }
 }
+
+/* dashboard.css */
+/* 기존 스타일 유지 */
+.admin-dashboard .ui.card.fluid {
+  box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+}
+
+.admin-dashboard .ui.button {
+  width: 140px;
+}
+
+.admin-dashboard .ui.card.fluid .button {
+  width: 100%;
+  margin: 0;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.admin-dashboard .ui.card.fluid .grid {
+  padding: 1rem;
+}
+
+/*
+
+
+ member-dashboard 테이블 컨테이너 스타일
+
+
+
+ */
+.member-dashboard .table-container {
+  max-width: 100%;
+  overflow-x: auto;
+  -webkit-overflow-scrolling: touch;
+  background: #ffffff;
+  border-radius: 0.28571429rem;
+  box-shadow: 0 1px 3px rgba(0,0,0,0.12);
+}
+
+/* 테이블 자체의 스타일 */
+.member-dashboard #member-table {
+  min-width: 1200px; /* 테이블 최소 너비 */
+  width: 100%;
+  background: #ffffff;
+}
+
+/* 테이블 헤더 스타일 */
+.member-dashboard #member-table .tabulator-header {
+  background-color: #f9fafb;
+  border-bottom: 2px solid #d4d4d5;
+  position: sticky;
+  top: 0;
+  z-index: 3;
+}
+
+/* 총 조회 수 스타일링 */
+.member-dashboard #totalCount {
+  font-size: 14px; /* 적절한 폰트 크기 */
+  font-weight: bold; /* 강조를 위한 굵은 폰트 */
+  color: #333; /* 다크 그레이 텍스트 색상 */
+  margin-bottom: 16px; /* 테이블과의 간격 */
+  padding: 8px 0; /* 상하 패딩 추가 */
+}
+
+/* 모바일 최적화 */
+@media (max-width: 767px) {
+  .member-dashboard .table-container {
+    margin: 0 0;
+    border-radius: 0;
+    box-shadow: none;
+  }
+
+  /* 스크롤바 스타일링 */
+  .member-dashboard .table-container::-webkit-scrollbar {
+    height: 6px;
+  }
+
+  .member-dashboard .table-container::-webkit-scrollbar-track {
+    background: #f1f1f1;
+  }
+
+  .member-dashboard .table-container::-webkit-scrollbar-thumb {
+    background: #888;
+    border-radius: 3px;
+  }
+
+  .member-dashboard #totalCount {
+    font-size: 12px;
+    margin-bottom: 12px;
+  }
+}
+
+/* 태블릿 최적화 */
+@media (min-width: 768px) and (max-width: 991px) {
+  .member-dashboard .table-container {
+    margin: 0 0;
+  }
+}
