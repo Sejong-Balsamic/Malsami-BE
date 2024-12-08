@@ -195,8 +195,8 @@
       },
       ajaxRequestFunc: function(url, config, params) {
         const formData = new FormData(document.getElementById('searchForm'));
-        formData.append("page", params.page || 0);
-        formData.append("size", params.size || 10);
+        formData.append("pageNumber", (params.page ? params.page - 1 : 0));
+        formData.append("pageSize", params.size || 10);
         formData.append("sortField", params.sortField || "createdDate");
         formData.append("sortDirection", params.sortDirection || "desc");
 
@@ -206,9 +206,15 @@
           body: formData
         })
         .then(response => response.json())
-        .then(data => data.membersPage.content);
+      },
+      ajaxResponse:function(url, params, response){
+        return {
+          data: response.membersPage.content,      // 현재 페이지 데이터 목록
+          last_page: response.membersPage.totalPages // 총 페이지 수
+        };
       },
       pagination: true,
+      paginationMode: "remote",
       paginationSize: 10,
       paginationSizeSelector: [10, 30, 50, 100],
       height: "600px"
