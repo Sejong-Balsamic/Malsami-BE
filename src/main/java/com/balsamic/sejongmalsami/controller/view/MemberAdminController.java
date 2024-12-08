@@ -30,7 +30,7 @@ public class MemberAdminController {
   @LogMonitoringInvocation
   public ResponseEntity<MemberDto> getFilteredMembers(
       @ModelAttribute MemberCommand command){
-    return ResponseEntity.ok(memberService.findFiltedMember(command));
+    return ResponseEntity.ok(memberService.findFilteredMember(command));
   }
 
 }
