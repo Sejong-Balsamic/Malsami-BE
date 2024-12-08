@@ -438,7 +438,7 @@ public class MemberService implements UserDetailsService {
         command.getSortField()
     );
 
-    Pageable pageable = PageRequest.of(command.getPage(), command.getSize(), sort);
+    Pageable pageable = PageRequest.of(command.getPageNumber(), command.getPageSize(), sort);
 
     return MemberDto.builder()
         .membersPage(memberRepository.findAll(pageable))
@@ -452,9 +452,9 @@ public class MemberService implements UserDetailsService {
         command.getSortField()
     );
 
-    Pageable pageable = PageRequest.of(command.getPage(), command.getSize(), sort);
+    Pageable pageable = PageRequest.of(command.getPageNumber(), command.getPageSize(), sort);
 
-    //FIXME:
+    //FIXME:미구현
     return MemberDto.builder()
         .membersPage(memberRepository.findAll(pageable))
         .build();
