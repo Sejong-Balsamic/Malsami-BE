@@ -14,31 +14,115 @@
 
   <!-- 검색 및 필터 섹션 -->
   <div class="ui segment">
-    <div class="ui form">
+    <form id="searchForm" class="ui form">
       <div class="three fields">
+        <!-- 기본 정보 검색 -->
         <div class="field">
-          <label>검색</label>
-          <input type="text" id="quickSearch" placeholder="이름, 학번, 전공 검색...">
+          <label>학번</label>
+          <input type="text" name="studentId" placeholder="학번 검색">
         </div>
         <div class="field">
-          <label>계정 상태</label>
-          <select class="ui dropdown" id="statusFilter">
+          <label>이름</label>
+          <input type="text" name="studentName" placeholder="이름 검색">
+        </div>
+        <div class="field">
+          <label>닉네임(UUID)</label>
+          <input type="text" name="uuidNickname" placeholder="닉네임 검색">
+        </div>
+      </div>
+
+      <div class="three fields">
+        <div class="field">
+          <label>전공</label>
+          <input type="text" name="major" placeholder="전공 검색">
+        </div>
+        <div class="field">
+          <label>단과대학</label>
+          <input type="text" name="faculties" placeholder="단과대 검색">
+        </div>
+        <div class="field">
+          <label>학년</label>
+          <input type="text" name="academicYear" placeholder="학년 검색">
+        </div>
+      </div>
+
+      <div class="three fields">
+        <div class="field">
+          <label>재학상태</label>
+          <input type="text" name="enrollmentStatus" placeholder="재학상태 검색">
+        </div>
+        <div class="field">
+          <label>계정상태</label>
+          <select class="ui dropdown" name="accountStatus">
             <option value="">전체</option>
-            <option value="ACTIVE">활성</option>
-            <option value="INACTIVE">비활성</option>
-            <option value="SUSPENDED">정지</option>
+            <option value="ACTIVE">활성화</option>
+            <option value="DELETED">삭제됨</option>
           </select>
         </div>
         <div class="field">
           <label>역할</label>
-          <select class="ui dropdown" id="roleFilter">
+          <select class="ui dropdown" name="role">
             <option value="">전체</option>
-            <option value="ADMIN">관리자</option>
-            <option value="USER">일반사용자</option>
+            <option value="ROLE_USER">일반사용자</option>
+            <option value="ROLE_ADMIN">관리자</option>
           </select>
         </div>
       </div>
-    </div>
+
+      <div class="three fields">
+        <div class="field">
+          <label>최근 로그인 기간</label>
+          <div class="two fields">
+            <div class="field">
+              <input type="date" name="lastLoginStart">
+            </div>
+            <div class="field">
+              <input type="date" name="lastLoginEnd">
+            </div>
+          </div>
+        </div>
+        <div class="field">
+          <label>첫 로그인 여부</label>
+          <select class="ui dropdown" name="isFirstLogin">
+            <option value="">전체</option>
+            <option value="true">예</option>
+            <option value="false">아니오</option>
+          </select>
+        </div>
+        <div class="field">
+          <label>수정/삭제 여부</label>
+          <div class="two fields">
+            <div class="field">
+              <select class="ui dropdown" name="isEdited">
+                <option value="">수정여부</option>
+                <option value="true">수정됨</option>
+                <option value="false">수정안됨</option>
+              </select>
+            </div>
+            <div class="field">
+              <select class="ui dropdown" name="isDeleted">
+                <option value="">삭제여부</option>
+                <option value="true">삭제됨</option>
+                <option value="false">삭제안됨</option>
+              </select>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="two fields">
+        <div class="field">
+          <button class="ui primary button" type="submit">
+            <i class="search icon"></i>검색
+          </button>
+        </div>
+        <div class="field">
+          <button class="ui button" type="reset">
+            <i class="undo icon"></i>초기화
+          </button>
+        </div>
+      </div>
+    </form>
   </div>
 
   <!-- Tabulator 테이블 -->
@@ -110,11 +194,11 @@
         }
       },
       ajaxRequestFunc: function(url, config, params) {
-        const formData = new FormData();
-        formData.append("page", 0);
-        formData.append("size", 10);
-        formData.append("sortField", "createdDate");
-        formData.append("sortDirection", "desc");
+        const formData = new FormData(document.getElementById('searchForm'));
+        formData.append("page", params.page || 0);
+        formData.append("size", params.size || 10);
+        formData.append("sortField", params.sortField || "createdDate");
+        formData.append("sortDirection", params.sortDirection || "desc");
 
         return fetch(url + "?accessToken=" + localStorage.getItem("accessToken"), {
           method: "POST",

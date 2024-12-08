@@ -26,4 +26,11 @@ public class MemberAdminController {
     return ResponseEntity.ok(memberService.findAll(command));
   }
 
+  @PostMapping(value = "/filter", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
+  @LogMonitoringInvocation
+  public ResponseEntity<MemberDto> getFilteredMembers(
+      @ModelAttribute MemberCommand command){
+    return ResponseEntity.ok(memberService.findFiltedMember(command));
+  }
+
 }
