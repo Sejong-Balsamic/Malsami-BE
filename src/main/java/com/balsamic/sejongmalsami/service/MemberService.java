@@ -444,4 +444,20 @@ public class MemberService implements UserDetailsService {
         .membersPage(memberRepository.findAll(pageable))
         .build();
   }
+
+  public MemberDto findFiltedMember(MemberCommand command) {
+    Sort sort = Sort.by(
+        command.getSortDirection().equalsIgnoreCase("desc") ?
+            Sort.Direction.DESC : Sort.Direction.ASC,
+        command.getSortField()
+    );
+
+    Pageable pageable = PageRequest.of(command.getPage(), command.getSize(), sort);
+
+    //FIXME:
+    return MemberDto.builder()
+        .membersPage(memberRepository.findAll(pageable))
+        .build();
+
+  }
 }
