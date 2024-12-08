@@ -51,6 +51,9 @@ import java.util.UUID;
 import java.util.stream.Collectors;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.userdetails.UserDetailsService;
@@ -425,5 +428,36 @@ public class MemberService implements UserDetailsService {
         .canAccessKing(canAccessKing)
         .yeopjeon(yeopjeon)
         .build();
+  }
+
+  public MemberDto findAll(MemberCommand command) {
+
+    Sort sort = Sort.by(
+        command.getSortDirection().equalsIgnoreCase("desc") ?
+            Sort.Direction.DESC : Sort.Direction.ASC,
+        command.getSortField()
+    );
+
+    Pageable pageable = PageRequest.of(command.getPage(), command.getSize(), sort);
+
+    return MemberDto.builder()
+        .membersPage(memberRepository.findAll(pageable))
+        .build();
+  }
+
+  public MemberDto findFiltedMember(MemberCommand command) {
+    Sort sort = Sort.by(
+        command.getSortDirection().equalsIgnoreCase("desc") ?
+            Sort.Direction.DESC : Sort.Direction.ASC,
+        command.getSortField()
+    );
+
+    Pageable pageable = PageRequest.of(command.getPage(), command.getSize(), sort);
+
+    //FIXME:
+    return MemberDto.builder()
+        .membersPage(memberRepository.findAll(pageable))
+        .build();
+
   }
 }

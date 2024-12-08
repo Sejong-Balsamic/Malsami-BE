@@ -3,7 +3,7 @@
 <html xmlns:th="http://www.thymeleaf.org">
 <head th:replace="fragments/header :: head(title='Dashboard')">
 </head>
-<body>
+<body class="admin-dashboard">
 <!-- 헤더 포함 -->
 <div th:replace="fragments/header :: header"></div>
 
@@ -16,36 +16,47 @@
   </div>
 
   <!-- 네비게이션 버튼 섹션 -->
-  <div class="ui five column stackable grid u-margin-bottom-large u-display-mobile-flex">
-    <div class="column">
-      <a href="/admin/members" class="ui large blue icon labeled button">
-        <i class="users icon"></i>
-        회원 관리
-      </a>
-    </div>
-    <div class="column">
-      <a href="/admin/courses" class="ui large green icon labeled button">
-        <i class="book icon"></i>
-        교과목 관리
-      </a>
-    </div>
-    <div class="column">
-      <a href="/admin/questionPosts" class="ui large orange icon labeled button">
-        <i class="question circle icon"></i>
-        Q&A 관리
-      </a>
-    </div>
-    <div class="column">
-      <a href="/admin/resources" class="ui large purple icon labeled button">
-        <i class="file alternate icon"></i>
-        자료실 관리
-      </a>
-    </div>
-    <div class="column">
-      <a href="/admin/notices" class="ui large red icon labeled button">
-        <i class="announcement icon"></i>
-        공지사항 관리
-      </a>
+  <div class="ui segment">
+    <h3 class="ui header">
+      <i class="cogs icon"></i>
+      관리 메뉴
+    </h3>
+
+    <div class="ui card fluid">
+      <div class="content">
+        <div class="ui five column stackable grid u-margin-bottom-large u-display-mobile-flex" style="max-width: 1200px; margin: 0 auto;">
+          <div class="column">
+            <a href="javascript:Auth.navigate('/admin/member')" class="ui blue icon labeled button">
+              <i class="users icon"></i>
+              회원
+            </a>
+          </div>
+          <div class="column">
+            <a href="/admin/courses" class="ui green icon labeled button">
+              <i class="book icon"></i>
+              교과목
+            </a>
+          </div>
+          <div class="column">
+            <a href="/admin/questionPosts" class="ui orange icon labeled button">
+              <i class="question circle icon"></i>
+              Q&A
+            </a>
+          </div>
+          <div class="column">
+            <a href="/admin/resources" class="ui purple icon labeled button">
+              <i class="file alternate icon"></i>
+              자료실
+            </a>
+          </div>
+          <div class="column">
+            <a href="/admin/notices" class="ui red icon labeled button">
+              <i class="announcement icon"></i>
+              공지사항
+            </a>
+          </div>
+        </div>
+      </div>
     </div>
   </div>
 
@@ -251,7 +262,6 @@
       // 자동 새로고침 설정
       setInterval(loadStatistics, 300000); // 5분
       setInterval(updateSystemResources, 5000); // 5초
-      setInterval(checkWarnings, 60000); // 1분
     });
 
     function initializeCharts() {
