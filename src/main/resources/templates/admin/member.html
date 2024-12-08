@@ -149,6 +149,7 @@
   });
 
   // Table 초기화
+  // Table 초기화
   function initTable() {
 
     var table = new Tabulator("#member-table", {
@@ -165,17 +166,9 @@
         },
         {title: "학년", field: "academicYear", width: 60},
         {title: "재학상태", field: "enrollmentStatus", width: 100},
-        {
-          title: "알림설정", field: "isNotificationEnabled", width: 80, formatter: function (cell) {
-            return cell.getValue() ? 'On' : 'Off';
-          }
-        },
+        {title: "알림설정", field: "isNotificationEnabled", width: 80}, // 포매터 제거
         {title: "계정상태", field: "accountStatus", width: 100},
-        {
-          title: "첫 로그인", field: "isFirstLogin", width: 80, formatter: function (cell) {
-            return cell.getValue() ? 'Yes' : 'No';
-          }
-        },
+        {title: "첫 로그인", field: "isFirstLogin", width: 80}, // 포매터 제거
         {
           title: "마지막 로그인", field: "lastLoginTime", width: 150, formatter: function (cell) {
             return cell.getValue() ? new Date(cell.getValue()).toLocaleString() : '';
@@ -191,16 +184,8 @@
             return new Date(cell.getValue()).toLocaleString();
           }
         },
-        {
-          title: "수정됨", field: "isEdited", width: 80, formatter: function (cell) {
-            return cell.getValue() ? 'Yes' : 'No';
-          }
-        },
-        {
-          title: "삭제됨", field: "isDeleted", width: 80, formatter: function (cell) {
-            return cell.getValue() ? 'Yes' : 'No';
-          }
-        },
+        {title: "수정됨", field: "isEdited", width: 80}, // 포매터 제거
+        {title: "삭제됨", field: "isDeleted", width: 80}, // 포매터 제거
         {
           title: "역할", field: "roles", width: 120, formatter: function (cell) {
             return cell.getValue().join(", ");
@@ -210,11 +195,11 @@
           title: "관리", width: 160, formatter: function (cell) {
             const data = cell.getRow().getData();
             return `
-        <div class="ui two mini buttons">
-            <button class="ui blue button">수정</button>
-            <button class="ui red button">삭제</button>
-        </div>
-    `;
+            <div class="ui two mini buttons">
+                <button class="ui blue button">수정</button>
+                <button class="ui red button">삭제</button>
+            </div>
+          `;
           }
         }
       ],
@@ -256,6 +241,7 @@
 
     return table;
   }
+
 
   // 이벤트 핸들러
   function eventHandler(table) {
