@@ -55,7 +55,53 @@
 <script type="text/javascript">
   document.addEventListener('DOMContentLoaded', function () {
     var table = new Tabulator("#member-table", {
-      layout: "fitColumns",
+      layout: "fitDataTable",
+      columns: [
+        {title: "학번", field: "studentId", width: 100},
+        {title: "이름", field: "studentName", width: 80},
+        {title: "닉네임", field: "uuidNickname", width: 100},
+        {title: "전공", field: "major", width: 150},
+        {title: "단과대학", field: "faculties", width: 120, formatter: function(cell) {
+            return cell.getValue().join(", ");
+          }},
+        {title: "학년", field: "academicYear", width: 60},
+        {title: "재학상태", field: "enrollmentStatus", width: 100},
+        {title: "알림설정", field: "isNotificationEnabled", width: 80, formatter: function(cell) {
+            return cell.getValue() ? 'On' : 'Off';
+          }},
+        {title: "계정상태", field: "accountStatus", width: 100},
+        {title: "첫 로그인", field: "isFirstLogin", width: 80, formatter: function(cell) {
+            return cell.getValue() ? 'Yes' : 'No';
+          }},
+        {title: "마지막 로그인", field: "lastLoginTime", width: 150, formatter: function(cell) {
+            return cell.getValue() ? new Date(cell.getValue()).toLocaleString() : '';
+          }},
+        {title: "생성일", field: "createdDate", width: 150, formatter: function(cell) {
+            return new Date(cell.getValue()).toLocaleString();
+          }},
+        {title: "수정일", field: "updatedDate", width: 150, formatter: function(cell) {
+            return new Date(cell.getValue()).toLocaleString();
+          }},
+        {title: "수정됨", field: "isEdited", width: 80, formatter: function(cell) {
+            return cell.getValue() ? 'Yes' : 'No';
+          }},
+        {title: "삭제됨", field: "isDeleted", width: 80, formatter: function(cell) {
+            return cell.getValue() ? 'Yes' : 'No';
+          }},
+        {title: "역할", field: "roles", width: 120, formatter: function(cell) {
+            return cell.getValue().join(", ");
+          }},
+        {title: "관리", width: 160, formatter: function(cell) {
+            const data = cell.getRow().getData();
+            return `
+        <div class="ui two mini buttons">
+            <button class="ui blue button">수정</button>
+            <button class="ui red button">삭제</button>
+        </div>
+    `;
+          }}
+      ],
+
       ajaxURL: "/admin/member/all",
       ajaxConfig: {
         method: "POST",
@@ -78,19 +124,10 @@
         .then(response => response.json())
         .then(data => data.membersPage.content);
       },
-      columns: [
-        {title: "학번", field: "studentId"},
-        {title: "이름", field: "studentName"},
-        {title: "전공", field: "major"},
-        {title: "학년", field: "academicYear"},
-        {title: "재학상태", field: "enrollmentStatus"},
-        {title: "계정상태", field: "accountStatus"},
-        {title: "역할", field: "roles", formatter: function(cell) {
-            return cell.getValue().join(", ");
-          }}
-      ],
       pagination: true,
-      paginationSize: 10
+      paginationSize: 10,
+      paginationSizeSelector: [10, 30, 50, 100],
+      height: "600px"
     });
   });
 </script>
