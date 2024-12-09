@@ -1,52 +1,283 @@
 <!-- src/main/resources/templates/admin/member.html -->
 <!DOCTYPE html>
 <html xmlns:th="http://www.thymeleaf.org">
-<head th:replace="fragments/header :: head(title='회원 관리')"></head>
-<body>
+<head th:replace="~{fragments/header :: head}"></head>
+
+<body class="member-dashboard">
 <div th:replace="fragments/header :: header"></div>
 
-<div class="ui stackable grid">
-  <div class="three wide column">
-    <div th:replace="fragments/sidebar :: sidebar"></div>
+<div class="ui container u-margin-vertical-large u-padding-horizontal-medium">
+  <!-- 페이지 제목 -->
+  <div class="ui main text container u-margin-bottom-large">
+    <h1 class="ui header">회원 관리</h1>
   </div>
-  <div class="thirteen wide column">
-    <h2 class="ui header">회원 관리</h2>
-    <button class="ui primary button" onclick="window.location.href='/admin/member/new'">
-      <i class="add user icon"></i> 새 회원 추가
-    </button>
-    <table class="ui celled table">
-      <thead>
-      <tr>
-        <th>ID</th>
-        <th>이름</th>
-        <th>이메일</th>
-        <th>역할</th>
-        <th>가입일</th>
-        <th>액션</th>
-      </tr>
-      </thead>
-      <tbody>
-      <!-- 예시 데이터 -->
-      <tr>
-        <td>1</td>
-        <td>홍길동</td>
-        <td>hong@example.com</td>
-        <td>ADMIN</td>
-        <td>2024-01-15</td>
-        <td>
-          <div class="ui buttons">
-            <button class="ui button">수정</button>
-            <div class="or"></div>
-            <button class="ui red button">삭제</button>
+
+  <!-- 검색 및 필터 섹션 -->
+  <div class="ui segment">
+    <form id="searchForm" class="ui form">
+      <div class="three fields">
+        <!-- 기본 정보 검색 -->
+        <div class="field">
+          <label>학번</label>
+          <input type="text" name="studentId" placeholder="학번 검색">
+        </div>
+        <div class="field">
+          <label>이름</label>
+          <input type="text" name="studentName" placeholder="이름 검색">
+        </div>
+        <div class="field">
+          <label>닉네임(UUID)</label>
+          <input type="text" name="uuidNickname" placeholder="닉네임 검색">
+        </div>
+      </div>
+
+      <div class="three fields">
+        <div class="field">
+          <label>전공</label>
+          <input type="text" name="major" placeholder="전공 검색">
+        </div>
+        <div class="field">
+          <label>단과대학</label>
+          <input type="text" name="faculties" placeholder="단과대 검색">
+        </div>
+        <div class="field">
+          <label>학년</label>
+          <input type="text" name="academicYear" placeholder="학년 검색">
+        </div>
+      </div>
+
+      <div class="three fields">
+        <div class="field">
+          <label>재학상태</label>
+          <input type="text" name="enrollmentStatus" placeholder="재학상태 검색">
+        </div>
+        <div class="field">
+          <label>계정상태</label>
+          <select class="ui dropdown" name="accountStatus">
+            <option value="">전체</option>
+            <option value="ACTIVE">활성화</option>
+            <option value="DELETED">삭제됨</option>
+          </select>
+        </div>
+        <div class="field">
+          <label>역할</label>
+          <select class="ui dropdown" name="role">
+            <option value="">전체</option>
+            <option value="ROLE_USER">일반사용자</option>
+            <option value="ROLE_ADMIN">관리자</option>
+          </select>
+        </div>
+      </div>
+
+      <div class="three fields">
+        <div class="field">
+          <label>최근 로그인 기간</label>
+          <div class="two fields">
+            <div class="field">
+              <input type="date" name="lastLoginStart">
+            </div>
+            <div class="field">
+              <input type="date" name="lastLoginEnd">
+            </div>
           </div>
-        </td>
-      </tr>
-      <!-- 추가 데이터 반복 -->
-      </tbody>
-    </table>
+        </div>
+        <div class="field">
+          <label>첫 로그인 여부</label>
+          <select class="ui dropdown" name="isFirstLogin">
+            <option value="">전체</option>
+            <option value="true">예</option>
+            <option value="false">아니오</option>
+          </select>
+        </div>
+        <div class="field">
+          <label>수정/삭제 여부</label>
+          <div class="two fields">
+            <div class="field">
+              <select class="ui dropdown" name="isEdited">
+                <option value="">수정여부</option>
+                <option value="true">수정됨</option>
+                <option value="false">수정안됨</option>
+              </select>
+            </div>
+            <div class="field">
+              <select class="ui dropdown" name="isDeleted">
+                <option value="">삭제여부</option>
+                <option value="true">삭제됨</option>
+                <option value="false">삭제안됨</option>
+              </select>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="three fields">
+        <div class="field">
+          <button class="ui primary button" type="submit">
+            <i class="search icon"></i>검색
+          </button>
+        </div>
+        <div class="field">
+          <button class="ui button" id="resetFilterButton" type="button">
+            <i class="undo icon"></i>필터 초기화
+          </button>
+        </div>
+        <div class="field">
+          <button class="ui button" id="resetSortButton" type="button">
+            <i class="undo icon"></i>정렬 초기화
+          </button>
+        </div>
+      </div>
+    </form>
+  </div>
+
+  <!-- Tabulator 테이블 -->
+  <div class="table-container">
+    <div id="totalCount" class="ui left aligned header">총 조회 수: 0건</div>
+    <div id="member-table"></div>
   </div>
 </div>
 
 <div th:replace="fragments/footer :: footer"></div>
+
+<!-- Tabulator 리소스 -->
+<link href="https://unpkg.com/tabulator-tables/dist/css/tabulator.min.css" rel="stylesheet">
+<link href="https://unpkg.com/tabulator-tables/dist/css/tabulator_semantic-ui.css" rel="stylesheet">
+<script type="text/javascript" src="https://unpkg.com/tabulator-tables/dist/js/tabulator.min.js"></script>
+
+<script type="text/javascript">
+
+  // DOMContentLoaded Event
+  document.addEventListener("DOMContentLoaded", function () {
+
+    // 테이블 초기화
+    const table = initTable();
+
+    // 이벤트 처리
+    eventHandler(table);
+  });
+
+  // Table 초기화
+  // Table 초기화
+  function initTable() {
+
+    var table = new Tabulator("#member-table", {
+      layout: "fitDataTable",
+      columns: [
+        {title: "학번", field: "studentId", width: 100},
+        {title: "이름", field: "studentName", width: 80},
+        {title: "닉네임", field: "uuidNickname", width: 100},
+        {title: "전공", field: "major", width: 150},
+        {
+          title: "단과대학", field: "faculties", width: 120, formatter: function (cell) {
+            return cell.getValue().join(", ");
+          }
+        },
+        {title: "학년", field: "academicYear", width: 60},
+        {title: "재학상태", field: "enrollmentStatus", width: 100},
+        {title: "알림설정", field: "isNotificationEnabled", width: 80}, // 포매터 제거
+        {title: "계정상태", field: "accountStatus", width: 100},
+        {title: "첫 로그인", field: "isFirstLogin", width: 80}, // 포매터 제거
+        {
+          title: "마지막 로그인", field: "lastLoginTime", width: 150, formatter: function (cell) {
+            return cell.getValue() ? new Date(cell.getValue()).toLocaleString() : '';
+          }
+        },
+        {
+          title: "생성일", field: "createdDate", width: 150, formatter: function (cell) {
+            return new Date(cell.getValue()).toLocaleString();
+          }
+        },
+        {
+          title: "수정일", field: "updatedDate", width: 150, formatter: function (cell) {
+            return new Date(cell.getValue()).toLocaleString();
+          }
+        },
+        {title: "수정됨", field: "isEdited", width: 80}, // 포매터 제거
+        {title: "삭제됨", field: "isDeleted", width: 80}, // 포매터 제거
+        {
+          title: "역할", field: "roles", width: 120, formatter: function (cell) {
+            return cell.getValue().join(", ");
+          }
+        },
+        {
+          title: "관리", width: 160, formatter: function (cell) {
+            const data = cell.getRow().getData();
+            return `
+            <div class="ui two mini buttons">
+                <button class="ui blue button">수정</button>
+                <button class="ui red button">삭제</button>
+            </div>
+          `;
+          }
+        }
+      ],
+
+      ajaxURL: "/admin/member/filter",
+      ajaxConfig: {
+        method: "POST",
+        headers: {
+          "Authorization": "Bearer " + localStorage.getItem("accessToken")
+        }
+      },
+      ajaxRequestFunc: function (url, config, params) {
+        const formData = new FormData(document.getElementById('searchForm'));
+
+        formData.append("pageNumber", (params.page ? params.page - 1 : 0));
+        formData.append("pageSize", params.size || 10);
+        formData.append("sortField", params.sortField || "createdDate");
+        formData.append("sortDirection", params.sortDirection || "desc");
+
+        return fetch(url + "?accessToken=" + localStorage.getItem("accessToken"), {
+          method: "POST",
+          headers: config.headers,
+          body: formData
+        })
+        .then(response => response.json())
+      },
+      ajaxResponse: function (url, params, response) {
+        // 총 항목수 표시
+        document.getElementById("totalCount").textContent =
+            `총 조회 수: ${response.membersPage.totalElements || 0}건`;
+
+        return {
+          data: response.membersPage.content,      // 현재 페이지 데이터 목록
+          last_page: response.membersPage.totalPages // 총 페이지 수
+        };
+      },
+      pagination: true,
+      paginationMode: "remote",
+      paginationSize: 10,
+      paginationSizeSelector: [10, 30, 50, 100],
+      height: "600px"
+    });
+
+    return table;
+  }
+
+  // 이벤트 핸들러
+  function eventHandler(table) {
+    const form = document.getElementById("searchForm");
+
+    // 검색 버튼 이벤트
+    form.addEventListener("submit", function (e) {
+      e.preventDefault();
+      table.setData(); // 테이블 데이터 새로 로드
+    });
+
+    // 폼 필터 초기화 버튼 이벤트
+    document.getElementById("resetFilterButton").addEventListener("click", function () {
+      form.reset();
+      table.setData();
+    });
+
+    // 정렬 초기화
+    document.getElementById("resetSortButton").addEventListener("click", function () {
+      table.clearSort();
+    });
+  }
+
+
+</script>
+
 </body>
 </html>

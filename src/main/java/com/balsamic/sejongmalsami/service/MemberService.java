@@ -51,6 +51,9 @@ import java.util.UUID;
 import java.util.stream.Collectors;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.userdetails.UserDetailsService;
@@ -130,7 +133,7 @@ public class MemberService implements UserDetailsService {
 
           // 관리자 계정 확인
           HashSet<Role> roles = new HashSet<>(Set.of(Role.ROLE_USER));
-          if(adminConfig.isAdmin(studentIdString)){
+          if (adminConfig.isAdmin(studentIdString)) {
             roles = new HashSet<>(Set.of(Role.ROLE_USER, Role.ROLE_ADMIN));
             log.info("관리자 계정 등록 완료: {}", studentIdString);
           }
@@ -167,7 +170,7 @@ public class MemberService implements UserDetailsService {
         });
 
     // 관리자 확인
-    if(member.getRoles().contains(Role.ROLE_ADMIN)){
+    if (member.getRoles().contains(Role.ROLE_ADMIN)) {
       isAdmin = true;
     }
 
@@ -263,7 +266,6 @@ public class MemberService implements UserDetailsService {
 
     log.info("리프레시 토큰 쿠키 설정 완료: 회원 = {}", member.getStudentId());
 
-
     // 액세스 토큰 반환
     return MemberDto.builder()
         .member(member)
@@ -275,7 +277,6 @@ public class MemberService implements UserDetailsService {
             .orElseThrow(() -> new CustomException(ErrorCode.EXP_NOT_FOUND)))
         .build();
   }
-
 
 
   @Transactional(readOnly = true)
@@ -424,6 +425,51 @@ public class MemberService implements UserDetailsService {
         .canAccessYangban(canAccessYangban)
         .canAccessKing(canAccessKing)
         .yeopjeon(yeopjeon)
+        .build();
+  }
+
+  // 관리자-회원관리 : 기본 검색 (미사용)
+  public MemberDto findAll(MemberCommand command) {
+
+    Sort sort = Sort.by(
+        command.getSortDirection().equalsIgnoreCase("desc") ?
+            Sort.Direction.DESC : Sort.Direction.ASC,
+        command.getSortField()
+    );
+
+    Pageable pageable = PageRequest.of(command.getPageNumber(), command.getPageSize(), sort);
+
+    return MemberDto.builder()
+        .membersPage(memberRepository.findAll(pageable))
+        .build();
+  }
+
+  // 관리자-회원관리 : 필터링 검색
+  public MemberDto findFilteredMember(MemberCommand command) {
+    return MemberDto.builder()
+        .membersPage(
+            memberRepository.findAllDynamic(
+                command.getStudentId(),
+                command.getStudentName(),
+                command.getUuidNickname(),
+                command.getMajor(),
+                command.getAcademicYear(),
+                command.getEnrollmentStatus(),
+                command.getAccountStatus(),
+                command.getRole(),
+                command.getLastLoginStart(),
+                command.getLastLoginEnd(),
+                command.getIsFirstLogin(),
+                command.getIsEdited(),
+                command.getIsDeleted(),
+                PageRequest.of(
+                    command.getPageNumber(),
+                    command.getPageSize(),
+                    Sort.by(Sort.Direction.fromString(command.getSortDirection()),
+                        command.getSortField())
+                )
+            )
+        )
         .build();
   }
 }

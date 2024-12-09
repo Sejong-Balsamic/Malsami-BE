@@ -9,6 +9,8 @@ import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
+import jakarta.persistence.PrePersist;
+import jakarta.persistence.PreUpdate;
 import jakarta.persistence.Table;
 import java.util.UUID;
 import lombok.AllArgsConstructor;
@@ -266,4 +268,38 @@ public class Department extends BaseEntity {
   @JoinColumn(name = "faculty_id")
   @JsonProperty("faculty")
   private Faculty faculty;
+
+  @Builder.Default
+  private Boolean isActive = null;
+
+  @PrePersist
+  @PreUpdate
+  private void updateActiveStatus() {
+    // isActive가 설정되지 않은 경우에만 처리
+    if (isActive == null) {
+      // 폐기 여부 확인
+      boolean hasClosure = false;
+
+      // 1. 학과명에 폐기 포함 확인
+      if (deptNm != null && deptNm.contains("【폐기】")) {
+        hasClosure = true;
+      }
+      // 2. 학과 별칭에 폐기 포함 확인
+      if (deptAlias != null && deptAlias.contains("【폐기】")) {
+        hasClosure = true;
+      }
+      // 3. 행정 별칭에 폐기 포함 확인
+      if (admDeptAlias != null && admDeptAlias.contains("【폐기】")) {
+        hasClosure = true;
+      }
+      // 4. 폐기일자 존재 확인
+      if (closeDt != null) {
+        hasClosure = true;
+      }
+
+      // 폐기된 경우 false, 아닌 경우 true로 설정
+      isActive = !hasClosure;
+    }
+  }
+
 }

@@ -38,6 +38,7 @@ public class QuestionCommand {
   private Integer rewardYeopjeon; // 질문
   private ContentType contentType;
   private Boolean isPrivate; // 질문, 답변
+
   @Schema(defaultValue = "0")
   private Integer pageNumber;
   @Schema(defaultValue = "30")
