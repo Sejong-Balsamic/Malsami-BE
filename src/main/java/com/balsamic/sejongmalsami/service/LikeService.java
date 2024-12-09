@@ -9,8 +9,8 @@ import static com.balsamic.sejongmalsami.object.constants.PostTier.CHEONMIN;
 import static com.balsamic.sejongmalsami.object.constants.PostTier.JUNGIN;
 import static com.balsamic.sejongmalsami.object.constants.PostTier.KING;
 import static com.balsamic.sejongmalsami.object.constants.PostTier.YANGBAN;
-import static com.balsamic.sejongmalsami.object.constants.ReactionType.DISLIKE;
-import static com.balsamic.sejongmalsami.object.constants.ReactionType.LIKE;
+import static com.balsamic.sejongmalsami.object.constants.LikeType.DISLIKE;
+import static com.balsamic.sejongmalsami.object.constants.LikeType.LIKE;
 import static com.balsamic.sejongmalsami.object.constants.YeopjeonAction.RECEIVE_DISLIKE;
 
 import com.balsamic.sejongmalsami.object.CommentCommand;
@@ -21,8 +21,8 @@ import com.balsamic.sejongmalsami.object.QuestionCommand;
 import com.balsamic.sejongmalsami.object.QuestionDto;
 import com.balsamic.sejongmalsami.object.constants.ContentType;
 import com.balsamic.sejongmalsami.object.constants.ExpAction;
+import com.balsamic.sejongmalsami.object.constants.LikeType;
 import com.balsamic.sejongmalsami.object.constants.PostTier;
-import com.balsamic.sejongmalsami.object.constants.ReactionType;
 import com.balsamic.sejongmalsami.object.constants.YeopjeonAction;
 import com.balsamic.sejongmalsami.object.mongo.CommentLike;
 import com.balsamic.sejongmalsami.object.mongo.DocumentBoardLike;
@@ -90,7 +90,7 @@ public class LikeService {
    */
   @Transactional
   public QuestionDto questionBoardLike(QuestionCommand command) {
-    return handleReaction(
+    return processLikeRequest(
         command.getMemberId(),
         command.getPostId(),
         command.getContentType(),
@@ -122,11 +122,11 @@ public class LikeService {
    */
   @Transactional
   public DocumentDto documentBoardLike(DocumentCommand command) {
-    return handleReaction(
+    return processLikeRequest(
         command.getMemberId(),
         command.getDocumentPostId(),
         command.getContentType(),
-        command.getReactionType()
+        command.getLikeType()
     );
   }
 
@@ -140,7 +140,7 @@ public class LikeService {
    */
   @Transactional
   public CommentDto commentLike(CommentCommand command) {
-    return handleReaction(
+    return processLikeRequest(
         command.getMemberId(),
         command.getPostId(),
         command.getContentType(),
@@ -155,10 +155,10 @@ public class LikeService {
    * @param memberId     로그인 회원
    * @param postId       게시글
    * @param contentType  유형
-   * @param reactionType 좋아요/싫어요
+   * @param likeType 좋아요/싫어요
    * @return
    */
-  private <T> T handleReaction(UUID memberId, UUID postId, ContentType contentType, ReactionType reactionType) {
+  private <T> T processLikeRequest(UUID memberId, UUID postId, ContentType contentType, LikeType likeType) {
     // 회원 조회
     Member curMember = memberRepository.findById(memberId)
         .orElseThrow(() -> new CustomException(ErrorCode.MEMBER_NOT_FOUND));
@@ -211,14 +211,14 @@ public class LikeService {
     ExpHistory expHistory = null;
 
     try {
-      if (reactionType.equals(LIKE)) { // 좋아요를 눌렀을 경우
+      if (likeType.equals(LIKE)) { // 좋아요를 눌렀을 경우
         yeopjeonHistory = yeopjeonService.processYeopjeon(writer, YeopjeonAction.RECEIVE_LIKE);
         expHistory = expService.processExp(writer, ExpAction.RECEIVE_LIKE);
-      } else if (reactionType.equals(DISLIKE) && contentType.equals(DOCUMENT)) { // 싫어요를 눌렀을 경우 (자료글만 가능)
+      } else if (likeType.equals(DISLIKE) && contentType.equals(DOCUMENT)) { // 싫어요를 눌렀을 경우 (자료글만 가능)
         yeopjeonHistory = yeopjeonService.processYeopjeon(writer, RECEIVE_DISLIKE);
       } else {
         log.error("ContentType, ReactionType 요청이 잘못되었습니다. ContentType: {}, ReactionType: {}",
-            contentType, reactionType);
+            contentType, likeType);
         throw new CustomException(ErrorCode.INVALID_REACTION_TYPE);
       }
     } catch (Exception e) { // 엽전 or 경험치 처리 중 오류 발생
@@ -228,7 +228,7 @@ public class LikeService {
 
     // 좋아요/싫어요 증가
     try {
-      applyAction(memberId, postId, contentType, reactionType);
+      applyAction(memberId, postId, contentType, likeType);
       if (contentType.equals(QUESTION)) {
         QuestionBoardLike questionBoardLike = QuestionBoardLike.builder()
             .memberId(memberId)
@@ -240,12 +240,12 @@ public class LikeService {
             .questionBoardLike(questionBoardLike)
             .build();
       } else if (contentType.equals(DOCUMENT)) { // 자료글인 경우 등급 변동 계산
-        calculateNewTier(postId, reactionType);
+        calculateNewTier(postId, likeType);
         DocumentBoardLike documentBoardLike = DocumentBoardLike.builder()
             .memberId(memberId)
             .documentBoardId(postId)
             .contentType(contentType)
-            .reactionType(reactionType)
+            .likeType(likeType)
             .build();
         documentBoardLikeRepository.save(documentBoardLike);
         return (T) DocumentDto.builder()
@@ -256,7 +256,7 @@ public class LikeService {
             .memberId(memberId)
             .documentBoardId(postId)
             .contentType(contentType)
-            .reactionType(reactionType)
+            .likeType(likeType)
             .build();
         documentBoardLikeRepository.save(documentBoardLike);
         return (T) DocumentDto.builder()
@@ -281,15 +281,15 @@ public class LikeService {
       if (contentType.equals(DOCUMENT)) {
         rollbackTier(postId, preTier); // 자료 글 등급 롤백
       }
-      rollbackAction(postId, contentType, reactionType); // 좋아요/싫어요 수 롤백
-      if (reactionType.equals(LIKE)) {
+      rollbackAction(postId, contentType, likeType); // 좋아요/싫어요 수 롤백
+      if (likeType.equals(LIKE)) {
         yeopjeonService.rollbackYeopjeonTransaction(writer, YeopjeonAction.RECEIVE_LIKE, yeopjeonHistory);
         expService.rollbackExpTransaction(writer, ExpAction.RECEIVE_LIKE, expHistory);
-      } else if (reactionType.equals(DISLIKE) && contentType.equals(DOCUMENT)) {
+      } else if (likeType.equals(DISLIKE) && contentType.equals(DOCUMENT)) {
         yeopjeonService.rollbackYeopjeonTransaction(writer, RECEIVE_DISLIKE, yeopjeonHistory);
       } else {
         log.error("ContentType, ReactionType 요청이 잘못되었습니다. ContentType: {}, ReactionType: {}",
-            contentType, reactionType);
+            contentType, likeType);
         throw new CustomException(ErrorCode.INVALID_REACTION_TYPE);
       }
       throw new CustomException(ErrorCode.INTERNAL_SERVER_ERROR);
@@ -340,9 +340,9 @@ public class LikeService {
    * @param memberId     로그인 회원
    * @param postId       게시물
    * @param contentType  게시물 유형
-   * @param reactionType 좋아요/싫어요 유형 (자료글)
+   * @param likeType 좋아요/싫어요 유형 (자료글)
    */
-  private void applyAction(UUID memberId, UUID postId, ContentType contentType, ReactionType reactionType) {
+  private void applyAction(UUID memberId, UUID postId, ContentType contentType, LikeType likeType) {
     if (contentType.equals(QUESTION)) { // 질문 글 좋아요 증가
       QuestionPost questionPost = questionPostRepository.findById(postId)
           .orElseThrow(() -> new CustomException(ErrorCode.QUESTION_POST_NOT_FOUND));
@@ -356,14 +356,14 @@ public class LikeService {
     } else if (contentType.equals(DOCUMENT)) { // 자료 글 좋아요 / 싫어요 증가
       DocumentPost documentPost = documentPostRepository.findById(postId)
           .orElseThrow(() -> new CustomException(ErrorCode.DOCUMENT_POST_NOT_FOUND));
-      if (reactionType.equals(LIKE)) { // 자료 글 좋아요 증가
+      if (likeType.equals(LIKE)) { // 자료 글 좋아요 증가
         documentPost.increaseLikeCount();
         documentPostRepository.save(documentPost);
-      } else if (reactionType.equals(DISLIKE)) { // 자료 글 싫어요 증가
+      } else if (likeType.equals(DISLIKE)) { // 자료 글 싫어요 증가
         documentPost.increaseDislikeCount();
         documentPostRepository.save(documentPost);
       } else {
-        log.error("잘못된 ReactionType 입니다. 요청 ReactionType: {}", reactionType);
+        log.error("잘못된 ReactionType 입니다. 요청 ReactionType: {}", likeType);
         throw new CustomException(ErrorCode.INVALID_REACTION_TYPE);
       }
     } else if (contentType.equals(DOCUMENT_REQUEST)) { // 자료 요청 글 좋아요 증가
@@ -388,9 +388,9 @@ public class LikeService {
    *
    * @param postId       게시물
    * @param contentType  게시물 유형
-   * @param reactionType 좋아요/싫어요 유형 (자료글)
+   * @param likeType 좋아요/싫어요 유형 (자료글)
    */
-  private void rollbackAction(UUID postId, ContentType contentType, ReactionType reactionType) {
+  private void rollbackAction(UUID postId, ContentType contentType, LikeType likeType) {
     if (contentType.equals(QUESTION)) { // 질문 글 좋아요 롤백
       QuestionPost questionPost = questionPostRepository.findById(postId)
           .orElseThrow(() -> new CustomException(ErrorCode.QUESTION_POST_NOT_FOUND));
@@ -404,14 +404,14 @@ public class LikeService {
     } else if (contentType.equals(DOCUMENT)) { // 자료 글 좋아요 / 싫어요 롤백
       DocumentPost documentPost = documentPostRepository.findById(postId)
           .orElseThrow(() -> new CustomException(ErrorCode.DOCUMENT_POST_NOT_FOUND));
-      if (reactionType.equals(LIKE)) { // 자료 글 좋아요 롤백
+      if (likeType.equals(LIKE)) { // 자료 글 좋아요 롤백
         documentPost.decreaseLikeCount();
         documentPostRepository.save(documentPost);
-      } else if (reactionType.equals(DISLIKE)) { // 자료 글 싫어요 롤백
+      } else if (likeType.equals(DISLIKE)) { // 자료 글 싫어요 롤백
         documentPost.decreaseDislikeCount();
         documentPostRepository.save(documentPost);
       } else {
-        log.error("잘못된 ReactionType 입니다. 요청 ReactionType: {}", reactionType);
+        log.error("잘못된 ReactionType 입니다. 요청 ReactionType: {}", likeType);
         throw new CustomException(ErrorCode.INVALID_REACTION_TYPE);
       }
     } else if (contentType.equals(DOCUMENT_REQUEST)) { // 자료 요청 글 좋아요 롤백
@@ -461,9 +461,9 @@ public class LikeService {
    * <h3>자료 글 등급 승급/강등 로직</h3>
    *
    * @param postId       자료 글 PK
-   * @param reactionType 좋아요/싫어요 유형
+   * @param likeType 좋아요/싫어요 유형
    */
-  private void calculateNewTier(UUID postId, ReactionType reactionType) {
+  private void calculateNewTier(UUID postId, LikeType likeType) {
     DocumentPost post = documentPostRepository.findById(postId)
         .orElseThrow(() -> new CustomException(ErrorCode.DOCUMENT_POST_NOT_FOUND));
 
@@ -474,7 +474,7 @@ public class LikeService {
     int score = post.getLikeCount() - post.getDislikeCount();
 
     // 좋아요가 요청된 경우 (승급여부만 확인)
-    if (reactionType.equals(ReactionType.LIKE)) {
+    if (likeType.equals(LikeType.LIKE)) {
       if (score >= postTierConfig.getLikeRequirementKing() && curTier.equals(YANGBAN)) {
         log.info("해당 글의 점수가 {} 에 도달하여 왕 등급으로 승급합니다. 현재 점수: {}", postTierConfig.getLikeRequirementKing(), score);
         post.setPostTier(KING);
@@ -485,7 +485,7 @@ public class LikeService {
         log.info("해당 글의 점수가 {} 에 도달하여 중인 등급으로 승급합니다. 현재 점수: {}", postTierConfig.getLikeRequirementJungin(), score);
         post.setPostTier(JUNGIN);
       }
-    } else if (reactionType.equals(ReactionType.DISLIKE)) { // 싫어요가 요청된 경우 (강등여부만 확인)
+    } else if (likeType.equals(LikeType.DISLIKE)) { // 싫어요가 요청된 경우 (강등여부만 확인)
       if (post.getDislikeCount() < DEMOTION_DISLIKE_LIMIT) { // 싫어요 개수가 20개 미만인 경우 강등여부 확인 X
         return;
       }
