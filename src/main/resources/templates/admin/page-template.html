@@ -1,41 +1,26 @@
-<!-- src/main/resources/templates/admin/page-template.html -->
 <!DOCTYPE html>
 <html xmlns:th="http://www.thymeleaf.org">
-<head th:replace="fragments/header :: head(title=${pageTitle})"><!-- 헤더 정보 포함: 동적 타이틀 설정 --></head>
-<body>
-<div th:replace="fragments/header :: header"><!-- 헤더 프래그먼트 포함 --></div>
+<head th:replace="fragments/header :: head(title='개발자의 놀이터')">
+</head>
+<body class="play-ground">
+<div th:replace="fragments/header :: header"></div>
 
-<div class="ui stackable grid">
-  <div class="column">
-    <h2 class="ui header" th:text="${pageHeader}">페이지 제목</h2> <!-- 페이지 제목: 동적 텍스트 설정 -->
-
-    <div class="ui segments">
-      <!-- 주요 섹션: 통계 또는 기타 정보 -->
-      <div class="ui segment">
-        <div class="ui statistics">
-          <!-- 통계 항목 반복 -->
-          <div class="statistic" th:each="stat : ${statistics}">
-            <div class="value" th:text="${stat.value}">값</div> <!-- 통계 값 -->
-            <div class="label" th:text="${stat.label}">라벨</div> <!-- 통계 라벨 -->
-          </div>
-        </div>
-      </div>
-
-      <!-- 추가 섹션: 서버 상태, 사용자 정보 등 -->
-      <div class="ui segment" th:if="${additionalSection}">
-        <h3 class="ui header" th:text="${additionalSection.title}">추가 섹션 제목</h3> <!-- 섹션 제목 -->
-        <div class="ui relaxed divided list">
-          <!-- 리스트 항목 반복 -->
-          <div class="item" th:each="item : ${additionalSection.items}">
-            <i th:class="${item.icon}"></i> <!-- 아이콘 클래스 동적 설정 -->
-            <div class="content" th:text="${item.content}">내용</div> <!-- 항목 내용 -->
-          </div>
-        </div>
-      </div>
-    </div>
+<div class="ui container u-margin-vertical-large u-padding-horizontal-medium">
+  <div class="ui main text container u-margin-bottom-large">
   </div>
-</div>
 
-<div th:replace="~{fragments/footer :: footer}"><!-- 푸터 프래그먼트 포함 --></div>
+  <div class="ui segment">
+  </div>
+
+  <!-- footer -->
+  <div th:replace="fragments/footer :: footer"></div>
+</div>
 </body>
+<script th:inline="javascript">
+  $(document).ready(function () {
+    // 드롭다운 초기화
+    $('.ui.dropdown').dropdown();
+  });
+
+</script>
 </html>

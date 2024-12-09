@@ -46,8 +46,9 @@ public class SecurityUrls {
    * 관리자 권한이 필요한 URL 패턴 목록
    */
   public static final List<String> ADMIN_PATHS = Arrays.asList(
-      "/admin/dashboard",                     // 관리자 페이지
-      "/admin/testPage1"
-
+      "/admin/member/**",
+      "/admin/dashboard/**",
+      "/admin/uuid-ppchko",
+      "/admin/play-ground/**"
   );
 }

@@ -1,15 +1,18 @@
 package com.balsamic.sejongmalsami.controller.view;
 
 import com.balsamic.sejongmalsami.util.JwtUtil;
+import com.balsamic.sejongmalsami.util.LogUtils;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 
+@Slf4j
 @Controller
 @RequiredArgsConstructor
 @Tag(
@@ -84,13 +87,25 @@ public class AdminPageController {
    * 관리자 멤버 페이지 - 토큰 검증 필요
    */
   @GetMapping("/admin/member")
-  public String membersPage(@RequestParam String accessToken, Model model) {
+  public String memberPage(@RequestParam String accessToken, Model model) {
     if (!jwtUtil.validateToken(accessToken)) {
       return "redirect:/error/403";
     }
     return "admin/member";
   }
 
+  /**
+   * 관리자 개발자의놀이터 페이지 - 토큰 검증 필요
+   */
+  @GetMapping("/admin/play-ground")
+  public String playGroundPage(@RequestParam String accessToken, Model model) {
+//    if (!jwtUtil.validateToken(accessToken)) {
+//      return "redirect:/error/403";
+//    }
+    log.info(accessToken);
+    LogUtils.superLog(accessToken);
+    return "admin/playGround";
+  }
   /**
    * 로그아웃 - 토큰 검증 필요 없음
    */
