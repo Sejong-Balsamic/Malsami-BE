@@ -75,7 +75,7 @@ public interface LikeControllerDocs {
             _예: ContentType.DOCUMENT_
             _예: ContentType.DOCUMENT_REQUEST_
             
-          - **ReactionType reactionType**: 좋아요 or 싫어요 [필수]
+          - **ReactionType likeType**: 좋아요 or 싫어요 [필수]
             _예: ReactionType.LIKE_
             _예: ReactionType.DISLIKE_
 

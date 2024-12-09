@@ -210,6 +210,8 @@ public enum ErrorCode {
 
   EXP_HISTORY_SAVE_ERROR(HttpStatus.INTERNAL_SERVER_ERROR, "경험치 히스토리 저장 중 오류가 발생했습니다."),
 
+  EXP_HISTORY_DELETE_ERROR(HttpStatus.INTERNAL_SERVER_ERROR, "경험치 히스토리 삭제 중 오류가 발생했습니다."),
+
   EXP_NOT_FOUND(HttpStatus.BAD_REQUEST, "경험치 객체를 찾을 수 없습니다."),
 
   INVALID_EXP_ACTION(HttpStatus.BAD_REQUEST, "잘못된 ExpAction에 해당됩니다."),

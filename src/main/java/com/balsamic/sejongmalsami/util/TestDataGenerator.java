@@ -57,7 +57,6 @@ import java.util.Locale;
 import java.util.Random;
 import java.util.Set;
 import java.util.UUID;
-import java.util.stream.Collectors;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import net.datafaker.Faker;
@@ -336,13 +335,13 @@ public class TestDataGenerator {
 
     int score = post.getLikeCount() - post.getDislikeCount();
     if (score < postTierConfig.getLikeRequirementCheonmin()) {
-      post.updatePostTier(CHEONMIN);
+      post.setPostTier(CHEONMIN);
     } else if (score < postTierConfig.getLikeRequirementJungin()) {
-      post.updatePostTier(JUNGIN);
+      post.setPostTier(JUNGIN);
     } else if (score < postTierConfig.getLikeRequirementKing()) {
-      post.updatePostTier(YANGBAN);
+      post.setPostTier(YANGBAN);
     } else {
-      post.updatePostTier(KING);
+      post.setPostTier(KING);
     }
 
     return documentPostRepository.save(post);

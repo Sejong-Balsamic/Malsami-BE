@@ -1,7 +1,7 @@
 package com.balsamic.sejongmalsami.object.mongo;
 
 import com.balsamic.sejongmalsami.object.constants.ContentType;
-import com.balsamic.sejongmalsami.object.constants.ReactionType;
+import com.balsamic.sejongmalsami.object.constants.LikeType;
 import jakarta.validation.constraints.NotNull;
 import java.util.UUID;
 import lombok.AllArgsConstructor;
@@ -36,5 +36,5 @@ public class DocumentBoardLike extends BaseMongoEntity {
   private ContentType contentType;
 
   @NotNull
-  private ReactionType reactionType;
+  private LikeType likeType;
 }
