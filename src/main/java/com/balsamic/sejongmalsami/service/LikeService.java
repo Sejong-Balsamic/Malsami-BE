@@ -50,7 +50,6 @@ import com.balsamic.sejongmalsami.util.config.YeopjeonConfig;
 import com.balsamic.sejongmalsami.util.exception.CustomException;
 import com.balsamic.sejongmalsami.util.exception.ErrorCode;
 import java.util.UUID;
-import java.util.function.Supplier;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
@@ -95,18 +94,8 @@ public class LikeService {
         command.getMemberId(),
         command.getPostId(),
         command.getContentType(),
-        LIKE,
-        () -> {
-          QuestionBoardLike questionBoardLike = QuestionBoardLike.builder()
-              .memberId(command.getMemberId())
-              .questionBoardId(command.getPostId())
-              .contentType(command.getContentType())
-              .build();
-          questionBoardLikeRepository.save(questionBoardLike);
-          return QuestionDto.builder()
-              .questionBoardLike(questionBoardLike)
-              .build();
-        });
+        LIKE
+    );
   }
 
   /**
@@ -137,19 +126,7 @@ public class LikeService {
         command.getMemberId(),
         command.getDocumentPostId(),
         command.getContentType(),
-        command.getReactionType(),
-        () -> {
-          DocumentBoardLike documentBoardLike = DocumentBoardLike.builder()
-              .memberId(command.getMemberId())
-              .documentBoardId(command.getDocumentPostId())
-              .contentType(command.getContentType())
-              .reactionType(command.getReactionType())
-              .build();
-          documentBoardLikeRepository.save(documentBoardLike);
-          return DocumentDto.builder()
-              .documentBoardLike(documentBoardLike)
-              .build();
-        }
+        command.getReactionType()
     );
   }
 
@@ -167,18 +144,7 @@ public class LikeService {
         command.getMemberId(),
         command.getPostId(),
         command.getContentType(),
-        LIKE,
-        () -> {
-          CommentLike commentLike = CommentLike.builder()
-              .memberId(command.getMemberId())
-              .commentId(command.getPostId())
-              .contentType(command.getContentType())
-              .build();
-          commentLikeRepository.save(commentLike);
-          return CommentDto.builder()
-              .commentLike(commentLike)
-              .build();
-        }
+        LIKE
     );
   }
 
@@ -190,12 +156,9 @@ public class LikeService {
    * @param postId       게시글
    * @param contentType  유형
    * @param reactionType 좋아요/싫어요
-   * @param historySaver 좋아요/싫어요 히스토리
-   * @param <T>          글 히스토리 타입
    * @return
    */
-  private <T> T handleReaction(UUID memberId, UUID postId, ContentType contentType, ReactionType reactionType,
-      Supplier<T> historySaver) {
+  private <T> T handleReaction(UUID memberId, UUID postId, ContentType contentType, ReactionType reactionType) {
     // 회원 조회
     Member curMember = memberRepository.findById(memberId)
         .orElseThrow(() -> new CustomException(ErrorCode.MEMBER_NOT_FOUND));
@@ -266,10 +229,53 @@ public class LikeService {
     // 좋아요/싫어요 증가
     try {
       applyAction(memberId, postId, contentType, reactionType);
-      if (contentType.equals(DOCUMENT)) { // 자료글인 경우 등급 변동 계산
+      if (contentType.equals(QUESTION)) {
+        QuestionBoardLike questionBoardLike = QuestionBoardLike.builder()
+            .memberId(memberId)
+            .questionBoardId(postId)
+            .contentType(contentType)
+            .build();
+        questionBoardLikeRepository.save(questionBoardLike);
+        return (T) QuestionDto.builder()
+            .questionBoardLike(questionBoardLike)
+            .build();
+      } else if (contentType.equals(DOCUMENT)) { // 자료글인 경우 등급 변동 계산
         calculateNewTier(postId, reactionType);
+        DocumentBoardLike documentBoardLike = DocumentBoardLike.builder()
+            .memberId(memberId)
+            .documentBoardId(postId)
+            .contentType(contentType)
+            .reactionType(reactionType)
+            .build();
+        documentBoardLikeRepository.save(documentBoardLike);
+        return (T) DocumentDto.builder()
+            .documentBoardLike(documentBoardLike)
+            .build();
+      } else if (contentType.equals(DOCUMENT_REQUEST)) {
+        DocumentBoardLike documentBoardLike = DocumentBoardLike.builder()
+            .memberId(memberId)
+            .documentBoardId(postId)
+            .contentType(contentType)
+            .reactionType(reactionType)
+            .build();
+        documentBoardLikeRepository.save(documentBoardLike);
+        return (T) DocumentDto.builder()
+            .documentBoardLike(documentBoardLike)
+            .build();
+      } else if (contentType.equals(COMMENT)) {
+        CommentLike commentLike = CommentLike.builder()
+            .memberId(memberId)
+            .commentId(postId)
+            .contentType(contentType)
+            .build();
+        commentLikeRepository.save(commentLike);
+        return (T) CommentDto.builder()
+            .commentLike(commentLike)
+            .build();
+      } else { // 잘못된 contentType
+        log.error("요청된 ContentType: {}", contentType);
+        throw new CustomException(ErrorCode.INVALID_CONTENT_TYPE);
       }
-      return historySaver.get(); // contentType에 해당하는 좋아요/싫어요 히스토리 반환
     } catch (Exception e) { // 좋아요/싫어요 변동 중 오류 발생
       log.error("좋아요/싫어요 변동 중 오류가 발생했습니다.", e);
       if (contentType.equals(DOCUMENT)) {
@@ -501,6 +507,7 @@ public class LikeService {
           post.getDocumentPostId(),
           curTier.getDescription(),
           post.getPostTier().getDescription());
+      documentPostRepository.save(post);
     }
   }
 
