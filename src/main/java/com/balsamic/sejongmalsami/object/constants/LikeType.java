@@ -5,7 +5,7 @@ import lombok.Getter;
 
 @AllArgsConstructor
 @Getter
-public enum ReactionType {
+public enum LikeType {
   LIKE("좋아요"),
   DISLIKE("싫어요");
 
