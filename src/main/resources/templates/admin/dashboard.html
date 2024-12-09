@@ -11,8 +11,19 @@
 <div class="ui container u-margin-vertical-large u-padding-horizontal-medium">
 
   <!-- 대시보드 제목 -->
-  <div class="ui main text container u-margin-bottom-large">
-    <h1 class="ui header">DASHBOARD 대쉬보드</h1>
+  <div class="ui main text container u-margin-bottom-large"
+       style="position: relative; display: flex; align-items: center;">
+    <h1 class="ui header" id="dashboardTitle"
+        style="cursor: pointer; display: inline-block; position: relative; margin-right: 10px;">
+      <span>🎯DASHBOARD</span>
+    </h1>
+    <img id="playgroundIcon" src="/images/play-ground.png"
+         style="width:42px; height:45px; cursor:pointer; margin-left:10px; position:relative; transition: transform
+         0.3s ease;"/>
+    <a id="devPlaygroundButton" href="javascript:Auth.navigate('/admin/play-ground')" class="ui pink icon tiny button"
+       style="display:none;">
+      🎪개발자의 놀이터
+    </a>
   </div>
 
   <!-- 네비게이션 버튼 섹션 -->
@@ -24,7 +35,8 @@
 
     <div class="ui card fluid">
       <div class="content">
-        <div class="ui five column stackable grid u-margin-bottom-large u-display-mobile-flex" style="max-width: 1200px; margin: 0 auto;">
+        <div class="ui five column stackable grid u-margin-bottom-large u-display-mobile-flex"
+             style="max-width: 1200px; margin: 0 auto;">
           <div class="column">
             <a href="javascript:Auth.navigate('/admin/member')" class="ui blue icon labeled button">
               <i class="users icon"></i>
@@ -125,10 +137,9 @@
                 </div>
               </div>
             </div>
-            }
-
-            <!-- 추가 통계 카드들... -->
           </div>
+
+          <!-- 추가 통계 카드들... -->
         </div>
       </div>
     </div>
@@ -237,212 +248,214 @@
       </div>
     </div>
   </div>
-
   <!-- 푸터 포함 -->
   <div th:replace="fragments/footer :: footer"></div>
+</body>
+<!-- Chart.js CDN -->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/3.7.0/chart.min.js"></script>
 
-  <!-- Chart.js CDN -->
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/3.7.0/chart.min.js"></script>
+<!-- 대시보드 스크립트 -->
+<script th:inline="javascript">
+  $(document).ready(function () {
+    // 차트 초기화
+    initializeCharts();
 
-  <!-- 대시보드 스크립트 -->
-  <script th:inline="javascript">
-    $(document).ready(function() {
-      // 차트 초기화
-      initializeCharts();
+    // 통계 데이터 로드
+    loadStatistics();
 
-      // 통계 데이터 로드
-      loadStatistics();
+    // 시스템 리소스 모니터링 시작
+    startSystemMonitoring();
 
-      // 시스템 리소스 모니터링 시작
-      startSystemMonitoring();
+    // 경고 로그 로드
+    loadWarningLogs();
 
-      // 경고 로그 로드
-      loadWarningLogs();
+    // 자동 새로고침 설정
+    setInterval(loadStatistics, 300000); // 5분
+    setInterval(updateSystemResources, 5000); // 5초
+  });
 
-      // 자동 새로고침 설정
-      setInterval(loadStatistics, 300000); // 5분
-      setInterval(updateSystemResources, 5000); // 5초
-    });
-
-    function initializeCharts() {
-      // 주간 활성화 차트
-      const weeklyCtx = document.getElementById('weeklyActivityChart').getContext('2d');
-      window.weeklyChart = new Chart(weeklyCtx, {
-        type: 'line',
-        data: {
-          labels: ['월', '화', '수', '목', '금', '토', '일'],
-          datasets: [{
-            label: '활동량',
-            data: [0, 0, 0, 0, 0, 0, 0],
-            borderColor: 'rgb(75, 192, 192)',
-            tension: 0.1
-          }]
+  function initializeCharts() {
+    // 주간 활성화 차트
+    const weeklyCtx = document.getElementById('weeklyActivityChart').getContext('2d');
+    window.weeklyChart = new Chart(weeklyCtx, {
+      type: 'line',
+      data: {
+        labels: ['월', '화', '수', '목', '금', '토', '일'],
+        datasets: [{
+          label: '활동량',
+          data: [0, 0, 0, 0, 0, 0, 0],
+          borderColor: 'rgb(75, 192, 192)',
+          tension: 0.1
+        }]
+      },
+      options: {
+        responsive: true,
+        maintainAspectRatio: false,
+        plugins: {
+          legend: {
+            display: true
+          }
         },
-        options: {
-          responsive: true,
-          maintainAspectRatio: false,
-          plugins: {
-            legend: {
-              display: true
+        scales: {
+          x: {
+            display: true,
+            title: {
+              display: true,
+              text: '요일'
             }
           },
-          scales: {
-            x: {
+          y: {
+            display: true,
+            title: {
               display: true,
-              title: {
-                display: true,
-                text: '요일'
-              }
+              text: '활동량'
             },
-            y: {
-              display: true,
-              title: {
-                display: true,
-                text: '활동량'
-              },
-              beginAtZero: true
-            }
+            beginAtZero: true
           }
         }
-      });
+      }
+    });
 
-      // 사용자 분포 차트
-      const distributionCtx = document.getElementById('userDistributionChart').getContext('2d');
-      window.distributionChart = new Chart(distributionCtx, {
-        type: 'doughnut',
-        data: {
-          labels: ['활성', '휴면', '신규'],
-          datasets: [{
-            data: [0, 0, 0],
-            backgroundColor: [
-              'rgb(54, 162, 235)',
-              'rgb(255, 99, 132)',
-              'rgb(75, 192, 192)'
-            ]
-          }]
-        },
-        options: {
-          responsive: true,
-          maintainAspectRatio: false,
-          plugins: {
-            legend: {
-              position: 'bottom'
-            }
+    // 사용자 분포 차트
+    const distributionCtx = document.getElementById('userDistributionChart').getContext('2d');
+    window.distributionChart = new Chart(distributionCtx, {
+      type: 'doughnut',
+      data: {
+        labels: ['활성', '휴면', '신규'],
+        datasets: [{
+          data: [0, 0, 0],
+          backgroundColor: [
+            'rgb(54, 162, 235)',
+            'rgb(255, 99, 132)',
+            'rgb(75, 192, 192)'
+          ]
+        }]
+      },
+      options: {
+        responsive: true,
+        maintainAspectRatio: false,
+        plugins: {
+          legend: {
+            position: 'bottom'
           }
         }
-      });
-    }
-
-    function loadStatistics() {
-      $.ajax({
-        url: '/api/admin/statistics',
-        method: 'GET',
-        headers: {
-          'Authorization': 'Bearer ' + localStorage.getItem('accessToken')
-        },
-        success: function(response) {
-          updateStatisticsDisplay(response);
-          updateCharts(response);
-          $('#statistics-placeholder').hide();
-          $('#statistics-data').show();
-        },
-        error: function(xhr, status, error) {
-          console.error('통계 데이터 로드 실패:', error);
-          showError('통계 데이터를 불러오는데 실패했습니다.');
-        }
-      });
-    }
-
-    function startSystemMonitoring() {
-      updateSystemResources();
-    }
-
-    function updateSystemResources() {
-      $.ajax({
-        url: '/api/admin/system-resources',
-        method: 'GET',
-        headers: {
-          'Authorization': 'Bearer ' + localStorage.getItem('accessToken')
-        },
-        success: function(response) {
-          updateResourceGauges(response);
-          checkResourceWarnings(response);
-        },
-        error: function(xhr, status, error) {
-          console.error('시스템 리소스 모니터링 실패:', error);
-        }
-      });
-    }
-
-    function updateResourceGauges(data) {
-      // CPU 게이지 업데이트
-      $('#cpuGauge').text(`${data.cpuUsage}%`).removeClass('red green yellow').addClass(data.cpuUsage > 80 ? 'red' : 'green');
-
-      // 메모리 게이지 업데이트
-      $('#memoryGauge').text(`${data.memoryUsage}%`).removeClass('red green yellow').addClass(data.memoryUsage > 80 ? 'red' : 'green');
-
-      // 디스크 게이지 업데이트
-      $('#diskGauge').text(`${data.diskUsage}%`).removeClass('red green yellow').addClass(data.diskUsage > 80 ? 'red' : 'green');
-    }
-
-    function checkResourceWarnings(data) {
-      let warnings = [];
-
-      if (data.cpuUsage > 80) {
-        warnings.push('CPU 사용량이 80%를 초과했습니다.');
       }
-      if (data.memoryUsage > 80) {
-        warnings.push('메모리 사용량이 80%를 초과했습니다.');
-      }
-      if (data.diskUsage > 80) {
-        warnings.push('디스크 사용량이 80%를 초과했습니다.');
-      }
+    });
+  }
 
-      if (warnings.length > 0) {
-        showWarnings(warnings);
-      } else {
-        $('#alerts-section').hide();
+  function loadStatistics() {
+    $.ajax({
+      url: '/api/admin/statistics',
+      method: 'GET',
+      headers: {
+        'Authorization': 'Bearer ' + localStorage.getItem('accessToken')
+      },
+      success: function (response) {
+        updateStatisticsDisplay(response);
+        updateCharts(response);
+        $('#statistics-placeholder').hide();
+        $('#statistics-data').show();
+      },
+      error: function (xhr, status, error) {
+        console.error('통계 데이터 로드 실패:', error);
+        showError('통계 데이터를 불러오는데 실패했습니다.');
       }
+    });
+  }
+
+  function startSystemMonitoring() {
+    updateSystemResources();
+  }
+
+  function updateSystemResources() {
+    $.ajax({
+      url: '/api/admin/system-resources',
+      method: 'GET',
+      headers: {
+        'Authorization': 'Bearer ' + localStorage.getItem('accessToken')
+      },
+      success: function (response) {
+        updateResourceGauges(response);
+        checkResourceWarnings(response);
+      },
+      error: function (xhr, status, error) {
+        console.error('시스템 리소스 모니터링 실패:', error);
+      }
+    });
+  }
+
+  function updateResourceGauges(data) {
+    // CPU 게이지 업데이트
+    $('#cpuGauge').text(`${data.cpuUsage}%`).removeClass('red green yellow').addClass(
+        data.cpuUsage > 80 ? 'red' : 'green');
+
+    // 메모리 게이지 업데이트
+    $('#memoryGauge').text(`${data.memoryUsage}%`).removeClass('red green yellow').addClass(
+        data.memoryUsage > 80 ? 'red' : 'green');
+
+    // 디스크 게이지 업데이트
+    $('#diskGauge').text(`${data.diskUsage}%`).removeClass('red green yellow').addClass(
+        data.diskUsage > 80 ? 'red' : 'green');
+  }
+
+  function checkResourceWarnings(data) {
+    let warnings = [];
+
+    if (data.cpuUsage > 80) {
+      warnings.push('CPU 사용량이 80%를 초과했습니다.');
+    }
+    if (data.memoryUsage > 80) {
+      warnings.push('메모리 사용량이 80%를 초과했습니다.');
+    }
+    if (data.diskUsage > 80) {
+      warnings.push('디스크 사용량이 80%를 초과했습니다.');
     }
 
-    function showWarnings(warnings) {
-      const alertsList = $('#alerts-list');
-      alertsList.empty();
+    if (warnings.length > 0) {
+      showWarnings(warnings);
+    } else {
+      $('#alerts-section').hide();
+    }
+  }
 
-      warnings.forEach(warning => {
-        alertsList.append(`
+  function showWarnings(warnings) {
+    const alertsList = $('#alerts-list');
+    alertsList.empty();
+
+    warnings.forEach(warning => {
+      alertsList.append(`
           <div class="ui warning message">
             <i class="warning icon"></i>
             ${warning}
           </div>
         `);
-      });
+    });
 
-      $('#alerts-section').show();
-    }
+    $('#alerts-section').show();
+  }
 
-    function loadWarningLogs() {
-      $.ajax({
-        url: '/api/admin/warning-logs',
-        method: 'GET',
-        headers: {
-          'Authorization': 'Bearer ' + localStorage.getItem('accessToken')
-        },
-        success: function(response) {
-          updateWarningLogs(response);
-        },
-        error: function(xhr, status, error) {
-          console.error('경고 로그 로드 실패:', error);
-        }
-      });
-    }
+  function loadWarningLogs() {
+    $.ajax({
+      url: '/api/admin/warning-logs',
+      method: 'GET',
+      headers: {
+        'Authorization': 'Bearer ' + localStorage.getItem('accessToken')
+      },
+      success: function (response) {
+        updateWarningLogs(response);
+      },
+      error: function (xhr, status, error) {
+        console.error('경고 로그 로드 실패:', error);
+      }
+    });
+  }
 
-    function updateWarningLogs(logs) {
-      const logsContainer = $('#warningLogs');
-      logsContainer.empty();
+  function updateWarningLogs(logs) {
+    const logsContainer = $('#warningLogs');
+    logsContainer.empty();
 
-      logs.forEach(log => {
-        logsContainer.append(`
+    logs.forEach(log => {
+      logsContainer.append(`
           <div class="item">
             <i class="large warning circle middle aligned icon"></i>
             <div class="content">
@@ -454,32 +467,64 @@
             </div>
           </div>
         `);
-      });
-    }
+    });
+  }
 
-    function updateStatisticsDisplay(data) {
-      $('#memberCount').text(data.totalMembers);
-      $('#activeUsers').text(data.activeUsers);
-      $('#totalPosts').text(data.totalPosts);
-      $('#todayPosts').text(data.todayPosts);
-      // 추가 통계 업데이트...
-    }
+  function updateStatisticsDisplay(data) {
+    $('#memberCount').text(data.totalMembers);
+    $('#activeUsers').text(data.activeUsers);
+    $('#totalPosts').text(data.totalPosts);
+    $('#todayPosts').text(data.todayPosts);
+    // 추가 통계 업데이트...
+  }
 
-    function updateCharts(data) {
-      // 주간 활성화 차트 업데이트
-      window.weeklyChart.data.datasets[0].data = data.weeklyActivity;
-      window.weeklyChart.update();
+  function updateCharts(data) {
+    // 주간 활성화 차트 업데이트
+    window.weeklyChart.data.datasets[0].data = data.weeklyActivity;
+    window.weeklyChart.update();
 
-      // 사용자 분포 차트 업데이트
-      window.distributionChart.data.datasets[0].data = [data.activeUsers, data.dormantUsers, data.newUsers];
-      window.distributionChart.update();
-    }
+    // 사용자 분포 차트 업데이트
+    window.distributionChart.data.datasets[0].data = [data.activeUsers, data.dormantUsers, data.newUsers];
+    window.distributionChart.update();
+  }
 
-    function showError(message) {
-      // 에러 메시지를 표시하는 로직 구현
-      console.error(message);
-      // 예: Semantic UI 모달이나 메시지 사용
-    }
-  </script>
-</body>
+  function showError(message) {
+    console.error(message);
+  }
+
+  // 기존 title 클릭 로직
+  let titleClickCount = 0;
+  let lastTitleClickTime = 0;
+  const titleClickResetTime = 3000; // 3초
+  let currentPosition = 0;
+  const moveDistance = 20; // 한 번에 이동할 거리 (픽셀)
+  const maxMoves = 3; // 최대 이동 횟수
+
+  document.addEventListener('DOMContentLoaded', function () {
+    const playgroundIcon = document.getElementById('playgroundIcon');
+    const devPlaygroundButton = document.getElementById('devPlaygroundButton');
+    let clickCount = 0;
+    let offset = 0; // 아이콘이 이동할 위치값
+
+    playgroundIcon.addEventListener('click', function () {
+      clickCount++;
+      if (clickCount % 2 === 1) {
+        offset = 50;
+      } else {
+        offset = 20;
+      }
+      playgroundIcon.style.transform = `translateX(${offset}px)`;
+
+      if (clickCount === 5) {
+        devPlaygroundButton.style.display = 'inline-block';
+        devPlaygroundButton.style.transform = 'scale(0)';
+        devPlaygroundButton.style.transition = 'transform 0.3s ease';
+        requestAnimationFrame(() => {
+          devPlaygroundButton.style.transform = 'scale(1)';
+        });
+        playgroundIcon.style.display='none';
+      }
+    });
+  });
+</script>
 </html>

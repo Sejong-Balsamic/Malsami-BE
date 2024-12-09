@@ -59,8 +59,17 @@ public class TokenAuthenticationFilter extends OncePerRequestFilter {
           token = bearerToken.substring(7).trim(); // "Bearer " 제거
         }
       } else if (isAdminPage) {
-        // 관리자 페이지 : accessToken 파라미터에서 토큰 추출
-        token = request.getParameter("accessToken");
+        // 관리자 페이지 : Authorization 헤더 우선 확인
+        String bearerToken = request.getHeader("Authorization");
+        if (bearerToken != null && bearerToken.startsWith("Bearer ")) {
+          token = bearerToken.substring(7).trim();
+        } else {
+          // Authorization 헤더에 토큰이 없을 경우 파라미터 확인
+          String paramToken = request.getParameter("accessToken");
+          if (paramToken != null && !paramToken.isEmpty()) {
+            token = paramToken;
+          }
+        }
       }
 
       // 토큰 검증 : 토큰이 유효하면 인증 설정
