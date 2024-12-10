@@ -54,9 +54,10 @@ public class MemberController implements MemberControllerDocs {
     return ResponseEntity.ok(MemberDto.builder().member(customUserDetails.getMember()).build());
   }
 
+  // 엽전 정보 및 게시글등급 접근권한 반환
   @Override
   @LogMonitoringInvocation
-  @PostMapping(value = "/document/access-info", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
+  @PostMapping(value = "/yeopjeon-info", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
   public ResponseEntity<MemberDto> getDocumentBoardAccessByTier(
       MemberCommand command,
       CustomUserDetails customUserDetails) {
