@@ -34,8 +34,7 @@ public class DepartmentService {
   private final ObjectMapper objectMapper;
 
   /**
-   * JSON 파일을 로드하고 Faculty 및 Department 데이터를 저장합니다.
-   * 파일의 해시값을 확인하여 중복 처리를 방지합니다.
+   * JSON 파일을 로드하고 Faculty 및 Department 데이터를 저장합니다. 파일의 해시값을 확인하여 중복 처리를 방지합니다.
    *
    * @param filePath JSON 파일의 경로
    */
@@ -107,8 +106,15 @@ public class DepartmentService {
       if (departments.isEmpty()) {
         log.warn("저장할 Department 데이터가 없습니다.");
       } else {
+        // 0. 사전에 isActive() 설정
+        for (Department dept : departments) {
+          boolean isActive = (dept.getCloseDt() == null && "Y".equals(dept.getLastDeptYn()));
+          dept.setIsActive(isActive);
+        }
+
         // 1. Faculty 정보 추출 및 저장
         Set<String> facultyNames = departments.stream()
+            .filter(Department::getIsActive) // 활성화된 Department만 처리
             .map(Department::getDeptLDegree) // 'dept_l_degree' 필드를 facultyName으로 사용
             .filter(Objects::nonNull)
             .map(String::trim)
