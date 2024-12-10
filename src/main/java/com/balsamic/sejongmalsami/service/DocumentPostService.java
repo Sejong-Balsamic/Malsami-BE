@@ -257,6 +257,9 @@ public class DocumentPostService {
     DocumentPost post = documentPostRepository.findById(command.getDocumentPostId())
         .orElseThrow(() -> new CustomException(ErrorCode.DOCUMENT_POST_NOT_FOUND));
 
+    List<DocumentFile> documentFiles
+        = documentFileRepository.findByDocumentPost_DocumentPostId(post.getDocumentPostId());
+
     PostTier postTier = post.getPostTier();
 
     // 해당 게시판 접근 가능 여부 확인
@@ -285,6 +288,7 @@ public class DocumentPostService {
     // 해당 자료 글 반환
     return DocumentDto.builder()
         .documentPost(documentPostRepository.save(post))
+        .documentFiles(documentFiles)
         .build();
   }
 
