@@ -11,4 +11,6 @@ public interface FacultyRepository extends JpaRepository<Faculty, UUID> {
   Optional<Faculty> findByName(String name);
 
   List<Faculty> findByNameIn(Set<String> name);
+
+  List<Faculty> findByIsActiveTrue();
 }
