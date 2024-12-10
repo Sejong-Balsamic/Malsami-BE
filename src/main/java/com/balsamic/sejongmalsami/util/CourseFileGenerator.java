@@ -8,7 +8,6 @@ import com.balsamic.sejongmalsami.object.postgres.CourseFile;
 import com.balsamic.sejongmalsami.object.postgres.Subject;
 import com.balsamic.sejongmalsami.repository.postgres.CourseFileRepository;
 import com.balsamic.sejongmalsami.repository.postgres.SubjectRepository;
-import com.balsamic.sejongmalsami.service.CourseService;
 import com.balsamic.sejongmalsami.util.exception.CustomException;
 import com.balsamic.sejongmalsami.util.exception.ErrorCode;
 import java.io.File;

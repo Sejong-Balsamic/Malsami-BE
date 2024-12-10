@@ -1,7 +1,5 @@
-package com.balsamic.sejongmalsami.service;
+package com.balsamic.sejongmalsami.util;
 
-import com.balsamic.sejongmalsami.object.CourseCommand;
-import com.balsamic.sejongmalsami.object.CourseDto;
 import com.balsamic.sejongmalsami.object.postgres.Course;
 import com.balsamic.sejongmalsami.object.postgres.Subject;
 import com.balsamic.sejongmalsami.repository.postgres.CourseRepository;
@@ -26,7 +24,6 @@ import org.apache.poi.ss.usermodel.Workbook;
 import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import org.springframework.web.multipart.MultipartFile;
 
 @Service
 @RequiredArgsConstructor
@@ -48,16 +45,6 @@ public class CourseService {
       "법학부 법학전공", "법학과"
       // 필요한 경우 추가 예외 매핑을 여기에 추가할 수 있습니다.
   );
-
-  @Transactional
-  public int parseAndSaveCourses(MultipartFile multipartFile) {
-    try {
-      return parseAndSaveCourses(multipartFile.getOriginalFilename(), multipartFile.getInputStream());
-    } catch (IOException e) {
-      log.error("파일을 읽는 중 오류 발생: {}", multipartFile.getOriginalFilename(), e);
-      throw new CustomException(ErrorCode.COURSE_SAVE_ERROR);
-    }
-  }
 
   @Transactional
   public int parseAndSaveCourses(File file) {
@@ -171,13 +158,6 @@ public class CourseService {
     }
 
     return addedCourses;
-  }
-
-  // 특정 단과대학에 해당하는 교과목명 목록을 반환하는 메서드
-  public CourseDto getSubjectsByFaculty(CourseCommand command) {
-    return CourseDto.builder()
-        .subjects(courseRepository.findDistinctSubjectByFaculty(command.getFaculty()))
-        .build();
   }
 
   @Transactional
