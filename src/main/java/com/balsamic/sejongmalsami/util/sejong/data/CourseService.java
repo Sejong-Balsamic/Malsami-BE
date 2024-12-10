@@ -1,4 +1,4 @@
-package com.balsamic.sejongmalsami.util;
+package com.balsamic.sejongmalsami.util.sejong.data;
 
 import com.balsamic.sejongmalsami.object.postgres.Course;
 import com.balsamic.sejongmalsami.object.postgres.Subject;

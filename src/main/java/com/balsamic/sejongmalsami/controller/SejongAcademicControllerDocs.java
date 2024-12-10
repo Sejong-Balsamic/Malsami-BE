@@ -34,7 +34,7 @@ public interface SejongAcademicControllerDocs {
             - **`List<Faculty> faculties`**: 단과대 목록
 
           #### 참고 사항
-          - 전체 단과대를 보내드리지만 isActive()에 대한 정보값을 한번 화인 해야합니다
+          - 나무위키에서 가져온 정보들과 옛날부터 쌓아진 세종대가 제공해준 모든 단과대 정보를 교집합한 결과입니다
           """
   )
   ResponseEntity<SejongAcademicDto> getAllFaculties(

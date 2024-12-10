@@ -1,4 +1,4 @@
-package com.balsamic.sejongmalsami.util;
+package com.balsamic.sejongmalsami.util.sejong.data;
 
 import com.balsamic.sejongmalsami.object.constants.FileStatus;
 import com.balsamic.sejongmalsami.object.postgres.Department;

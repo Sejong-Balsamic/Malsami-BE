@@ -1,4 +1,4 @@
-package com.balsamic.sejongmalsami.util;
+package com.balsamic.sejongmalsami.util.sejong.data;
 
 import static com.balsamic.sejongmalsami.util.LogUtils.lineLog;
 
@@ -8,6 +8,7 @@ import com.balsamic.sejongmalsami.object.postgres.CourseFile;
 import com.balsamic.sejongmalsami.object.postgres.Subject;
 import com.balsamic.sejongmalsami.repository.postgres.CourseFileRepository;
 import com.balsamic.sejongmalsami.repository.postgres.SubjectRepository;
+import com.balsamic.sejongmalsami.util.FileUtil;
 import com.balsamic.sejongmalsami.util.exception.CustomException;
 import com.balsamic.sejongmalsami.util.exception.ErrorCode;
 import java.io.File;
