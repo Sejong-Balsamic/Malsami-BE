@@ -188,6 +188,11 @@ public interface DocumentPostControllerDocs {
 
   @ApiChangeLogs({
       @ApiChangeLog(
+          date = "2024.12.10",
+          author = Author.SUHSAECHAN,
+          description = "자료반환시 documentFile 리스트 반환"
+      ),
+      @ApiChangeLog(
           date = "2024.11.20",
           author = Author.BAEKJIHOON,
           description = "특정 자료 글 조회"
@@ -208,6 +213,7 @@ public interface DocumentPostControllerDocs {
 
           - **DocumentDto**: 자료 게시판 정보 반환
             - **DocumentPost documentPost**: 조회한 자료 글
+            - **List<DocumentFile> documentFiles**: 자료글의 자료파일 리스트
              
           **참고 사항:**
 
