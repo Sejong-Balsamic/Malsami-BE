@@ -9,7 +9,7 @@ import org.springframework.web.multipart.MultipartFile;
 @ToString
 @Getter
 @Builder
-public class CourseCommand {
+public class SejongAcademicCommand {
 
   private MultipartFile sejongCourseFile;
   private Faculty faculty;
