@@ -1,8 +1,7 @@
-package com.balsamic.sejongmalsami.util;
+package com.balsamic.sejongmalsami.util.sejong.data;
 
 import com.balsamic.sejongmalsami.object.postgres.Subject;
 import com.balsamic.sejongmalsami.repository.postgres.SubjectRepository;
-import com.balsamic.sejongmalsami.service.CourseService;
 import java.util.List;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;

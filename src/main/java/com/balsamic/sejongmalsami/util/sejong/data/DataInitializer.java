@@ -1,13 +1,11 @@
-package com.balsamic.sejongmalsami.util.config;
+package com.balsamic.sejongmalsami.util.sejong.data;
 
 import static com.balsamic.sejongmalsami.util.LogUtils.lineLog;
 import static com.balsamic.sejongmalsami.util.LogUtils.lineLogError;
 
-import com.balsamic.sejongmalsami.util.CourseFileGenerator;
-import com.balsamic.sejongmalsami.util.DepartmentService;
-import com.balsamic.sejongmalsami.util.SubjectService; // Subject 관련 서비스 추가
-import com.balsamic.sejongmalsami.util.FileUtil;
 import com.balsamic.sejongmalsami.object.constants.SystemType;
+import com.balsamic.sejongmalsami.service.SejongAcademicService;
+import com.balsamic.sejongmalsami.util.FileUtil;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.time.Duration;
@@ -27,6 +25,7 @@ public class DataInitializer implements ApplicationRunner {
   private final CourseFileGenerator courseFileGenerator;
   private final DepartmentService departmentService;
   private final SubjectService subjectService;
+  private final SejongAcademicService sejongAcademicService;
 
   // 애플리케이션이 시작될 때 실행
   @Override
@@ -73,8 +72,11 @@ public class DataInitializer implements ApplicationRunner {
           return null;
         });
 
-    // 비동기로 실행되므로, 메인 스레드가 종료되지 않도록 대기
+    // 비동기로 실행 -> 작업완료까지 대기
     subjectFuture.get();
+
+    // 4. 모든 초기화 작업이 끝나고, isActive 핸들링
+    manageDataActiveStatus();
   }
 
   /**
@@ -110,5 +112,23 @@ public class DataInitializer implements ApplicationRunner {
     }
 
     return deptPath;
+  }
+
+  private void manageDataActiveStatus() {
+    lineLog("세종대학교 학술 정보 : 상태 핸들링 시작");
+
+    // Department 작업
+//    processDepartmentIsActive();
+
+    // Course 작업
+//  sejongAcademicService.processCourseIsActive();
+
+    // Faculty 작업
+    sejongAcademicService.processFacultyIsActive();
+
+    // Subject 작업
+//  sejongAcademicService.processSubjectIsActive();
+
+    lineLog("세종대학교 학술 정보 : 상태 핸들링 완료");
   }
 }
