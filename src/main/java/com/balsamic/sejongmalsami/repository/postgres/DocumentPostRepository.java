@@ -15,12 +15,12 @@ import org.springframework.data.repository.query.Param;
 
 public interface DocumentPostRepository extends JpaRepository<DocumentPost, UUID> {
 
-  // 모든 자료 글 dailyScore 초기화
+  // 전체 자료 글 dailyScore 초기화
   @Modifying
   @Query("UPDATE DocumentPost p SET p.dailyScore = 0")
   void resetDailyScore();
 
-  // 모든 자료 글 weeklyScore 초기화
+  // 전체 자료 글 weeklyScore 초기화
   @Modifying
   @Query("UPDATE DocumentPost p SET p.weeklyScore = 0")
   void resetWeeklyScore();
