@@ -9,9 +9,11 @@ import com.balsamic.sejongmalsami.object.DocumentCommand;
 import com.balsamic.sejongmalsami.object.DocumentDto;
 import com.balsamic.sejongmalsami.object.QuestionCommand;
 import com.balsamic.sejongmalsami.object.QuestionDto;
+import com.balsamic.sejongmalsami.object.postgres.DocumentFile;
 import com.balsamic.sejongmalsami.object.postgres.DocumentPost;
 import com.balsamic.sejongmalsami.object.postgres.PopularPost;
 import com.balsamic.sejongmalsami.object.postgres.QuestionPost;
+import com.balsamic.sejongmalsami.repository.postgres.DocumentFileRepository;
 import com.balsamic.sejongmalsami.repository.postgres.DocumentPostRepository;
 import com.balsamic.sejongmalsami.repository.postgres.PopularPostRepository;
 import com.balsamic.sejongmalsami.repository.postgres.QuestionPostRepository;
@@ -47,6 +49,7 @@ public class PopularPostService {
   private static final long DOCUMENT_DAILY_SCHEDULED_RATE = 24 * 60 * 60 * 1000L; // 24시간
   private static final long DOCUMENT_WEEKLY_SCHEDULED_RATE = 7 * 24 * 60 * 60 * 1000L; // 7일
   private static final int SAVE_POPULAR_POST_COUNT = 30; // 저장할 인기글 개수
+  private final DocumentFileRepository documentFileRepository;
 
   // 30분마다 일간 인기 질문글 점수 계산 후 상위 30개 데이터 저장
   @Async
@@ -138,9 +141,12 @@ public class PopularPostService {
 
     // 일간 인기점수 계산
     List<DocumentPost> posts = documentPostRepository.findAll();
-    for (DocumentPost post : posts) {
-      post.updateDailyScore(scoreCalculator.calculateDocumentPostDailyScore(post));
-      documentPostRepository.save(post);
+    for (DocumentPost curPost : posts) {
+      List<DocumentFile> files = documentFileRepository.findByDocumentPost_DocumentPostId(curPost.getDocumentPostId());
+      long curDocumentPostDailyScore = scoreCalculator.calculateDocumentPostDailyScore(curPost, files);
+      log.info("자료 게시글 : 일간 점수 업데이트 완료 : id={} score={}", curPost.getDocumentPostId(), curDocumentPostDailyScore);
+      curPost.updateDailyScore(curDocumentPostDailyScore);
+      documentPostRepository.save(curPost);
     }
 
     // 일간 인기 자료글 내역 초기화 후 상위 30개 글 저장
@@ -150,8 +156,9 @@ public class PopularPostService {
         SAVE_POPULAR_POST_COUNT,
         Sort.by("dailyScore").descending()
     );
-    Page<DocumentPost> topPosts = documentPostRepository.findAll(pageable);
+
     // 상위 30개 글 isPopular = true 설정 후 저장
+    Page<DocumentPost> topPosts = documentPostRepository.findAll(pageable);
     for (DocumentPost post : topPosts) {
       post.setIsPopular(true);
       popularPostRepository.save(PopularPost.builder()
@@ -183,9 +190,12 @@ public class PopularPostService {
 
     // 주간 인기점수 계산
     List<DocumentPost> posts = documentPostRepository.findAll();
-    for (DocumentPost post : posts) {
-      post.updateWeeklyScore(scoreCalculator.calculateDocumentPostWeeklyScore(post));
-      documentPostRepository.save(post);
+    for (DocumentPost curPost : posts) {
+      List<DocumentFile> files = documentFileRepository.findByDocumentPost_DocumentPostId(curPost.getDocumentPostId());
+      long curDocumentPostWeeklyScore = scoreCalculator.calculateDocumentPostWeeklyScore(curPost, files);
+      log.info("자료 게시글 : 주간 점수 업데이트 완료 : id={} score={}", curPost.getDocumentPostId(), curDocumentPostWeeklyScore);
+      curPost.updateWeeklyScore(curDocumentPostWeeklyScore);
+      documentPostRepository.save(curPost);
     }
 
     // 주간 인기 자료글 내역 초기화 후 상위 30개 글 저장
@@ -195,9 +205,9 @@ public class PopularPostService {
         SAVE_POPULAR_POST_COUNT,
         Sort.by("weeklyScore").descending()
     );
-    Page<DocumentPost> topPosts = documentPostRepository.findAll(pageable);
 
     // 상위 30개 글 isPopular = true 설정 후 저장
+    Page<DocumentPost> topPosts = documentPostRepository.findAll(pageable);
     for (DocumentPost post : topPosts) {
       post.setIsPopular(true);
       popularPostRepository.save(PopularPost.builder()
