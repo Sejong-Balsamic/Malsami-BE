@@ -57,11 +57,24 @@ public class DocumentFile extends BaseEntity {
   private MimeType mimeType;
 
   @Builder.Default
-  private Long downloadCount = 0L;
+  private Long totalDownloadCount = 0L;
+
+  @Builder.Default
+  private Long dailyDownloadCount = 0L;
+
+  @Builder.Default
+  private Long weeklyDownloadCount = 0L;
 
   private String password;
 
   // 이미 비밀번호가 설정되어 있는 파일인지
   @Builder.Default
   private Boolean isInitialPasswordSet = false;
+
+  // 다운로드 횟수 1 증가 (3개의 항목 전부에 대해서)
+  public void incrementDownloadCounts() {
+    this.totalDownloadCount++;
+    this.dailyDownloadCount++;
+    this.weeklyDownloadCount++;
+  }
 }

@@ -362,7 +362,7 @@ public class TestDataGenerator {
         .uploadedFileName(faker.file().fileName()) // 업로드된 파일 이름
         .fileSize((long) faker.number().numberBetween(1000, 100000)) // 파일 크기
         .mimeType(faker.options().option(AAC, PDF, DOCX, MP3, JPG, XLSX)) // MIME 타입
-        .downloadCount((long) faker.number().numberBetween(0, 300)) // 다운로드 수
+        .totalDownloadCount((long) faker.number().numberBetween(0, 300)) // 다운로드 수
         .password(null)
         .isInitialPasswordSet(faker.bool().bool()) // 초기 비밀번호 설정 여부
         .createdDate(LocalDateTime.now().minusDays(faker.number().numberBetween(1, 10))) // 작성일

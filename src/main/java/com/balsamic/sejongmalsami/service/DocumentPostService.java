@@ -343,13 +343,26 @@ public class DocumentPostService {
     // 회원
     Member member = command.getMember();
 
+    // 엽전 내역 정의
+    YeopjeonHistory yeopjeonHistory;
+
     // 자료 파일 검즘
     DocumentFile documentFile = documentFileRepository.findById(command.getDocumentFileId())
         .orElseThrow(() -> new CustomException(ErrorCode.DOCUMENT_FILE_NOT_FOUND));
 
-    // 엽전 소모
-    YeopjeonHistory yeopjeonHistory
-        = yeopjeonService.processYeopjeon(member, PURCHASE_DOCUMENT);
+    // 내가 올린 파일인 경우 : 엽전 소모 X
+    if(!documentFile.getUploader().equals(member)){
+      // 엽전 소모
+      yeopjeonHistory = yeopjeonService.processYeopjeon(member, PURCHASE_DOCUMENT);
+
+      // 파일 다운로드 횟수 증가
+      documentFile.incrementDownloadCounts();
+      documentFileRepository.save(documentFile);
+    } else {
+      // 회원 본인이 자료일 경우 엽전 내역 null 처리
+      yeopjeonHistory = null;
+      log.info("회원이 올린 파일입니다. 엽전을 소모하지않습니다 : 회원:{}, 파일업로더:{}", member.getStudentId(), documentFile.getUploader());
+    }
 
     // path 받기
     String filePath = documentFile.getFilePath();

@@ -41,12 +41,12 @@ public interface DocumentPostRepository extends JpaRepository<DocumentPost, UUID
       Pageable pageable
   );
 
-  // Hot 다운로드
+  // Hot 다운로드 (일단 전체 다운로드 수 기준으로 찾습니다)
   @Query("""
         select dp from DocumentPost dp
         left join DocumentFile df on df.documentPost = dp
         group by dp
-        order by max (df.downloadCount) desc
+        order by max (df.totalDownloadCount) desc
       """)
   Page<DocumentPost> findHotDownloads(Pageable pageable);
 
