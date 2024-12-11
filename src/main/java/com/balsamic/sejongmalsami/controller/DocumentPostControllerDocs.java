@@ -92,6 +92,11 @@ public interface DocumentPostControllerDocs {
 
   @ApiChangeLogs({
       @ApiChangeLog(
+          date = "2024.12.11",
+          author = Author.BAEKJIHOON,
+          description = "Redis 사용"
+      ),
+      @ApiChangeLog(
           date = "2024.11.28",
           author = Author.BAEKJIHOON,
           description = "자료 글 일간 인기점수 24시간마다 초기화"
@@ -119,12 +124,8 @@ public interface DocumentPostControllerDocs {
 
           **이 API는 인증이 필요하며, JWT 토큰이 존재해야합니다.**
 
-          **입력 파라미터 값:**
-
           #### 요청 파라미터
-          - **`pageNumber`** (`Integer`, 선택): 페이지 번호 (기본값 = 0)
-                  
-          - **`pageSize`** (`Integer`, 선택): 조회하고 싶은 주간 인기 질문 글 개수 (기본값 = 30)
+          `없음`
 
           ####반환 파라미터 값
           - **DocumentDto**: 자료 게시판 정보 반환
@@ -136,10 +137,14 @@ public interface DocumentPostControllerDocs {
           - Swagger에서 테스트 시 mediaFiles에 있는 "Send empty value" 체크박스 해제해야합니다.
           """
   )
-  ResponseEntity<DocumentDto> getDailyPopularDocumentPost(
-      DocumentCommand command);
+  ResponseEntity<DocumentDto> getDailyPopularDocumentPost();
 
   @ApiChangeLogs({
+      @ApiChangeLog(
+          date = "2024.12.11",
+          author = Author.BAEKJIHOON,
+          description = "Redis 사용"
+      ),
       @ApiChangeLog(
           date = "2024.11.28",
           author = Author.BAEKJIHOON,
@@ -169,9 +174,7 @@ public interface DocumentPostControllerDocs {
           **이 API는 인증이 필요하며, JWT 토큰이 존재해야합니다.**
 
           #### 요청 파라미터
-          - **`pageNumber`** (`Integer`, 선택): 페이지 번호 (기본값 = 0)
-                  
-          - **`pageSize`** (`Integer`, 선택): 조회하고 싶은 주간 인기 질문 글 개수 (기본값 = 30)
+          `없음`
 
           ####반환 파라미터 값
           - **DocumentDto**: 자료 게시판 정보 반환
@@ -183,8 +186,7 @@ public interface DocumentPostControllerDocs {
           - Swagger에서 테스트 시 mediaFiles에 있는 "Send empty value" 체크박스 해제해야합니다.
           """
   )
-  ResponseEntity<DocumentDto> getWeeklyPopularDocumentPost(
-      DocumentCommand command);
+  ResponseEntity<DocumentDto> getWeeklyPopularDocumentPost();
 
   @ApiChangeLogs({
       @ApiChangeLog(

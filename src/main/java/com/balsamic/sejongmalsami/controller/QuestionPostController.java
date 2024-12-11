@@ -77,16 +77,14 @@ public class QuestionPostController implements QuestionPostControllerDocs {
   @Override
   @PostMapping(value = "/popular/daily", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
   @LogMonitoringInvocation
-  public ResponseEntity<QuestionDto> getDailyPopularQuestionPost(
-      @ModelAttribute QuestionCommand command) {
-    return ResponseEntity.ok(popularPostService.getDailyPopularQuestionPosts(command));
+  public ResponseEntity<QuestionDto> getDailyPopularQuestionPost() {
+    return ResponseEntity.ok(popularPostService.getDailyPopularQuestionPosts());
   }
 
   @Override
   @PostMapping(value = "/popular/weekly", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
   @LogMonitoringInvocation
-  public ResponseEntity<QuestionDto> getWeeklyPopularQuestionPost(
-      @ModelAttribute QuestionCommand command) {
-    return ResponseEntity.ok(popularPostService.getWeeklyPopularQuestionPosts(command));
+  public ResponseEntity<QuestionDto> getWeeklyPopularQuestionPost() {
+    return ResponseEntity.ok(popularPostService.getWeeklyPopularQuestionPosts());
   }
 }
