@@ -9,7 +9,6 @@ import com.balsamic.sejongmalsami.object.DocumentCommand;
 import com.balsamic.sejongmalsami.object.DocumentDto;
 import com.balsamic.sejongmalsami.object.QuestionCommand;
 import com.balsamic.sejongmalsami.object.QuestionDto;
-import com.balsamic.sejongmalsami.object.postgres.DocumentFile;
 import com.balsamic.sejongmalsami.object.postgres.DocumentPost;
 import com.balsamic.sejongmalsami.object.postgres.PopularPost;
 import com.balsamic.sejongmalsami.object.postgres.QuestionPost;
@@ -142,8 +141,7 @@ public class PopularPostService {
     // 일간 인기점수 계산
     List<DocumentPost> posts = documentPostRepository.findAll();
     for (DocumentPost curPost : posts) {
-      List<DocumentFile> files = documentFileRepository.findByDocumentPost_DocumentPostId(curPost.getDocumentPostId());
-      long curDocumentPostDailyScore = scoreCalculator.calculateDocumentPostDailyScore(curPost, files);
+      long curDocumentPostDailyScore = scoreCalculator.calculateDocumentPostDailyScore(curPost);
       log.info("자료 게시글 : 일간 점수 업데이트 완료 : id={} score={}", curPost.getDocumentPostId(), curDocumentPostDailyScore);
       curPost.updateDailyScore(curDocumentPostDailyScore);
       documentPostRepository.save(curPost);
@@ -191,8 +189,7 @@ public class PopularPostService {
     // 주간 인기점수 계산
     List<DocumentPost> posts = documentPostRepository.findAll();
     for (DocumentPost curPost : posts) {
-      List<DocumentFile> files = documentFileRepository.findByDocumentPost_DocumentPostId(curPost.getDocumentPostId());
-      long curDocumentPostWeeklyScore = scoreCalculator.calculateDocumentPostWeeklyScore(curPost, files);
+      long curDocumentPostWeeklyScore = scoreCalculator.calculateDocumentPostWeeklyScore(curPost);
       log.info("자료 게시글 : 주간 점수 업데이트 완료 : id={} score={}", curPost.getDocumentPostId(), curDocumentPostWeeklyScore);
       curPost.updateWeeklyScore(curDocumentPostWeeklyScore);
       documentPostRepository.save(curPost);

@@ -3,6 +3,7 @@ package com.balsamic.sejongmalsami.util;
 import com.balsamic.sejongmalsami.object.postgres.DocumentFile;
 import com.balsamic.sejongmalsami.object.postgres.DocumentPost;
 import com.balsamic.sejongmalsami.object.postgres.QuestionPost;
+import com.balsamic.sejongmalsami.repository.postgres.DocumentFileRepository;
 import com.balsamic.sejongmalsami.util.config.ScoreConfig;
 import java.util.List;
 import lombok.RequiredArgsConstructor;
@@ -13,6 +14,7 @@ import org.springframework.stereotype.Component;
 public class ScoreCalculator {
 
   private final ScoreConfig scoreConfig;
+  private final DocumentFileRepository documentFileRepository;
 
   // 질문 글 일간 점수 로직
   public long calculateQuestionPostDailyScore(QuestionPost post) {
@@ -29,9 +31,10 @@ public class ScoreCalculator {
   }
 
   // 자료 글 일간 점수 로직
-  public long calculateDocumentPostDailyScore(DocumentPost post, List<DocumentFile> documentFiles) {
+  public long calculateDocumentPostDailyScore(DocumentPost post) {
     long totalDailyDownloadCount = 0L;
-
+    List<DocumentFile> documentFiles =
+        documentFileRepository.findByDocumentPost_DocumentPostId(post.getDocumentPostId());
     // 인기글 최소 좋아요
     if (post.getLikeCount() < scoreConfig.getDocumentMinimumLikeCount()) {
       return 0;
@@ -50,9 +53,10 @@ public class ScoreCalculator {
   }
 
   // 자료 글 주간 점수 로직
-  public long calculateDocumentPostWeeklyScore(DocumentPost post, List<DocumentFile> documentFiles) {
+  public long calculateDocumentPostWeeklyScore(DocumentPost post) {
     long totalWeeklyDownloadCount = 0L;
-
+    List<DocumentFile> documentFiles =
+        documentFileRepository.findByDocumentPost_DocumentPostId(post.getDocumentPostId());
     // 인기글 최소 좋아요 수
     if (post.getLikeCount() < scoreConfig.getDocumentMinimumLikeCount()) {
       return 0;
