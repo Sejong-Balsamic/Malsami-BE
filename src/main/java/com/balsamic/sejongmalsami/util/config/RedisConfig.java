@@ -27,6 +27,8 @@ public class RedisConfig {
   private String redisPassword;
 
   private static final int CACHE_EXPIRED_TIME = 24 * 60; // 캐시 만료 시간 (24시간)
+  private static final int CONNECTION_POOL_SIZE = 10;
+  private static final int CONNECTION_MINIMUM_SIZE = 5;
 
   @Bean
   public RedisTemplate<String, Object> redisTemplate(RedisConnectionFactory factory) {
@@ -62,9 +64,9 @@ public class RedisConfig {
     // Redis 단일 서버 설정 (비밀번호 없을 경우)
     config.useSingleServer()
         .setAddress(address) // Redis 서버 주소
-        .setConnectionPoolSize(10)             // 연결 풀 크기
-        .setConnectionMinimumIdleSize(5)       // 최소 연결 수
-        .setPassword(redisPassword);           // 필요한 경우 비밀번호 설정
+        .setConnectionPoolSize(CONNECTION_POOL_SIZE) // 연결 풀 크기
+        .setConnectionMinimumIdleSize(CONNECTION_MINIMUM_SIZE) // 최소 연결 수
+        .setPassword(redisPassword); // 비밀번호 설정
 
     // RedissonClient 객체를 반환
     return Redisson.create(config);
