@@ -16,7 +16,6 @@ import com.balsamic.sejongmalsami.util.exception.ErrorCode;
 import java.time.LocalDateTime;
 import java.util.Comparator;
 import java.util.List;
-import java.util.Objects;
 import java.util.UUID;
 import java.util.stream.Collectors;
 import lombok.RequiredArgsConstructor;
@@ -57,7 +56,6 @@ public class PopularPostService {
    * <p>24시간 이내에 작성 된 질문 글을 대상으로 조회합니다.</p>
    * <p>일간 인기 점수가 높은 순으로 조회합니다.</p>
    *
-   * @param command pageNumber, pageSize
    * @return
    */
   @Transactional(readOnly = true)
@@ -71,7 +69,6 @@ public class PopularPostService {
    * <p>7일 이내에 작성 된 질문 글을 대상으로 조회합니다.</p>
    * <p>주간 인기 점수가 높은 순으로 조회합니다.</p>
    *
-   * @param command pageNumber, pageSize
    * @return
    */
   @Transactional(readOnly = true)
@@ -85,7 +82,6 @@ public class PopularPostService {
    * <p>일간 자료 글 인기점수는 24시간마다 초기화됩니다.</p>
    * <p>일간 인기 점수가 높은 순으로 조회합니다.</p>
    *
-   * @param command pageNumber, pageSize
    * @return
    */
   @Transactional(readOnly = true)
@@ -99,7 +95,6 @@ public class PopularPostService {
    * <p>주간 자료 글 인기점수는 7일마다 초기화됩니다.
    * <p>주간 인기 점수가 높은 순으로 조회합니다.</p>
    *
-   * @param command pageNumber, pageSize
    * @return
    */
   @Transactional
@@ -132,14 +127,16 @@ public class PopularPostService {
     // 상위 30개 글 추출
     List<QuestionPost> topPosts = posts.subList(0, Math.min(SAVE_POPULAR_POST_COUNT, posts.size()));
 
-    // 캐시에 Id 값을 추출 후 저장
-    List<UUID> topPostIds = topPosts.stream()
-        .map(QuestionPost::getQuestionPostId)
-        .collect(Collectors.toList());
+    // 캐시에 Id 값을 추출 후 String 형태로 변환하여 저장
+    List<String> topPostIds = topPosts.stream()
+        .map(post -> post.getQuestionPostId().toString())
+        .toList();
 
     // Redis에 저장
     redisTemplate.delete(QUESTION_DAILY_KEY);
-    redisTemplate.opsForList().rightPushAll(QUESTION_DAILY_KEY, topPostIds);
+    for (String id : topPostIds) {
+      redisTemplate.opsForList().rightPush(QUESTION_DAILY_KEY, id);
+    }
   }
 
   /**
@@ -170,13 +167,15 @@ public class PopularPostService {
     List<QuestionPost> topPosts = posts.subList(0, Math.min(SAVE_POPULAR_POST_COUNT, posts.size()));
 
     // 캐시에 Id 값을 추출 후 저장
-    List<UUID> topPostIds = topPosts.stream()
-        .map(QuestionPost::getQuestionPostId)
-        .collect(Collectors.toList());
+    List<String> topPostIds = topPosts.stream()
+        .map(post -> post.getQuestionPostId().toString())
+        .toList();
 
     // Redis에 저장
     redisTemplate.delete(QUESTION_WEEKLY_KEY);
-    redisTemplate.opsForList().rightPushAll(QUESTION_WEEKLY_KEY, topPostIds);
+    for (String id : topPostIds) {
+      redisTemplate.opsForList().rightPush(QUESTION_WEEKLY_KEY, id);
+    }
   }
 
   /**
@@ -214,13 +213,15 @@ public class PopularPostService {
     topPosts.forEach(post -> post.setIsPopular(true));
     documentPostRepository.saveAll(topPosts);
 
-    List<UUID> topPostIds = topPosts.stream()
-        .map(DocumentPost::getDocumentPostId)
-        .collect(Collectors.toList());
+    List<String> topPostIds = topPosts.stream()
+        .map(post -> post.getDocumentPostId().toString())
+        .toList();
 
     // Redis에 저장
     redisTemplate.delete(DOCUMENT_DAILY_KEY);
-    redisTemplate.opsForList().rightPushAll(DOCUMENT_DAILY_KEY, topPostIds);
+    for (String id : topPostIds) {
+      redisTemplate.opsForList().rightPush(DOCUMENT_DAILY_KEY, id);
+    }
   }
 
   /**
@@ -258,13 +259,15 @@ public class PopularPostService {
     topPosts.forEach(post -> post.setIsPopular(true));
     documentPostRepository.saveAll(topPosts);
 
-    List<UUID> topPostIds = topPosts.stream()
-        .map(DocumentPost::getDocumentPostId)
-        .collect(Collectors.toList());
+    List<String> topPostIds = topPosts.stream()
+        .map(post -> post.getDocumentPostId().toString())
+        .toList();
 
     // Redis에 저장
     redisTemplate.delete(DOCUMENT_WEEKLY_KEY);
-    redisTemplate.opsForList().rightPushAll(DOCUMENT_WEEKLY_KEY, topPostIds);
+    for (String id : topPostIds) {
+      redisTemplate.opsForList().rightPush(DOCUMENT_WEEKLY_KEY, id);
+    }
   }
 
   /**
@@ -278,9 +281,10 @@ public class PopularPostService {
     if (rawIds == null || rawIds.isEmpty()) {
       return List.of();
     }
+
     return rawIds.stream()
-        .filter(Objects::nonNull)
-        .map(id -> (UUID) id)
+        .map(obj -> (String) obj)
+        .map(UUID::fromString)
         .collect(Collectors.toList());
   }
 
