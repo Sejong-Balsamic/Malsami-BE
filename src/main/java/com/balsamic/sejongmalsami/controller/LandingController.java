@@ -57,34 +57,30 @@ public class LandingController implements LandingControllerDocs {
   }
 
   @Override
-  @PostMapping(value = "/popular/question/daily", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
+  @PostMapping(value = "/popular/question/daily")
   @LogMonitoringInvocation
-  public ResponseEntity<QuestionDto> getDailyPopularQuestionPost(
-      @ModelAttribute QuestionCommand command) {
-    return ResponseEntity.ok(popularPostService.getDailyPopularQuestionPosts(command));
+  public ResponseEntity<QuestionDto> getDailyPopularQuestionPost() {
+    return ResponseEntity.ok(popularPostService.getDailyPopularQuestionPosts());
   }
 
   @Override
-  @PostMapping(value = "/popular/question/weekly", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
+  @PostMapping(value = "/popular/question/weekly")
   @LogMonitoringInvocation
-  public ResponseEntity<QuestionDto> getWeeklyPopularQuestionPost(
-      @ModelAttribute QuestionCommand command) {
-    return ResponseEntity.ok(popularPostService.getWeeklyPopularQuestionPosts(command));
+  public ResponseEntity<QuestionDto> getWeeklyPopularQuestionPost() {
+    return ResponseEntity.ok(popularPostService.getWeeklyPopularQuestionPosts());
   }
 
   @Override
-  @PostMapping(value = "/popular/document/daily", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
+  @PostMapping(value = "/popular/document/daily")
   @LogMonitoringInvocation
-  public ResponseEntity<DocumentDto> getDailyPopularDocumentPost(
-      @ModelAttribute DocumentCommand command) {
-    return ResponseEntity.ok(popularPostService.getDailyPopularDocumentPosts(command));
+  public ResponseEntity<DocumentDto> getDailyPopularDocumentPost() {
+    return ResponseEntity.ok(popularPostService.getDailyPopularDocumentPosts());
   }
 
   @Override
-  @PostMapping(value = "/popular/document/weekly", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
+  @PostMapping(value = "/popular/document/weekly")
   @LogMonitoringInvocation
-  public ResponseEntity<DocumentDto> getWeeklyPopularDocumentPost(
-      @ModelAttribute DocumentCommand command) {
-    return ResponseEntity.ok(popularPostService.getWeeklyPopularDocumentPosts(command));
+  public ResponseEntity<DocumentDto> getWeeklyPopularDocumentPost() {
+    return ResponseEntity.ok(popularPostService.getWeeklyPopularDocumentPosts());
   }
 }

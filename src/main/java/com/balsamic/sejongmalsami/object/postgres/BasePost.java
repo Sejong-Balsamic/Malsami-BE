@@ -4,6 +4,7 @@ import jakarta.persistence.EntityListeners;
 import jakarta.persistence.MappedSuperclass;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
+import lombok.Setter;
 import lombok.ToString;
 import lombok.experimental.SuperBuilder;
 import org.springframework.data.jpa.domain.support.AuditingEntityListener;
@@ -12,6 +13,7 @@ import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 @SuperBuilder
 @MappedSuperclass
 @Getter
+@Setter
 @NoArgsConstructor
 @EntityListeners(AuditingEntityListener.class)
 public abstract class BasePost extends BaseEntity{
@@ -21,12 +23,4 @@ public abstract class BasePost extends BaseEntity{
 
   // 주간 인기글 점수
   private Long weeklyScore;
-
-  public void updateDailyScore(Long dailyScore) {
-    this.dailyScore = dailyScore;
-  }
-
-  public void updateWeeklyScore(Long weeklyScore) {
-    this.weeklyScore = weeklyScore;
-  }
 }
