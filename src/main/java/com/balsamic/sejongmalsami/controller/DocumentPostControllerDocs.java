@@ -310,6 +310,11 @@ public interface DocumentPostControllerDocs {
 
   @ApiChangeLogs({
       @ApiChangeLog(
+          date = "2024.12.11",
+          author = Author.SUHSAECHAN,
+          description = "내 자료 다운로드시 차감 X, 엽전내역 남지않음 , DocumentFile에서 전체 총 다운로드수, 주간 다운로드수, 일간다운로드수 정의"
+      ),
+      @ApiChangeLog(
           date = "2024.12.01",
           author = Author.SUHSAECHAN,
           description = "파일 다운로드 로직 구현"

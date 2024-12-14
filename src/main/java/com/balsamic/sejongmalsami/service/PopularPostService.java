@@ -196,8 +196,10 @@ public class PopularPostService {
 
     // 전체 자료글 dailyScore 계산
     List<DocumentPost> posts = documentPostRepository.findAll();
-    for (DocumentPost post : posts) {
-      post.setDailyScore(scoreCalculator.calculateDocumentPostDailyScore(post));
+    for (DocumentPost curPost : posts) {
+      long curDocumentPostDailyScore = scoreCalculator.calculateDocumentPostDailyScore(curPost);
+      log.info("자료 게시글 : 일간 점수 업데이트 완료 : id={} score={}", curPost.getDocumentPostId(), curDocumentPostDailyScore);
+      curPost.setDailyScore(curDocumentPostDailyScore);
     }
     documentPostRepository.saveAll(posts);
 
@@ -242,8 +244,10 @@ public class PopularPostService {
 
     // 전체 자료글 weeklyScore 계산
     List<DocumentPost> posts = documentPostRepository.findAll();
-    for (DocumentPost post : posts) {
-      post.setWeeklyScore(scoreCalculator.calculateDocumentPostWeeklyScore(post));
+    for (DocumentPost curPost : posts) {
+      long curDocumentPostWeeklyScore = scoreCalculator.calculateDocumentPostWeeklyScore(curPost);
+      log.info("자료 게시글 : 주간 점수 업데이트 완료 : id={} score={}", curPost.getDocumentPostId(), curDocumentPostWeeklyScore);
+      curPost.setWeeklyScore(curDocumentPostWeeklyScore);
     }
     documentPostRepository.saveAll(posts);
 
