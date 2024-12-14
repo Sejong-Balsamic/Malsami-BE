@@ -5,12 +5,12 @@ import static com.balsamic.sejongmalsami.object.constants.ContentType.COMMENT;
 import static com.balsamic.sejongmalsami.object.constants.ContentType.DOCUMENT;
 import static com.balsamic.sejongmalsami.object.constants.ContentType.DOCUMENT_REQUEST;
 import static com.balsamic.sejongmalsami.object.constants.ContentType.QUESTION;
+import static com.balsamic.sejongmalsami.object.constants.LikeType.DISLIKE;
+import static com.balsamic.sejongmalsami.object.constants.LikeType.LIKE;
 import static com.balsamic.sejongmalsami.object.constants.PostTier.CHEONMIN;
 import static com.balsamic.sejongmalsami.object.constants.PostTier.JUNGIN;
 import static com.balsamic.sejongmalsami.object.constants.PostTier.KING;
 import static com.balsamic.sejongmalsami.object.constants.PostTier.YANGBAN;
-import static com.balsamic.sejongmalsami.object.constants.LikeType.DISLIKE;
-import static com.balsamic.sejongmalsami.object.constants.LikeType.LIKE;
 import static com.balsamic.sejongmalsami.object.constants.YeopjeonAction.RECEIVE_DISLIKE;
 
 import com.balsamic.sejongmalsami.object.CommentCommand;
@@ -50,8 +50,12 @@ import com.balsamic.sejongmalsami.util.config.YeopjeonConfig;
 import com.balsamic.sejongmalsami.util.exception.CustomException;
 import com.balsamic.sejongmalsami.util.exception.ErrorCode;
 import java.util.UUID;
+import java.util.concurrent.TimeUnit;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.redisson.api.RLock;
+import org.redisson.api.RedissonClient;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -61,6 +65,12 @@ import org.springframework.transaction.annotation.Transactional;
 public class LikeService {
 
   private static final Integer DEMOTION_DISLIKE_LIMIT = 20;
+
+  @Value("${spring.data.redis.wait-time}")
+  private Long waitTime;
+
+  @Value("${spring.data.redis.lease-time}")
+  private Long leaseTime;
 
   private final MemberRepository memberRepository;
   private final QuestionBoardLikeRepository questionBoardLikeRepository;
@@ -75,6 +85,7 @@ public class LikeService {
   private final PostTierConfig postTierConfig;
   private final CommentLikeRepository commentLikeRepository;
   private final CommentRepository commentRepository;
+  private final RedissonClient redissonClient;
 
 
   /**
@@ -152,147 +163,166 @@ public class LikeService {
   /**
    * <h3>공통 좋아요/싫어요 처리 로직</h3>
    *
-   * @param memberId     로그인 회원
-   * @param postId       게시글
-   * @param contentType  유형
-   * @param likeType 좋아요/싫어요
+   * @param memberId    로그인 회원
+   * @param postId      게시글
+   * @param contentType 유형
+   * @param likeType    좋아요/싫어요
    * @return
    */
   private <T> T processLikeRequest(UUID memberId, UUID postId, ContentType contentType, LikeType likeType) {
-    // 회원 조회
-    Member curMember = memberRepository.findById(memberId)
-        .orElseThrow(() -> new CustomException(ErrorCode.MEMBER_NOT_FOUND));
-    // 글 작성자
-    Member writer;
-
-    QuestionPost questionPost;
-    AnswerPost answerPost;
-    DocumentPost documentPost;
-    DocumentRequestPost documentRequestPost;
-    Comment comment;
-    PostTier preTier = null;
-
-    // ContentType 에 따른 작성글 조회
-    if (contentType.equals(QUESTION)) { // 질문글
-      questionPost = questionPostRepository.findById(postId)
-          .orElseThrow(() -> new CustomException(ErrorCode.QUESTION_POST_NOT_FOUND));
-      writer = questionPost.getMember();
-    } else if (contentType.equals(ANSWER)) { // 답변글
-      answerPost = answerPostRepository.findById(postId)
-          .orElseThrow(() -> new CustomException(ErrorCode.ANSWER_POST_NOT_FOUND));
-      writer = answerPost.getMember();
-    } else if (contentType.equals(DOCUMENT)) { // 자료글
-      documentPost = documentPostRepository.findById(postId)
-          .orElseThrow(() -> new CustomException(ErrorCode.DOCUMENT_POST_NOT_FOUND));
-      writer = documentPost.getMember();
-      preTier = documentPost.getPostTier(); // 자료 글 기존 등급
-      canAccessDocumentBoard(curMember, documentPost.getPostTier()); // 해당 자료 글 등급 접근 여부 검증
-    } else if (contentType.equals(DOCUMENT_REQUEST)) { // 자료요청글
-      documentRequestPost = documentRequestPostRepository.findById(postId)
-          .orElseThrow(() -> new CustomException(ErrorCode.DOCUMENT_REQUEST_POST_NOT_FOUND));
-      writer = documentRequestPost.getMember();
-    } else if (contentType.equals(COMMENT)) { // 댓글
-      comment = commentRepository.findById(postId)
-          .orElseThrow(() -> new CustomException(ErrorCode.COMMENT_NOT_FOUND));
-      writer = comment.getMember();
-    } else { // 잘못된 contentType
-      log.error("요청된 ContentType: {}", contentType);
-      throw new CustomException(ErrorCode.INVALID_CONTENT_TYPE);
-    }
-
-    // 자기 자신에게 요청여부 검증
-    validateSelfAction(curMember, writer);
-
-    // 이미 좋아요/싫어요를 누른 글인지 검증
-    checkAlreadyAction(memberId, postId, contentType);
-
-    // 엽전 및 경험치 증감
-    YeopjeonHistory yeopjeonHistory = null;
-    ExpHistory expHistory = null;
-
+    // 락 획득 시도 (락 키는 게시글 PK)
+    String lockKey = "lock:like" + postId;
+    RLock lock = redissonClient.getLock(lockKey);
     try {
-      if (likeType.equals(LIKE)) { // 좋아요를 눌렀을 경우
-        yeopjeonHistory = yeopjeonService.processYeopjeon(writer, YeopjeonAction.RECEIVE_LIKE);
-        expHistory = expService.processExp(writer, ExpAction.RECEIVE_LIKE);
-      } else if (likeType.equals(DISLIKE) && contentType.equals(DOCUMENT)) { // 싫어요를 눌렀을 경우 (자료글만 가능)
-        yeopjeonHistory = yeopjeonService.processYeopjeon(writer, RECEIVE_DISLIKE);
-      } else {
-        log.error("ContentType, ReactionType 요청이 잘못되었습니다. ContentType: {}, ReactionType: {}",
-            contentType, likeType);
-        throw new CustomException(ErrorCode.INVALID_REACTION_TYPE);
+      // 최대 n초간 대기, 락 획득 후 m초 뒤 자동 만료 설정
+      if (!lock.tryLock(waitTime, leaseTime, TimeUnit.SECONDS)) { // 락 획득에 실패 시
+        log.error("락 획득 실패 - 다른 요청 처리중");
+        throw new CustomException(ErrorCode.INTERNAL_SERVER_ERROR);
       }
-    } catch (Exception e) { // 엽전 or 경험치 처리 중 오류 발생
-      log.error("엽전/경험치 처리 중 오류 발생", e);
-      throw new CustomException(ErrorCode.YEOPJEON_SAVE_ERROR);
-    }
 
-    // 좋아요/싫어요 증가
-    try {
-      applyAction(memberId, postId, contentType, likeType);
-      if (contentType.equals(QUESTION)) {
-        QuestionBoardLike questionBoardLike = QuestionBoardLike.builder()
-            .memberId(memberId)
-            .questionBoardId(postId)
-            .contentType(contentType)
-            .build();
-        questionBoardLikeRepository.save(questionBoardLike);
-        return (T) QuestionDto.builder()
-            .questionBoardLike(questionBoardLike)
-            .build();
-      } else if (contentType.equals(DOCUMENT)) { // 자료글인 경우 등급 변동 계산
-        calculateNewTier(postId, likeType);
-        DocumentBoardLike documentBoardLike = DocumentBoardLike.builder()
-            .memberId(memberId)
-            .documentBoardId(postId)
-            .contentType(contentType)
-            .likeType(likeType)
-            .build();
-        documentBoardLikeRepository.save(documentBoardLike);
-        return (T) DocumentDto.builder()
-            .documentBoardLike(documentBoardLike)
-            .build();
-      } else if (contentType.equals(DOCUMENT_REQUEST)) {
-        DocumentBoardLike documentBoardLike = DocumentBoardLike.builder()
-            .memberId(memberId)
-            .documentBoardId(postId)
-            .contentType(contentType)
-            .likeType(likeType)
-            .build();
-        documentBoardLikeRepository.save(documentBoardLike);
-        return (T) DocumentDto.builder()
-            .documentBoardLike(documentBoardLike)
-            .build();
-      } else if (contentType.equals(COMMENT)) {
-        CommentLike commentLike = CommentLike.builder()
-            .memberId(memberId)
-            .commentId(postId)
-            .contentType(contentType)
-            .build();
-        commentLikeRepository.save(commentLike);
-        return (T) CommentDto.builder()
-            .commentLike(commentLike)
-            .build();
+      // 회원 조회
+      Member curMember = memberRepository.findById(memberId)
+          .orElseThrow(() -> new CustomException(ErrorCode.MEMBER_NOT_FOUND));
+      // 글 작성자
+      Member writer;
+
+      QuestionPost questionPost;
+      AnswerPost answerPost;
+      DocumentPost documentPost;
+      DocumentRequestPost documentRequestPost;
+      Comment comment;
+      PostTier preTier = null;
+
+      // ContentType 에 따른 작성글 조회
+      if (contentType.equals(QUESTION)) { // 질문글
+        questionPost = questionPostRepository.findById(postId)
+            .orElseThrow(() -> new CustomException(ErrorCode.QUESTION_POST_NOT_FOUND));
+        writer = questionPost.getMember();
+      } else if (contentType.equals(ANSWER)) { // 답변글
+        answerPost = answerPostRepository.findById(postId)
+            .orElseThrow(() -> new CustomException(ErrorCode.ANSWER_POST_NOT_FOUND));
+        writer = answerPost.getMember();
+      } else if (contentType.equals(DOCUMENT)) { // 자료글
+        documentPost = documentPostRepository.findById(postId)
+            .orElseThrow(() -> new CustomException(ErrorCode.DOCUMENT_POST_NOT_FOUND));
+        writer = documentPost.getMember();
+        preTier = documentPost.getPostTier(); // 자료 글 기존 등급
+        canAccessDocumentBoard(curMember, documentPost.getPostTier()); // 해당 자료 글 등급 접근 여부 검증
+      } else if (contentType.equals(DOCUMENT_REQUEST)) { // 자료요청글
+        documentRequestPost = documentRequestPostRepository.findById(postId)
+            .orElseThrow(() -> new CustomException(ErrorCode.DOCUMENT_REQUEST_POST_NOT_FOUND));
+        writer = documentRequestPost.getMember();
+      } else if (contentType.equals(COMMENT)) { // 댓글
+        comment = commentRepository.findById(postId)
+            .orElseThrow(() -> new CustomException(ErrorCode.COMMENT_NOT_FOUND));
+        writer = comment.getMember();
       } else { // 잘못된 contentType
         log.error("요청된 ContentType: {}", contentType);
         throw new CustomException(ErrorCode.INVALID_CONTENT_TYPE);
       }
-    } catch (Exception e) { // 좋아요/싫어요 변동 중 오류 발생
-      log.error("좋아요/싫어요 변동 중 오류가 발생했습니다.", e);
-      if (contentType.equals(DOCUMENT)) {
-        rollbackTier(postId, preTier); // 자료 글 등급 롤백
+
+      // 자기 자신에게 요청여부 검증
+      validateSelfAction(curMember, writer);
+
+      // 이미 좋아요/싫어요를 누른 글인지 검증
+      checkAlreadyAction(memberId, postId, contentType);
+
+      // 엽전 및 경험치 증감
+      YeopjeonHistory yeopjeonHistory = null;
+      ExpHistory expHistory = null;
+
+      try {
+        if (likeType.equals(LIKE)) { // 좋아요를 눌렀을 경우
+          yeopjeonHistory = yeopjeonService.processYeopjeon(writer, YeopjeonAction.RECEIVE_LIKE);
+          expHistory = expService.processExp(writer, ExpAction.RECEIVE_LIKE);
+        } else if (likeType.equals(DISLIKE) && contentType.equals(DOCUMENT)) { // 싫어요를 눌렀을 경우 (자료글만 가능)
+          yeopjeonHistory = yeopjeonService.processYeopjeon(writer, RECEIVE_DISLIKE);
+        } else {
+          log.error("ContentType, ReactionType 요청이 잘못되었습니다. ContentType: {}, ReactionType: {}",
+              contentType, likeType);
+          throw new CustomException(ErrorCode.INVALID_REACTION_TYPE);
+        }
+      } catch (Exception e) { // 엽전 or 경험치 처리 중 오류 발생
+        log.error("엽전/경험치 처리 중 오류 발생", e);
+        throw new CustomException(ErrorCode.YEOPJEON_SAVE_ERROR);
       }
-      rollbackAction(postId, contentType, likeType); // 좋아요/싫어요 수 롤백
-      if (likeType.equals(LIKE)) {
-        yeopjeonService.rollbackYeopjeonTransaction(writer, YeopjeonAction.RECEIVE_LIKE, yeopjeonHistory);
-        expService.rollbackExpTransaction(writer, ExpAction.RECEIVE_LIKE, expHistory);
-      } else if (likeType.equals(DISLIKE) && contentType.equals(DOCUMENT)) {
-        yeopjeonService.rollbackYeopjeonTransaction(writer, RECEIVE_DISLIKE, yeopjeonHistory);
-      } else {
-        log.error("ContentType, ReactionType 요청이 잘못되었습니다. ContentType: {}, ReactionType: {}",
-            contentType, likeType);
-        throw new CustomException(ErrorCode.INVALID_REACTION_TYPE);
+
+      // 좋아요/싫어요 증가
+      try {
+        applyAction(memberId, postId, contentType, likeType);
+        if (contentType.equals(QUESTION)) {
+          QuestionBoardLike questionBoardLike = QuestionBoardLike.builder()
+              .memberId(memberId)
+              .questionBoardId(postId)
+              .contentType(contentType)
+              .build();
+          questionBoardLikeRepository.save(questionBoardLike);
+          return (T) QuestionDto.builder()
+              .questionBoardLike(questionBoardLike)
+              .build();
+        } else if (contentType.equals(DOCUMENT)) { // 자료글인 경우 등급 변동 계산
+          calculateNewTier(postId, likeType);
+          DocumentBoardLike documentBoardLike = DocumentBoardLike.builder()
+              .memberId(memberId)
+              .documentBoardId(postId)
+              .contentType(contentType)
+              .likeType(likeType)
+              .build();
+          documentBoardLikeRepository.save(documentBoardLike);
+          return (T) DocumentDto.builder()
+              .documentBoardLike(documentBoardLike)
+              .build();
+        } else if (contentType.equals(DOCUMENT_REQUEST)) {
+          DocumentBoardLike documentBoardLike = DocumentBoardLike.builder()
+              .memberId(memberId)
+              .documentBoardId(postId)
+              .contentType(contentType)
+              .likeType(likeType)
+              .build();
+          documentBoardLikeRepository.save(documentBoardLike);
+          return (T) DocumentDto.builder()
+              .documentBoardLike(documentBoardLike)
+              .build();
+        } else if (contentType.equals(COMMENT)) {
+          CommentLike commentLike = CommentLike.builder()
+              .memberId(memberId)
+              .commentId(postId)
+              .contentType(contentType)
+              .build();
+          commentLikeRepository.save(commentLike);
+          return (T) CommentDto.builder()
+              .commentLike(commentLike)
+              .build();
+        } else { // 잘못된 contentType
+          log.error("요청된 ContentType: {}", contentType);
+          throw new CustomException(ErrorCode.INVALID_CONTENT_TYPE);
+        }
+      } catch (Exception e) { // 좋아요/싫어요 변동 중 오류 발생
+        log.error("좋아요/싫어요 변동 중 오류가 발생했습니다.", e);
+        if (contentType.equals(DOCUMENT)) {
+          rollbackTier(postId, preTier); // 자료 글 등급 롤백
+        }
+        rollbackAction(postId, contentType, likeType); // 좋아요/싫어요 수 롤백
+        if (likeType.equals(LIKE)) {
+          yeopjeonService.rollbackYeopjeonTransaction(writer, YeopjeonAction.RECEIVE_LIKE, yeopjeonHistory);
+          expService.rollbackExpTransaction(writer, ExpAction.RECEIVE_LIKE, expHistory);
+        } else if (likeType.equals(DISLIKE) && contentType.equals(DOCUMENT)) {
+          yeopjeonService.rollbackYeopjeonTransaction(writer, RECEIVE_DISLIKE, yeopjeonHistory);
+        } else {
+          log.error("ContentType, ReactionType 요청이 잘못되었습니다. ContentType: {}, ReactionType: {}",
+              contentType, likeType);
+          throw new CustomException(ErrorCode.INVALID_REACTION_TYPE);
+        }
+        throw new CustomException(ErrorCode.INTERNAL_SERVER_ERROR);
       }
+    } catch (InterruptedException e) {
+      Thread.currentThread().interrupt();
+      log.error("락 획득 대기 중 인터럽트 발생", e);
       throw new CustomException(ErrorCode.INTERNAL_SERVER_ERROR);
+    } finally { // 현재 스레드가 락을 가지고 있는 경우
+      if (lock.isHeldByCurrentThread()) {
+        lock.unlock();
+      }
     }
   }
 
@@ -337,10 +367,10 @@ public class LikeService {
    * <h3>좋아요/싫어요 개수 변동 메서드</h3>
    * <p>해당 글의 좋아요 or 싫어요 개수 증가</p>
    *
-   * @param memberId     로그인 회원
-   * @param postId       게시물
-   * @param contentType  게시물 유형
-   * @param likeType 좋아요/싫어요 유형 (자료글)
+   * @param memberId    로그인 회원
+   * @param postId      게시물
+   * @param contentType 게시물 유형
+   * @param likeType    좋아요/싫어요 유형 (자료글)
    */
   private void applyAction(UUID memberId, UUID postId, ContentType contentType, LikeType likeType) {
     if (contentType.equals(QUESTION)) { // 질문 글 좋아요 증가
@@ -386,9 +416,9 @@ public class LikeService {
    * <h3>좋아요/싫어요 롤백</h3>
    * <p>해당 글의 좋아요 or 싫어요 개수 롤백</p>
    *
-   * @param postId       게시물
-   * @param contentType  게시물 유형
-   * @param likeType 좋아요/싫어요 유형 (자료글)
+   * @param postId      게시물
+   * @param contentType 게시물 유형
+   * @param likeType    좋아요/싫어요 유형 (자료글)
    */
   private void rollbackAction(UUID postId, ContentType contentType, LikeType likeType) {
     if (contentType.equals(QUESTION)) { // 질문 글 좋아요 롤백
@@ -437,13 +467,15 @@ public class LikeService {
     } else if (postTier.equals(JUNGIN)) { // 중인 게시판 접근 시
       if (yeopjeon.getYeopjeon() < yeopjeonConfig.getJunginRequirement()) {
         log.error("현재 사용자 {}의 엽전이 부족하여 중인게시판에 접근할 수 없습니다.", curMember.getStudentId());
-        log.error("중인 게시판 엽전 기준: {}냥, 현재 사용자 엽전개수: {}", yeopjeonConfig.getJunginRequirement(), yeopjeon.getYeopjeon());
+        log.error("중인 게시판 엽전 기준: {}냥, 현재 사용자 엽전개수: {}", yeopjeonConfig.getJunginRequirement(),
+            yeopjeon.getYeopjeon());
         throw new CustomException(ErrorCode.INSUFFICIENT_YEOPJEON);
       }
     } else if (postTier.equals(YANGBAN)) { // 양반 게시판 접근 시
       if (yeopjeon.getYeopjeon() < yeopjeonConfig.getYangbanRequirement()) {
         log.error("현재 사용자 {}의 엽전이 부족하여 양반게시판에 접근할 수 없습니다.", curMember.getStudentId());
-        log.error("양반 게시판 엽전 기준: {}냥, 현재 사용자 엽전개수: {}", yeopjeonConfig.getYangbanRequirement(), yeopjeon.getYeopjeon());
+        log.error("양반 게시판 엽전 기준: {}냥, 현재 사용자 엽전개수: {}", yeopjeonConfig.getYangbanRequirement(),
+            yeopjeon.getYeopjeon());
         throw new CustomException(ErrorCode.INSUFFICIENT_YEOPJEON);
       }
     } else if (postTier.equals(KING)) { // 왕 게시판 접근 시
@@ -460,7 +492,7 @@ public class LikeService {
   /**
    * <h3>자료 글 등급 승급/강등 로직</h3>
    *
-   * @param postId       자료 글 PK
+   * @param postId   자료 글 PK
    * @param likeType 좋아요/싫어요 유형
    */
   private void calculateNewTier(UUID postId, LikeType likeType) {
