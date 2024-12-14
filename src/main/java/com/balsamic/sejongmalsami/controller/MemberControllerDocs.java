@@ -99,6 +99,11 @@ public interface MemberControllerDocs {
 
   @ApiChangeLogs({
       @ApiChangeLog(
+          date = "2024.12.14",
+          author = Author.SUHSAECHAN,
+          description = "자료게시판 접근권한 정보 반환 로직 추가"
+      ),
+      @ApiChangeLog(
           date = "2024.11.28",
           author = Author.SUHSAECHAN,
           description = "마이페이지 엽전, 경험치, 백분율, 전체적인 총 개수 반환"
