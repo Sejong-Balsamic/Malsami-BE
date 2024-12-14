@@ -37,10 +37,10 @@ public class MemberDto {
   private Integer totalYeopjeonMembers;
   private Double yeopjeonPercentile;
 
-  private boolean canAccessCheonmin;
-  private boolean canAccessJungin;
-  private boolean canAccessYangban;
-  private boolean canAccessKing;
+  private Boolean canAccessCheonmin;
+  private Boolean canAccessJungin;
+  private Boolean canAccessYangban;
+  private Boolean canAccessKing;
 
   private Integer cheonminRequirement;
   private Integer junginRequirement;
