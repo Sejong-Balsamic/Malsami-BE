@@ -290,10 +290,17 @@ public class MemberService implements UserDetailsService {
         .orElseThrow(() -> new CustomException(ErrorCode.YEOPJEON_NOT_FOUND));
     log.info("엽전 정보: {}", yeopjeon);
 
+    // 엽전 : 랭킹 계산
     int yeopjeonRank = yeopjeonService.getYeopjeonRank(member);
     int totalYeopjeonMembers = yeopjeonService.getCountOfMembersWithYeopjeon();
     double yeopjeonPercentile = FileUtil.calculatePercentile(totalYeopjeonMembers, yeopjeonRank);
     log.info("엽전 랭킹: {}, 총 엽전을 가진 사람수: {}, Percentile: {}", yeopjeonRank, totalYeopjeonMembers, yeopjeonPercentile);
+
+    // 게시판 접근 권한 정보
+    boolean canAccessCheonmin = true;
+    boolean canAccessJungin = yeopjeon.getYeopjeon() >= yeopjeonConfig.getJunginRequirement();
+    boolean canAccessYangban = yeopjeon.getYeopjeon() >= yeopjeonConfig.getYangbanRequirement();
+    boolean canAccessKing = yeopjeon.getYeopjeon() >= yeopjeonConfig.getKingRequirement();
 
     // 경험치
     Exp exp = expRepository.findByMember(member)
@@ -384,6 +391,14 @@ public class MemberService implements UserDetailsService {
         .totalCommentCount(totalCommentCount)               // 총 댓글 수
         .totalPopularPostCount(totalPopularPostCount)       // 총 인기자료 수
         .totalLikeCount(totalLikeCount)                     // 총 좋아요 수
+        .cheonminRequirement(yeopjeonConfig.getCheonminRequirement())
+        .junginRequirement(yeopjeonConfig.getJunginRequirement())
+        .yangbanRequirement(yeopjeonConfig.getYangbanRequirement())
+        .kingRequirement(yeopjeonConfig.getKingRequirement())
+        .canAccessCheonmin(canAccessCheonmin)
+        .canAccessJungin(canAccessJungin)
+        .canAccessYangban(canAccessYangban)
+        .canAccessKing(canAccessKing)
         .build();
   }
 
