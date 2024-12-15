@@ -23,7 +23,6 @@ import com.balsamic.sejongmalsami.repository.mongo.QuestionBoardLikeRepository;
 import com.balsamic.sejongmalsami.repository.mongo.RefreshTokenRepository;
 import com.balsamic.sejongmalsami.repository.postgres.AnswerPostRepository;
 import com.balsamic.sejongmalsami.repository.postgres.CommentRepository;
-import com.balsamic.sejongmalsami.repository.postgres.CourseRepository;
 import com.balsamic.sejongmalsami.repository.postgres.DepartmentRepository;
 import com.balsamic.sejongmalsami.repository.postgres.DocumentPostRepository;
 import com.balsamic.sejongmalsami.repository.postgres.DocumentRequestPostRepository;
@@ -38,7 +37,6 @@ import com.balsamic.sejongmalsami.util.config.AdminConfig;
 import com.balsamic.sejongmalsami.util.config.YeopjeonConfig;
 import com.balsamic.sejongmalsami.util.exception.CustomException;
 import com.balsamic.sejongmalsami.util.exception.ErrorCode;
-import io.jsonwebtoken.Claims;
 import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletResponse;
 import java.time.LocalDateTime;
@@ -54,17 +52,13 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
-import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
-import org.springframework.security.core.Authentication;
-import org.springframework.security.core.userdetails.UserDetailsService;
-import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 @Service
 @RequiredArgsConstructor
 @Slf4j
-public class MemberService implements UserDetailsService {
+public class MemberService {
 
   private final YeopjeonConfig yeopjeonConfig;
   private final AdminConfig adminConfig;
@@ -87,30 +81,7 @@ public class MemberService implements UserDetailsService {
   private final DocumentBoardLikeRepository documentBoardLikeRepository;
   private final QuestionBoardLikeRepository questionBoardLikeRepository;
   private final CommentLikeRepository commentLikeRepository;
-  private final CourseRepository courseRepository;
   private final DepartmentRepository departmentRepository;
-
-
-  /**
-   * Spring Security에서 회원 정보를 로드하는 메서드
-   */
-  @Override
-  public CustomUserDetails loadUserByUsername(String stringMemberId) throws UsernameNotFoundException {
-    UUID memberId;
-    try {
-      memberId = UUID.fromString(stringMemberId);
-    } catch (IllegalArgumentException e) {
-      log.error("유효하지 않은 UUID 형식: {}", stringMemberId);
-      throw new UsernameNotFoundException("유효하지 않은 UUID 형식입니다.");
-    }
-
-    Member member = memberRepository.findById(memberId)
-        .orElseThrow(() -> {
-          log.error("회원 미발견: {}", memberId);
-          return new CustomException(ErrorCode.MEMBER_NOT_FOUND);
-        });
-    return new CustomUserDetails(member);
-  }
 
   /**
    * 회원 로그인 처리
@@ -403,19 +374,6 @@ public class MemberService implements UserDetailsService {
   }
 
   /**
-   * JWT 토큰에서 Authentication 객체 생성
-   *
-   * @param token JWT 토큰
-   * @return Authentication 객체
-   */
-  public Authentication getAuthentication(String token) {
-    Claims claims = jwtUtil.getClaims(token);
-    String username = claims.getSubject();
-    CustomUserDetails userDetails = loadUserByUsername(username);
-    return new UsernamePasswordAuthenticationToken(userDetails, null, userDetails.getAuthorities());
-  }
-
-  /**
    * 회원의 yeopjeon -> 각 자료게시판 접근 가능 여부 반환
    */
   public MemberDto getDocumentBoardAccessByTier(MemberCommand command) {
@@ -444,7 +402,7 @@ public class MemberService implements UserDetailsService {
   }
 
   // 관리자-회원관리 : 기본 검색 (미사용)
-  public MemberDto findAll(MemberCommand command) {
+  public MemberDto getAllMembers(MemberCommand command) {
 
     Sort sort = Sort.by(
         command.getSortDirection().equalsIgnoreCase("desc") ?
@@ -460,7 +418,7 @@ public class MemberService implements UserDetailsService {
   }
 
   // 관리자-회원관리 : 필터링 검색
-  public MemberDto findFilteredMember(MemberCommand command) {
+  public MemberDto getFilteredMembers(MemberCommand command) {
     return MemberDto.builder()
         .membersPage(
             memberRepository.findAllDynamic(
