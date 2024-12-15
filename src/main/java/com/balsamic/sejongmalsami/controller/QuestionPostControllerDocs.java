@@ -268,6 +268,11 @@ public interface QuestionPostControllerDocs {
 
   @ApiChangeLogs({
       @ApiChangeLog(
+          date = "2024.12.11",
+          author = Author.BAEKJIHOON,
+          description = "Redis 사용"
+      ),
+      @ApiChangeLog(
           date = "2024.11.28",
           author = Author.BAEKJIHOON,
           description = "캐싱 로직 삭제"
@@ -310,9 +315,7 @@ public interface QuestionPostControllerDocs {
         이 API는 인증이 필요하며, JWT 토큰이 필요합니다.
 
         #### 요청 파라미터
-        - **`pageNumber`** (`Integer`, 선택): 페이지 번호 (기본값 = 0)
-        
-        - **`pageSize`** (`Integer`, 선택): 조회하고 싶은 일간 인기 질문 글 개수 (기본값 = 30)
+        `없음`
 
         #### 반환 파라미터
         - **`QuestionDto`**: 질문 게시판 정보 반환
@@ -321,15 +324,18 @@ public interface QuestionPostControllerDocs {
         #### 참고 사항
         - 이 API를 통해 사용자는 일간 인기 질문글을 조회할 수 있습니다.
         - 요청 시각으로부터 24시간 이내에 작성된 n개의 일간 인기 질문 글을 조회합니다.
-        - pageSize 파라미터를 설정하지 않으면 기본값 30이 할당됩니다.
         - Swagger에서 테스트 시 mediaFiles에 있는 "Send empty value" 체크박스 해제해야합니다.
         """
   )
 
-  ResponseEntity<QuestionDto> getDailyPopularQuestionPost(
-      QuestionCommand command);
+  ResponseEntity<QuestionDto> getDailyPopularQuestionPost();
 
   @ApiChangeLogs({
+      @ApiChangeLog(
+          date = "2024.12.11",
+          author = Author.BAEKJIHOON,
+          description = "Redis 사용"
+      ),
       @ApiChangeLog(
           date = "2024.11.28",
           author = Author.BAEKJIHOON,
@@ -373,9 +379,7 @@ public interface QuestionPostControllerDocs {
         이 API는 인증이 필요하며, JWT 토큰이 필요합니다.
 
         #### 요청 파라미터
-        - **`pageNumber`** (`Integer`, 선택): 페이지 번호 (기본값 = 0)
-        
-        - **`pageSize`** (`Integer`, 선택): 조회하고 싶은 주간 인기 질문 글 개수 (기본값 = 30)
+        `없음`
 
         #### 반환 파라미터
         - **`QuestionDto`**: 질문 게시판 정보 반환
@@ -388,6 +392,5 @@ public interface QuestionPostControllerDocs {
         - Swagger에서 테스트 시 mediaFiles에 있는 "Send empty value" 체크박스 해제해야합니다.
         """
   )
-  ResponseEntity<QuestionDto> getWeeklyPopularQuestionPost(
-      QuestionCommand command);
+  ResponseEntity<QuestionDto> getWeeklyPopularQuestionPost();
 }

@@ -139,26 +139,51 @@
 
 <div th:replace="fragments/footer :: footer"></div>
 
-<!-- Tabulator 리소스 -->
 <link href="https://unpkg.com/tabulator-tables/dist/css/tabulator.min.css" rel="stylesheet">
-<link href="https://unpkg.com/tabulator-tables/dist/css/tabulator_semantic-ui.css" rel="stylesheet">
 <script type="text/javascript" src="https://unpkg.com/tabulator-tables/dist/js/tabulator.min.js"></script>
 
 <script type="text/javascript">
+  let memberTable = new Tabulator();
 
   // DOMContentLoaded Event
   document.addEventListener("DOMContentLoaded", function () {
 
-    // 테이블 초기화
-    const table = initTable();
+    // 데이터 초기화
+    initData();
 
     // 이벤트 처리
-    eventHandler(table);
+    eventHandler(memberTable);
   });
 
+  // 데이터 초기화
+  function initData(){
+    memberTable = initMemberTable()
+  }
+
+  // 이벤트 핸들러
+  function eventHandler(table) {
+    const form = document.getElementById("searchForm");
+
+    // 검색 버튼 이벤트
+    form.addEventListener("submit", function (e) {
+      e.preventDefault();
+      table.setData(); // 테이블 데이터 새로 로드
+    });
+
+    // 폼 필터 초기화 버튼 이벤트
+    document.getElementById("resetFilterButton").addEventListener("click", function () {
+      form.reset();
+      table.setData();
+    });
+
+    // 정렬 초기화
+    document.getElementById("resetSortButton").addEventListener("click", function () {
+      table.clearSort();
+    });
+  }
+
   // Table 초기화
-  // Table 초기화
-  function initTable() {
+  function initMemberTable() {
 
     var table = new Tabulator("#member-table", {
       layout: "fitDataTable",
@@ -254,27 +279,6 @@
     return table;
   }
 
-  // 이벤트 핸들러
-  function eventHandler(table) {
-    const form = document.getElementById("searchForm");
-
-    // 검색 버튼 이벤트
-    form.addEventListener("submit", function (e) {
-      e.preventDefault();
-      table.setData(); // 테이블 데이터 새로 로드
-    });
-
-    // 폼 필터 초기화 버튼 이벤트
-    document.getElementById("resetFilterButton").addEventListener("click", function () {
-      form.reset();
-      table.setData();
-    });
-
-    // 정렬 초기화
-    document.getElementById("resetSortButton").addEventListener("click", function () {
-      table.clearSort();
-    });
-  }
 
 
 </script>

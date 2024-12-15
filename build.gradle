@@ -102,6 +102,10 @@ dependencies {
 
     // Spring Boot DevTools
     developmentOnly 'org.springframework.boot:spring-boot-devtools'
+
+    // Redis
+    implementation 'org.springframework.boot:spring-boot-starter-data-redis'
+    implementation 'org.redisson:redisson-spring-boot-starter:3.20.0'
 }
 
 tasks.named('test') {

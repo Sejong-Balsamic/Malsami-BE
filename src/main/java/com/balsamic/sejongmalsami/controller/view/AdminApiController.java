@@ -38,7 +38,7 @@ public class AdminApiController {
   public ResponseEntity<MemberDto> getAllMembers(
       @AuthenticationPrincipal CustomUserDetails customUserDetails,
       @ModelAttribute MemberCommand command){
-    return ResponseEntity.ok(memberService.findAll(command));
+    return ResponseEntity.ok(memberService.getAllMembers(command));
   }
 
   @PostMapping(value = "/member/filter", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
@@ -46,7 +46,30 @@ public class AdminApiController {
   public ResponseEntity<MemberDto> getFilteredMembers(
       @AuthenticationPrincipal CustomUserDetails customUserDetails,
       @ModelAttribute MemberCommand command){
-    return ResponseEntity.ok(memberService.findFilteredMember(command));
+    return ResponseEntity.ok(memberService.getFilteredMembers(command));
+  }
+
+  /**
+   * ===========================================
+   * 테스트 계정 API
+   * ===========================================
+   */
+
+  @PostMapping(value = "/test/account/post", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
+  @LogMonitoringInvocation
+  public ResponseEntity<MemberDto> createTestMember(
+      @AuthenticationPrincipal CustomUserDetails customUserDetails,
+      @ModelAttribute MemberCommand command){
+    command.setMember(customUserDetails.getMember());
+    return ResponseEntity.ok(adminApiService.createTestMember(command));
+  }
+
+  @PostMapping(value = "/test/account/get-all", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
+  @LogMonitoringInvocation
+  public ResponseEntity<MemberDto> getFilteredTestMembers(
+      @AuthenticationPrincipal CustomUserDetails customUserDetails,
+      @ModelAttribute MemberCommand command){
+    return ResponseEntity.ok(adminApiService.getFilteredTestMembers(command));
   }
 
   /**

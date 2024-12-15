@@ -40,7 +40,7 @@ public class AdminPageController {
   }
 
   /**
-   * 관리자 질문 페이지 - 토큰 검증 필요
+   * 질문 페이지 - 토큰 검증 필요
    */
   @GetMapping("/admin/question")
   public String questionPage(@RequestParam String accessToken, Model model) {
@@ -51,7 +51,7 @@ public class AdminPageController {
   }
 
   /**
-   * 관리자 문서 페이지 - 토큰 검증 필요
+   * 문서 페이지 - 토큰 검증 필요
    */
   @GetMapping("/admin/document")
   public String documentPage(@RequestParam String accessToken, Model model) {
@@ -62,7 +62,7 @@ public class AdminPageController {
   }
 
   /**
-   * 관리자 대시보드 페이지 - 토큰 검증 필요
+   * 대시보드 페이지 - 토큰 검증 필요
    */
   @GetMapping("/admin/dashboard")
   public String dashboardPage(@RequestParam String accessToken, Model model) {
@@ -73,7 +73,7 @@ public class AdminPageController {
   }
 
   /**
-   * 관리자 테스트 페이지 1 - 토큰 검증 필요
+   * 테스트 페이지 1 - 토큰 검증 필요
    */
   @GetMapping("/admin/testPage1")
   public String testPage1(@RequestParam String accessToken, Model model) {
@@ -84,7 +84,7 @@ public class AdminPageController {
   }
 
   /**
-   * 관리자 멤버 페이지 - 토큰 검증 필요
+   * 멤버 페이지 - 토큰 검증 필요
    */
   @GetMapping("/admin/member")
   public String memberPage(@RequestParam String accessToken, Model model) {
@@ -95,7 +95,18 @@ public class AdminPageController {
   }
 
   /**
-   * 관리자 개발자의놀이터 페이지 - 토큰 검증 필요
+   * 관리자 페이지 - 토큰 검증 필요
+   */
+  @GetMapping("/admin/test")
+  public String adminPage(@RequestParam String accessToken, Model model) {
+    if (!jwtUtil.validateToken(accessToken)) {
+      return "redirect:/error/403";
+    }
+    return "admin/test";
+  }
+
+  /**
+   * 개발자의놀이터 페이지 - 토큰 검증 필요
    */
   @GetMapping("/admin/play-ground")
   public String playGroundPage(@RequestParam String accessToken, Model model) {

@@ -27,6 +27,7 @@ import org.springframework.transaction.annotation.Transactional;
 public class AuthService {
 
   private final MemberService memberService;
+  private final CustomUserDetailsService customUserDetailsService;
   private final JwtUtil jwtUtil;
   private final RefreshTokenRepository refreshTokenRepository;
 
@@ -61,7 +62,7 @@ public class AuthService {
     String username = claims.getSubject();
 
     // 사용자 정보 로드
-    CustomUserDetails userDetails = memberService.loadUserByUsername(username);
+    CustomUserDetails userDetails = customUserDetailsService.loadUserByUsername(username);
 
     // 새로운 액세스 토큰 생성
     String newAccessToken = jwtUtil.createAccessToken(userDetails);
