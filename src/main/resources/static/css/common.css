@@ -93,11 +93,11 @@ COMMON.CSS - 공통 컴포넌트 스타일
 
 /*
 ===========================
-   test.html Styles
+   member.html Styles
 ===========================
 */
 .member-page .form-container {
-  max-width: 500px;
+  max-width: 1100px;
 }
 
 /*
