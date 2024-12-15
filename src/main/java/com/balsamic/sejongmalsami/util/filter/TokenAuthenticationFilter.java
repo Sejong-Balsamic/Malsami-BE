@@ -1,6 +1,6 @@
 package com.balsamic.sejongmalsami.util.filter;
 
-import com.balsamic.sejongmalsami.service.MemberService;
+import com.balsamic.sejongmalsami.service.CustomUserDetailsService;
 import com.balsamic.sejongmalsami.util.JwtUtil;
 import com.balsamic.sejongmalsami.util.config.SecurityUrls;
 import com.balsamic.sejongmalsami.util.exception.ErrorCode;
@@ -27,9 +27,9 @@ import org.springframework.web.filter.OncePerRequestFilter;
 @Slf4j
 public class TokenAuthenticationFilter extends OncePerRequestFilter {
 
-  private final JwtUtil jwtUtil; // JWT 유틸리티
-  private final MemberService memberService; // 멤버 서비스
-  private static final AntPathMatcher pathMatcher = new AntPathMatcher(); // URL 패턴 매처
+  private final JwtUtil jwtUtil;
+  private final CustomUserDetailsService customUserDetailsService;
+  private static final AntPathMatcher pathMatcher = new AntPathMatcher();
 
   @Override
   protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain)
@@ -74,7 +74,7 @@ public class TokenAuthenticationFilter extends OncePerRequestFilter {
 
       // 토큰 검증 : 토큰이 유효하면 인증 설정
       if (token != null && jwtUtil.validateToken(token)) {
-        Authentication authentication = memberService.getAuthentication(token);
+        Authentication authentication = jwtUtil.getAuthentication(token);
         SecurityContextHolder.getContext().setAuthentication(authentication);
 
         // 관리자 페이지 권한 체크 : 관리자 권한 없으면 로그인 페이지로 리다이렉트

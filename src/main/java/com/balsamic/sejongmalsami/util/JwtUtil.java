@@ -1,6 +1,7 @@
 package com.balsamic.sejongmalsami.util;
 
 import com.balsamic.sejongmalsami.object.CustomUserDetails;
+import com.balsamic.sejongmalsami.service.CustomUserDetailsService;
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.ExpiredJwtException;
 import io.jsonwebtoken.Jwts;
@@ -15,13 +16,18 @@ import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
 import javax.crypto.SecretKey;
+import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.core.Authentication;
 import org.springframework.stereotype.Component;
 
 @Component
+@RequiredArgsConstructor
 @Slf4j
 public class JwtUtil {
+  private final CustomUserDetailsService customUserDetailsService;
 
   @Value("${jwt.secret-key}")
   private String secretKey; // JWT 비밀 키
@@ -155,4 +161,18 @@ public class JwtUtil {
   public LocalDateTime getRefreshExpiryDate() {
     return LocalDateTime.now().plusSeconds(refreshTokenExpTime / 1000);
   }
+
+  /**
+   * JWT 토큰에서 Authentication 객체 생성
+   *
+   * @param token JWT 토큰
+   * @return Authentication 객체
+   */
+  public Authentication getAuthentication(String token) {
+    Claims claims = getClaims(token);
+    String username = claims.getSubject();
+    CustomUserDetails userDetails = customUserDetailsService.loadUserByUsername(username);
+    return new UsernamePasswordAuthenticationToken(userDetails, null, userDetails.getAuthorities());
+  }
+
 }

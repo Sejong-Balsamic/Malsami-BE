@@ -2,6 +2,7 @@ package com.balsamic.sejongmalsami.object;
 
 import com.balsamic.sejongmalsami.object.postgres.Exp;
 import com.balsamic.sejongmalsami.object.postgres.Member;
+import com.balsamic.sejongmalsami.object.postgres.TestMember;
 import com.balsamic.sejongmalsami.object.postgres.Yeopjeon;
 import lombok.Builder;
 import lombok.Getter;
@@ -14,6 +15,8 @@ import org.springframework.data.domain.Page;
 public class MemberDto {
 
   private Member member;
+  private TestMember testMember;
+  private Page<TestMember> testMembersPage;
 
   // auth
   private String major;
