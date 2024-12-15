@@ -2,6 +2,8 @@ package com.balsamic.sejongmalsami.util;
 
 import com.balsamic.sejongmalsami.object.MemberCommand;
 import com.balsamic.sejongmalsami.object.MemberDto;
+import com.balsamic.sejongmalsami.object.postgres.TestMember;
+import com.balsamic.sejongmalsami.repository.postgres.TestMemberRepository;
 import com.balsamic.sejongmalsami.util.exception.CustomException;
 import com.balsamic.sejongmalsami.util.exception.ErrorCode;
 import java.io.IOException;
@@ -17,6 +19,7 @@ import okhttp3.Response;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
 import org.jsoup.select.Elements;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Component;
 
 @Slf4j
@@ -25,8 +28,20 @@ import org.springframework.stereotype.Component;
 public class SejongPortalAuthenticator {
 
   private static final OkHttpClient CLIENT = new OkHttpClient();
+  private final TestMemberRepository testMemberRepository;
+  private final PasswordEncoder passwordEncoder;
 
   public MemberDto getMemberAuthInfos(MemberCommand command) {
+
+    String sejongPortalId = command.getSejongPortalId();
+    String sejongPassword = command.getSejongPortalPassword();
+
+    // 테스트 계정 인증 - 학번이 9로 시작하는경우
+    if (sejongPortalId.startsWith("9")) {
+      return getTestInfos(sejongPortalId, sejongPassword);
+    }
+
+    // 실제 포털 인증
     try {
       String jsessionId = obtainJSessionId();
       if (jsessionId == null) {
@@ -124,5 +139,29 @@ public class SejongPortalAuthenticator {
       log.error("HTML 파싱 실패: 데이터가 부족합니다.", e);
       throw new CustomException(ErrorCode.SEJONG_AUTH_DATA_FETCH_ERROR);
     }
+  }
+
+
+  // 테스트 계정 확인
+  private MemberDto getTestInfos(String testMemberStudentId, String testMemberPassword) {
+    // 테스트 계정 불러오기
+    Long testStudentId = Long.parseLong(testMemberStudentId);
+
+    TestMember testMember = testMemberRepository.findByTestStudentId(testStudentId)
+        .orElseThrow(() -> new CustomException(ErrorCode.TEST_MEMBER_NOT_FOUND));
+
+    // 비밀번호 확인
+    if (!passwordEncoder.matches(testMemberPassword, testMember.getPassword())) {
+      log.error("테스트 계정 비밀번호가 일치하지 않습니다: {}", testStudentId);
+      throw new CustomException(ErrorCode.TEST_MEMBER_AUTH_CREDENTIALS_INVALID);
+    }
+
+    return MemberDto.builder()
+        .major(testMember.getTestMajor())
+        .studentIdString(testMember.getTestStudentId().toString())
+        .studentName(testMember.getTestStudentName())
+        .academicYear(testMember.getTestAcademicYear())
+        .enrollmentStatus(testMember.getTestEnrollmentStatus())
+        .build();
   }
 }

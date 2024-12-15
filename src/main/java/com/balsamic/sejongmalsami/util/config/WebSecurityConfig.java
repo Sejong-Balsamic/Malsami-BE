@@ -1,6 +1,6 @@
 package com.balsamic.sejongmalsami.util.config;
 
-import com.balsamic.sejongmalsami.service.MemberService;
+import com.balsamic.sejongmalsami.service.CustomUserDetailsService;
 import com.balsamic.sejongmalsami.util.JwtUtil;
 import com.balsamic.sejongmalsami.util.filter.TokenAuthenticationFilter;
 import java.util.Arrays;
@@ -33,7 +33,7 @@ import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
 public class WebSecurityConfig {
 
   private final JwtUtil jwtUtil;
-  private final MemberService memberService;
+  private final CustomUserDetailsService customUserDetailsService;
 
   /**
    * 허용된 CORS Origin 목록
@@ -100,7 +100,7 @@ public class WebSecurityConfig {
             session.sessionCreationPolicy(SessionCreationPolicy.STATELESS)
         )
         .addFilterBefore(
-            new TokenAuthenticationFilter(jwtUtil, memberService),
+            new TokenAuthenticationFilter(jwtUtil, customUserDetailsService),
             UsernamePasswordAuthenticationFilter.class
         )
         .build();

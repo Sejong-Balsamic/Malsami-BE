@@ -351,7 +351,7 @@ public class DocumentPostService {
         .orElseThrow(() -> new CustomException(ErrorCode.DOCUMENT_FILE_NOT_FOUND));
 
     // 내가 올린 파일인 경우 : 엽전 소모 X
-    if(!documentFile.getUploader().equals(member)){
+    if(!documentFile.getUploader().getMemberId().equals(member.getMemberId())){
       // 엽전 소모
       yeopjeonHistory = yeopjeonService.processYeopjeon(member, PURCHASE_DOCUMENT);
 
