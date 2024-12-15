@@ -1,8 +1,8 @@
+<!-- src/main/resources/templates/admin/test.html -->
 <!DOCTYPE html>
 <html xmlns:th="http://www.thymeleaf.org">
-<head th:replace="fragments/header :: head(title='테스트 계정 관리')">
-</head>
-<body class="test">
+<head th:replace="fragments/header :: head(title='테스트 계정 관리')"></head>
+<body class="test-page">
 <div th:replace="fragments/header :: header"></div>
 
 <div class="ui container u-margin-vertical-large u-padding-horizontal-medium">
@@ -10,7 +10,7 @@
     <h1 class="ui header">테스트 계정 관리</h1>
   </div>
 
-  <div class="ui segment">
+  <div class="ui segment form-container">
     <form class="ui form" id="createTestMemberForm">
       <h4 class="ui dividing header">새 테스트 계정 생성</h4>
 
@@ -97,6 +97,7 @@
 
 <div th:replace="fragments/footer :: footer"></div>
 
+<!-- tabulator -->
 <link href="https://unpkg.com/tabulator-tables/dist/css/tabulator.min.css" rel="stylesheet">
 <script type="text/javascript" src="https://unpkg.com/tabulator-tables/dist/js/tabulator.min.js"></script>
 

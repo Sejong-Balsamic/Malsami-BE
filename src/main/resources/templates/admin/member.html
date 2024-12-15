@@ -3,7 +3,7 @@
 <html xmlns:th="http://www.thymeleaf.org">
 <head th:replace="~{fragments/header :: head}"></head>
 
-<body class="member-dashboard">
+<body class="member-page">
 <div th:replace="fragments/header :: header"></div>
 
 <div class="ui container u-margin-vertical-large u-padding-horizontal-medium">
@@ -13,7 +13,7 @@
   </div>
 
   <!-- 검색 및 필터 섹션 -->
-  <div class="ui segment">
+  <div class="form-container ui segment">
     <form id="searchForm" class="ui form">
       <div class="three fields">
         <!-- 기본 정보 검색 -->
