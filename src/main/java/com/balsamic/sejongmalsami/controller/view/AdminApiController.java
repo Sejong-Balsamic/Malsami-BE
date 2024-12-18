@@ -26,6 +26,45 @@ public class AdminApiController {
 
   private final MemberService memberService;
   private final AdminApiService adminApiService;
+  /**
+   * //TODO: url 수정 필요
+   *변경안
+   * /admin/members/list : 모든 회원 조회
+   * /admin/members/search : 필터 조건으로 회원 조회
+   * 변경안
+   * /admin/test-accounts/create : 테스트 계정 생성 (account에서 accounts로 복수화를 통해 리소스 명확화)
+   * /admin/test-accounts/list : 테스트 계정 리스트 조회
+   * 변경안
+   * /admin/yeopjeon/manage : 엽전 증감, 관리 동작 (단일 엔드포인트로 관리 기능을 처리)
+   * /admin/yeopjeon/history 또는 /admin/yeopjeon/transactions : 엽전 관리 이력 조회
+   * 변경안
+   * /admin/dev-tools/generate-random-uuid-nickname
+   * 좀 길지만 기능을 정확히 드러냄.
+   * 줄이고 싶다면 /admin/dev-tools/uuid-nickname 정도도 가능.
+   *
+   *
+   * @PostMapping(value = "/members/list", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
+   * public ResponseEntity<MemberDto> listAllMembers(...)
+   *
+   * @PostMapping(value = "/members/search", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
+   * public ResponseEntity<MemberDto> searchMembers(...)
+   *
+   * @PostMapping(value = "/test-accounts/create", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
+   * public ResponseEntity<MemberDto> createTestMember(...)
+   *
+   * @PostMapping(value = "/test-accounts/list", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
+   * public ResponseEntity<MemberDto> listTestMembers(...)
+   *
+   * @PostMapping(value = "/yeopjeon/manage", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
+   * public ResponseEntity<YeopjeonDto> manageYeopjeon(...)
+   *
+   * // 이력이 필요하다면 별도 추가
+   * @PostMapping(value = "/yeopjeon/history", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
+   * public ResponseEntity<YeopjeonHistoryDto> yeopjeonHistory(...)
+   *
+   * @PostMapping(value = "/dev-tools/uuid-nickname", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
+   * public ResponseEntity<AdminDto> generateRandomUuidNickname(...)
+   */
 
   /**
    * ===========================================
@@ -69,6 +108,21 @@ public class AdminApiController {
   public ResponseEntity<MemberDto> getFilteredTestMembers(
       @AuthenticationPrincipal CustomUserDetails customUserDetails,
       @ModelAttribute MemberCommand command){
+    return ResponseEntity.ok(adminApiService.getFilteredTestMembers(command));
+  }
+
+  /**
+   * ===========================================
+   * 엽전 관리 API
+   * ===========================================
+   */
+
+  @PostMapping(value = "/yeopjeon/post", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
+  @LogMonitoringInvocation
+  public ResponseEntity<MemberDto> manageYeopjeon(
+      @AuthenticationPrincipal CustomUserDetails customUserDetails,
+      @ModelAttribute MemberCommand command){
+    command.setMember(customUserDetails.getMember());
     return ResponseEntity.ok(adminApiService.getFilteredTestMembers(command));
   }
 
