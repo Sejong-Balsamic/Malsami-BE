@@ -1,7 +1,6 @@
 package com.balsamic.sejongmalsami.controller.view;
 
 import com.balsamic.sejongmalsami.util.JwtUtil;
-import com.balsamic.sejongmalsami.util.LogUtils;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletResponse;
@@ -110,13 +109,25 @@ public class AdminPageController {
    */
   @GetMapping("/admin/play-ground")
   public String playGroundPage(@RequestParam String accessToken, Model model) {
-//    if (!jwtUtil.validateToken(accessToken)) {
-//      return "redirect:/error/403";
-//    }
+    if (!jwtUtil.validateToken(accessToken)) {
+      return "redirect:/error/403";
+    }
     log.info(accessToken);
-    LogUtils.superLog(accessToken);
     return "admin/playGround";
   }
+
+  /**
+   * 개발자의놀이터 페이지 - 토큰 검증 필요
+   */
+  @GetMapping("/admin/yeopjeon")
+  public String yeopjeonPage(@RequestParam String accessToken, Model model) {
+    if (!jwtUtil.validateToken(accessToken)) {
+      return "redirect:/error/403";
+    }
+    log.info(accessToken);
+    return "admin/yeopjeon";
+  }
+
   /**
    * 로그아웃 - 토큰 검증 필요 없음
    */
