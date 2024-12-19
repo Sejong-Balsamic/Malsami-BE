@@ -34,4 +34,6 @@ public class YeopjeonHistory extends BaseMongoEntity {
 
   @NotNull
   private Integer resultYeopjeon;   // 거래 이후 엽전량
+
+  private String content; // 추가 내용
 }

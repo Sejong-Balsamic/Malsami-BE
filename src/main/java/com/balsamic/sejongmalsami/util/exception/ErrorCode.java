@@ -204,6 +204,8 @@ public enum ErrorCode {
 
   YEOPJEON_HISTORY_DELETE_ERROR(HttpStatus.INTERNAL_SERVER_ERROR, "엽전 히스토리 삭제 중 오류가 발생했습니다."),
 
+  YEOPJEON_ACTION_NOT_FOUND(HttpStatus.NOT_FOUND, "올바르지않은 엽전 변동 사유입니다."),
+
   // Exp
 
   INSUFFICIENT_EXP(HttpStatus.BAD_REQUEST, "사용자의 경험치가 0 미만입니다."),
