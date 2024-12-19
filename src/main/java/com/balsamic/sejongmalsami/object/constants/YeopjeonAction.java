@@ -24,7 +24,8 @@ public enum YeopjeonAction {
   COPYRIGHT_VIOLATION("저작권 신고"), // 저작권 위반 시 엽전 회수
   REPORT_REWARD("신고 보상금"), // 신고 보상금
   CREATE_ACCOUNT("신규 회원"), // 신규회원 엽전 지급
-  REWARD_YEOPJEON("엽전 현상금"); // 엽전 현상금
+  REWARD_YEOPJEON("엽전 현상금"), // 엽전 현상금
+  ADMIN_ADJUST("관리자 엽전 조정"); // 관리자의 엽전 수동 조정
 
   private final String description;
 }
