@@ -4,9 +4,12 @@ import com.balsamic.sejongmalsami.object.AdminCommand;
 import com.balsamic.sejongmalsami.object.AdminDto;
 import com.balsamic.sejongmalsami.object.MemberCommand;
 import com.balsamic.sejongmalsami.object.MemberDto;
+import com.balsamic.sejongmalsami.object.constants.YeopjeonAction;
+import com.balsamic.sejongmalsami.object.mongo.YeopjeonHistory;
 import com.balsamic.sejongmalsami.object.postgres.Member;
 import com.balsamic.sejongmalsami.object.postgres.TestMember;
 import com.balsamic.sejongmalsami.object.postgres.Yeopjeon;
+import com.balsamic.sejongmalsami.repository.mongo.YeopjeonHistoryRepository;
 import com.balsamic.sejongmalsami.repository.postgres.MemberRepository;
 import com.balsamic.sejongmalsami.repository.postgres.TestMemberRepository;
 import com.balsamic.sejongmalsami.repository.postgres.YeopjeonRepository;
@@ -22,6 +25,7 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 @Service
 @RequiredArgsConstructor
@@ -32,6 +36,7 @@ public class AdminApiService {
   private final YeopjeonRepository yeopjeonRepository;
   private final TestMemberRepository testMemberRepository;
   private final PasswordEncoder passwordEncoder;
+  private final YeopjeonHistoryRepository yeopjeonHistoryRepository;
 
   public AdminDto processUuidPacchingko(AdminCommand command) {
     // member 가져오기
@@ -74,7 +79,8 @@ public class AdminApiService {
                 .testEnrollmentStatus(command.getEnrollmentStatus())
                 .createdBy(command.getMember())
                 .build());
-    log.info("테스트 회원 생성: 테스트회원학번: {}, 생성자: {}", testMember.getTestStudentId(), testMember.getCreatedBy().getStudentName());
+    log.info("테스트 회원 생성: 테스트회원학번: {}, 생성자: {}", testMember.getTestStudentId(),
+        testMember.getCreatedBy().getStudentName());
     return MemberDto.builder()
         .testMember(testMember)
         .build();
@@ -95,6 +101,54 @@ public class AdminApiService {
 
     return MemberDto.builder()
         .testMembersPage(testMembersPage)
+        .build();
+  }
+
+  @Transactional
+  public AdminDto manageYeopjeon(AdminCommand command) {
+    Member member = command.getMember();
+    Integer amount = command.getAmount();
+
+    // 엽전 정보 조회
+    Yeopjeon yeopjeon = yeopjeonRepository.findByMember(member)
+        .orElseThrow(() -> new CustomException(ErrorCode.YEOPJEON_NOT_FOUND));
+
+    // 감소할 경우 잔액 체크
+    if (amount < 0 && yeopjeon.getYeopjeon() + amount < 0) {
+      throw new CustomException(ErrorCode.INSUFFICIENT_YEOPJEON);
+    }
+
+    // 엽전 수정
+    Integer currentYeopjeon = yeopjeon.getYeopjeon();
+    Integer newYeopjeon = currentYeopjeon + amount;
+    yeopjeon.setYeopjeon(newYeopjeon);
+    yeopjeonRepository.save(yeopjeon);
+
+    // 엽전 이력 기록
+    YeopjeonHistory yeopjeonHistory = YeopjeonHistory.builder()
+        .memberId(member.getMemberId())
+        .yeopjeonChange(amount)
+        .yeopjeonAction(YeopjeonAction.ADMIN_ADJUST)
+        .resultYeopjeon(newYeopjeon)
+        .content("관리자: " + member.getStudentName() + ": " +  member.getStudentId())
+        .build();
+    yeopjeonHistoryRepository.save(yeopjeonHistory);
+
+    // 로깅
+    log.info("관리자 엽전 조정 - 학번: {}, 변동량: {}, 최종잔액: {}",
+        member.getStudentId(), amount, newYeopjeon);
+
+    return AdminDto.builder()
+        .member(member)
+        .yeopjeon(yeopjeon)
+        .yeopjeonHistory(yeopjeonHistory)
+        .build();
+  }
+
+  public AdminDto getMyYeopjeonInfo(Member member) {
+
+    return AdminDto.builder()
+        .yeopjeon(yeopjeonRepository.findByMember(member).get())
         .build();
   }
 }

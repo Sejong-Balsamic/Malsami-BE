@@ -2,6 +2,8 @@ package com.balsamic.sejongmalsami.util;
 
 import com.balsamic.sejongmalsami.object.constants.YeopjeonAction;
 import com.balsamic.sejongmalsami.util.config.YeopjeonConfig;
+import com.balsamic.sejongmalsami.util.exception.CustomException;
+import com.balsamic.sejongmalsami.util.exception.ErrorCode;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
 
@@ -32,6 +34,7 @@ public class YeopjeonCalculator {
       case REPORT_REWARD -> yeopjeonConfig.getReportReward();
       case CREATE_ACCOUNT -> yeopjeonConfig.getCreateAccount();
       case REWARD_YEOPJEON -> 0;
+      default -> throw new CustomException(ErrorCode.YEOPJEON_ACTION_NOT_FOUND);
     };
   }
 
