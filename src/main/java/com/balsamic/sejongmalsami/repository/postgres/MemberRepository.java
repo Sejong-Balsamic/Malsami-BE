@@ -52,4 +52,14 @@ public interface MemberRepository extends JpaRepository<Member, UUID> {
       @Param("isDeleted") Boolean isDeleted,
       Pageable pageable
   );
+
+  @Query("""
+SELECT m FROM Member m
+LEFT join 
+""")
+  Page<Member> findMemberAndYeopjeon(
+      @Param("studentId") String studentId,
+      @Param("studentName") String studentName,
+      @Param("memberId") String memberId
+  );
 }

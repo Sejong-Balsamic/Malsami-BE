@@ -85,7 +85,7 @@ public class AdminApiController {
   public ResponseEntity<MemberDto> getFilteredMembers(
       @AuthenticationPrincipal CustomUserDetails customUserDetails,
       @ModelAttribute MemberCommand command){
-    return ResponseEntity.ok(memberService.getFilteredMembers(command));
+    return ResponseEntity.ok(adminApiService.getFilteredMembers(command));
   }
 
   /**
@@ -132,6 +132,16 @@ public class AdminApiController {
       @AuthenticationPrincipal CustomUserDetails customUserDetails) {
     return ResponseEntity.ok(adminApiService.getMyYeopjeonInfo(customUserDetails.getMember()));
   }
+
+  @PostMapping(value = "/yeopjeon/모르겠음", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
+  @LogMonitoringInvocation
+  public ResponseEntity<AdminDto> getFilteredMembersAndYeopjeons(
+      @AuthenticationPrincipal CustomUserDetails customUserDetails,
+      @ModelAttribute AdminCommand command){
+    command.setMember(customUserDetails.getMember());
+    return ResponseEntity.ok(adminApiService.getFilteredMembersAndYeopjeons(command));
+  }
+
 
   /**
    * ===========================================

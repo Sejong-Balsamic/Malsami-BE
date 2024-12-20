@@ -151,4 +151,39 @@ public class AdminApiService {
         .yeopjeon(yeopjeonRepository.findByMember(member).get())
         .build();
   }
+
+  // 회원 관리 : 필터링 검색
+  public MemberDto getFilteredMembers(MemberCommand command) {
+    return MemberDto.builder()
+        .membersPage(
+            memberRepository.findAllDynamic(
+                command.getStudentId(),
+                command.getStudentName(),
+                command.getUuidNickname(),
+                command.getMajor(),
+                command.getAcademicYear(),
+                command.getEnrollmentStatus(),
+                command.getAccountStatus(),
+                command.getRole(),
+                command.getLastLoginStart(),
+                command.getLastLoginEnd(),
+                command.getIsFirstLogin(),
+                command.getIsEdited(),
+                command.getIsDeleted(),
+                PageRequest.of(
+                    command.getPageNumber(),
+                    command.getPageSize(),
+                    Sort.by(Sort.Direction.fromString(command.getSortDirection()),
+                        command.getSortField())
+                )
+            )
+        )
+        .build();
+  }
+
+  public AdminDto getFilteredMembersAndYeopjeons(AdminCommand command) {
+    return AdminDto.builder()
+        .membersPage(null)
+        .build();
+  }
 }

@@ -62,14 +62,22 @@
   <div class="ui segment">
     <h4 class="ui dividing header">회원 검색</h4>
     <form id="memberSearchForm" class="ui form">
-      <div class="fields">
-        <div class="four wide field">
+      <div class="three fields">
+        <div class="field">
+          <label>학번</label>
           <input type="text" name="studentId" placeholder="학번으로 검색">
         </div>
-        <div class="four wide field">
+        <div class="field">
+          <label>이름</label>
           <input type="text" name="studentName" placeholder="이름으로 검색">
         </div>
-        <button type="submit" class="ui primary button">검색</button>
+        <div class="field">
+          <label>회원ID(memberId)</label>
+          <input type="text" name="memberId" placeholder="회원 UUID 검색">
+        </div>
+        <button type="submit" class="ui primary button">
+          <i class="search icon"></i>검색
+        </button>
       </div>
     </form>
 
@@ -174,22 +182,31 @@
       paginationSize: 100,
       paginationSizeSelector: [10, 30, 50, 100],
       columns: [
-        {title: "학번", field: "studentId", width: 100},
-        {title: "이름", field: "studentName", width: 100},
-        {title: "현재 엽전", field: "yeopjeon.yeopjeon", width: 100,
-          formatter: function(cell) {
-            return cell.getValue() ? cell.getValue().toLocaleString() : '오류';
-          }
-        },
         {
-          title: "관리",
-          formatter: function() {
-            return "<button class='ui primary button mini'>엽전 관리</button>";
+          title:"선택",
+          formatter: function (){
+            return "<button class='ui primary button mini'>선택</button>";
           },
-          width: 100,
-          cellClick: function(e, cell) {
+          width: 80,
+          cellClick: function (e, cell){
             const rowData = cell.getRow().getData();
             showYeopjeonModal(rowData);
+          }
+        },
+        {title: "학번", field: "studentId", width: 100},
+        {title: "이름", field: "studentName", width: 100},
+        {title: "닉네임", field: "uuidNickname", width: 100},
+        {title: "전공", field: "major", width: 150},
+        {
+          title: "단과대학", field: "faculties", width: 120, formatter: function(cell) {
+            return cell.getValue() ? cell.getValue().join(", ") : '';
+          }
+        },
+        {title: "학년", field: "academicYear", width: 60},
+        {title: "재학상태", field: "enrollmentStatus", width: 100},
+        {title: "현재 엽전", field: "yeopjeon.yeopjeon", width: 100,
+          formatter: function(cell) {
+            return cell.getValue() ? cell.getValue().toLocaleString() : '0';
           }
         }
       ],
@@ -203,8 +220,13 @@
       ajaxRequestFunc: function (url, config, params) {
         const formData = new FormData(document.getElementById('memberSearchForm'));
 
+        const studentIdVal = formData.get('studentId');
+        if(studentIdVal){
+          formData.set('studentId',studentIdVal);
+        }
+
         formData.append("pageNumber", (params.page ? params.page - 1 : 0));
-        formData.append("pageSize", params.size || 10);
+        formData.append("pageSize", params.size || 100);
         formData.append("sortField", params.sortField || "createdDate");
         formData.append("sortDirection", params.sortDirection || "desc");
 
@@ -217,7 +239,7 @@
       },
       ajaxResponse: function (url, params, response) {
         document.getElementById("memberTableCount").textContent =
-            `총 조회 수: ${response.membersPage.totalElements || 0}건`;
+            `총 조회 수: ${response.membersPage.totalElements || "N/A"}건`;
         return {
           data: response.membersPage.content,
           last_page: response.membersPage.totalPages
