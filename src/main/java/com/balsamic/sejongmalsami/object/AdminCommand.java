@@ -13,4 +13,13 @@ public class AdminCommand {
   private Member member;
   private Integer amount;
   private UUID targetMemberId;
+
+  private Long studentId;
+  private String studentName;
+  private String memberId;
+
+  private Integer pageNumber;
+  private Integer pageSize;
+  private String sortField;
+  private String sortDirection;
 }

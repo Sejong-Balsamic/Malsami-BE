@@ -1,6 +1,6 @@
 package com.balsamic.sejongmalsami.util;
 
-import static com.balsamic.sejongmalsami.util.LogUtils.lineLog;
+import static com.balsamic.sejongmalsami.util.LogUtil.lineLog;
 
 import com.balsamic.sejongmalsami.object.constants.ImageQuality;
 import com.balsamic.sejongmalsami.object.constants.MimeType;

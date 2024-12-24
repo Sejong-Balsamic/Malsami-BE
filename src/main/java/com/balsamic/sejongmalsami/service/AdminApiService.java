@@ -1,5 +1,6 @@
 package com.balsamic.sejongmalsami.service;
 
+import com.balsamic.sejongmalsami.CommonUtil;
 import com.balsamic.sejongmalsami.object.AdminCommand;
 import com.balsamic.sejongmalsami.object.AdminDto;
 import com.balsamic.sejongmalsami.object.MemberCommand;
@@ -13,7 +14,7 @@ import com.balsamic.sejongmalsami.repository.mongo.YeopjeonHistoryRepository;
 import com.balsamic.sejongmalsami.repository.postgres.MemberRepository;
 import com.balsamic.sejongmalsami.repository.postgres.TestMemberRepository;
 import com.balsamic.sejongmalsami.repository.postgres.YeopjeonRepository;
-import com.balsamic.sejongmalsami.util.LogUtils;
+import com.balsamic.sejongmalsami.util.LogUtil;
 import com.balsamic.sejongmalsami.util.exception.CustomException;
 import com.balsamic.sejongmalsami.util.exception.ErrorCode;
 import java.util.UUID;
@@ -59,7 +60,7 @@ public class AdminApiService {
     member.setUuidNickname(newUuidNickName);
 
     // 로깅
-    LogUtils.lineLog("새로운UUID : " + member.getStudentId() + " : " + newUuidNickName);
+    LogUtil.lineLog("새로운UUID : " + member.getStudentId() + " : " + newUuidNickName);
 
     return AdminDto.builder()
         .member(member)
@@ -182,8 +183,24 @@ public class AdminApiService {
   }
 
   public AdminDto getFilteredMembersAndYeopjeons(AdminCommand command) {
+    Pageable pageable = PageRequest.of(
+        command.getPageNumber(),
+        command.getPageSize(),
+        Sort.by(Sort.Direction.fromString(command.getSortDirection()), command.getSortField())
+    );
+
+    String studentName = CommonUtil.nullIfBlank(command.getStudentName());
+    String memberId = CommonUtil.nullIfBlank(command.getMemberId());
+
+    Page<Member> membersPage = memberRepository.findMemberAndYeopjeon(
+        command.getStudentId(),
+        studentName,
+        memberId,
+        pageable
+    );
+
     return AdminDto.builder()
-        .membersPage(null)
+        .membersPage(membersPage)
         .build();
   }
 }

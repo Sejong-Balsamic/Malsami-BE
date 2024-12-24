@@ -65,15 +65,15 @@
       <div class="three fields">
         <div class="field">
           <label>학번</label>
-          <input type="text" name="studentId" placeholder="학번으로 검색">
+          <input type="text" name="studentId" placeholder="학번으로 검색 (예: 18010561)">
         </div>
         <div class="field">
           <label>이름</label>
-          <input type="text" name="studentName" placeholder="이름으로 검색">
+          <input type="text" name="studentName" placeholder="이름으로 검색 (예: 홍길동)">
         </div>
         <div class="field">
           <label>회원ID(memberId)</label>
-          <input type="text" name="memberId" placeholder="회원 UUID 검색">
+          <input type="text" name="memberId" placeholder="회원 UUID 검색 (예: fff8cca9-...)">
         </div>
         <button type="submit" class="ui primary button">
           <i class="search icon"></i>검색
@@ -142,6 +142,9 @@
     setupEventHandlers();
   });
 
+  /**
+   * 1. 내 정보 불러오기
+   */
   function loadMyInfo() {
     const formData = new FormData();
 
@@ -154,8 +157,6 @@
     })
     .then(response => response.json())
     .then(data => {
-      // data.member, data.yeopjeon 등 null 체크 필요
-      // 인증이 안되어있으면 member null일 수 있으므로 accessToken 확인필요
       if (data.member && data.member.studentName) {
         document.getElementById('myName').textContent = data.member.studentName;
       } else {
@@ -168,12 +169,15 @@
       }
       document.getElementById('currentYeopjeon').textContent =
           (data.yeopjeon && data.yeopjeon.yeopjeon) ? data.yeopjeon.yeopjeon.toLocaleString() : '0';
-    }).catch(err=>{
+    }).catch(err => {
       console.error(err);
       alert('내 정보 로딩 중 오류 발생');
     });
   }
 
+  /**
+   * 2. Tabulator 테이블 초기화
+   */
   function initMemberTable() {
     memberTable = new Tabulator("#memberTable", {
       layout: "fitDataTable",
@@ -198,69 +202,100 @@
         {title: "닉네임", field: "uuidNickname", width: 100},
         {title: "전공", field: "major", width: 150},
         {
-          title: "단과대학", field: "faculties", width: 120, formatter: function(cell) {
+          title: "단과대학", field: "faculties", width: 120,
+          formatter: function(cell) {
             return cell.getValue() ? cell.getValue().join(", ") : '';
           }
         },
         {title: "학년", field: "academicYear", width: 60},
         {title: "재학상태", field: "enrollmentStatus", width: 100},
-        {title: "현재 엽전", field: "yeopjeon.yeopjeon", width: 100,
+        {
+          title: "현재 엽전",
+          field: "yeopjeon.yeopjeon",
+          width: 100,
           formatter: function(cell) {
             return cell.getValue() ? cell.getValue().toLocaleString() : '0';
           }
         }
       ],
-      ajaxURL: "/admin/member/filter",
+      // 검색을 위한 POST 호출 경로
+      ajaxURL: "/admin/yeopjeon/search",
       ajaxConfig: {
         method: "POST",
         headers: {
           "Authorization": "Bearer " + localStorage.getItem("accessToken")
         }
       },
+      // Tabulator가 서버로 보낼 파라미터 구성
       ajaxRequestFunc: function (url, config, params) {
         const formData = new FormData(document.getElementById('memberSearchForm'));
 
-        const studentIdVal = formData.get('studentId');
-        if(studentIdVal){
-          formData.set('studentId',studentIdVal);
+        // (A) 페이지네이션 정보 추가
+        const pageNumber = params.page ? params.page - 1 : 0;
+        const pageSize = params.size || 100;
+
+        // (B) 정렬 정보
+        const sortField = params.sortField || "createdDate";
+        const sortDirection = params.sortDirection || "DESC";
+
+        formData.append("pageNumber", pageNumber);
+        formData.append("pageSize", pageSize);
+        formData.append("sortField", sortField);
+        formData.append("sortDirection", sortDirection);
+
+        // (C) studentId를 숫자로 변환 (빈 칸이면 null 취급 가능)
+        const studentIdVal = formData.get("studentId");
+        if (studentIdVal && studentIdVal.trim() !== "") {
+          // 여기가 핵심: 문자열 → 정수 변환
+          formData.set("studentId", parseInt(studentIdVal, 10));
+        } else {
+          // 비어있다면 아예 제거(또는 null)
+          formData.delete("studentId");
         }
 
-        formData.append("pageNumber", (params.page ? params.page - 1 : 0));
-        formData.append("pageSize", params.size || 100);
-        formData.append("sortField", params.sortField || "createdDate");
-        formData.append("sortDirection", params.sortDirection || "desc");
-
-        return fetch(url + "?accessToken=" + localStorage.getItem("accessToken"), {
-          method: "POST",
+        return fetch(url, {
+          method: config.method,
           headers: config.headers,
           body: formData
         })
         .then(response => response.json());
       },
+      // 서버 응답을 Tabulator가 이해할 수 있게 파싱
       ajaxResponse: function (url, params, response) {
+        // response가 AdminDto 형태라고 가정 (membersPage 포함)
         document.getElementById("memberTableCount").textContent =
-            `총 조회 수: ${response.membersPage.totalElements || "N/A"}건`;
+            `총 조회 수: ${response.membersPage?.totalElements ?? 0}건`;
+
         return {
-          data: response.membersPage.content,
-          last_page: response.membersPage.totalPages
+          data: response.membersPage?.content || [],
+          last_page: response.membersPage?.totalPages || 1
         };
       },
       height: "600px"
     });
   }
 
+  /**
+   * 3. 회원 엽전 관리 모달 오픈
+   */
   function showYeopjeonModal(memberData) {
     selectedMemberId = memberData.memberId;
     document.getElementById('modalUserInfo').textContent =
         `${memberData.studentId} (${memberData.studentName})`;
     document.getElementById('modalCurrentYeopjeon').textContent =
-        memberData.yeopjeon ? memberData.yeopjeon.yeopjeon.toLocaleString() : '오류';
+        memberData.yeopjeon && memberData.yeopjeon.yeopjeon
+            ? memberData.yeopjeon.yeopjeon.toLocaleString()
+            : '오류';
 
+    // Semantic UI 모달 오픈
     $('.ui.modal').modal('show');
   }
 
+  /**
+   * 4. 이벤트 핸들러 설정
+   */
   function setupEventHandlers() {
-    // 내 엽전 조정 버튼
+    // (4-1) 내 엽전 조정 버튼
     document.querySelectorAll('#myInfo .ui.buttons button').forEach(button => {
       button.addEventListener('click', function() {
         const formData = new FormData();
@@ -275,7 +310,7 @@
         })
         .then(response => response.json())
         .then(response => {
-          loadMyInfo();
+          loadMyInfo(); // 다시 조회
           alert('엽전이 성공적으로 조정되었습니다.');
         })
         .catch(error => {
@@ -285,7 +320,7 @@
       });
     });
 
-    // 모달 엽전 조정 버튼
+    // (4-2) 모달 엽전 조정 버튼
     document.querySelectorAll('#yeopjeonModal .ui.buttons button').forEach(button => {
       button.addEventListener('click', function() {
         if (!selectedMemberId) {
@@ -297,7 +332,6 @@
         formData.append('targetMemberId', selectedMemberId);
         formData.append('amount', this.dataset.amount);
 
-        // 여기서 manage -> post로 변경
         fetch('/admin/yeopjeon/post', {
           method: 'POST',
           body: formData,
@@ -307,7 +341,7 @@
         })
         .then(response => response.json())
         .then(response => {
-          memberTable.setData();
+          memberTable.setData(); // 테이블 다시 조회
           $('.ui.modal').modal('hide');
           alert('엽전이 성공적으로 조정되었습니다.');
         })
@@ -318,13 +352,13 @@
       });
     });
 
-    // 회원 검색 폼 제출
+    // (4-3) 회원 검색 폼 제출 시 테이블 새로고침
     document.getElementById('memberSearchForm').addEventListener('submit', function(e) {
       e.preventDefault();
+      // Tabulator 재호출
       memberTable.setData();
     });
   }
 </script>
-
 </body>
 </html>
