@@ -40,4 +40,27 @@ public interface SejongAcademicControllerDocs {
   ResponseEntity<SejongAcademicDto> getAllFaculties(
       @AuthenticationPrincipal CustomUserDetails customUserDetails,
       @ModelAttribute SejongAcademicCommand command);
+
+  @ApiChangeLogs({
+      @ApiChangeLog(
+          date = "2024.12.25",
+          author = Author.SUHSAECHAN,
+          description = "교과목명 목록 반환 구현"
+      )
+  })
+  @Operation(
+      summary = "교과목명 목록 반환",
+      description = """
+          **단과대 목록 반환 메소드 API**
+
+          **인증 : 필요없음**
+
+          #### 요청 파라미터
+          - **`없음`**
+
+          #### 반환 파라미터
+            - **`List<String> subjects`**: 교과목명 목록
+          """
+  )
+  ResponseEntity<SejongAcademicDto> getAllSubjects();
 }

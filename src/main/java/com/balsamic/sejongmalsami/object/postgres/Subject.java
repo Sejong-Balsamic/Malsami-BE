@@ -5,6 +5,8 @@ import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
+import java.io.Serial;
+import java.io.Serializable;
 import java.util.UUID;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -19,7 +21,10 @@ import lombok.experimental.SuperBuilder;
 @NoArgsConstructor
 @ToString(callSuper = true)
 @SuperBuilder
-public class Subject extends BaseEntity {
+public class Subject extends BaseEntity implements Serializable {
+
+  @Serial
+  private static final long serialVersionUID = 1L;
 
   @Id
   @GeneratedValue(strategy = GenerationType.AUTO)
