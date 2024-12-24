@@ -103,6 +103,7 @@ public class PopularPostService {
   }
 
   /**
+   * <h3>일간 인기 질문 글 점수 업데이트</h3>
    * <p>1시간 마다 일간 인기 질문글 점수 계산 후 상위 30개 캐시 저장</p>
    * <p>현재 시간으로부터 24시간 이내에 작성된 글만 점수 계산</p>
    */
@@ -140,6 +141,7 @@ public class PopularPostService {
   }
 
   /**
+   * <h3>주간 인기 질문 글 점수 업데이트</h3>
    * <p>6시간마다 주간 인기 질문글 점수 계산 후 상위 30개 데이터 저장</p>
    * <p>현재 시간으로부터 7일 이내에 작성된 글만 점수 계산</p>
    */
@@ -149,10 +151,8 @@ public class PopularPostService {
   public void calculateQuestionWeeklyScore() {
 
     LocalDateTime lastWeek = LocalDateTime.now().minusWeeks(1);
-    Integer postCounts = questionPostRepository.countByCreatedDateAfter(lastWeek);
 
     // 7일 이내에 작성된 모든 질문글 주간 점수 업데이트
-    Pageable pageable = PageRequest.of(0, Math.max(postCounts, 1));
     List<QuestionPost> posts = questionPostRepository
         .findAllByCreatedDateAfter(lastWeek)
         .orElseThrow(() -> new CustomException(ErrorCode.QUESTION_POST_NOT_FOUND));
@@ -283,7 +283,8 @@ public class PopularPostService {
   private List<UUID> getIdsFromRedis(String key) {
     List<Object> rawIds = redisTemplate.opsForList().range(key, 0, -1);
     if (rawIds == null || rawIds.isEmpty()) {
-      return List.of();
+      log.warn("Redis에서 key: {}로 저장된 인기글 데이터가 없습니다.", key);
+      throw new CustomException(ErrorCode.POPULAR_POST_NOT_FOUND);
     }
 
     return rawIds.stream()
