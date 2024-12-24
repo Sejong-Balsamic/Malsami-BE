@@ -1,7 +1,7 @@
 package com.balsamic.sejongmalsami.repository.postgres;
 
-import static com.balsamic.sejongmalsami.util.LogUtils.lineLog;
-import static com.balsamic.sejongmalsami.util.LogUtils.superLog;
+import static com.balsamic.sejongmalsami.util.LogUtil.lineLog;
+import static com.balsamic.sejongmalsami.util.LogUtil.superLog;
 
 import com.balsamic.sejongmalsami.object.postgres.Member;
 import com.balsamic.sejongmalsami.object.postgres.Yeopjeon;

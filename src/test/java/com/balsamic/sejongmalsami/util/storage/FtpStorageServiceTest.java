@@ -1,6 +1,6 @@
 package com.balsamic.sejongmalsami.util.storage;
 
-import static com.balsamic.sejongmalsami.util.LogUtils.lineLog;
+import static com.balsamic.sejongmalsami.util.LogUtil.lineLog;
 
 import com.balsamic.sejongmalsami.object.constants.ContentType;
 import java.io.File;

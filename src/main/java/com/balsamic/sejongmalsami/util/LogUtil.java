@@ -10,7 +10,7 @@ import lombok.extern.slf4j.Slf4j;
  * 로그 유틸리티 클래스
  */
 @Slf4j
-public class LogUtils {
+public class LogUtil {
 
   private static final ObjectMapper objectMapper = new ObjectMapper()
       .registerModule(new JavaTimeModule())
