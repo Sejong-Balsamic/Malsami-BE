@@ -102,6 +102,50 @@ COMMON.CSS - 공통 컴포넌트 스타일
 
 /*
 ===========================
+   yeopjeon.html Styles
+===========================
+*/
+.yeopjeon-page .table-container .total-count{
+  margin-top: 10px
+}
+
+/*
+===========================
+  Toast Styles
+===========================
+*/
+
+/* toast-container 위치 */
+#toast-container {
+  position: fixed;
+  top: 2rem;
+  right: 2rem;
+  z-index: 9999;
+}
+
+/* Toast 개별 아이템 스타일 */
+.toast {
+  background-color: #1b1c1d; /* Semantic UI에서 검정색(기본) 배경 */
+  color: #fff;
+  padding: 1rem 1.5rem;
+  margin-bottom: 1rem;
+  border-radius: 0.28571429rem;
+  box-shadow: 0 0 2px rgba(0,0,0,0.2);
+  font-size: 1rem;
+  opacity: 0; /* 처음엔 투명 */
+  animation: fadeInOut 3s forwards; /* 등장 애니메이션 */
+}
+
+/* 등장 + 유지 + 사라짐 애니메이션 */
+@keyframes fadeInOut {
+  0%   { opacity: 0;   transform: translateY(-10px); }
+  20%  { opacity: 1;   transform: translateY(0);     }
+  80%  { opacity: 1;   transform: translateY(0);     }
+  100% { opacity: 0;   transform: translateY(-10px); }
+}
+
+/*
+===========================
    Responsive Styles
 ===========================
 */
