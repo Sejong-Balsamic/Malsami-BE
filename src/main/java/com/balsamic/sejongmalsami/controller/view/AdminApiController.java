@@ -133,6 +133,14 @@ public class AdminApiController {
     return ResponseEntity.ok(adminApiService.getMyYeopjeonInfo(customUserDetails.getMember()));
   }
 
+  @PostMapping(value = "/yeopjeon/memberId", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
+  @LogMonitoringInvocation
+  public ResponseEntity<AdminDto> getYeopjeonInfoByMemberId(
+      @AuthenticationPrincipal CustomUserDetails customUserDetails,
+      @ModelAttribute AdminCommand command) {
+    return ResponseEntity.ok(adminApiService.getYeopjeonInfoByMemberId(command));
+  }
+
   @PostMapping(value = "/yeopjeon/search", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
   @LogMonitoringInvocation
   public ResponseEntity<AdminDto> getFilteredMembersAndYeopjeons(

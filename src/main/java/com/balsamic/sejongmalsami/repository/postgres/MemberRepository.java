@@ -1,5 +1,6 @@
 package com.balsamic.sejongmalsami.repository.postgres;
 
+import com.balsamic.sejongmalsami.object.MemberYeopjeon;
 import com.balsamic.sejongmalsami.object.constants.AccountStatus;
 import com.balsamic.sejongmalsami.object.constants.Role;
 import com.balsamic.sejongmalsami.object.postgres.Member;
@@ -54,19 +55,27 @@ public interface MemberRepository extends JpaRepository<Member, UUID> {
   );
 
   @Query("""
-          SELECT m 
-          FROM Member m
-          LEFT JOIN Yeopjeon y ON m.memberId = y.member.memberId
-          WHERE 
-              (:studentId IS NULL OR m.studentId = :studentId)
-              AND (:studentName IS NULL OR m.studentName LIKE %:studentName%)
-              AND ((:memberId IS NULL OR :memberId = '') OR m.memberId = CAST(:memberId AS uuid))
-      """)
-  Page<Member> findMemberAndYeopjeon(
+    SELECT new com.balsamic.sejongmalsami.object.MemberYeopjeon(
+        m.memberId,
+        m.studentId,
+        m.studentName,
+        m.uuidNickname,
+        m.major,
+        y.yeopjeon
+    )
+    FROM Member m
+    LEFT JOIN Yeopjeon y ON m.memberId = y.member.memberId
+    WHERE 
+       (:studentId IS NULL OR m.studentId = :studentId)
+       AND (:studentName IS NULL OR m.studentName LIKE %:studentName%)
+       AND (:studentName IS NULL OR m.uuidNickname LIKE %:uuidNickname%)
+       AND (:memberId IS NULL OR m.memberId = :memberId)
+""")
+  Page<MemberYeopjeon> findMemberYeopjeon(
       @Param("studentId") Long studentId,
       @Param("studentName") String studentName,
-      @Param("memberId") String memberId,
+      @Param("uuidNickname") String uuidNickname,
+      @Param("memberId") UUID memberId,
       Pageable pageable
   );
-
 }

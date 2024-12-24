@@ -5,6 +5,7 @@ import com.balsamic.sejongmalsami.object.AdminCommand;
 import com.balsamic.sejongmalsami.object.AdminDto;
 import com.balsamic.sejongmalsami.object.MemberCommand;
 import com.balsamic.sejongmalsami.object.MemberDto;
+import com.balsamic.sejongmalsami.object.MemberYeopjeon;
 import com.balsamic.sejongmalsami.object.constants.YeopjeonAction;
 import com.balsamic.sejongmalsami.object.mongo.YeopjeonHistory;
 import com.balsamic.sejongmalsami.object.postgres.Member;
@@ -190,17 +191,23 @@ public class AdminApiService {
     );
 
     String studentName = CommonUtil.nullIfBlank(command.getStudentName());
-    String memberId = CommonUtil.nullIfBlank(command.getMemberId());
+    String uuidNickname = CommonUtil.nullIfBlank(command.getUuidNickname());
+    UUID memberId = CommonUtil.toUUID(command.getMemberIdStr());
 
-    Page<Member> membersPage = memberRepository.findMemberAndYeopjeon(
+    Page<MemberYeopjeon> memberYeopjeonPage = memberRepository.findMemberYeopjeon(
         command.getStudentId(),
         studentName,
+        uuidNickname,
         memberId,
         pageable
     );
 
     return AdminDto.builder()
-        .membersPage(membersPage)
+        .memberYeopjeonPage(memberYeopjeonPage)
         .build();
+  }
+
+  public AdminDto getYeopjeonInfoByMemberId(AdminCommand command) {
+    return null;
   }
 }

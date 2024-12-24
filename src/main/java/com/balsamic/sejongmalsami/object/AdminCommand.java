@@ -16,7 +16,9 @@ public class AdminCommand {
 
   private Long studentId;
   private String studentName;
-  private String memberId;
+  private UUID memberId;
+  private String memberIdStr;
+  private String uuidNickname;
 
   private Integer pageNumber;
   private Integer pageSize;
