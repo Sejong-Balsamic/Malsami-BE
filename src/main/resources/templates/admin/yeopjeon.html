@@ -62,14 +62,26 @@
   <div class="ui segment">
     <h4 class="ui dividing header">회원 검색</h4>
     <form id="memberSearchForm" class="ui form">
-      <div class="fields">
-        <div class="four wide field">
-          <input type="text" name="studentId" placeholder="학번으로 검색">
+      <div class="four fields">
+        <div class="field">
+          <label>학번</label>
+          <input type="text" name="studentId" placeholder="학번으로 검색 (예: 18010561)">
         </div>
-        <div class="four wide field">
-          <input type="text" name="studentName" placeholder="이름으로 검색">
+        <div class="field">
+          <label>이름</label>
+          <input type="text" name="studentName" placeholder="이름으로 검색 (예: 서새찬)">
         </div>
-        <button type="submit" class="ui primary button">검색</button>
+        <div class="field">
+          <label>닉네임(uuid)</label>
+          <input type="text" name="uuidNickname" placeholder="회원닉네임 검색 (예: e7e880)">
+        </div>
+        <div class="field">
+          <label>회원ID(memberId)</label>
+          <input type="text" name="memberIdStr" placeholder="회원 UUID 검색 (예: fff8cca9-...)">
+        </div>
+        <button type="submit" class="ui primary button">
+          <i class="search icon"></i>검색
+        </button>
       </div>
     </form>
 
@@ -101,7 +113,6 @@
           <button type="button" class="ui positive button" data-amount="1000">+1,000</button>
           <button type="button" class="ui positive button" data-amount="10000">+10,000</button>
         </div>
-        <div class="ui horizontal divider">엽전 조정</div>
         <div class="ui buttons">
           <button type="button" class="ui negative button" data-amount="-100">-100</button>
           <button type="button" class="ui negative button" data-amount="-500">-500</button>
@@ -124,16 +135,19 @@
   let selectedMemberId = null;
 
   document.addEventListener("DOMContentLoaded", function () {
-    // 내 정보 로드
+    // 1) 내 정보 로드
     loadMyInfo();
 
-    // 테이블 초기화
+    // 2) 테이블 초기화
     initMemberTable();
 
-    // 이벤트 핸들러 설정
+    // 3) 이벤트 핸들러 설정
     setupEventHandlers();
   });
 
+  /**
+   * (A) 내 정보 불러오기
+   */
   function loadMyInfo() {
     const formData = new FormData();
 
@@ -146,8 +160,7 @@
     })
     .then(response => response.json())
     .then(data => {
-      // data.member, data.yeopjeon 등 null 체크 필요
-      // 인증이 안되어있으면 member null일 수 있으므로 accessToken 확인필요
+      // data.member, data.yeopjeon 등
       if (data.member && data.member.studentName) {
         document.getElementById('myName').textContent = data.member.studentName;
       } else {
@@ -159,13 +172,18 @@
         document.getElementById('myStudentId').textContent = '정보 없음';
       }
       document.getElementById('currentYeopjeon').textContent =
-          (data.yeopjeon && data.yeopjeon.yeopjeon) ? data.yeopjeon.yeopjeon.toLocaleString() : '0';
-    }).catch(err=>{
+          (data.yeopjeon && data.yeopjeon.yeopjeon)
+              ? data.yeopjeon.yeopjeon.toLocaleString()
+              : '0';
+    }).catch(err => {
       console.error(err);
       alert('내 정보 로딩 중 오류 발생');
     });
   }
 
+  /**
+   * (B) Tabulator 테이블 초기화
+   */
   function initMemberTable() {
     memberTable = new Tabulator("#memberTable", {
       layout: "fitDataTable",
@@ -174,26 +192,34 @@
       paginationSize: 100,
       paginationSizeSelector: [10, 30, 50, 100],
       columns: [
-        {title: "학번", field: "studentId", width: 100},
-        {title: "이름", field: "studentName", width: 100},
-        {title: "현재 엽전", field: "yeopjeon.yeopjeon", width: 100,
-          formatter: function(cell) {
-            return cell.getValue() ? cell.getValue().toLocaleString() : '오류';
-          }
-        },
         {
-          title: "관리",
-          formatter: function() {
-            return "<button class='ui primary button mini'>엽전 관리</button>";
+          title:"선택",
+          formatter: function (){
+            return "<button class='ui primary button mini'>선택</button>";
           },
-          width: 100,
-          cellClick: function(e, cell) {
+          width: 80,
+          cellClick: function (e, cell){
             const rowData = cell.getRow().getData();
             showYeopjeonModal(rowData);
           }
-        }
+        },
+        {
+          title: "현재 엽전",
+          field: "yeopjeon",
+          width: 100,
+          formatter: function(cell) {
+            return cell.getValue()
+                ? cell.getValue().toLocaleString()
+                : '오류';
+          }
+        },
+        {title: "학번", field: "studentId", width: 100},
+        {title: "이름", field: "studentName", width: 100},
+        {title: "닉네임", field: "uuidNickname", width: 120},
+        {title: "전공", field: "major", width: 150},
+        {title: "memberId", field: "memberId", width: 240}
       ],
-      ajaxURL: "/admin/member/filter",
+      ajaxURL: "/admin/yeopjeon/search",
       ajaxConfig: {
         method: "POST",
         headers: {
@@ -201,44 +227,72 @@
         }
       },
       ajaxRequestFunc: function (url, config, params) {
+        // 1) 검색 폼 값
         const formData = new FormData(document.getElementById('memberSearchForm'));
 
-        formData.append("pageNumber", (params.page ? params.page - 1 : 0));
-        formData.append("pageSize", params.size || 10);
-        formData.append("sortField", params.sortField || "createdDate");
-        formData.append("sortDirection", params.sortDirection || "desc");
+        // 2) 페이지네이션 파라미터
+        const pageNumber = params.page ? params.page - 1 : 0;
+        const pageSize = params.size || 100;
 
-        return fetch(url + "?accessToken=" + localStorage.getItem("accessToken"), {
-          method: "POST",
+        // 3) 정렬 정보
+        const sortField = params.sortField || "createdDate";
+        const sortDirection = params.sortDirection || "DESC";
+
+        formData.append("pageNumber", pageNumber);
+        formData.append("pageSize", pageSize);
+        formData.append("sortField", sortField);
+        formData.append("sortDirection", sortDirection);
+
+        // 4) studentId 숫자 변환
+        const studentIdVal = formData.get("studentId");
+        if (studentIdVal && studentIdVal.trim() !== "") {
+          formData.set("studentId", parseInt(studentIdVal, 10));
+        } else {
+          formData.delete("studentId");
+        }
+
+        return fetch(url, {
+          method: config.method,
           headers: config.headers,
           body: formData
-        })
-        .then(response => response.json());
+        }).then(response => response.json());
       },
+      // 서버 응답 파싱
       ajaxResponse: function (url, params, response) {
         document.getElementById("memberTableCount").textContent =
-            `총 조회 수: ${response.membersPage.totalElements || 0}건`;
+            `총 조회 수: ${response.memberYeopjeonPage?.totalElements ?? 0}건`;
+
         return {
-          data: response.membersPage.content,
-          last_page: response.membersPage.totalPages
+          data: response.memberYeopjeonPage?.content || [],
+          last_page: response.memberYeopjeonPage?.totalPages || 1
         };
       },
       height: "600px"
     });
   }
 
-  function showYeopjeonModal(memberData) {
-    selectedMemberId = memberData.memberId;
+  /**
+   * (C) 회원 엽전 관리 모달
+   */
+  function showYeopjeonModal(rowData) {
+    selectedMemberId = rowData.memberId;  // MemberYeopjeon.memberId
     document.getElementById('modalUserInfo').textContent =
-        `${memberData.studentId} (${memberData.studentName})`;
-    document.getElementById('modalCurrentYeopjeon').textContent =
-        memberData.yeopjeon ? memberData.yeopjeon.yeopjeon.toLocaleString() : '오류';
+        `${rowData.studentId} (${rowData.studentName})`;
 
+    document.getElementById('modalCurrentYeopjeon').textContent =
+        rowData.yeopjeon
+            ? rowData.yeopjeon.toLocaleString()
+            : '오류';
+
+    // Semantic UI 모달 오픈
     $('.ui.modal').modal('show');
   }
 
+  /**
+   * (D) 이벤트 핸들러
+   */
   function setupEventHandlers() {
-    // 내 엽전 조정 버튼
+    // (D-1) 내 엽전 조정
     document.querySelectorAll('#myInfo .ui.buttons button').forEach(button => {
       button.addEventListener('click', function() {
         const formData = new FormData();
@@ -253,7 +307,7 @@
         })
         .then(response => response.json())
         .then(response => {
-          loadMyInfo();
+          loadMyInfo(); // 다시 조회
           alert('엽전이 성공적으로 조정되었습니다.');
         })
         .catch(error => {
@@ -263,7 +317,7 @@
       });
     });
 
-    // 모달 엽전 조정 버튼
+    // (D-2) 모달 엽전 조정
     document.querySelectorAll('#yeopjeonModal .ui.buttons button').forEach(button => {
       button.addEventListener('click', function() {
         if (!selectedMemberId) {
@@ -275,7 +329,6 @@
         formData.append('targetMemberId', selectedMemberId);
         formData.append('amount', this.dataset.amount);
 
-        // 여기서 manage -> post로 변경
         fetch('/admin/yeopjeon/post', {
           method: 'POST',
           body: formData,
@@ -285,7 +338,7 @@
         })
         .then(response => response.json())
         .then(response => {
-          memberTable.setData();
+          memberTable.setData(); // 테이블 재조회
           $('.ui.modal').modal('hide');
           alert('엽전이 성공적으로 조정되었습니다.');
         })
@@ -296,13 +349,13 @@
       });
     });
 
-    // 회원 검색 폼 제출
+    // (D-3) 회원 검색 폼
     document.getElementById('memberSearchForm').addEventListener('submit', function(e) {
       e.preventDefault();
+      // Tabulator 다시 데이터 조회
       memberTable.setData();
     });
   }
 </script>
-
 </body>
 </html>
