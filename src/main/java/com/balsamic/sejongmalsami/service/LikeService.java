@@ -162,7 +162,7 @@ public class LikeService {
    */
   private <T> T processLikeRequest(UUID memberId, UUID postId, ContentType contentType, LikeType likeType) {
     // 락 획득 시도 (락 키는 게시글 PK)
-    String lockKey = "lock:like" + postId;
+    String lockKey = "lock:like:" + postId;
 
     return redisLockManager.executeLock(lockKey, () -> {
 
