@@ -68,7 +68,7 @@ public interface MemberRepository extends JpaRepository<Member, UUID> {
     WHERE 
        (:studentId IS NULL OR m.studentId = :studentId)
        AND (:studentName IS NULL OR m.studentName LIKE %:studentName%)
-       AND (:studentName IS NULL OR m.uuidNickname LIKE %:uuidNickname%)
+       AND (:uuidNickname IS NULL OR m.uuidNickname LIKE %:uuidNickname%)
        AND (:memberId IS NULL OR m.memberId = :memberId)
 """)
   Page<MemberYeopjeon> findMemberYeopjeon(
