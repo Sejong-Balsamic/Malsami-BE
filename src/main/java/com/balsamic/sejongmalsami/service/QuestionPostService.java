@@ -26,6 +26,7 @@ import com.balsamic.sejongmalsami.repository.postgres.AnswerPostRepository;
 import com.balsamic.sejongmalsami.repository.postgres.CourseRepository;
 import com.balsamic.sejongmalsami.repository.postgres.MemberRepository;
 import com.balsamic.sejongmalsami.repository.postgres.QuestionPostRepository;
+import com.balsamic.sejongmalsami.util.RedisLockManager;
 import com.balsamic.sejongmalsami.util.exception.CustomException;
 import com.balsamic.sejongmalsami.util.exception.ErrorCode;
 import java.util.ArrayList;
@@ -55,6 +56,7 @@ public class QuestionPostService {
   private final ExpService expService;
   private final AnswerPostRepository answerPostRepository;
   private final QuestionPostCustomTagRepository questionPostCustomTagRepository;
+  private final RedisLockManager redisLockManager;
 
   /**
    * <h3>질문 글 등록</h3>
@@ -176,18 +178,23 @@ public class QuestionPostService {
     QuestionPost questionPost = questionPostRepository.findById(command.getPostId())
         .orElseThrow(() -> new CustomException(ErrorCode.QUESTION_POST_NOT_FOUND));
 
-    // 조회수 증가
-    questionPost.increaseViewCount();
-    log.info("제목: {}, 조회수: {}", questionPost.getTitle(), questionPost.getViewCount());
+    // 조회수 증가 (Redis 락을 사용하여 보호)
+    String lockKey = "lock:questionPost" + command.getPostId();
+    redisLockManager.executeLock(lockKey, () -> {
+      questionPost.increaseViewCount();
+      log.info("제목: {}, 조회수: {}", questionPost.getTitle(), questionPost.getViewCount());
+
+      // 변경사항 저장
+      questionPostRepository.save(questionPost);
+
+      return null;
+    });
 
     // 좋아요 누른 회원인지 확인
     Boolean isLiked = questionBoardLikeRepository
         .existsByQuestionBoardIdAndMemberId(command.getPostId(), command.getMemberId());
 
     questionPost.updateIsLiked(isLiked);
-
-    // 변경사항 저장
-    questionPostRepository.save(questionPost);
 
     // 답변 조회 (없으면 null 반환)
     List<AnswerPost> answerPosts = answerPostRepository
