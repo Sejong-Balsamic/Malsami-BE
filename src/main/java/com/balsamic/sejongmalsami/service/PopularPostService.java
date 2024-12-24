@@ -283,8 +283,8 @@ public class PopularPostService {
   private List<UUID> getIdsFromRedis(String key) {
     List<Object> rawIds = redisTemplate.opsForList().range(key, 0, -1);
     if (rawIds == null || rawIds.isEmpty()) {
-      log.warn("Redis에서 key: {}로 저장된 인기글 데이터가 없습니다.", key);
-      throw new CustomException(ErrorCode.POPULAR_POST_NOT_FOUND);
+      log.info("Redis에서 key: {}로 저장된 인기글 데이터가 없습니다.", key);
+      return List.of();
     }
 
     return rawIds.stream()
@@ -313,6 +313,9 @@ public class PopularPostService {
         questionPosts.sort(Comparator.comparing(QuestionPost::getDailyScore).reversed());
       } else { // 질문글 weeklyScore 내림차순
         questionPosts.sort(Comparator.comparing(QuestionPost::getWeeklyScore).reversed());
+      }
+      if (questionPosts.isEmpty()) {
+        return null;
       }
       int postCount = Math.min(SAVE_POPULAR_POST_COUNT, questionPosts.size());
       Pageable pageable = PageRequest.of(0, postCount);
