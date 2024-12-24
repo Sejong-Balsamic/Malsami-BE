@@ -23,7 +23,7 @@
           </div>
         </div>
         <div class="item">
-          <i class="id card icon"></i>
+          <i class="barcode icon"></i>
           <div class="content">
             <div class="header">학번</div>
             <div id="myStudentId"></div>
@@ -87,7 +87,7 @@
 
     <!-- 검색 결과 테이블 -->
     <div class="table-container">
-      <div id="memberTableCount" class="ui left aligned header">총 조회수: 0건</div>
+      <div id="memberTableCount" class="ui left aligned header total-count">총 조회수: 0건</div>
       <div id="memberTable"></div>
     </div>
   </div>
@@ -124,6 +124,8 @@
   </div>
 </div>
 
+<div id="toast-container"></div>
+
 <div th:replace="fragments/footer :: footer"></div>
 
 <!-- tabulator -->
@@ -133,20 +135,21 @@
 <script th:inline="javascript">
   let memberTable;
   let selectedMemberId = null;
+  let myMemberId = null;
 
   document.addEventListener("DOMContentLoaded", function () {
-    // 1) 내 정보 로드
+    // 내 정보 로드
     loadMyInfo();
 
-    // 2) 테이블 초기화
+    // 테이블 초기화
     initMemberTable();
 
-    // 3) 이벤트 핸들러 설정
+    // 이벤트 핸들러 설정
     setupEventHandlers();
   });
 
   /**
-   * (A) 내 정보 불러오기
+   * 내 정보 불러오기
    */
   function loadMyInfo() {
     const formData = new FormData();
@@ -160,7 +163,9 @@
     })
     .then(response => response.json())
     .then(data => {
-      // data.member, data.yeopjeon 등
+      if(data.member && data.member.studentName){
+        myMemberId = data.member.memberId;
+      }
       if (data.member && data.member.studentName) {
         document.getElementById('myName').textContent = data.member.studentName;
       } else {
@@ -217,7 +222,7 @@
         {title: "이름", field: "studentName", width: 100},
         {title: "닉네임", field: "uuidNickname", width: 120},
         {title: "전공", field: "major", width: 150},
-        {title: "memberId", field: "memberId", width: 240}
+        {title: "memberId", field: "memberId", width: 300}
       ],
       ajaxURL: "/admin/yeopjeon/search",
       ajaxConfig: {
@@ -275,7 +280,7 @@
    * (C) 회원 엽전 관리 모달
    */
   function showYeopjeonModal(rowData) {
-    selectedMemberId = rowData.memberId;  // MemberYeopjeon.memberId
+    selectedMemberId = rowData.memberId;
     document.getElementById('modalUserInfo').textContent =
         `${rowData.studentId} (${rowData.studentName})`;
 
@@ -297,6 +302,7 @@
       button.addEventListener('click', function() {
         const formData = new FormData();
         formData.append('amount', this.dataset.amount);
+        formData.append('memberIdStr', myMemberId);
 
         fetch('/admin/yeopjeon/post', {
           method: 'POST',
@@ -306,9 +312,19 @@
           }
         })
         .then(response => response.json())
-        .then(response => {
+        .then(data => {
+
+          const changedAmount = data.yeopjeonHistory?.yeopjeonChange ?? "오류";
+          const finalYeopjeon = data.yeopjeonHistory?.resultYeopjeon ?? "오류";
+          const studentName   = data.member?.studentName || '알 수 없음';
+
+          // 간단한 메시지 : "서새찬 님의 엽전이 -1000개 변경되어 최종 200개가 되었습니다."
+          const msg = `${studentName} 님의 엽전이 ${changedAmount} 변경되어 최종 ${finalYeopjeon}개가 되었습니다!`;
+
+          // 토스트 표시 (3초 후 사라짐)
+          showToast(msg, 3000);
+
           loadMyInfo(); // 다시 조회
-          alert('엽전이 성공적으로 조정되었습니다.');
         })
         .catch(error => {
           console.error('Error:', error);
@@ -326,7 +342,7 @@
         }
 
         const formData = new FormData();
-        formData.append('targetMemberId', selectedMemberId);
+        formData.append('memberIdStr', selectedMemberId);
         formData.append('amount', this.dataset.amount);
 
         fetch('/admin/yeopjeon/post', {
@@ -337,10 +353,19 @@
           }
         })
         .then(response => response.json())
-        .then(response => {
+        .then(data => {
+
+          const changedAmount = data.yeopjeonHistory?.yeopjeonChange ?? "오류";
+          const finalYeopjeon = data.yeopjeonHistory?.resultYeopjeon ?? "오류";
+          const studentName   = data.member?.studentName || '알 수 없음';
+          const msg = `${studentName} 님의 엽전이 ${changedAmount} 변경되어 최종 ${finalYeopjeon}개가 되었습니다!`;
+
+          // 토스트 표시 (3초 후 사라짐)
+          showToast(msg, 3000);
+
           memberTable.setData(); // 테이블 재조회
+
           $('.ui.modal').modal('hide');
-          alert('엽전이 성공적으로 조정되었습니다.');
         })
         .catch(error => {
           console.error('Error:', error);

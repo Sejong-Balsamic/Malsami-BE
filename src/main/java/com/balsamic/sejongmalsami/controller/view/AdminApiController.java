@@ -122,7 +122,6 @@ public class AdminApiController {
   public ResponseEntity<AdminDto> manageYeopjeon(
       @AuthenticationPrincipal CustomUserDetails customUserDetails,
       @ModelAttribute AdminCommand command){
-    command.setMember(customUserDetails.getMember());
     return ResponseEntity.ok(adminApiService.manageYeopjeon(command));
   }
 
@@ -131,14 +130,6 @@ public class AdminApiController {
   public ResponseEntity<AdminDto> getMyYeopjeonInfo(
       @AuthenticationPrincipal CustomUserDetails customUserDetails) {
     return ResponseEntity.ok(adminApiService.getMyYeopjeonInfo(customUserDetails.getMember()));
-  }
-
-  @PostMapping(value = "/yeopjeon/memberId", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
-  @LogMonitoringInvocation
-  public ResponseEntity<AdminDto> getYeopjeonInfoByMemberId(
-      @AuthenticationPrincipal CustomUserDetails customUserDetails,
-      @ModelAttribute AdminCommand command) {
-    return ResponseEntity.ok(adminApiService.getYeopjeonInfoByMemberId(command));
   }
 
   @PostMapping(value = "/yeopjeon/search", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
