@@ -108,7 +108,9 @@ public class AdminApiService {
 
   @Transactional
   public AdminDto manageYeopjeon(AdminCommand command) {
-    Member member = command.getMember();
+    UUID memberId = CommonUtil.toUUID(command.getMemberIdStr());
+    Member member = memberRepository.findById(memberId)
+        .orElseThrow(() -> new CustomException(ErrorCode.MEMBER_NOT_FOUND));
     Integer amount = command.getAmount();
 
     // 엽전 정보 조회
@@ -205,9 +207,5 @@ public class AdminApiService {
     return AdminDto.builder()
         .memberYeopjeonPage(memberYeopjeonPage)
         .build();
-  }
-
-  public AdminDto getYeopjeonInfoByMemberId(AdminCommand command) {
-    return null;
   }
 }
