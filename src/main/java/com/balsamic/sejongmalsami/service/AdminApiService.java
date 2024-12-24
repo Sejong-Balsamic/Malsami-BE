@@ -1,9 +1,11 @@
 package com.balsamic.sejongmalsami.service;
 
+import com.balsamic.sejongmalsami.CommonUtil;
 import com.balsamic.sejongmalsami.object.AdminCommand;
 import com.balsamic.sejongmalsami.object.AdminDto;
 import com.balsamic.sejongmalsami.object.MemberCommand;
 import com.balsamic.sejongmalsami.object.MemberDto;
+import com.balsamic.sejongmalsami.object.MemberYeopjeon;
 import com.balsamic.sejongmalsami.object.constants.YeopjeonAction;
 import com.balsamic.sejongmalsami.object.mongo.YeopjeonHistory;
 import com.balsamic.sejongmalsami.object.postgres.Member;
@@ -13,7 +15,7 @@ import com.balsamic.sejongmalsami.repository.mongo.YeopjeonHistoryRepository;
 import com.balsamic.sejongmalsami.repository.postgres.MemberRepository;
 import com.balsamic.sejongmalsami.repository.postgres.TestMemberRepository;
 import com.balsamic.sejongmalsami.repository.postgres.YeopjeonRepository;
-import com.balsamic.sejongmalsami.util.LogUtils;
+import com.balsamic.sejongmalsami.util.LogUtil;
 import com.balsamic.sejongmalsami.util.exception.CustomException;
 import com.balsamic.sejongmalsami.util.exception.ErrorCode;
 import java.util.UUID;
@@ -59,7 +61,7 @@ public class AdminApiService {
     member.setUuidNickname(newUuidNickName);
 
     // 로깅
-    LogUtils.lineLog("새로운UUID : " + member.getStudentId() + " : " + newUuidNickName);
+    LogUtil.lineLog("새로운UUID : " + member.getStudentId() + " : " + newUuidNickName);
 
     return AdminDto.builder()
         .member(member)
@@ -150,5 +152,62 @@ public class AdminApiService {
     return AdminDto.builder()
         .yeopjeon(yeopjeonRepository.findByMember(member).get())
         .build();
+  }
+
+  // 회원 관리 : 필터링 검색
+  public MemberDto getFilteredMembers(MemberCommand command) {
+    return MemberDto.builder()
+        .membersPage(
+            memberRepository.findAllDynamic(
+                command.getStudentId(),
+                command.getStudentName(),
+                command.getUuidNickname(),
+                command.getMajor(),
+                command.getAcademicYear(),
+                command.getEnrollmentStatus(),
+                command.getAccountStatus(),
+                command.getRole(),
+                command.getLastLoginStart(),
+                command.getLastLoginEnd(),
+                command.getIsFirstLogin(),
+                command.getIsEdited(),
+                command.getIsDeleted(),
+                PageRequest.of(
+                    command.getPageNumber(),
+                    command.getPageSize(),
+                    Sort.by(Sort.Direction.fromString(command.getSortDirection()),
+                        command.getSortField())
+                )
+            )
+        )
+        .build();
+  }
+
+  public AdminDto getFilteredMembersAndYeopjeons(AdminCommand command) {
+    Pageable pageable = PageRequest.of(
+        command.getPageNumber(),
+        command.getPageSize(),
+        Sort.by(Sort.Direction.fromString(command.getSortDirection()), command.getSortField())
+    );
+
+    String studentName = CommonUtil.nullIfBlank(command.getStudentName());
+    String uuidNickname = CommonUtil.nullIfBlank(command.getUuidNickname());
+    UUID memberId = CommonUtil.toUUID(command.getMemberIdStr());
+
+    Page<MemberYeopjeon> memberYeopjeonPage = memberRepository.findMemberYeopjeon(
+        command.getStudentId(),
+        studentName,
+        uuidNickname,
+        memberId,
+        pageable
+    );
+
+    return AdminDto.builder()
+        .memberYeopjeonPage(memberYeopjeonPage)
+        .build();
+  }
+
+  public AdminDto getYeopjeonInfoByMemberId(AdminCommand command) {
+    return null;
   }
 }

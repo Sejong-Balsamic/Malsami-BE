@@ -4,7 +4,7 @@ import com.balsamic.sejongmalsami.object.SejongAcademicCommand;
 import com.balsamic.sejongmalsami.object.SejongAcademicDto;
 import com.balsamic.sejongmalsami.object.postgres.Faculty;
 import com.balsamic.sejongmalsami.repository.postgres.FacultyRepository;
-import com.balsamic.sejongmalsami.util.LogUtils;
+import com.balsamic.sejongmalsami.util.LogUtil;
 import java.time.LocalDateTime;
 import java.util.Arrays;
 import java.util.List;
@@ -108,7 +108,7 @@ public class SejongAcademicService {
   }
 
   public void processFacultyIsActive() {
-    LogUtils.lineLog("단과대(Faculty) 정보 업데이트 시작 : " + LocalDateTime.now().toString());
+    LogUtil.lineLog("단과대(Faculty) 정보 업데이트 시작 : " + LocalDateTime.now().toString());
     List<Faculty> allFaculties = facultyRepository.findAll();
     // 나무위키 정보 -> isActive 판단
     for (Faculty faculty : allFaculties) {
@@ -119,7 +119,7 @@ public class SejongAcademicService {
       }
     }
     facultyRepository.saveAll(allFaculties);
-    LogUtils.lineLog("단과대(Faculty) 정보 업데이트 완료 : " + LocalDateTime.now().toString());
+    LogUtil.lineLog("단과대(Faculty) 정보 업데이트 완료 : " + LocalDateTime.now().toString());
   }
 
 }
