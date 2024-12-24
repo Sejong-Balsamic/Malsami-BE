@@ -31,6 +31,7 @@ import com.balsamic.sejongmalsami.repository.postgres.CourseRepository;
 import com.balsamic.sejongmalsami.repository.postgres.DocumentFileRepository;
 import com.balsamic.sejongmalsami.repository.postgres.DocumentPostRepository;
 import com.balsamic.sejongmalsami.repository.postgres.MemberRepository;
+import com.balsamic.sejongmalsami.util.RedisLockManager;
 import com.balsamic.sejongmalsami.util.config.YeopjeonConfig;
 import com.balsamic.sejongmalsami.util.exception.CustomException;
 import com.balsamic.sejongmalsami.util.exception.ErrorCode;
@@ -72,6 +73,7 @@ public class DocumentPostService {
   private final YeopjeonConfig yeopjeonConfig;
   private final PurchaseHistoryRepository purchaseHistoryRepository;
   private final GenericObjectPool<FTPClient> ftpClientPool;
+  private final RedisLockManager redisLockManager;
 
   /**
    * <h3>자료 글 저장
@@ -265,20 +267,27 @@ public class DocumentPostService {
     // 해당 게시판 접근 가능 여부 확인
     canAccessDocumentBoard(member, postTier);
 
-    // 게시글 등급에 따라 사용자 엽전 변동 및 엽전 히스토리 저장
-    switch (postTier) {
-      case CHEONMIN -> yeopjeonService
-          .processYeopjeon(member, VIEW_DOCUMENT_CHEONMIN_POST);
-      case JUNGIN -> yeopjeonService
-          .processYeopjeon(member, VIEW_DOCUMENT_JUNGIN_POST);
-      case YANGBAN -> yeopjeonService
-          .processYeopjeon(member, VIEW_DOCUMENT_YANGBAN_POST);
-      case KING -> yeopjeonService
-          .processYeopjeon(member, VIEW_DOCUMENT_KING_POST);
-    }
 
-    // 해당 자료 글 조회수 증가
-    post.increaseViewCount();
+    // 조회수 증가 (Redis 락을 사용하여 보호)
+    String lockKey = "lock:documentPost" + command.getDocumentPostId();
+    redisLockManager.executeLock(lockKey, () -> {
+      // 게시글 등급에 따라 사용자 엽전 변동 및 엽전 히스토리 저장
+      switch (postTier) {
+        case CHEONMIN -> yeopjeonService
+            .processYeopjeon(member, VIEW_DOCUMENT_CHEONMIN_POST);
+        case JUNGIN -> yeopjeonService
+            .processYeopjeon(member, VIEW_DOCUMENT_JUNGIN_POST);
+        case YANGBAN -> yeopjeonService
+            .processYeopjeon(member, VIEW_DOCUMENT_YANGBAN_POST);
+        case KING -> yeopjeonService
+            .processYeopjeon(member, VIEW_DOCUMENT_KING_POST);
+      }
+      // 해당 자료 글 조회수 증가
+      post.increaseViewCount();
+      documentPostRepository.save(post);
+      return null;
+    });
+
 
     // 사용자가 좋아요를 눌렀는지 확인
     Boolean isLiked = documentBoardLikeRepository
