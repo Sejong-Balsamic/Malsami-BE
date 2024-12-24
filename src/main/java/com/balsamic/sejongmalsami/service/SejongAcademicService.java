@@ -4,6 +4,7 @@ import com.balsamic.sejongmalsami.object.SejongAcademicCommand;
 import com.balsamic.sejongmalsami.object.SejongAcademicDto;
 import com.balsamic.sejongmalsami.object.postgres.Faculty;
 import com.balsamic.sejongmalsami.repository.postgres.FacultyRepository;
+import com.balsamic.sejongmalsami.repository.postgres.SubjectRepository;
 import com.balsamic.sejongmalsami.util.LogUtil;
 import java.time.LocalDateTime;
 import java.util.Arrays;
@@ -16,7 +17,7 @@ import org.springframework.stereotype.Service;
 @RequiredArgsConstructor
 public class SejongAcademicService {
   private final FacultyRepository facultyRepository;
-
+  private final SubjectRepository subjectRepository;
   /**
    * https://namu.wiki/w/%EC%84%B8%EC%A2%85%EB%8C%80%ED%95%99%EA%B5%90/%ED%95%99%EB%B6%80
    * //TODO: yml 파일에 놓는 방법 고려 필요
@@ -122,4 +123,11 @@ public class SejongAcademicService {
     LogUtil.lineLog("단과대(Faculty) 정보 업데이트 완료 : " + LocalDateTime.now().toString());
   }
 
+  @Cacheable(value = "subjects")
+  public SejongAcademicDto getDistinctSubjectNames() {
+    List<String> subjectNames = subjectRepository.findDistinctSubjectNames();
+    return SejongAcademicDto.builder()
+        .subjects(subjectNames)
+        .build();
+  }
 }

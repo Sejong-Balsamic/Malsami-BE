@@ -33,4 +33,10 @@ public class SejongAcademicController implements SejongAcademicControllerDocs {
       @ModelAttribute SejongAcademicCommand command) {
     return ResponseEntity.ok(sejongAcademicService.getAllFaculties(command));
   }
+
+  @PostMapping(value = "/subject/get-all")
+  @LogMonitoringInvocation
+  public ResponseEntity<SejongAcademicDto> getAllSubjects(){
+    return ResponseEntity.ok(sejongAcademicService.getDistinctSubjectNames());
+  }
 }
