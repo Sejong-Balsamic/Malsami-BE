@@ -22,4 +22,7 @@ public class SejongAcademicDto implements Serializable {
 
   @Builder.Default
   private List<Faculty> faculties = new ArrayList<>();
+
+  @Builder.Default
+  private List<String> subjects = new ArrayList<>();
 }

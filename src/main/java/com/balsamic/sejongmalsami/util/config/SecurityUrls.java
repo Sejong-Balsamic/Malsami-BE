@@ -14,12 +14,13 @@ public class SecurityUrls {
   public static final List<String> AUTH_WHITELIST = Arrays.asList(
       // API
       "/api/auth/refresh",             // 리프레시 토큰
-      "/api/course/subjects/faculty",   // 교과목명 조회
+      "/api/course/subjects/faculty",  // 교과목명 조회
       "/api/login",                    // 로그인
       "/api/landing/**",               // 랜딩페이지
       "/api/test/**",                  // 테스트 API
       "/api/member/signin",            // 회원가입
-      "/admin/auth/login",          // 관리자 로그인 API
+      "/admin/auth/login",             // 관리자 로그인 API
+      "/api/sejong/subject/get-all",   // 교과목명 정보
 
       // Swagger
       "/docs/**",                      // Swagger UI
