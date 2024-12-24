@@ -269,7 +269,7 @@ public class DocumentPostService {
 
 
     // 조회수 증가 (Redis 락을 사용하여 보호)
-    String lockKey = "lock:documentPost" + command.getDocumentPostId();
+    String lockKey = "lock:documentPost:" + command.getDocumentPostId();
     redisLockManager.executeLock(lockKey, () -> {
       // 게시글 등급에 따라 사용자 엽전 변동 및 엽전 히스토리 저장
       switch (postTier) {

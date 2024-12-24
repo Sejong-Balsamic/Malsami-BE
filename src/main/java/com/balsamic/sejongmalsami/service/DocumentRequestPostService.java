@@ -178,7 +178,7 @@ public class DocumentRequestPostService {
         .findById(command.getDocumentPostId())
         .orElseThrow(() -> new CustomException(ErrorCode.DOCUMENT_REQUEST_POST_NOT_FOUND));
 
-    String lockKey = "lock:documentRequestPost" + command.getDocumentPostId();
+    String lockKey = "lock:documentRequestPost:" + command.getDocumentPostId();
     redisLockManager.executeLock(lockKey, () -> {
       // 해당 글 조회 수 증가
       post.increaseViewCount();

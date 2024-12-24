@@ -179,7 +179,7 @@ public class QuestionPostService {
         .orElseThrow(() -> new CustomException(ErrorCode.QUESTION_POST_NOT_FOUND));
 
     // 조회수 증가 (Redis 락을 사용하여 보호)
-    String lockKey = "lock:questionPost" + command.getPostId();
+    String lockKey = "lock:questionPost:" + command.getPostId();
     redisLockManager.executeLock(lockKey, () -> {
       questionPost.increaseViewCount();
       log.info("제목: {}, 조회수: {}", questionPost.getTitle(), questionPost.getViewCount());
