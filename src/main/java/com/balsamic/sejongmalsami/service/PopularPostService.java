@@ -315,7 +315,9 @@ public class PopularPostService {
         questionPosts.sort(Comparator.comparing(QuestionPost::getWeeklyScore).reversed());
       }
       if (questionPosts.isEmpty()) {
-        return null;
+        return QuestionDto.builder()
+            .questionPostsPage(Page.empty())
+            .build();
       }
       int postCount = Math.min(SAVE_POPULAR_POST_COUNT, questionPosts.size());
       Pageable pageable = PageRequest.of(0, postCount);
@@ -333,6 +335,11 @@ public class PopularPostService {
         documentPosts.sort(Comparator.comparing(DocumentPost::getDailyScore).reversed());
       } else { // 자료글 weeklyScore 내림차순
         documentPosts.sort(Comparator.comparing(DocumentPost::getWeeklyScore).reversed());
+      }
+      if (documentPosts.isEmpty()) {
+        return DocumentDto.builder()
+            .documentPostsPage(Page.empty())
+            .build();
       }
       int postCount = Math.min(SAVE_POPULAR_POST_COUNT, documentPosts.size());
       Pageable pageable = PageRequest.of(0, postCount);
