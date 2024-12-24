@@ -21,6 +21,12 @@ public class RedisConfig {
   @Value("${spring.data.redis.host}")
   private String redisHost;
 
+  @Value("${spring.data.redis.connection-pool-size}")
+  private int connectionPoolSize;
+
+  @Value("${spring.data.redis.connection-minimum-size}")
+  private int connectionMinimumSize;
+
   @Value("${spring.data.redis.port}")
   private String redisPort;
 
@@ -28,8 +34,6 @@ public class RedisConfig {
   private String redisPassword;
 
   private static final int CACHE_EXPIRED_TIME = 24 * 60; // 캐시 만료 시간 (24시간)
-  private static final int CONNECTION_POOL_SIZE = 10;
-  private static final int CONNECTION_MINIMUM_SIZE = 5;
 
   @Bean
   public RedisTemplate<String, Object> redisTemplate(RedisConnectionFactory factory) {
@@ -64,11 +68,11 @@ public class RedisConfig {
     Config config = new Config();
     String address = "redis://" + redisHost + ":" + redisPort;
 
-    // Redis 단일 서버 설정 (비밀번호 없을 경우)
+    // Redis 단일 서버 설정
     config.useSingleServer()
         .setAddress(address) // Redis 서버 주소
-        .setConnectionPoolSize(CONNECTION_POOL_SIZE) // 연결 풀 크기
-        .setConnectionMinimumIdleSize(CONNECTION_MINIMUM_SIZE) // 최소 연결 수
+        .setConnectionPoolSize(connectionPoolSize) // 연결 풀 크기
+        .setConnectionMinimumIdleSize(connectionMinimumSize) // 최소 연결 수
         .setPassword(redisPassword); // 비밀번호 설정
 
     // RedissonClient 객체를 반환

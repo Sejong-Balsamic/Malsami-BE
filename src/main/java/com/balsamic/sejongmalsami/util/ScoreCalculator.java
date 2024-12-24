@@ -42,7 +42,7 @@ public class ScoreCalculator {
 
     // 자료파일의 다운로드 수 총합 계산
     for(DocumentFile file : documentFiles){
-      totalDailyDownloadCount += file.getDailyDownloadCount();
+      totalDailyDownloadCount += file.getDailyDownloadCount() != null ? file.getDailyDownloadCount() : 0;
     }
 
     // 점수 총합 계산
@@ -64,7 +64,7 @@ public class ScoreCalculator {
 
     // 자료파일의 다운로드 수 총합 계산
     for(DocumentFile file : documentFiles){
-      totalWeeklyDownloadCount += file.getWeeklyDownloadCount();
+      totalWeeklyDownloadCount += file.getWeeklyDownloadCount() != null ? file.getWeeklyDownloadCount() : 0;
     }
 
     return (long) post.getViewCount() * scoreConfig.getDocumentWeeklyViewCountWeight()
