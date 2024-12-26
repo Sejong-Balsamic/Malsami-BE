@@ -46,6 +46,9 @@ import org.springframework.transaction.annotation.Transactional;
 @RequiredArgsConstructor
 public class QuestionPostService {
 
+  private final static long WAIT_TIME = 5L; // Lock을 얻기위해 기다리는 시간
+  private final static long LEASE_TIME = 2L; // Lock 자동 해제 시간
+
   private final QuestionPostRepository questionPostRepository;
   private final MemberRepository memberRepository;
   private final QuestionPostCustomTagService questionPostCustomTagService;
@@ -180,7 +183,7 @@ public class QuestionPostService {
 
     // 조회수 증가 (Redis 락을 사용하여 보호)
     String lockKey = "lock:questionPost:" + command.getPostId();
-    redisLockManager.executeLock(lockKey, () -> {
+    redisLockManager.executeLock(lockKey, WAIT_TIME, LEASE_TIME, () -> {
       questionPost.increaseViewCount();
       log.info("제목: {}, 조회수: {}", questionPost.getTitle(), questionPost.getViewCount());
 
