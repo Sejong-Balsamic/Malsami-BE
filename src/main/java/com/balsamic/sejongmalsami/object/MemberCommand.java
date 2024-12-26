@@ -1,13 +1,14 @@
 package com.balsamic.sejongmalsami.object;
 
 import com.balsamic.sejongmalsami.object.constants.AccountStatus;
+import com.balsamic.sejongmalsami.object.constants.ContentType;
 import com.balsamic.sejongmalsami.object.constants.Role;
 import com.balsamic.sejongmalsami.object.postgres.Member;
+import io.swagger.v3.oas.annotations.media.Schema;
 import java.util.UUID;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
-import lombok.NoArgsConstructor;
 import lombok.Setter;
 import lombok.ToString;
 
@@ -15,9 +16,13 @@ import lombok.ToString;
 @Getter
 @Setter
 @ToString
-@NoArgsConstructor
 @AllArgsConstructor
 public class MemberCommand {
+
+  public MemberCommand() {
+    this.pageNumber = 0;
+    this.pageSize = 30;
+  }
 
   private UUID memberId;
   private Long studentId;
@@ -36,8 +41,11 @@ public class MemberCommand {
 
   // Tabulator
   // 페이징 관련 필드 추가
+  @Schema(defaultValue = "0")
   private Integer pageNumber;        // 현재 페이지 (0부터 시작)
+  @Schema(defaultValue = "30")
   private Integer pageSize;        // 페이지 크기
+  private ContentType contentType; // 작성 글 종류
   private String sortField;    // 정렬 필드
   private String sortDirection; // 정렬 방향 (asc/desc)
 
