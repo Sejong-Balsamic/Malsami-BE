@@ -62,6 +62,8 @@ import org.springframework.transaction.annotation.Transactional;
 public class LikeService {
 
   private static final Integer DEMOTION_DISLIKE_LIMIT = 20;
+  private final static long WAIT_TIME = 5L; // Lock을 얻기위해 기다리는 시간
+  private final static long LEASE_TIME = 2L; // Lock 자동 해제 시간
 
   private final MemberRepository memberRepository;
   private final QuestionBoardLikeRepository questionBoardLikeRepository;
@@ -164,7 +166,7 @@ public class LikeService {
     // 락 획득 시도 (락 키는 게시글 PK)
     String lockKey = "lock:like:" + postId;
 
-    return redisLockManager.executeLock(lockKey, () -> {
+    return redisLockManager.executeLock(lockKey, WAIT_TIME, LEASE_TIME, () -> {
 
       // 회원 조회
       Member curMember = memberRepository.findById(memberId)
