@@ -1,7 +1,10 @@
 package com.balsamic.sejongmalsami.object;
 
+import com.balsamic.sejongmalsami.object.postgres.DocumentPost;
+import com.balsamic.sejongmalsami.object.postgres.DocumentRequestPost;
 import com.balsamic.sejongmalsami.object.postgres.Exp;
 import com.balsamic.sejongmalsami.object.postgres.Member;
+import com.balsamic.sejongmalsami.object.postgres.QuestionPost;
 import com.balsamic.sejongmalsami.object.postgres.TestMember;
 import com.balsamic.sejongmalsami.object.postgres.Yeopjeon;
 import lombok.Builder;
@@ -66,4 +69,9 @@ public class MemberDto {
   private Long documentRequestPostCount;
 
   private Page<Member> membersPage;
+
+  // Post
+  private Page<QuestionPost> questionPostsPage;
+  private Page<DocumentPost> documentPostsPage;
+  private Page<DocumentRequestPost> documentRequestPostsPage;
 }
