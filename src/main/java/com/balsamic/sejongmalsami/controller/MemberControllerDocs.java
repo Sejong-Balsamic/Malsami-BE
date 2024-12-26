@@ -224,21 +224,24 @@ public interface MemberControllerDocs {
 
         ### 요청 파라미터
         - **contentType**: 조회하고자 하는 글의 유형
+          - QUESTION, ANSWER, DOCUMENT, DOCUMENT_REQUEST
+        - **sortType**: 정렬 조건
+          - LATEST, OLDEST, MOST_LIKED, VIEW_COUNT
         - **pageNumber**: 페이지 번호
         - **pageSize**: 페이지당 보여줄 글 개수
                            
         ### 반환값
         #### contentType = `QUESTION`
-        - **`QuestionDto`**: 질문 게시판 정보 반환
+        - **`MemberDto`**: 질문 게시판 정보 반환
           - **`Page<QuestionPost> questionPostsPage`**: 내가 작성한 질문글
         #### contentType = `ANSWER`
-        - **`QuestionDto`**: 질문 게시판 정보 반환
+        - **`MemberDto`**: 질문 게시판 정보 반환
           - **`Page<QuestionPost> questionPostsPage`**: 내가 답변을 작성한 질문글
         #### contentType = `DOCUMENT`
-        - **`DocumentDto`**: 자료 게시판 정보 반환
+        - **`MemberDto`**: 자료 게시판 정보 반환
           - **`Page<DocumentPost> documentPostsPage`**: 내가 작성한 자료글
         #### contentType = `DOCUMENT_REQUEST`
-        - **`DocumentDto`**: 자료 게시판 정보 반환
+        - **`MemberDto`**: 자료 게시판 정보 반환
           - **`Page<DocumentPost> documentRequestPostsPage`**: 내가 작성한 자료 요청글
           """
   )
