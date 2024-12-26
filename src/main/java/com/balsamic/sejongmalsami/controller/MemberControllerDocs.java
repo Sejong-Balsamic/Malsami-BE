@@ -207,4 +207,42 @@ public interface MemberControllerDocs {
   ResponseEntity<MemberDto> getDocumentBoardAccessByTier(
       @ModelAttribute MemberCommand command,
       @AuthenticationPrincipal CustomUserDetails customUserDetails);
+
+  @ApiChangeLogs({
+      @ApiChangeLog(
+          date = "2024.12.26",
+          author = Author.BAEKJIHOON,
+          description = "내가 작성한 글"
+      )
+  })
+  @Operation(
+      summary = "내가 작성한 글 조회",
+      description = """
+        **내가 작성한 질문/답변/자료/자료요청 글 조회**
+
+        **이 API는 인증이 필요하며, JWT 토큰이 존재해야 합니다**
+
+        ### 요청 파라미터
+        - **contentType**: 조회하고자 하는 글의 유형
+        - **pageNumber**: 페이지 번호
+        - **pageSize**: 페이지당 보여줄 글 개수
+                           
+        ### 반환값
+        #### contentType = `QUESTION`
+        - **`QuestionDto`**: 질문 게시판 정보 반환
+          - **`Page<QuestionPost> questionPostsPage`**: 내가 작성한 질문글
+        #### contentType = `ANSWER`
+        - **`QuestionDto`**: 질문 게시판 정보 반환
+          - **`Page<QuestionPost> questionPostsPage`**: 내가 답변을 작성한 질문글
+        #### contentType = `DOCUMENT`
+        - **`DocumentDto`**: 자료 게시판 정보 반환
+          - **`Page<DocumentPost> documentPostsPage`**: 내가 작성한 자료글
+        #### contentType = `DOCUMENT_REQUEST`
+        - **`DocumentDto`**: 자료 게시판 정보 반환
+          - **`Page<DocumentPost> documentRequestPostsPage`**: 내가 작성한 자료 요청글
+          """
+  )
+  ResponseEntity<Object> getAllMemberPost(
+      @ModelAttribute MemberCommand command,
+      @AuthenticationPrincipal CustomUserDetails customUserDetails);
 }
