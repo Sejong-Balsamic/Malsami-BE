@@ -50,7 +50,8 @@ public class MemberController implements MemberControllerDocs {
   @LogMonitoringInvocation
   @PostMapping(value = "/my-info", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
   public ResponseEntity<MemberDto> myInfo(
-      MemberCommand command, CustomUserDetails customUserDetails) {
+      @ModelAttribute MemberCommand command,
+      @AuthenticationPrincipal CustomUserDetails customUserDetails) {
     return ResponseEntity.ok(MemberDto.builder().member(customUserDetails.getMember()).build());
   }
 
@@ -59,9 +60,20 @@ public class MemberController implements MemberControllerDocs {
   @LogMonitoringInvocation
   @PostMapping(value = "/yeopjeon-info", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
   public ResponseEntity<MemberDto> getDocumentBoardAccessByTier(
-      MemberCommand command,
-      CustomUserDetails customUserDetails) {
+      @ModelAttribute MemberCommand command,
+      @AuthenticationPrincipal CustomUserDetails customUserDetails) {
     command.setMember(customUserDetails.getMember());
     return ResponseEntity.ok(memberService.getDocumentBoardAccessByTier(command));
+  }
+
+  // 사용자가 작성한 글 반환
+  @Override
+  @LogMonitoringInvocation
+  @PostMapping(value = "/my-post", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
+  public ResponseEntity<Object> getAllMemberPost(
+      @ModelAttribute MemberCommand command,
+      @AuthenticationPrincipal CustomUserDetails customUserDetails) {
+    command.setMember(customUserDetails.getMember());
+    return ResponseEntity.ok(memberService.getAllMemberPost(command));
   }
 }

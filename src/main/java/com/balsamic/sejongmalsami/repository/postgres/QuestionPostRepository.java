@@ -63,13 +63,13 @@ public interface QuestionPostRepository extends JpaRepository<QuestionPost, UUID
   // 검색
   @Query(
       value = "SELECT DISTINCT p.* FROM question_post p " +
-          "WHERE (:query IS NULL OR LOWER(p.title) LIKE LOWER(CONCAT('%', :query, '%')) " +
-          "OR LOWER(p.content) LIKE LOWER(CONCAT('%', :query, '%'))) " +
-          "AND (:subject IS NULL OR LOWER(p.subject) LIKE LOWER(CONCAT('%', :subject, '%'))) ",
+              "WHERE (:query IS NULL OR LOWER(p.title) LIKE LOWER(CONCAT('%', :query, '%')) " +
+              "OR LOWER(p.content) LIKE LOWER(CONCAT('%', :query, '%'))) " +
+              "AND (:subject IS NULL OR LOWER(p.subject) LIKE LOWER(CONCAT('%', :subject, '%'))) ",
       countQuery = "SELECT COUNT(DISTINCT p.question_post_id) FROM question_post p " +
-          "WHERE (:query IS NULL OR LOWER(p.title) LIKE LOWER(CONCAT('%', :query, '%')) " +
-          "OR LOWER(p.content) LIKE LOWER(CONCAT('%', :query, '%'))) " +
-          "AND (:subject IS NULL OR LOWER(p.subject) LIKE LOWER(CONCAT('%', :subject, '%'))) ",
+                   "WHERE (:query IS NULL OR LOWER(p.title) LIKE LOWER(CONCAT('%', :query, '%')) " +
+                   "OR LOWER(p.content) LIKE LOWER(CONCAT('%', :query, '%'))) " +
+                   "AND (:subject IS NULL OR LOWER(p.subject) LIKE LOWER(CONCAT('%', :subject, '%'))) ",
       nativeQuery = true
   )
   Page<QuestionPost> findQuestionPostsByQuery(
@@ -79,6 +79,21 @@ public interface QuestionPostRepository extends JpaRepository<QuestionPost, UUID
   );
 
   List<QuestionPost> findByMember(Member member);
+
+  // 내가 작성한 질문글
+  Page<QuestionPost> findAllByMember(Member member, Pageable pageable);
+
+  // 내가 답변을 작성한 질문글
+  @Query("""
+      select distinct q
+      from QuestionPost q
+      join AnswerPost a on a.questionPost.questionPostId = q.questionPostId
+      where a.member = :member
+      """)
+  Page<QuestionPost> findAllByAnsweredByMember(
+      @Param("member") Member member,
+      Pageable pageable
+  );
 
   Long countByMember(Member member);
 }
