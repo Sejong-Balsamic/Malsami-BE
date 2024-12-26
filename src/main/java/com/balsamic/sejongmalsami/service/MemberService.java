@@ -453,37 +453,31 @@ public class MemberService {
         command.getPageSize(),
         sort);
 
+    Page<QuestionPost> questionPostPage = null;
+    Page<DocumentPost> documentPostPage = null;
+    Page<DocumentRequestPost> documentRequestPostPage = null;
+
     if (command.getContentType().equals(QUESTION)) { // 내가 작성한 질문글
-      Page<QuestionPost> questionPostPage = questionPostRepository
+      questionPostPage = questionPostRepository
           .findAllByMember(command.getMember(), pageable);
-
-      return MemberDto.builder()
-          .questionPostsPage(questionPostPage)
-          .build();
     } else if (command.getContentType().equals(ANSWER)) { // 내가 답변을 작성한 글
-      Page<QuestionPost> questionPostPage = questionPostRepository
+      questionPostPage = questionPostRepository
           .findAllByAnsweredByMember(command.getMember(), pageable);
-
-      return MemberDto.builder()
-          .questionPostsPage(questionPostPage)
-          .build();
     } else if (command.getContentType().equals(DOCUMENT)) { // 내가 작성한 자료글
-      Page<DocumentPost> documentPostPage = documentPostRepository
+      documentPostPage = documentPostRepository
           .findAllByMember(command.getMember(), pageable);
-
-      return MemberDto.builder()
-          .documentPostsPage(documentPostPage)
-          .build();
     } else if (command.getContentType().equals(DOCUMENT_REQUEST)) { // 내가 작성한 자료요청글
-      Page<DocumentRequestPost> documentRequestPostPage = documentRequestPostRepository
+      documentRequestPostPage = documentRequestPostRepository
           .findAllByMember(command.getMember(), pageable);
-
-      return MemberDto.builder()
-          .documentRequestPostsPage(documentRequestPostPage)
-          .build();
     } else {
       log.error("잘못된 contentType 입니다. 요청된 contentType: {}", command.getContentType());
       throw new CustomException(ErrorCode.INVALID_CONTENT_TYPE);
     }
+
+    return MemberDto.builder()
+        .questionPostsPage(questionPostPage)
+        .documentPostsPage(documentPostPage)
+        .documentRequestPostsPage(documentRequestPostPage)
+        .build();
   }
 }
