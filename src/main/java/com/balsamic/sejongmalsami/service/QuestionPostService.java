@@ -319,6 +319,7 @@ public class QuestionPostService {
         !sortType.equals(MOST_LIKED) &&
         !sortType.equals(REWARD_YEOPJEON) &&
         !sortType.equals(VIEW_COUNT)) {
+      log.error("잘못된 sortType 요청입니다. 요청된 sortType: {}", command.getSortType());
       throw new CustomException(ErrorCode.INVALID_SORT_TYPE);
     }
 
