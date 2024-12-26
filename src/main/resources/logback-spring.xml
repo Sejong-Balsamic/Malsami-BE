@@ -36,14 +36,14 @@
   </appender>
 
   <!-- 환경별 로그 설정 -->
-  <springProfile name="linux">
+  <springProfile name="prod">
     <root level="INFO">
       <appender-ref ref="CONSOLE"/>
       <appender-ref ref="FILE"/>
     </root>
   </springProfile>
 
-  <springProfile name="!linux">
+  <springProfile name="!prod">
     <root level="INFO">
       <appender-ref ref="CONSOLE"/>
     </root>
