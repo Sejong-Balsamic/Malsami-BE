@@ -122,6 +122,7 @@ public class AdminApiController {
   public ResponseEntity<AdminDto> manageYeopjeon(
       @AuthenticationPrincipal CustomUserDetails customUserDetails,
       @ModelAttribute AdminCommand command){
+    command.setMember(customUserDetails.getMember());
     return ResponseEntity.ok(adminApiService.manageYeopjeon(command));
   }
 

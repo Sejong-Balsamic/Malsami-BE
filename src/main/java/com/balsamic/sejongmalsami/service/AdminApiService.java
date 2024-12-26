@@ -109,12 +109,16 @@ public class AdminApiService {
   @Transactional
   public AdminDto manageYeopjeon(AdminCommand command) {
     UUID memberId = CommonUtil.toUUID(command.getMemberIdStr());
-    Member member = memberRepository.findById(memberId)
+    // Yeopjeon Target Member
+    Member targetMember = memberRepository.findById(memberId)
         .orElseThrow(() -> new CustomException(ErrorCode.MEMBER_NOT_FOUND));
     Integer amount = command.getAmount();
 
+    // 관리자
+    Member adminMember = command.getMember();
+
     // 엽전 정보 조회
-    Yeopjeon yeopjeon = yeopjeonRepository.findByMember(member)
+    Yeopjeon yeopjeon = yeopjeonRepository.findByMember(targetMember)
         .orElseThrow(() -> new CustomException(ErrorCode.YEOPJEON_NOT_FOUND));
 
     // 감소할 경우 잔액 체크
@@ -130,20 +134,20 @@ public class AdminApiService {
 
     // 엽전 이력 기록
     YeopjeonHistory yeopjeonHistory = YeopjeonHistory.builder()
-        .memberId(member.getMemberId())
+        .memberId(targetMember.getMemberId())
         .yeopjeonChange(amount)
         .yeopjeonAction(YeopjeonAction.ADMIN_ADJUST)
         .resultYeopjeon(newYeopjeon)
-        .content("관리자: " + member.getStudentName() + ": " +  member.getStudentId())
+        .content("관리자: " + adminMember.getStudentName() + ": " +  adminMember.getStudentId())
         .build();
     yeopjeonHistoryRepository.save(yeopjeonHistory);
 
     // 로깅
     log.info("관리자 엽전 조정 - 학번: {}, 변동량: {}, 최종잔액: {}",
-        member.getStudentId(), amount, newYeopjeon);
+        adminMember.getStudentId(), amount, newYeopjeon);
 
     return AdminDto.builder()
-        .member(member)
+        .member(targetMember)
         .yeopjeon(yeopjeon)
         .yeopjeonHistory(yeopjeonHistory)
         .build();
