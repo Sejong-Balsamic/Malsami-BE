@@ -70,6 +70,9 @@ public interface DocumentPostRepository extends JpaRepository<DocumentPost, UUID
 
   List<DocumentPost> findByMember(Member member);
 
+  // 내가 작성한 자료글
+  Page<DocumentPost> findAllByMember(Member member, Pageable pageable);
+
   long countByMember(Member member);
 
   long countByMemberAndIsPopularTrue(Member member);
