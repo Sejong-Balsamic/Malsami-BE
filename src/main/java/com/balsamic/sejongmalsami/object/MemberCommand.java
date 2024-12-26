@@ -3,6 +3,7 @@ package com.balsamic.sejongmalsami.object;
 import com.balsamic.sejongmalsami.object.constants.AccountStatus;
 import com.balsamic.sejongmalsami.object.constants.ContentType;
 import com.balsamic.sejongmalsami.object.constants.Role;
+import com.balsamic.sejongmalsami.object.constants.SortType;
 import com.balsamic.sejongmalsami.object.postgres.Member;
 import io.swagger.v3.oas.annotations.media.Schema;
 import java.util.UUID;
@@ -46,6 +47,7 @@ public class MemberCommand {
   @Schema(defaultValue = "30")
   private Integer pageSize;        // 페이지 크기
   private ContentType contentType; // 작성 글 종류
+  private SortType sortType; // 정렬 조건
   private String sortField;    // 정렬 필드
   private String sortDirection; // 정렬 방향 (asc/desc)
 
