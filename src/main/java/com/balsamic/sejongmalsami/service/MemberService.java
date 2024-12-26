@@ -4,16 +4,16 @@ import static com.balsamic.sejongmalsami.object.constants.ContentType.ANSWER;
 import static com.balsamic.sejongmalsami.object.constants.ContentType.DOCUMENT;
 import static com.balsamic.sejongmalsami.object.constants.ContentType.DOCUMENT_REQUEST;
 import static com.balsamic.sejongmalsami.object.constants.ContentType.QUESTION;
+import static com.balsamic.sejongmalsami.object.constants.SortType.*;
 
 import com.balsamic.sejongmalsami.object.CustomUserDetails;
-import com.balsamic.sejongmalsami.object.DocumentDto;
 import com.balsamic.sejongmalsami.object.MemberCommand;
 import com.balsamic.sejongmalsami.object.MemberDto;
-import com.balsamic.sejongmalsami.object.QuestionDto;
 import com.balsamic.sejongmalsami.object.constants.AccountStatus;
 import com.balsamic.sejongmalsami.object.constants.DefaultValue;
 import com.balsamic.sejongmalsami.object.constants.ExpTier;
 import com.balsamic.sejongmalsami.object.constants.Role;
+import com.balsamic.sejongmalsami.object.constants.SortType;
 import com.balsamic.sejongmalsami.object.mongo.RefreshToken;
 import com.balsamic.sejongmalsami.object.postgres.AnswerPost;
 import com.balsamic.sejongmalsami.object.postgres.Comment;
@@ -429,42 +429,56 @@ public class MemberService {
    * <h3>특정 사용자가 작성한 글 조회 로직</h3>
    * <p>AccessToken을 통해 사용자를 확인합니다.</p>
    * <p>contentType에 따른 글을 반환합니다.</p>
+   * <p>sortType에 해당하는 정렬조건으로 글을 반환합니다.</p>
    *
-   * @param command member, contentType, pageNumber, pageSize
-   * @return
+   * @param command member, contentType, sortType, pageNumber, pageSize
+   * @return MemberDto
    */
-  public Object getAllMemberPost(MemberCommand command) {
+  public MemberDto getAllMemberPost(MemberCommand command) {
+
+    // 정렬 기준 (default: 최신순)
+    SortType sortType = (command.getSortType() != null) ? command.getSortType() : LATEST;
+    if (!sortType.equals(LATEST) &&
+        !sortType.equals(OLDEST) &&
+        !sortType.equals(MOST_LIKED) &&
+        !sortType.equals(VIEW_COUNT)) {
+      log.error("잘못된 sortType 요청입니다. 요청된 sortType: {}", command.getSortType());
+      throw new CustomException(ErrorCode.INVALID_SORT_TYPE);
+    }
+
+    Sort sort = getJpqlSortOrder(sortType);
+
     Pageable pageable = PageRequest.of(
         command.getPageNumber(),
         command.getPageSize(),
-        Sort.by("createdDate").descending());
+        sort);
 
     if (command.getContentType().equals(QUESTION)) { // 내가 작성한 질문글
       Page<QuestionPost> questionPostPage = questionPostRepository
           .findAllByMember(command.getMember(), pageable);
 
-      return QuestionDto.builder()
+      return MemberDto.builder()
           .questionPostsPage(questionPostPage)
           .build();
     } else if (command.getContentType().equals(ANSWER)) { // 내가 답변을 작성한 글
       Page<QuestionPost> questionPostPage = questionPostRepository
           .findAllByAnsweredByMember(command.getMember(), pageable);
 
-      return QuestionDto.builder()
+      return MemberDto.builder()
           .questionPostsPage(questionPostPage)
           .build();
     } else if (command.getContentType().equals(DOCUMENT)) { // 내가 작성한 자료글
       Page<DocumentPost> documentPostPage = documentPostRepository
           .findAllByMember(command.getMember(), pageable);
 
-      return DocumentDto.builder()
+      return MemberDto.builder()
           .documentPostsPage(documentPostPage)
           .build();
     } else if (command.getContentType().equals(DOCUMENT_REQUEST)) { // 내가 작성한 자료요청글
       Page<DocumentRequestPost> documentRequestPostPage = documentRequestPostRepository
           .findAllByMember(command.getMember(), pageable);
 
-      return DocumentDto.builder()
+      return MemberDto.builder()
           .documentRequestPostsPage(documentRequestPostPage)
           .build();
     } else {
