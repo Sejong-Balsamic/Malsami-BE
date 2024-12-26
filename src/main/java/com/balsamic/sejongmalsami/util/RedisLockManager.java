@@ -5,19 +5,12 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.redisson.api.RLock;
 import org.redisson.api.RedissonClient;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 
 @Component
 @Slf4j
 @RequiredArgsConstructor
 public class RedisLockManager {
-
-  @Value("${spring.data.redis.wait-time}")
-  private Long waitTime;
-
-  @Value("${spring.data.redis.lease-time}")
-  private Long leaseTime;
 
   private final RedissonClient redissonClient;
 
@@ -29,7 +22,7 @@ public class RedisLockManager {
    * @param <T> 작업 실행 결과 타입
    * @return 작업 실행 결과
    */
-  public <T> T executeLock(String lockKey, LockTask<T> task) {
+  public <T> T executeLock(String lockKey, Long waitTime, Long leaseTime, LockTask<T> task) {
     RLock lock = redissonClient.getLock(lockKey);
     // 락 획득 시도
     try {

@@ -37,6 +37,8 @@ import org.springframework.stereotype.Service;
 public class DocumentRequestPostService {
 
   private static final Integer DOCUMENT_TYPE_LIMIT = 3;
+  private final static long WAIT_TIME = 5L; // Lock을 얻기위해 기다리는 시간
+  private final static long LEASE_TIME = 2L; // Lock 자동 해제 시간
 
   private final DocumentRequestPostRepository documentRequestPostRepository;
   private final DocumentBoardLikeRepository documentBoardLikeRepository;
@@ -179,7 +181,7 @@ public class DocumentRequestPostService {
         .orElseThrow(() -> new CustomException(ErrorCode.DOCUMENT_REQUEST_POST_NOT_FOUND));
 
     String lockKey = "lock:documentRequestPost:" + command.getDocumentPostId();
-    redisLockManager.executeLock(lockKey, () -> {
+    redisLockManager.executeLock(lockKey, WAIT_TIME, LEASE_TIME, () -> {
       // 해당 글 조회 수 증가
       post.increaseViewCount();
       documentRequestPostRepository.save(post);
