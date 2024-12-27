@@ -8,16 +8,19 @@ import com.balsamic.sejongmalsami.object.MemberDto;
 import com.balsamic.sejongmalsami.object.MemberYeopjeon;
 import com.balsamic.sejongmalsami.object.constants.YeopjeonAction;
 import com.balsamic.sejongmalsami.object.mongo.YeopjeonHistory;
+import com.balsamic.sejongmalsami.object.postgres.Faculty;
 import com.balsamic.sejongmalsami.object.postgres.Member;
 import com.balsamic.sejongmalsami.object.postgres.TestMember;
 import com.balsamic.sejongmalsami.object.postgres.Yeopjeon;
 import com.balsamic.sejongmalsami.repository.mongo.YeopjeonHistoryRepository;
+import com.balsamic.sejongmalsami.repository.postgres.FacultyRepository;
 import com.balsamic.sejongmalsami.repository.postgres.MemberRepository;
 import com.balsamic.sejongmalsami.repository.postgres.TestMemberRepository;
 import com.balsamic.sejongmalsami.repository.postgres.YeopjeonRepository;
 import com.balsamic.sejongmalsami.util.LogUtil;
 import com.balsamic.sejongmalsami.util.exception.CustomException;
 import com.balsamic.sejongmalsami.util.exception.ErrorCode;
+import java.util.List;
 import java.util.UUID;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -39,6 +42,7 @@ public class AdminApiService {
   private final TestMemberRepository testMemberRepository;
   private final PasswordEncoder passwordEncoder;
   private final YeopjeonHistoryRepository yeopjeonHistoryRepository;
+  private final FacultyRepository facultyRepository;
 
   public AdminDto processUuidPacchingko(AdminCommand command) {
     // member 가져오기
@@ -206,6 +210,18 @@ public class AdminApiService {
 
     return AdminDto.builder()
         .memberYeopjeonPage(memberYeopjeonPage)
+        .build();
+  }
+
+  /**
+   * <h3>DB에 저장된 모든 단과대 조회</h3>
+   * @return
+   */
+  public AdminDto getAllFaculties() {
+    List<Faculty> faculties = facultyRepository.findByIsActiveTrue();
+
+    return AdminDto.builder()
+        .faculties(faculties)
         .build();
   }
 }
