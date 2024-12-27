@@ -1,0 +1,62 @@
+<!doctype html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{fragments/header :: head}"></head>
+
+<body class="subject-page">
+
+<div th:replace="fragments/header :: header"></div>
+<div class="ui content u-margin-vertical-large u-padding-horizontal-medium">
+  <!-- 페이지 제목 -->
+  <div class="ui main text container u-margin-bottom-large">
+    <h1 class="ui header">교과목 관리</h1>
+  </div>
+
+  <!-- 교과목 필터링 -->
+  <div class="form-container ui segment">
+    <form id="searchForm" class="ui form">
+      <!-- 교과목 검색 -->
+      <div class="field">
+        <label>교과목명</label>
+        <input type="text" name="subject" placeholder="교과목명 검색">
+      </div>
+      <div class="field">
+        <label>연도</label>
+        <select class="ui dropdown" name="year">
+          <option value="">--연도를 선택하세요--</option>
+          <option value="2024">2024</option>
+        </select>
+      </div>
+      <div class="field">
+        <label>학기</label>
+        <select class="ui dropdown" name="semester">
+          <option value="">--학기를 선택하세요--</option>
+          <option value="1">1학기</option>
+          <option value="summer-semester">여름 계절학기</option>
+          <option value="2">2학기</option>
+          <option value="winter-semester">겨울 계절학기</option>
+        </select>
+      </div>
+      <div class="field">
+        <label>단과대</label>
+        <select class="ui dropdown" name="faculty">
+          <option value="">--단과대를 선택하세요--</option>
+          <!-- DB에서 불러온 faculties 목록을 순회하며 옵션을 생성-->
+          <option th:each="faculty : ${faculties}"
+                  th:value="${faculty.name}"
+                  th:text="${faculty.name}">
+          </option>
+        </select>
+      </div>
+    </form>
+  </div>
+
+</div>
+
+
+
+
+
+<div th:replace="fragments/footer :: footer"></div>
+
+</body>
+</html>
