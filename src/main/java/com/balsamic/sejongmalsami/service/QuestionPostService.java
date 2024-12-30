@@ -26,6 +26,7 @@ import com.balsamic.sejongmalsami.repository.postgres.AnswerPostRepository;
 import com.balsamic.sejongmalsami.repository.postgres.CourseRepository;
 import com.balsamic.sejongmalsami.repository.postgres.MemberRepository;
 import com.balsamic.sejongmalsami.repository.postgres.QuestionPostRepository;
+import com.balsamic.sejongmalsami.util.RedisLockManager;
 import com.balsamic.sejongmalsami.util.exception.CustomException;
 import com.balsamic.sejongmalsami.util.exception.ErrorCode;
 import java.util.ArrayList;
@@ -45,6 +46,9 @@ import org.springframework.transaction.annotation.Transactional;
 @RequiredArgsConstructor
 public class QuestionPostService {
 
+  private final static long WAIT_TIME = 5L; // Lock을 얻기위해 기다리는 시간
+  private final static long LEASE_TIME = 2L; // Lock 자동 해제 시간
+
   private final QuestionPostRepository questionPostRepository;
   private final MemberRepository memberRepository;
   private final QuestionPostCustomTagService questionPostCustomTagService;
@@ -55,6 +59,7 @@ public class QuestionPostService {
   private final ExpService expService;
   private final AnswerPostRepository answerPostRepository;
   private final QuestionPostCustomTagRepository questionPostCustomTagRepository;
+  private final RedisLockManager redisLockManager;
 
   /**
    * <h3>질문 글 등록</h3>
@@ -176,18 +181,23 @@ public class QuestionPostService {
     QuestionPost questionPost = questionPostRepository.findById(command.getPostId())
         .orElseThrow(() -> new CustomException(ErrorCode.QUESTION_POST_NOT_FOUND));
 
-    // 조회수 증가
-    questionPost.increaseViewCount();
-    log.info("제목: {}, 조회수: {}", questionPost.getTitle(), questionPost.getViewCount());
+    // 조회수 증가 (Redis 락을 사용하여 보호)
+    String lockKey = "lock:questionPost:" + command.getPostId();
+    redisLockManager.executeLock(lockKey, WAIT_TIME, LEASE_TIME, () -> {
+      questionPost.increaseViewCount();
+      log.info("제목: {}, 조회수: {}", questionPost.getTitle(), questionPost.getViewCount());
+
+      // 변경사항 저장
+      questionPostRepository.save(questionPost);
+
+      return null;
+    });
 
     // 좋아요 누른 회원인지 확인
     Boolean isLiked = questionBoardLikeRepository
         .existsByQuestionBoardIdAndMemberId(command.getPostId(), command.getMemberId());
 
     questionPost.updateIsLiked(isLiked);
-
-    // 변경사항 저장
-    questionPostRepository.save(questionPost);
 
     // 답변 조회 (없으면 null 반환)
     List<AnswerPost> answerPosts = answerPostRepository
@@ -312,6 +322,7 @@ public class QuestionPostService {
         !sortType.equals(MOST_LIKED) &&
         !sortType.equals(REWARD_YEOPJEON) &&
         !sortType.equals(VIEW_COUNT)) {
+      log.error("잘못된 sortType 요청입니다. 요청된 sortType: {}", command.getSortType());
       throw new CustomException(ErrorCode.INVALID_SORT_TYPE);
     }
 

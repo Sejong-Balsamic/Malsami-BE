@@ -34,6 +34,44 @@
 자료게시판에서는 다양한 학습 자료를 **엽전**을 사용하여 구매할 수 있습니다. 각 자료는 등급이 부여되어 있어, 높은 등급의 자료일수록 더 많은 엽전이 필요하지만, 그만큼 유용한 정보를 제공합니다. 이를 통해 사용자는 필요한 자료를 효율적으로 관리하고 활용할 수 있습니다.
 
 **세종말싸미**는 이러한 다양한 기능들을 통해 세종대학교 학생들의 학업을 지원하고, 지식 공유의 장을 제공하고자 합니다. 지속적인 업데이트와 개선을 통해 더욱 편리하고 유용한 플랫폼으로 발전해 나가겠습니다.
+
+
+> <p style="color:gray; font-weight:bold;">개발기간: 2024.09.04 ~ 현재 </p>
+
+## 🙋🏻‍♀️ 팀원 소개
+<table>
+    <tr>
+        <td align="center">이유진</td>
+        <td align="center">손재호</td>
+        <td align="center">서새찬</td>
+        <td align="center">백지훈</td>
+        <td align="center">백민홍</td>
+        <td align="center">김성림</td>
+        <td align="center">이예진</td>
+        <td align="center">지희</td>
+    </tr>
+    <tr>
+        <td align="center"><a href="https://github.com/newjinlee">@newjinlee</a></td>
+        <td align="center"><a href="https://github.com/thswogh">@thswogh</a></td>
+        <td align="center"><a href="https://github.com/Cassiiopeia">@Cassiiopeia</a></td>
+        <td align="center"><a href="https://github.com/Chuseok22">@Chuseok22</a></td>
+        <td align="center"><a href="https://github.com/minhong620">@minhong620</a></td>
+        <td align="center"><a href="https://github.com/seonglim">@seonglim</a></td>
+        <td align="center"><a href="https://github.com/Vhime">@Vhime</a></td>
+        <td align="center"><a href="https://github.com/jihee127">@jihee127</a></td>
+    </tr>
+    <tr>
+        <td>프론트엔드 개발 담당</td>
+        <td>프론트엔드 개발 담당</td>
+        <td>서버 개발 담당</td>
+        <td>서버 개발 담당</td>
+        <td>서버 개발 담당</td>
+        <td>디자인 담당</td>
+        <td>디자인 담당</td>
+        <td>디자인 담당</td>
+    </tr>
+</table>
+
 ## 💻 기술 스택
 
 **백엔드 개발에는 다음과 같은 기술을 사용했습니다:**

@@ -45,17 +45,14 @@ import com.balsamic.sejongmalsami.repository.postgres.DocumentPostRepository;
 import com.balsamic.sejongmalsami.repository.postgres.DocumentRequestPostRepository;
 import com.balsamic.sejongmalsami.repository.postgres.MemberRepository;
 import com.balsamic.sejongmalsami.repository.postgres.QuestionPostRepository;
+import com.balsamic.sejongmalsami.util.RedisLockManager;
 import com.balsamic.sejongmalsami.util.config.PostTierConfig;
 import com.balsamic.sejongmalsami.util.config.YeopjeonConfig;
 import com.balsamic.sejongmalsami.util.exception.CustomException;
 import com.balsamic.sejongmalsami.util.exception.ErrorCode;
 import java.util.UUID;
-import java.util.concurrent.TimeUnit;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.redisson.api.RLock;
-import org.redisson.api.RedissonClient;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -65,12 +62,8 @@ import org.springframework.transaction.annotation.Transactional;
 public class LikeService {
 
   private static final Integer DEMOTION_DISLIKE_LIMIT = 20;
-
-  @Value("${spring.data.redis.wait-time}")
-  private Long waitTime;
-
-  @Value("${spring.data.redis.lease-time}")
-  private Long leaseTime;
+  private final static long WAIT_TIME = 5L; // Lock을 얻기위해 기다리는 시간
+  private final static long LEASE_TIME = 2L; // Lock 자동 해제 시간
 
   private final MemberRepository memberRepository;
   private final QuestionBoardLikeRepository questionBoardLikeRepository;
@@ -85,7 +78,7 @@ public class LikeService {
   private final PostTierConfig postTierConfig;
   private final CommentLikeRepository commentLikeRepository;
   private final CommentRepository commentRepository;
-  private final RedissonClient redissonClient;
+  private final RedisLockManager redisLockManager;
 
 
   /**
@@ -171,14 +164,9 @@ public class LikeService {
    */
   private <T> T processLikeRequest(UUID memberId, UUID postId, ContentType contentType, LikeType likeType) {
     // 락 획득 시도 (락 키는 게시글 PK)
-    String lockKey = "lock:like" + postId;
-    RLock lock = redissonClient.getLock(lockKey);
-    try {
-      // 최대 n초간 대기, 락 획득 후 m초 뒤 자동 만료 설정
-      if (!lock.tryLock(waitTime, leaseTime, TimeUnit.SECONDS)) { // 락 획득에 실패 시
-        log.error("락 획득 실패 - 다른 요청 처리중");
-        throw new CustomException(ErrorCode.INTERNAL_SERVER_ERROR);
-      }
+    String lockKey = "lock:like:" + postId;
+
+    return redisLockManager.executeLock(lockKey, WAIT_TIME, LEASE_TIME, () -> {
 
       // 회원 조회
       Member curMember = memberRepository.findById(memberId)
@@ -315,15 +303,7 @@ public class LikeService {
         }
         throw new CustomException(ErrorCode.INTERNAL_SERVER_ERROR);
       }
-    } catch (InterruptedException e) {
-      Thread.currentThread().interrupt();
-      log.error("락 획득 대기 중 인터럽트 발생", e);
-      throw new CustomException(ErrorCode.INTERNAL_SERVER_ERROR);
-    } finally { // 현재 스레드가 락을 가지고 있는 경우
-      if (lock.isHeldByCurrentThread()) {
-        lock.unlock();
-      }
-    }
+    });
   }
 
   // 자기 자신에게 요청했는지 검증

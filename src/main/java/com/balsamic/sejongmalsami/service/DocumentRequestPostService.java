@@ -18,6 +18,7 @@ import com.balsamic.sejongmalsami.repository.mongo.DocumentBoardLikeRepository;
 import com.balsamic.sejongmalsami.repository.postgres.CourseRepository;
 import com.balsamic.sejongmalsami.repository.postgres.DocumentRequestPostRepository;
 import com.balsamic.sejongmalsami.repository.postgres.MemberRepository;
+import com.balsamic.sejongmalsami.util.RedisLockManager;
 import com.balsamic.sejongmalsami.util.exception.CustomException;
 import com.balsamic.sejongmalsami.util.exception.ErrorCode;
 import java.util.ArrayList;
@@ -36,12 +37,15 @@ import org.springframework.stereotype.Service;
 public class DocumentRequestPostService {
 
   private static final Integer DOCUMENT_TYPE_LIMIT = 3;
+  private final static long WAIT_TIME = 5L; // Lock을 얻기위해 기다리는 시간
+  private final static long LEASE_TIME = 2L; // Lock 자동 해제 시간
 
   private final DocumentRequestPostRepository documentRequestPostRepository;
   private final DocumentBoardLikeRepository documentBoardLikeRepository;
   private final MemberRepository memberRepository;
   private final YeopjeonService yeopjeonService;
   private final CourseRepository courseRepository;
+  private final RedisLockManager redisLockManager;
 
   /**
    * <h3>자료요청 글 작성</h3>
@@ -167,20 +171,22 @@ public class DocumentRequestPostService {
    * <h3>특정 자료 요청 글 조회</h3>
    * <p>해당 글 조회 수 증가
    *
-   * @param command memberId, documentPostId
+   * @param command documentPostId
    * @return
    */
   public DocumentDto getDocumentRequestPost(DocumentCommand command) {
-
-    Member member = memberRepository.findById(command.getMemberId())
-        .orElseThrow(() -> new CustomException(ErrorCode.MEMBER_NOT_FOUND));
 
     DocumentRequestPost post = documentRequestPostRepository
         .findById(command.getDocumentPostId())
         .orElseThrow(() -> new CustomException(ErrorCode.DOCUMENT_REQUEST_POST_NOT_FOUND));
 
-    // 해당 글 조회 수 증가
-    post.increaseViewCount();
+    String lockKey = "lock:documentRequestPost:" + command.getDocumentPostId();
+    redisLockManager.executeLock(lockKey, WAIT_TIME, LEASE_TIME, () -> {
+      // 해당 글 조회 수 증가
+      post.increaseViewCount();
+      documentRequestPostRepository.save(post);
+      return null;
+    });
 
     Boolean isLiked = documentBoardLikeRepository
         .existsByDocumentBoardIdAndMemberId(post.getDocumentRequestPostId(), command.getMemberId());

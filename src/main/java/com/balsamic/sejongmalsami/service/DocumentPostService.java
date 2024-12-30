@@ -31,6 +31,7 @@ import com.balsamic.sejongmalsami.repository.postgres.CourseRepository;
 import com.balsamic.sejongmalsami.repository.postgres.DocumentFileRepository;
 import com.balsamic.sejongmalsami.repository.postgres.DocumentPostRepository;
 import com.balsamic.sejongmalsami.repository.postgres.MemberRepository;
+import com.balsamic.sejongmalsami.util.RedisLockManager;
 import com.balsamic.sejongmalsami.util.config.YeopjeonConfig;
 import com.balsamic.sejongmalsami.util.exception.CustomException;
 import com.balsamic.sejongmalsami.util.exception.ErrorCode;
@@ -57,12 +58,13 @@ import org.springframework.transaction.annotation.Transactional;
 @RequiredArgsConstructor
 public class DocumentPostService {
 
-  private final DocumentFileRepository documentFileRepository;
-
   private final static int MAX_DOCUMENT_TYPES = 2; // 태그 최대 개수 제한
+  private final static long WAIT_TIME = 5L; // Lock을 얻기위해 기다리는 시간
+  private final static long LEASE_TIME = 2L; // Lock 자동 해제 시간
 
   private final DocumentPostRepository documentPostRepository;
   private final DocumentPostCustomTagService documentPostCustomTagService;
+  private final DocumentFileRepository documentFileRepository;
   private final ExpService expService;
   private final MemberRepository memberRepository;
   private final DocumentFileService documentFileService;
@@ -72,6 +74,7 @@ public class DocumentPostService {
   private final YeopjeonConfig yeopjeonConfig;
   private final PurchaseHistoryRepository purchaseHistoryRepository;
   private final GenericObjectPool<FTPClient> ftpClientPool;
+  private final RedisLockManager redisLockManager;
 
   /**
    * <h3>자료 글 저장
@@ -265,20 +268,25 @@ public class DocumentPostService {
     // 해당 게시판 접근 가능 여부 확인
     canAccessDocumentBoard(member, postTier);
 
-    // 게시글 등급에 따라 사용자 엽전 변동 및 엽전 히스토리 저장
-    switch (postTier) {
-      case CHEONMIN -> yeopjeonService
-          .processYeopjeon(member, VIEW_DOCUMENT_CHEONMIN_POST);
-      case JUNGIN -> yeopjeonService
-          .processYeopjeon(member, VIEW_DOCUMENT_JUNGIN_POST);
-      case YANGBAN -> yeopjeonService
-          .processYeopjeon(member, VIEW_DOCUMENT_YANGBAN_POST);
-      case KING -> yeopjeonService
-          .processYeopjeon(member, VIEW_DOCUMENT_KING_POST);
-    }
-
-    // 해당 자료 글 조회수 증가
-    post.increaseViewCount();
+    // 조회수 증가 (Redis 락을 사용하여 보호)
+    String lockKey = "lock:documentPost:" + command.getDocumentPostId();
+    redisLockManager.executeLock(lockKey, WAIT_TIME, LEASE_TIME, () -> {
+      // 게시글 등급에 따라 사용자 엽전 변동 및 엽전 히스토리 저장
+      switch (postTier) {
+        case CHEONMIN -> yeopjeonService
+            .processYeopjeon(member, VIEW_DOCUMENT_CHEONMIN_POST);
+        case JUNGIN -> yeopjeonService
+            .processYeopjeon(member, VIEW_DOCUMENT_JUNGIN_POST);
+        case YANGBAN -> yeopjeonService
+            .processYeopjeon(member, VIEW_DOCUMENT_YANGBAN_POST);
+        case KING -> yeopjeonService
+            .processYeopjeon(member, VIEW_DOCUMENT_KING_POST);
+      }
+      // 해당 자료 글 조회수 증가
+      post.increaseViewCount();
+      documentPostRepository.save(post);
+      return null;
+    });
 
     // 사용자가 좋아요를 눌렀는지 확인
     Boolean isLiked = documentBoardLikeRepository
@@ -351,7 +359,7 @@ public class DocumentPostService {
         .orElseThrow(() -> new CustomException(ErrorCode.DOCUMENT_FILE_NOT_FOUND));
 
     // 내가 올린 파일인 경우 : 엽전 소모 X
-    if(!documentFile.getUploader().getMemberId().equals(member.getMemberId())){
+    if (!documentFile.getUploader().getMemberId().equals(member.getMemberId())) {
       // 엽전 소모
       yeopjeonHistory = yeopjeonService.processYeopjeon(member, PURCHASE_DOCUMENT);
 

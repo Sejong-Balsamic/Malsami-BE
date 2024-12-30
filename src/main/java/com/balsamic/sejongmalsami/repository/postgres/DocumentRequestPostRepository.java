@@ -49,5 +49,8 @@ public interface DocumentRequestPostRepository extends JpaRepository<DocumentReq
 
   List<DocumentRequestPost> findByMember(Member member);
 
+  // 내가 작성한 자료요청글
+  Page<DocumentRequestPost> findAllByMember(Member member, Pageable pageable);
+
   long countByMember(Member member);
 }
