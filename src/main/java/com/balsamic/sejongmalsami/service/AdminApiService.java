@@ -212,4 +212,11 @@ public class AdminApiService {
         .memberYeopjeonPage(memberYeopjeonPage)
         .build();
   }
+
+  public MemberDto getMemberByMemberIdStr(MemberCommand command) {
+    return MemberDto.builder()
+        .member(memberRepository.findById(CommonUtil.toUUID(command.getMemberIdStr()))
+            .orElseThrow(() -> new CustomException(ErrorCode.MEMBER_NOT_FOUND)))
+        .build();
+  }
 }

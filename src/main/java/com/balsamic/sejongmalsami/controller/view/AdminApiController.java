@@ -88,6 +88,14 @@ public class AdminApiController {
     return ResponseEntity.ok(adminApiService.getFilteredMembers(command));
   }
 
+  @PostMapping(value = "/member/info", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
+  @LogMonitoringInvocation
+  public ResponseEntity<MemberDto> getMemberByMemberIdStr(
+      @AuthenticationPrincipal CustomUserDetails customUserDetails,
+      @ModelAttribute MemberCommand command){
+    return ResponseEntity.ok(adminApiService.getMemberByMemberIdStr(command));
+  }
+
   /**
    * ===========================================
    * 테스트 계정 API

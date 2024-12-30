@@ -103,7 +103,7 @@ public enum ErrorCode {
 
   // Course
 
-  FACULTY_NOT_FOUND(HttpStatus.BAD_REQUEST, "교과목명에 해당하는 단과대를 찾을 수 없습니다."),
+  FACULTY_NOT_FOUND(HttpStatus.NOT_FOUND, "교과목명에 해당하는 단과대를 찾을 수 없습니다."),
 
   COURSE_SAVE_ERROR(HttpStatus.BAD_REQUEST, "교과목명 파일 처리 중 오류가 발생했습니다"),
 
@@ -117,7 +117,7 @@ public enum ErrorCode {
 
   // QuestionPost
 
-  QUESTION_POST_NOT_FOUND(HttpStatus.BAD_REQUEST, "질문 글을 찾을 수 없습니다."),
+  QUESTION_POST_NOT_FOUND(HttpStatus.NOT_FOUND, "질문 글을 찾을 수 없습니다."),
 
   QUESTION_TITLE_NULL(HttpStatus.BAD_REQUEST, "질문 게시글의 제목이 비어 있습니다."),
 
@@ -131,7 +131,7 @@ public enum ErrorCode {
 
   // AnswerPost
 
-  ANSWER_POST_NOT_FOUND(HttpStatus.BAD_REQUEST, "답변 글을 찾을 수 없습니다."),
+  ANSWER_POST_NOT_FOUND(HttpStatus.NOT_FOUND, "답변 글을 찾을 수 없습니다."),
 
   SELF_ANSWER_NOT_ALLOWED(HttpStatus.BAD_REQUEST, "본인의 질문글에는 답변을 작성할 수 없습니다."),
 
@@ -143,13 +143,13 @@ public enum ErrorCode {
 
   // Comment
 
-  COMMENT_NOT_FOUND(HttpStatus.BAD_REQUEST, "댓글을 찾을 수 없습니다."),
+  COMMENT_NOT_FOUND(HttpStatus.NOT_FOUND, "댓글을 찾을 수 없습니다."),
 
   COMMENT_LIKE_HISTORY_SAVE_ERROR(HttpStatus.BAD_REQUEST, "댓글 내역 저장 중 오류가 발생했습니다."),
 
   // DocumentPost
 
-  DOCUMENT_POST_NOT_FOUND(HttpStatus.BAD_REQUEST, "자료 글을 찾을 수 없습니다."),
+  DOCUMENT_POST_NOT_FOUND(HttpStatus.NOT_FOUND, "자료 글을 찾을 수 없습니다."),
 
   DOCUMENT_TYPE_LIMIT_EXCEEDED(HttpStatus.BAD_REQUEST, "자료게시글 자료 종류는 최대 2개까지 선택가능합니다."),
 
@@ -165,7 +165,7 @@ public enum ErrorCode {
 
   // Notice
 
-  NOTICE_POST_NOT_FOUND(HttpStatus.BAD_REQUEST, "공지사항 글을 찾을 수 없습니다."),
+  NOTICE_POST_NOT_FOUND(HttpStatus.NOT_FOUND, "공지사항 글을 찾을 수 없습니다."),
 
   // PostTier
 
@@ -218,7 +218,7 @@ public enum ErrorCode {
 
   EXP_HISTORY_DELETE_ERROR(HttpStatus.INTERNAL_SERVER_ERROR, "경험치 히스토리 삭제 중 오류가 발생했습니다."),
 
-  EXP_NOT_FOUND(HttpStatus.BAD_REQUEST, "경험치 객체를 찾을 수 없습니다."),
+  EXP_NOT_FOUND(HttpStatus.NOT_FOUND, "경험치 객체를 찾을 수 없습니다."),
 
   INVALID_EXP_ACTION(HttpStatus.BAD_REQUEST, "잘못된 ExpAction에 해당됩니다."),
 
@@ -232,7 +232,11 @@ public enum ErrorCode {
 
   ALREADY_ACTION(HttpStatus.BAD_REQUEST, "이미 좋아요 또는 싫어요를 누른 글입니다."),
 
-  LIKE_COUNT_CANNOT_BE_NEGATIVE(HttpStatus.BAD_REQUEST, "좋아요 개수의 최소값은 0입니다.");
+  LIKE_COUNT_CANNOT_BE_NEGATIVE(HttpStatus.BAD_REQUEST, "좋아요 개수의 최소값은 0입니다."),
+
+  // ErrorCode
+
+  SERVER_ERROR_CODE_NOT_FOUND(HttpStatus.NOT_FOUND, "서버 에러코드를 찾을 수 없습니다.");
 
   private final HttpStatus status;
   private final String message;

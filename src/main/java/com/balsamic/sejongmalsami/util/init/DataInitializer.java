@@ -1,4 +1,4 @@
-package com.balsamic.sejongmalsami.util.sejong.data;
+package com.balsamic.sejongmalsami.util.init;
 
 import static com.balsamic.sejongmalsami.util.LogUtil.lineLog;
 import static com.balsamic.sejongmalsami.util.LogUtil.lineLogError;
@@ -26,13 +26,13 @@ public class DataInitializer implements ApplicationRunner {
   private final DepartmentService departmentService;
   private final SubjectService subjectService;
   private final SejongAcademicService sejongAcademicService;
+  private final ServerErrorCodeService serverErrorCodeService;
 
   // 애플리케이션이 시작될 때 실행
   @Override
   public void run(ApplicationArguments args) throws Exception {
     lineLog("SERVER START");
     lineLog("데이터 초기화 시작");
-
     LocalDateTime overallStartTime = LocalDateTime.now();
 
     // 1. Department 파싱 동기적 실행
@@ -58,17 +58,11 @@ public class DataInitializer implements ApplicationRunner {
 
     subjectFuture
         .thenRun(() -> {
-          LocalDateTime overallEndTime = LocalDateTime.now();
-          Duration overallDuration = Duration.between(overallStartTime, overallEndTime);
-
-          lineLog("DB 세팅 완료");
-          log.info("총 소요 시간: {}초", overallDuration.getSeconds());
-          lineLog(null);
+          lineLog("Department, Course, Subject 세팅 완료");
         })
         .exceptionally(e -> {
-          lineLogError("서버 시작중 오류 발생");
-          log.error("서버 시작 DB 세팅 중 오류 발생", e);
-          lineLogError(null);
+          lineLogError("Department, Course, Subject 세팅중 오류 발생");
+          log.error("Department, Course, Subject 세팅중 오류 발생", e);
           return null;
         });
 
@@ -77,6 +71,16 @@ public class DataInitializer implements ApplicationRunner {
 
     // 4. 모든 초기화 작업이 끝나고, isActive 핸들링
     manageDataActiveStatus();
+
+    // 5. 서버 에러 코드 업데이트
+    serverErrorCodeService.initErrorCodes();
+
+    LocalDateTime overallEndTime = LocalDateTime.now();
+    Duration overallDuration = Duration.between(overallStartTime, overallEndTime);
+    lineLog(null);
+    lineLog("서버 데이터 초기화 및 업데이트 완료");
+    log.info("총 소요 시간: {}초", overallDuration.getSeconds());
+    lineLog(null);
   }
 
   /**
