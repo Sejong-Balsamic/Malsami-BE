@@ -1,6 +1,7 @@
 package com.balsamic.sejongmalsami.object;
 
 import com.balsamic.sejongmalsami.object.mongo.YeopjeonHistory;
+import com.balsamic.sejongmalsami.object.postgres.Course;
 import com.balsamic.sejongmalsami.object.postgres.Faculty;
 import com.balsamic.sejongmalsami.object.postgres.Member;
 import com.balsamic.sejongmalsami.object.postgres.Yeopjeon;
@@ -21,4 +22,7 @@ public class AdminDto {
   private Yeopjeon yeopjeon;
   private YeopjeonHistory yeopjeonHistory;
   private List<Faculty> faculties;
+  private List<String> subjects;
+
+  private Page<Course> coursePage;
 }

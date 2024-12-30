@@ -8,11 +8,13 @@ import com.balsamic.sejongmalsami.object.MemberDto;
 import com.balsamic.sejongmalsami.object.MemberYeopjeon;
 import com.balsamic.sejongmalsami.object.constants.YeopjeonAction;
 import com.balsamic.sejongmalsami.object.mongo.YeopjeonHistory;
+import com.balsamic.sejongmalsami.object.postgres.Course;
 import com.balsamic.sejongmalsami.object.postgres.Faculty;
 import com.balsamic.sejongmalsami.object.postgres.Member;
 import com.balsamic.sejongmalsami.object.postgres.TestMember;
 import com.balsamic.sejongmalsami.object.postgres.Yeopjeon;
 import com.balsamic.sejongmalsami.repository.mongo.YeopjeonHistoryRepository;
+import com.balsamic.sejongmalsami.repository.postgres.CourseRepository;
 import com.balsamic.sejongmalsami.repository.postgres.FacultyRepository;
 import com.balsamic.sejongmalsami.repository.postgres.MemberRepository;
 import com.balsamic.sejongmalsami.repository.postgres.TestMemberRepository;
@@ -22,6 +24,7 @@ import com.balsamic.sejongmalsami.util.exception.CustomException;
 import com.balsamic.sejongmalsami.util.exception.ErrorCode;
 import java.util.List;
 import java.util.UUID;
+import java.util.stream.Collectors;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
@@ -43,6 +46,7 @@ public class AdminApiService {
   private final PasswordEncoder passwordEncoder;
   private final YeopjeonHistoryRepository yeopjeonHistoryRepository;
   private final FacultyRepository facultyRepository;
+  private final CourseRepository courseRepository;
 
   public AdminDto processUuidPacchingko(AdminCommand command) {
     // member 가져오기
@@ -138,7 +142,7 @@ public class AdminApiService {
         .yeopjeonChange(amount)
         .yeopjeonAction(YeopjeonAction.ADMIN_ADJUST)
         .resultYeopjeon(newYeopjeon)
-        .content("관리자: " + member.getStudentName() + ": " +  member.getStudentId())
+        .content("관리자: " + member.getStudentName() + ": " + member.getStudentId())
         .build();
     yeopjeonHistoryRepository.save(yeopjeonHistory);
 
@@ -215,6 +219,7 @@ public class AdminApiService {
 
   /**
    * <h3>DB에 저장된 모든 단과대 조회</h3>
+   *
    * @return
    */
   public AdminDto getAllFaculties() {
@@ -222,6 +227,54 @@ public class AdminApiService {
 
     return AdminDto.builder()
         .faculties(faculties)
+        .build();
+  }
+
+  /**
+   * <h3>교과목 필터링</h3>
+   *
+   * @param command subject, faculty, year, semester, pageNumber, pageSize, sortDirection, sortField
+   * @return
+   */
+  public AdminDto getFilteredSubjects(AdminCommand command) {
+
+    Sort sort = Sort.by(Sort.Direction.fromString(command.getSortDirection()), command.getSortField());
+
+    Pageable pageable = PageRequest.of(
+        command.getPageNumber(),
+        command.getPageSize(),
+        sort
+    );
+
+    Page<Course> coursePage = courseRepository.findAllByFiltered(
+        (command.getSubject() == null || command.getSubject().isBlank() ? null : command.getSubject()),
+        (command.getFaculty() == null || command.getFaculty().isBlank() ? null : command.getFaculty()),
+        command.getYear(),
+        command.getSemester(),
+        pageable
+    );
+
+    return AdminDto.builder()
+        .coursePage(coursePage)
+        .build();
+  }
+
+  /**
+   * <h3>교과목 자동완성</h3>
+   *
+   * @param command String subject
+   * @return
+   */
+  public AdminDto subjectAutoComplete(AdminCommand command) {
+    List<Course> courses = courseRepository.findBySubjectContainingIgnoreCase(command.getSubject());
+
+    List<String> subjects = courses.stream()
+        .map(Course::getSubject)
+        .distinct()
+        .collect(Collectors.toList());
+
+    return AdminDto.builder()
+        .subjects(subjects)
         .build();
   }
 }

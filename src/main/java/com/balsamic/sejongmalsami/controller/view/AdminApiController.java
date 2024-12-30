@@ -67,16 +67,14 @@ public class AdminApiController {
    */
 
   /**
-   * ===========================================
-   * 회원 관리자 API
-   * ===========================================
+   * =========================================== 회원 관리자 API ===========================================
    */
 
   @PostMapping(value = "/member/all", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
   @LogMonitoringInvocation
   public ResponseEntity<MemberDto> getAllMembers(
       @AuthenticationPrincipal CustomUserDetails customUserDetails,
-      @ModelAttribute MemberCommand command){
+      @ModelAttribute MemberCommand command) {
     return ResponseEntity.ok(memberService.getAllMembers(command));
   }
 
@@ -84,21 +82,19 @@ public class AdminApiController {
   @LogMonitoringInvocation
   public ResponseEntity<MemberDto> getFilteredMembers(
       @AuthenticationPrincipal CustomUserDetails customUserDetails,
-      @ModelAttribute MemberCommand command){
+      @ModelAttribute MemberCommand command) {
     return ResponseEntity.ok(adminApiService.getFilteredMembers(command));
   }
 
   /**
-   * ===========================================
-   * 테스트 계정 API
-   * ===========================================
+   * =========================================== 테스트 계정 API ===========================================
    */
 
   @PostMapping(value = "/test/account/post", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
   @LogMonitoringInvocation
   public ResponseEntity<MemberDto> createTestMember(
       @AuthenticationPrincipal CustomUserDetails customUserDetails,
-      @ModelAttribute MemberCommand command){
+      @ModelAttribute MemberCommand command) {
     command.setMember(customUserDetails.getMember());
     return ResponseEntity.ok(adminApiService.createTestMember(command));
   }
@@ -107,21 +103,19 @@ public class AdminApiController {
   @LogMonitoringInvocation
   public ResponseEntity<MemberDto> getFilteredTestMembers(
       @AuthenticationPrincipal CustomUserDetails customUserDetails,
-      @ModelAttribute MemberCommand command){
+      @ModelAttribute MemberCommand command) {
     return ResponseEntity.ok(adminApiService.getFilteredTestMembers(command));
   }
 
   /**
-   * ===========================================
-   * 엽전 관리 API
-   * ===========================================
+   * =========================================== 엽전 관리 API ===========================================
    */
 
   @PostMapping(value = "/yeopjeon/post", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
   @LogMonitoringInvocation
   public ResponseEntity<AdminDto> manageYeopjeon(
       @AuthenticationPrincipal CustomUserDetails customUserDetails,
-      @ModelAttribute AdminCommand command){
+      @ModelAttribute AdminCommand command) {
     return ResponseEntity.ok(adminApiService.manageYeopjeon(command));
   }
 
@@ -136,16 +130,14 @@ public class AdminApiController {
   @LogMonitoringInvocation
   public ResponseEntity<AdminDto> getFilteredMembersAndYeopjeons(
       @AuthenticationPrincipal CustomUserDetails customUserDetails,
-      @ModelAttribute AdminCommand command){
+      @ModelAttribute AdminCommand command) {
     command.setMember(customUserDetails.getMember());
     return ResponseEntity.ok(adminApiService.getFilteredMembersAndYeopjeons(command));
   }
 
 
   /**
-   * ===========================================
-   * 개발자 놀이터
-   * ===========================================
+   * =========================================== 개발자 놀이터 ===========================================
    */
 
   // uuid 닉네임 랜덤 뽑기
@@ -153,9 +145,33 @@ public class AdminApiController {
   @LogMonitoringInvocation
   public ResponseEntity<AdminDto> processUuidPacchingko(
       @AuthenticationPrincipal CustomUserDetails customUserDetails,
-      @ModelAttribute AdminCommand command){
+      @ModelAttribute AdminCommand command) {
     command.setMember(customUserDetails.getMember());
     return ResponseEntity.ok(adminApiService.processUuidPacchingko(command));
   }
 
+  /**
+   * =========================================== 교과목 관리 API ===========================================
+   */
+
+  // 교과목 필터링
+  @PostMapping(value = "/subject/filter")
+  @LogMonitoringInvocation
+  public ResponseEntity<AdminDto> getFilteredSubjects(
+      @AuthenticationPrincipal CustomUserDetails customUserDetails,
+      @ModelAttribute AdminCommand command
+  ) {
+    command.setMember(customUserDetails.getMember());
+    return ResponseEntity.ok(adminApiService.getFilteredSubjects(command));
+  }
+
+  // 교과목 자동완성
+  @PostMapping(value = "/subject/autocomplete")
+  public ResponseEntity<AdminDto> getSubjectAutocomplete(
+      @AuthenticationPrincipal CustomUserDetails customUserDetails,
+      @ModelAttribute AdminCommand command
+  ) {
+    command.setMember(customUserDetails.getMember());
+    return ResponseEntity.ok(adminApiService.subjectAutoComplete(command));
+  }
 }
