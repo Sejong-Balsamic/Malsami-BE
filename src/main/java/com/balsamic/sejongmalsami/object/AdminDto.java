@@ -2,6 +2,7 @@ package com.balsamic.sejongmalsami.object;
 
 import com.balsamic.sejongmalsami.object.mongo.YeopjeonHistory;
 import com.balsamic.sejongmalsami.object.postgres.Member;
+import com.balsamic.sejongmalsami.object.postgres.ServerErrorCode;
 import com.balsamic.sejongmalsami.object.postgres.Yeopjeon;
 import lombok.Builder;
 import lombok.Getter;
@@ -18,4 +19,5 @@ public class AdminDto {
   private Page<MemberYeopjeon> memberYeopjeonPage;
   private Yeopjeon yeopjeon;
   private YeopjeonHistory yeopjeonHistory;
+  private Page<ServerErrorCode> serverErrorCodesPage;
 }

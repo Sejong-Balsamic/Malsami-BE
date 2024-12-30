@@ -167,4 +167,17 @@ public class AdminApiController {
     return ResponseEntity.ok(adminApiService.processUuidPacchingko(command));
   }
 
+  /**
+   * ===========================================
+   * 에러코드 관리 API
+   * ===========================================
+   */
+  @PostMapping(value = "/error-code/search")
+  @LogMonitoringInvocation
+  public ResponseEntity<AdminDto> getFilteredServerErrorCode(
+      @AuthenticationPrincipal CustomUserDetails customUserDetails,
+      @ModelAttribute AdminCommand command){
+    command.setMember(customUserDetails.getMember());
+    return ResponseEntity.ok(adminApiService.getFilteredServerErrorCode(command));
+  }
 }
