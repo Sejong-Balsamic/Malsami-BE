@@ -5,6 +5,7 @@ import java.util.UUID;
 import lombok.Getter;
 import lombok.Setter;
 import lombok.ToString;
+import org.springframework.web.multipart.MultipartFile;
 
 @Getter
 @Setter
@@ -32,6 +33,7 @@ public class AdminCommand {
   private String faculty;
   private Integer year;
   private Integer semester;
+  private MultipartFile multipartFile;
 
   private Integer pageNumber;
   private Integer pageSize;

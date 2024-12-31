@@ -22,6 +22,9 @@ import com.balsamic.sejongmalsami.repository.postgres.YeopjeonRepository;
 import com.balsamic.sejongmalsami.util.LogUtil;
 import com.balsamic.sejongmalsami.util.exception.CustomException;
 import com.balsamic.sejongmalsami.util.exception.ErrorCode;
+import com.balsamic.sejongmalsami.util.sejong.data.CourseService;
+import java.io.File;
+import java.io.IOException;
 import java.util.List;
 import java.util.UUID;
 import java.util.stream.Collectors;
@@ -34,6 +37,7 @@ import org.springframework.data.domain.Sort;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.multipart.MultipartFile;
 
 @Service
 @RequiredArgsConstructor
@@ -46,6 +50,7 @@ public class AdminApiService {
   private final PasswordEncoder passwordEncoder;
   private final YeopjeonHistoryRepository yeopjeonHistoryRepository;
   private final FacultyRepository facultyRepository;
+  private final CourseService courseService;
   private final CourseRepository courseRepository;
 
   public AdminDto processUuidPacchingko(AdminCommand command) {
@@ -231,6 +236,21 @@ public class AdminApiService {
   }
 
   /**
+   * 교과목 연도 및 학기 조회
+   *
+   * @return
+   */
+  public AdminDto getSubjectYearAndSemester() {
+    List<Integer> years = courseRepository.findDistinctYears();
+    List<Integer> semesters = courseRepository.findDistinctSemesters();
+
+    return AdminDto.builder()
+        .years(years)
+        .semesters(semesters)
+        .build();
+  }
+
+  /**
    * <h3>교과목 필터링</h3>
    *
    * @param command subject, faculty, year, semester, pageNumber, pageSize, sortDirection, sortField
@@ -260,7 +280,7 @@ public class AdminApiService {
   }
 
   /**
-   * <h3>교과목 자동완성</h3>
+   * <h3>교과목명 자동완성</h3>
    *
    * @param command String subject
    * @return
@@ -276,5 +296,32 @@ public class AdminApiService {
     return AdminDto.builder()
         .subjects(subjects)
         .build();
+  }
+
+  /**
+   * 교과목 엑셀파일 업로드
+   *
+   * @param command file
+   * @return
+   */
+  public AdminDto uploadCourseExcelFile(AdminCommand command) {
+
+    MultipartFile multipartFile = command.getMultipartFile();
+    if (multipartFile == null || multipartFile.isEmpty()) {
+      throw new CustomException(ErrorCode.FILE_NOT_FOUND);
+    }
+
+    try {
+      String originalFilename = multipartFile.getOriginalFilename();
+      File tempFile = new File(System.getProperty("java.io.tmpdir") + File.separator + originalFilename);
+      multipartFile.transferTo(tempFile);
+      courseService.parseAndSaveCourses(tempFile);
+      tempFile.deleteOnExit();
+      return AdminDto.builder()
+          .fileName(originalFilename)
+          .build();
+    } catch (IOException e) {
+      throw new CustomException(ErrorCode.COURSE_SAVE_ERROR);
+    }
   }
 }

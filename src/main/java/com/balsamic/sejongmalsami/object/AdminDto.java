@@ -23,6 +23,9 @@ public class AdminDto {
   private YeopjeonHistory yeopjeonHistory;
   private List<Faculty> faculties;
   private List<String> subjects;
+  private List<Integer> years;
+  private List<Integer> semesters;
+  private String fileName;
 
   private Page<Course> coursePage;
 }

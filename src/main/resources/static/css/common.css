@@ -109,7 +109,7 @@ COMMON.CSS - 공통 컴포넌트 스타일
   max-width: 1100px;
 }
 
-#autocompleteList {
+.autocomplete-list {
   background-color: #fbfbfb;
   margin-top: 0;
   display: none;
@@ -119,11 +119,11 @@ COMMON.CSS - 공통 컴포넌트 스타일
   max-height: 250px;
   overflow-y: auto;
 }
-#autocompleteList .item {
+.autocomplete-list .item {
   padding: 8px 12px;
   cursor: pointer;
 }
-#autocompleteList .item:hover {
+.autocomplete-list .item:hover {
   background-color: #f5f5f5;
 }
 

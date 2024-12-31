@@ -1,5 +1,6 @@
 package com.balsamic.sejongmalsami.controller.view;
 
+import com.balsamic.sejongmalsami.object.AdminDto;
 import com.balsamic.sejongmalsami.object.postgres.Faculty;
 import com.balsamic.sejongmalsami.service.AdminApiService;
 import com.balsamic.sejongmalsami.util.JwtUtil;
@@ -156,6 +157,11 @@ public class AdminPageController {
     // DB에서 단과대 목록 조회
     List<Faculty> faculties = adminApiService.getAllFaculties().getFaculties();
     model.addAttribute("faculties", faculties);
+
+    // DB에서 연도 및 학기 조회
+    AdminDto adminDto = adminApiService.getSubjectYearAndSemester();
+    model.addAttribute("years", adminDto.getYears());
+    model.addAttribute("semesters", adminDto.getSemesters());
 
     return "admin/subject";
   }

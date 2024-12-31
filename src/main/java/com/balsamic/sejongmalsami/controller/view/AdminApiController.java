@@ -174,4 +174,14 @@ public class AdminApiController {
     command.setMember(customUserDetails.getMember());
     return ResponseEntity.ok(adminApiService.subjectAutoComplete(command));
   }
+
+  // 교과목 엑셀파일 업로드
+  @PostMapping(value = "/subject/upload", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
+  public ResponseEntity<AdminDto> uploadCourseExcelFile(
+      @AuthenticationPrincipal CustomUserDetails customUserDetails,
+      @ModelAttribute AdminCommand command
+  ) {
+    command.setMember(customUserDetails.getMember());
+    return ResponseEntity.ok(adminApiService.uploadCourseExcelFile(command));
+  }
 }

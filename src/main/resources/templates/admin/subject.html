@@ -19,7 +19,7 @@
       <div class="field">
         <label>교과목명</label>
         <input type="text" id="subject" name="subject" placeholder="교과목명 검색" autocomplete="off">
-        <div class="ui list" id="autocompleteList"></div>
+        <div class="ui list autocomplete-list"></div>
       </div>
 
       <div class="field">
@@ -28,15 +28,21 @@
             <label>연도</label>
             <select class="ui dropdown" name="year">
               <option value="">--연도를 선택하세요--</option>
-              <option value="2024">2024</option>
+              <option th:each="year : ${years}"
+                      th:value="${year}"
+                      th:text="${year} + '년'">
+
+              </option>
             </select>
           </div>
           <div class="field">
             <label>학기</label>
             <select class="ui dropdown" name="semester">
               <option value="">--학기를 선택하세요--</option>
-              <option value="1">1학기</option>
-              <option value="2">2학기</option>
+              <option th:each="semester : ${semesters}"
+                      th:value="${semester}"
+                      th:text="${semester} + '학기'">
+              </option>
             </select>
           </div>
         </div>
@@ -54,7 +60,7 @@
         </select>
       </div>
 
-      <div class="three fields">
+      <div class="four fields">
         <div class="field">
           <button class="ui primary button" type="submit">
             <i class="search icon"></i>검색
@@ -70,6 +76,11 @@
             <i class="undo icon"></i>정렬 초기화
           </button>
         </div>
+        <div class="field">
+          <button id="uploadFileButton" class="ui button" type="button">
+            <i class="file icon"></i>엑셀 파일 업로드
+          </button>
+        </div>
       </div>
     </form>
   </div>
@@ -79,6 +90,36 @@
     <div id="totalCount" class="ui left aligned header">총 조회 수: 0건</div>
     <div id="subject-table"></div>
   </div>
+
+  <!-- 엑셀 파일 업로드 Modal -->
+  <div id="uploadFileModal" class="ui modal">
+    <div class="header">교과목 파일 업로드</div>
+    <div class="content">
+      <form id="uploadFileForm" class="ui form" enctype="multipart/form-data">
+        <div class="field">
+          <div class="field">
+            <ul>
+              <li>
+                <p class="text">교과목 엑셀 파일명은 "course-YYYY-semester.xlsx"과 같은 형태만 업로드 가능합니다.</p>
+              </li>
+              <li>
+                <p class="text">엑셀 파일 내부에는 '개설학과', '개설학과전공', '교과목명' 을 제외한 다른 행이 존재할 수 없습니다.</p>
+              </li>
+              <li>
+                <p class="text">중복되는 교과목은 엑셀파일에서 중복 제거 후 업로드해야합니다.</p>
+              </li>
+            </ul>
+          </div>
+          <input type="file" name="multipartFile" class="ui input" accept=".xls,.xlsx" required>
+        </div>
+      </form>
+      <div class="actions">
+        <button class="ui button cancel" type="button" id="cancelUploadButton"><i class="cancel icon"></i>취소</button>
+        <button class="ui primary button" type="button" id="submitUploadButton"><i class="save icon"></i> 업로드</button>
+      </div>
+    </div>
+  </div>
+
 </div>
 
 <div th:replace="fragments/footer :: footer"></div>
@@ -88,88 +129,91 @@
 
 <script type="text/javascript">
 
-  $(document).ready(function () {
-    // 검색 입력 이벤트 등록
-    $('#subject').on('input', function () {
-      const keyword = $(this).val().trim();
-
-      // 글자가 1개 이상일 때만 api 요청
-      if (keyword.length > 0) {
-        $.ajax({
-          url: '/admin/subject/autocomplete',
-          method: 'POST',
-          headers: {
-            "Authorization": "Bearer " + localStorage.getItem("accessToken")
-          },
-          data: {subject: keyword},
-          success: function (data) {
-            renderAutocompleteList(data);
-          },
-          error: function (error) {
-            console.error('Subject AutoComplete Error:', error);
-          }
-        });
-      } else {
-        // 입력이 없는 경우
-        $('#autocompleteList').empty().hide();
-      }
-    });
-
-    // 추천 검색어 목록을 클릭하면 해당 값을 input에 채우고, 목록 숨김
-    $(document).on('click', '#autocompleteList a.item', function () {
-      const text = $(this).text().trim();
-      $('#subject').val(text);
-      $('#autocompleteList').empty().hide();
-    });
-  });
-
-  // 자동완성 리스트 랜더링
-  function renderAutocompleteList(data) {
-    const list = $('#autocompleteList');
-
-    // 리스트 초기화
-    list.empty();
-
-    const items = data.subjects || [];
-
-    // 데이터가 없으면 숨기기
-    if (items.length === 0) {
-      list.hide();
-      return;
-    }
-
-    // 자동완성 항목 생성
-    items.forEach(item => {
-      const listItem = `
-      <a class="item">
-        <i class="search icon"></i>
-        ${item}
-      </a>
-      `;
-      list.append(listItem);
-    });
-
-    list.show();
-  }
-
   let subjectTable = new Tabulator();
 
-  // DOMContentLoaded Event
-  document.addEventListener("DOMContentLoaded", function () {
-
+  // DOM 완성 시
+  $(document).ready(function () {
     // 데이터 초기화
     initData();
 
     // 이벤트 처리
     eventHandler(subjectTable);
+
+    // 교과목 자동완성
+    subjectInputChange();
+
+    // Modal 초기화
+    initModal();
   });
 
-  // 데이터 초기화
+  /**
+   * 데이터 초기화
+   */
   function initData() {
     subjectTable = initSubjectTable();
   }
 
-  // 이벤트 핸들러
+  /**
+   * Modal 초기화
+   */
+  function initModal() {
+    let uploadFileModal = $('#uploadFileModal');
+
+    // Modal 밖 클릭시 닫힘 방지
+    uploadFileModal.modal({
+      closable: false
+    });
+
+    // "엑셀 파일 업로드" 버튼 클릭 -> 모달 열기
+    $('#uploadFileButton').on('click', function () {
+      uploadFileModal.modal('show');
+    });
+
+    // "취소" 버튼 클릭 시 모달 닫기
+    $('#cancelUploadButton').on('click', function (e) {
+      e.preventDefault();
+      uploadFileModal.modal('hide');
+    });
+
+    // "업로드" 버튼 클릭 시
+    $('#submitUploadButton').on('click', uploadExcelFile);
+  }
+
+  /**
+   * 교과목 엑셀 파일 업로드
+   */
+  function uploadExcelFile() {
+    const form = $('#uploadFileForm')[0];
+    const formData = new FormData(form);
+
+    $.ajax({
+      url: "/admin/subject/upload",
+      method: "POST",
+      headers: {
+        "Authorization": "Bearer " + localStorage.getItem("accessToken")
+      },
+      processData: false,
+      contentType: false,
+      data: formData,
+      success: function (data) {
+        console.log("교과목 엑셀파일 업로드 성공: ", data);
+        alert("교과목 엑셀파일 업로드가 성공적으로 완료되었습니다.");
+        // 모달 닫기
+        $('#uploadFileModal').modal('hide');
+        // 교과목 테이블 로드
+        subjectTable.setData();
+      },
+      error: function (error) {
+        console.log("교과목 엑셀파일 업로드 오류: ", error);
+        alert("교과목 엑셀파일 업로드 중 오류가 발생했습니다.");
+      },
+    })
+  }
+
+  /**
+   * 이벤트 핸들러
+   * @param table
+   */
   function eventHandler(table) {
     const form = document.getElementById("searchForm");
 
@@ -191,7 +235,10 @@
     });
   }
 
-  // Table 초기화
+  /**
+   * 테이블 초기화
+   * @returns {Tabulator}
+   */
   function initSubjectTable() {
 
     var table = new Tabulator("#subject-table", {
@@ -201,18 +248,7 @@
         {title: "학과", field: "department", width: 300},
         {title: "과목명", field: "subject", width: 200},
         {title: "개설학기", field: "semester", width: 100},
-        {title: "연도", field: "year", width: 100},
-        {
-          title: "관리", width: 160, formatter: function (cell) {
-            const data = cell.getRow().getData();
-            return `
-          <div class="ui two mini buttons">
-            <button class="ui blue button">수정</button>
-            <button class="ui red button">삭제</button>
-          </div>
-          `;
-          }
-        }
+        {title: "연도", field: "year", width: 100}
       ],
 
       ajaxURL: "/admin/subject/filter",
@@ -256,7 +292,77 @@
     return table;
   }
 
-</script>
+  /**
+   * 교과목명 자동완성
+   */
+  function subjectInputChange() {
+    // 검색 입력 이벤트 등록
+    $('#subject').on('input', function () {
+      const keyword = $(this).val().trim();
 
+      // 글자가 1개 이상일 때만 api 요청
+      if (keyword.length > 0) {
+        $.ajax({
+          url: '/admin/subject/autocomplete',
+          method: 'POST',
+          headers: {
+            "Authorization": "Bearer " + localStorage.getItem("accessToken")
+          },
+          data: {subject: keyword},
+          success: function (data) {
+            renderAutocompleteList(data);
+          },
+          error: function (error) {
+            console.error('Subject AutoComplete Error:', error);
+          }
+        });
+      } else {
+        // 입력이 없는 경우
+        $('.autocomplete-list').empty().hide();
+      }
+    });
+
+    // 추천 검색어 목록을 클릭하면 해당 값을 input에 채우고, 목록 숨김
+    $(document).on('click', '.autocomplete-list a.item', function () {
+      const text = $(this).text().trim();
+      $('#subject').val(text);
+      $('.autocomplete-list').empty().hide();
+    });
+  }
+
+  /**
+   * 자동완성 리스트 랜더링
+   *
+   * @param data
+   */
+  function renderAutocompleteList(data) {
+    const list = $('.autocomplete-list');
+
+    // 리스트 초기화
+    list.empty();
+
+    const items = data.subjects || [];
+
+    // 데이터가 없으면 숨기기
+    if (items.length === 0) {
+      list.hide();
+      return;
+    }
+
+    // 자동완성 항목 생성
+    items.forEach(item => {
+      const listItem = `
+      <a class="item">
+        <i class="search icon"></i>
+        ${item}
+      </a>
+      `;
+      list.append(listItem);
+    });
+
+    list.show();
+  }
+
+</script>
 </body>
 </html>

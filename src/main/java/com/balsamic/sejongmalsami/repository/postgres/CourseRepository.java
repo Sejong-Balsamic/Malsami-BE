@@ -44,4 +44,12 @@ public interface CourseRepository extends JpaRepository<Course, UUID> {
 
   // 특정 단어가 포함된 Course 리스트 반환
   List<Course> findBySubjectContainingIgnoreCase(String keyword);
+
+  // 교과목 연도 조회 (내림차순)
+  @Query("select distinct c.year from Course c order by c.year desc")
+  List<Integer> findDistinctYears();
+
+  // 교과목 학기 조회 (오름차순)
+  @Query("select distinct c.semester from Course c order by c.semester asc")
+  List<Integer> findDistinctSemesters();
 }
