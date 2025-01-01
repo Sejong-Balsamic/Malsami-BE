@@ -1,5 +1,6 @@
 package com.balsamic.sejongmalsami.util;
 
+import com.balsamic.sejongmalsami.util.log.LogUtil;
 import io.github.bonigarcia.wdm.WebDriverManager;
 import java.time.Duration;
 import java.util.ArrayList;
@@ -32,8 +33,9 @@ public class SejongPortalSeleniumTest {
   private String sejongPortalPassword;
 
   @Test
-  public void mainTest() throws Exception {
-    testSejongPortalLogin();
+  public void mainTest() throws InterruptedException {
+//    testSejongPortalLogin();
+    LogUtil.timeLog(this::testSejongPortalLogin);
   }
 
   public void testSejongPortalLogin() throws InterruptedException {
@@ -73,7 +75,7 @@ public class SejongPortalSeleniumTest {
       loginBtn.click();
 
       // 대기
-      Thread.sleep(3000);
+      Thread.sleep(1000);
 
       // 로그인 성공 여부 검사
       String currentUrl = driver.getCurrentUrl();
@@ -87,7 +89,7 @@ public class SejongPortalSeleniumTest {
 
       // 고전독서인증 페이지 이동
       driver.get("https://classic.sejong.ac.kr/classic/reading/status.do");
-      Thread.sleep(3000);
+      Thread.sleep(1000);
       System.out.println("고전독서인증현황 URL -> " + driver.getCurrentUrl());
 
       // 쿠키 로깅
@@ -102,7 +104,7 @@ public class SejongPortalSeleniumTest {
 
     } finally {
       // 브라우저 닫기
-      Thread.sleep(2000);
+      Thread.sleep(1000);
       driver.quit();
     }
   }
