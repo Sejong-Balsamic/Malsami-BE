@@ -1,6 +1,6 @@
 package com.balsamic.sejongmalsami.service;
 
-import static com.balsamic.sejongmalsami.util.LogUtil.superLog;
+import static com.balsamic.sejongmalsami.util.log.LogUtil.superLog;
 
 import com.balsamic.sejongmalsami.object.postgres.DocumentFile;
 import com.balsamic.sejongmalsami.object.postgres.DocumentPost;

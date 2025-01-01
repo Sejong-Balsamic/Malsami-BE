@@ -1,7 +1,5 @@
 package com.balsamic.sejongmalsami.util;
 
-import static com.balsamic.sejongmalsami.util.LogUtil.lineLog;
-
 import com.balsamic.sejongmalsami.object.constants.ImageQuality;
 import com.balsamic.sejongmalsami.object.constants.MimeType;
 import java.io.File;
@@ -58,31 +56,27 @@ class ImageThumbnailGeneratorTest {
   }
 
   @Test
-  void mainTest() {
-    lineLog("TEST 시작");
-    try {
-      lineLog(null);
-//      generateImageCompress_원본파일생성();
-//      generateImageCompress_고용량압축파일생성();
-//      generateImageCompress_중간용량압축파일생성();
-//      generateImageCompress_저용량압축파일생성();
+  void mainTest() throws Exception {
+//    lineLog("TEST 시작");
+//    lineLog(null);
+      generateImageCompress_원본파일생성();
+      generateImageCompress_고용량압축파일생성();
+      generateImageCompress_중간용량압축파일생성();
+      generateImageCompress_저용량압축파일생성();
 
 //      generateImageCompress_TestWithJPGInput();
 //      generateImageCompress_TestWithWebPInput();
 //      generateImageCompress_TestWithPNGMacEnvironment();
 //      generateImageCompress_TestWithWindowsOrLinuxEnvironment();
 
-      lineLog("TEST 종료");
-    } catch (Exception e) {
-      log.error("테스트 중 예외 발생:", e);
-      throw new RuntimeException(e);
-    }
+//    lineLog("TEST 종료");
   }
 
   void generateImageCompress_원본파일생성() throws IOException {
     // 이미지 압축 생성
     log.info("이미지 압축 생성 시작: {}, 품질: {}", mockMultipartFile.getOriginalFilename(), ImageQuality.ORIGINAL.name());
-    byte[] compressedImageBytes = imageThumbnailGenerator.generateImageCompress(mockMultipartFile, ImageQuality.ORIGINAL);
+    byte[] compressedImageBytes = imageThumbnailGenerator.generateImageCompress(mockMultipartFile,
+        ImageQuality.ORIGINAL);
     log.info("이미지 압축 생성 완료: 압축된 이미지 크기 = {} bytes", compressedImageBytes.length);
 
     // 출력 파일명 설정

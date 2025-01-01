@@ -4,7 +4,11 @@ import static com.balsamic.sejongmalsami.object.constants.ContentType.ANSWER;
 import static com.balsamic.sejongmalsami.object.constants.ContentType.DOCUMENT;
 import static com.balsamic.sejongmalsami.object.constants.ContentType.DOCUMENT_REQUEST;
 import static com.balsamic.sejongmalsami.object.constants.ContentType.QUESTION;
-import static com.balsamic.sejongmalsami.object.constants.SortType.*;
+import static com.balsamic.sejongmalsami.object.constants.SortType.LATEST;
+import static com.balsamic.sejongmalsami.object.constants.SortType.MOST_LIKED;
+import static com.balsamic.sejongmalsami.object.constants.SortType.OLDEST;
+import static com.balsamic.sejongmalsami.object.constants.SortType.VIEW_COUNT;
+import static com.balsamic.sejongmalsami.object.constants.SortType.getJpqlSortOrder;
 
 import com.balsamic.sejongmalsami.object.CustomUserDetails;
 import com.balsamic.sejongmalsami.object.MemberCommand;

@@ -15,7 +15,7 @@ import com.balsamic.sejongmalsami.repository.mongo.YeopjeonHistoryRepository;
 import com.balsamic.sejongmalsami.repository.postgres.MemberRepository;
 import com.balsamic.sejongmalsami.repository.postgres.TestMemberRepository;
 import com.balsamic.sejongmalsami.repository.postgres.YeopjeonRepository;
-import com.balsamic.sejongmalsami.util.LogUtil;
+import com.balsamic.sejongmalsami.util.log.LogUtil;
 import com.balsamic.sejongmalsami.util.exception.CustomException;
 import com.balsamic.sejongmalsami.util.exception.ErrorCode;
 import java.util.UUID;
