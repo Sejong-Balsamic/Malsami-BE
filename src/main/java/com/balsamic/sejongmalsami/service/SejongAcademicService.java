@@ -5,7 +5,7 @@ import com.balsamic.sejongmalsami.object.SejongAcademicDto;
 import com.balsamic.sejongmalsami.object.postgres.Faculty;
 import com.balsamic.sejongmalsami.repository.postgres.FacultyRepository;
 import com.balsamic.sejongmalsami.repository.postgres.SubjectRepository;
-import com.balsamic.sejongmalsami.util.LogUtil;
+import com.balsamic.sejongmalsami.util.log.LogUtil;
 import java.time.LocalDateTime;
 import java.util.Arrays;
 import java.util.List;

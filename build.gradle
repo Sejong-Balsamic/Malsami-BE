@@ -114,6 +114,17 @@ dependencies {
     // Redis
     implementation 'org.springframework.boot:spring-boot-starter-data-redis'
     implementation 'org.redisson:redisson-spring-boot-starter:3.20.0'
+
+    // OkHttp
+    implementation 'com.squareup.okhttp3:okhttp:4.9.3'
+    // JavaNetCookieJar
+    implementation 'com.squareup.okhttp3:okhttp-urlconnection:4.9.3'
+    // HttpLoggingInterceptor
+    implementation 'com.squareup.okhttp3:logging-interceptor:4.9.3'
+
+    // Selenium core
+    implementation 'org.seleniumhq.selenium:selenium-java:4.9.0'
+    implementation 'io.github.bonigarcia:webdrivermanager:5.5.0'
 }
 
 tasks.named('test') {
