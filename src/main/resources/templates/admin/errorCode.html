@@ -1,0 +1,164 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head th:replace="fragments/header :: head(title='example')"></head>
+<body class="errorCode-page">
+<div th:replace="fragments/header :: header"></div>
+
+<div class="ui container u-margin-vertical-large u-padding-horizontal-medium">
+  <!-- 페이지 제목 -->
+  <div class="ui main text container u-margin-bottom-large">
+    <h1 class="ui header">에러코드 관리</h1>
+  </div>
+
+  <!-- 검색 필터  -->
+  <div class="form-container ui segment">
+    <form id="errorCodeSearchForm" class="ui form">
+      <div class="four fields">
+        <div class="field">
+          <label>에러코드</label>
+          <input type="text" name="errorCode" placeholder="예) MEMBER_NOT_FOUND">
+        </div>
+        <div class="field">
+          <label>HTTP Status</label>
+          <input type="number" name="httpStatusCode" placeholder="예) 404">
+        </div>
+        <div class="field">
+          <label>HTTP Status 메시지</label>
+          <input type="text" name="httpStatusMessage" placeholder="예) Not Found">
+        </div>
+        <div class="field">
+          <label>에러 메시지</label>
+          <!-- 오타 주의: name="message" 로 잡아야 합니다. -->
+          <input type="text" name="message" placeholder="예) 회원을 찾을 수 없습니다.">
+        </div>
+      </div>
+    </form>
+    <!-- 검색/초기화 버튼 -->
+    <div class="ui buttons">
+      <button class="ui button primary" id="searchButton">검색</button>
+      <button class="ui button" id="resetButton">초기화</button>
+    </div>
+  </div>
+
+  <!-- Tabulator 테이블 -->
+  <div class="table-container">
+    <div id="totalCount" class="ui left aligned header">총 조회 수: 0건</div>
+    <div id="errorCode-table"></div>
+  </div>
+</div>
+
+<div th:replace="fragments/footer :: footer"></div>
+
+<link href="https://unpkg.com/tabulator-tables/dist/css/tabulator.min.css" rel="stylesheet">
+<script type="text/javascript" src="https://unpkg.com/tabulator-tables/dist/js/tabulator.min.js"></script>
+
+<script th:inline="javascript">
+  let errorCodeTable = null;
+
+  $(document).ready(function () {
+    // 드롭다운 초기화
+    setDropdown();
+
+    // 데이터 초기화
+    initData();
+
+    // 이벤트 핸들러
+    eventHandler();
+  });
+
+  // 드롭다운 초기화
+  function setDropdown(){
+    $('.ui.dropdown').dropdown();
+  }
+
+  // 데이터 초기화
+  function initData(){
+    errorCodeTable = initErrorCodeTable();
+  }
+
+  // 이벤트 핸들러
+  function eventHandler() {
+    // 1) 검색 버튼
+    document.getElementById("searchButton").addEventListener("click", function (evt) {
+      evt.preventDefault();
+      // 검색 시, Tabulator 첫 페이지로 다시 로드
+      errorCodeTable.setPage(1);
+    });
+
+    // 2) 초기화 버튼
+    document.getElementById("resetButton").addEventListener("click", function (evt) {
+      evt.preventDefault();
+      // 검색 폼 초기화
+      document.getElementById("errorCodeSearchForm").reset();
+
+      // 테이블도 처음 페이지로 다시 로드
+      errorCodeTable.setPage(1);
+    });
+  }
+
+  // Table 초기화
+  function initErrorCodeTable(){
+    const table = new Tabulator("#errorCode-table", {
+      layout: "fitDataTable",
+      columns: [
+        {title: "ErrorCode", field: "errorCode", width: 180, sorter: "string"},
+        {title: "HTTP Status Code", field: "httpStatusCode", width: 140, sorter: "number"},
+        {title: "HTTP Status Message", field: "httpStatusMessage", width: 160, sorter: "string"},
+        {title: "Message", field: "message", minWidth: 200, sorter: "string"},
+      ],
+      ajaxURL: "/admin/error-code/search",
+      ajaxConfig: {
+        method: "POST",
+        headers: {
+          "Authorization": "Bearer " + localStorage.getItem("accessToken")
+        }
+      },
+      ajaxRequestFunc: function (url, config, params) {
+        // 검색 폼 데이터를 가져온다
+        const formData = new FormData(document.getElementById('errorCodeSearchForm'));
+
+        // 페이징
+        formData.append("pageNumber", (params.page ? params.page - 1 : 0));
+        formData.append("pageSize", params.size || 10);
+
+        // 정렬(멀티 정렬 가능하지만, 여기서는 첫번째 정렬 기준만 예시)
+        if (params.sorters && params.sorters.length > 0) {
+          // Tabulator sorters[0].field, sorters[0].dir
+          formData.append("sortField", params.sorters[0].field);
+          formData.append("sortDirection", params.sorters[0].dir.toUpperCase());
+          // ↑ dir은 "asc"/"desc" -> Spring Sort.Direction은 "ASC"/"DESC" (대문자로 변환)
+        } else {
+          formData.append("sortField", "errorCode");
+          formData.append("sortDirection", "DESC");
+        }
+
+        // Ajax 요청
+        return fetch(url + "?accessToken=" + localStorage.getItem("accessToken"), {
+          method: "POST",
+          headers: config.headers,
+          body: formData
+        }).then(response => response.json());
+      },
+      ajaxResponse: function (url, params, response) {
+        // 총 항목수 표시
+        document.getElementById("totalCount").textContent =
+            `총 조회 수: ${response.serverErrorCodesPage.totalElements || 0}건`;
+
+        return {
+          data: response.serverErrorCodesPage.content,
+          last_page: response.serverErrorCodesPage.totalPages
+        };
+      },
+      pagination: true,
+      paginationMode: "remote",
+      paginationSize: 200,
+      paginationSizeSelector: [10, 30, 50, 100, 200, 500]
+      // height: "600px"
+    });
+    return table;
+  }
+
+</script>
+
+</body>
+</html>

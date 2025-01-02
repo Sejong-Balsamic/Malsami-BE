@@ -9,10 +9,12 @@ import com.balsamic.sejongmalsami.object.MemberYeopjeon;
 import com.balsamic.sejongmalsami.object.constants.YeopjeonAction;
 import com.balsamic.sejongmalsami.object.mongo.YeopjeonHistory;
 import com.balsamic.sejongmalsami.object.postgres.Member;
+import com.balsamic.sejongmalsami.object.postgres.ServerErrorCode;
 import com.balsamic.sejongmalsami.object.postgres.TestMember;
 import com.balsamic.sejongmalsami.object.postgres.Yeopjeon;
 import com.balsamic.sejongmalsami.repository.mongo.YeopjeonHistoryRepository;
 import com.balsamic.sejongmalsami.repository.postgres.MemberRepository;
+import com.balsamic.sejongmalsami.repository.postgres.ServerErrorCodeRepository;
 import com.balsamic.sejongmalsami.repository.postgres.TestMemberRepository;
 import com.balsamic.sejongmalsami.repository.postgres.YeopjeonRepository;
 import com.balsamic.sejongmalsami.util.log.LogUtil;
@@ -39,6 +41,7 @@ public class AdminApiService {
   private final TestMemberRepository testMemberRepository;
   private final PasswordEncoder passwordEncoder;
   private final YeopjeonHistoryRepository yeopjeonHistoryRepository;
+  private final ServerErrorCodeRepository serverErrorCodeRepository;
 
   public AdminDto processUuidPacchingko(AdminCommand command) {
     // member 가져오기
@@ -109,12 +112,16 @@ public class AdminApiService {
   @Transactional
   public AdminDto manageYeopjeon(AdminCommand command) {
     UUID memberId = CommonUtil.toUUID(command.getMemberIdStr());
-    Member member = memberRepository.findById(memberId)
+    // Yeopjeon Target Member
+    Member targetMember = memberRepository.findById(memberId)
         .orElseThrow(() -> new CustomException(ErrorCode.MEMBER_NOT_FOUND));
     Integer amount = command.getAmount();
 
+    // 관리자
+    Member adminMember = command.getMember();
+
     // 엽전 정보 조회
-    Yeopjeon yeopjeon = yeopjeonRepository.findByMember(member)
+    Yeopjeon yeopjeon = yeopjeonRepository.findByMember(targetMember)
         .orElseThrow(() -> new CustomException(ErrorCode.YEOPJEON_NOT_FOUND));
 
     // 감소할 경우 잔액 체크
@@ -130,20 +137,20 @@ public class AdminApiService {
 
     // 엽전 이력 기록
     YeopjeonHistory yeopjeonHistory = YeopjeonHistory.builder()
-        .memberId(member.getMemberId())
+        .memberId(targetMember.getMemberId())
         .yeopjeonChange(amount)
         .yeopjeonAction(YeopjeonAction.ADMIN_ADJUST)
         .resultYeopjeon(newYeopjeon)
-        .content("관리자: " + member.getStudentName() + ": " +  member.getStudentId())
+        .content("관리자: " + adminMember.getStudentName() + ": " +  adminMember.getStudentId())
         .build();
     yeopjeonHistoryRepository.save(yeopjeonHistory);
 
     // 로깅
     log.info("관리자 엽전 조정 - 학번: {}, 변동량: {}, 최종잔액: {}",
-        member.getStudentId(), amount, newYeopjeon);
+        adminMember.getStudentId(), amount, newYeopjeon);
 
     return AdminDto.builder()
-        .member(member)
+        .member(targetMember)
         .yeopjeon(yeopjeon)
         .yeopjeonHistory(yeopjeonHistory)
         .build();
@@ -207,5 +214,60 @@ public class AdminApiService {
     return AdminDto.builder()
         .memberYeopjeonPage(memberYeopjeonPage)
         .build();
+  }
+
+  public MemberDto getMemberByMemberIdStr(MemberCommand command) {
+    return MemberDto.builder()
+        .member(memberRepository.findById(CommonUtil.toUUID(command.getMemberIdStr()))
+            .orElseThrow(() -> new CustomException(ErrorCode.MEMBER_NOT_FOUND)))
+        .build();
+  }
+
+  public AdminDto getFilteredServerErrorCode(AdminCommand command) {
+    // 검색 파라미터
+    String errorCode = CommonUtil.nullIfBlank(command.getErrorCode());
+    String httpStatusMessage = CommonUtil.nullIfBlank(command.getHttpStatusMessage());
+    String message = CommonUtil.nullIfBlank(command.getMessage());
+    Integer httpStatusCode = command.getHttpStatusCode();
+
+    // 동적 Pageable
+    Pageable pageable = createPageable(command, 100, "errorCode");
+
+    // 검색
+    Page<ServerErrorCode> serverErrorCodePage = serverErrorCodeRepository.findAllDynamic(
+        errorCode,
+        httpStatusCode,
+        httpStatusMessage,
+        message,
+        pageable
+    );
+
+    return AdminDto.builder()
+        .serverErrorCodesPage(serverErrorCodePage)
+        .build();
+  }
+
+  private Pageable createPageable(AdminCommand command, int defaultPageSize, String defaultSortField) {
+    // 1) pageNumber, pageSize
+    int pageNumber = (command.getPageNumber() != null) ? command.getPageNumber() : 0;
+    int pageSize   = (command.getPageSize()   != null) ? command.getPageSize()   : defaultPageSize;
+
+    // 2) sortField, sortDirection
+    String sortField = (command.getSortField() != null) ? command.getSortField() : defaultSortField;
+    String sortDirStr = (command.getSortDirection() != null) ? command.getSortDirection().toUpperCase() : "DESC";
+
+    // 3) Sort Direction 파싱
+    Sort.Direction direction;
+    try {
+      direction = Sort.Direction.valueOf(sortDirStr); // "ASC" or "DESC"
+    } catch (Exception e) {
+      direction = Sort.Direction.DESC; // fallback
+    }
+
+    // 4) Sort 객체
+    Sort sort = Sort.by(direction, sortField);
+
+    // 5) 최종 Pageable
+    return PageRequest.of(pageNumber, pageSize, sort);
   }
 }

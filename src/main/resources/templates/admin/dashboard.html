@@ -79,6 +79,12 @@
               공지사항
             </a>
           </div>
+          <div class="column">
+            <a href="javascript:Auth.navigate('/admin/error-code')" class="ui orange icon labeled button">
+              <i class="bug icon"></i>
+              에러코드
+            </a>
+          </div>
         </div>
       </div>
     </div>
@@ -281,9 +287,9 @@
     // 경고 로그 로드
     loadWarningLogs();
 
-    // 자동 새로고침 설정
-    setInterval(loadStatistics, 300000); // 5분
-    setInterval(updateSystemResources, 5000); // 5초
+    // 자동 새로고침 설정 (임시 비활성화)
+    // setInterval(loadStatistics, 300000); // 5분
+    // setInterval(updateSystemResources, 5000); // 5초
   });
 
   function initializeCharts() {

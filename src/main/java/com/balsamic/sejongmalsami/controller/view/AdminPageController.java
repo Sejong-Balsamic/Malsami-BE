@@ -112,7 +112,6 @@ public class AdminPageController {
     if (!jwtUtil.validateToken(accessToken)) {
       return "redirect:/error/403";
     }
-    log.info(accessToken);
     return "admin/playGround";
   }
 
@@ -124,8 +123,18 @@ public class AdminPageController {
     if (!jwtUtil.validateToken(accessToken)) {
       return "redirect:/error/403";
     }
-    log.info(accessToken);
     return "admin/yeopjeon";
+  }
+
+  /**
+   * 서버 에러코드 페이지 - 토큰 검증 필요
+   */
+  @GetMapping("/admin/error-code")
+  public String errorCodePage(@RequestParam String accessToken, Model model) {
+    if (!jwtUtil.validateToken(accessToken)) {
+      return "redirect:/error/403";
+    }
+    return "admin/errorCode";
   }
 
   /**

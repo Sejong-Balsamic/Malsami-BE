@@ -1,4 +1,4 @@
-package com.balsamic.sejongmalsami.util.sejong.data;
+package com.balsamic.sejongmalsami.util.init;
 
 import static com.balsamic.sejongmalsami.util.log.LogUtil.lineLog;
 
