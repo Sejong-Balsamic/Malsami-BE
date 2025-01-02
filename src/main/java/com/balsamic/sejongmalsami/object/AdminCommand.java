@@ -35,6 +35,12 @@ public class AdminCommand {
   private Integer semester;
   private MultipartFile multipartFile;
 
+  // 에러코드
+  private String errorCode;
+  private Integer httpStatusCode;
+  private String httpStatusMessage;
+  private String message;
+
   private Integer pageNumber;
   private Integer pageSize;
   private String sortField;

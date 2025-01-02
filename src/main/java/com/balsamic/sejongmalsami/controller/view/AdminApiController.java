@@ -86,6 +86,14 @@ public class AdminApiController {
     return ResponseEntity.ok(adminApiService.getFilteredMembers(command));
   }
 
+  @PostMapping(value = "/member/info", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
+  @LogMonitoringInvocation
+  public ResponseEntity<MemberDto> getMemberByMemberIdStr(
+      @AuthenticationPrincipal CustomUserDetails customUserDetails,
+      @ModelAttribute MemberCommand command){
+    return ResponseEntity.ok(adminApiService.getMemberByMemberIdStr(command));
+  }
+
   /**
    * =========================================== 테스트 계정 API ===========================================
    */
@@ -115,7 +123,8 @@ public class AdminApiController {
   @LogMonitoringInvocation
   public ResponseEntity<AdminDto> manageYeopjeon(
       @AuthenticationPrincipal CustomUserDetails customUserDetails,
-      @ModelAttribute AdminCommand command) {
+      @ModelAttribute AdminCommand command){
+    command.setMember(customUserDetails.getMember());
     return ResponseEntity.ok(adminApiService.manageYeopjeon(command));
   }
 
@@ -183,5 +192,17 @@ public class AdminApiController {
   ) {
     command.setMember(customUserDetails.getMember());
     return ResponseEntity.ok(adminApiService.uploadCourseExcelFile(command));
+
+//   * ===========================================
+//   * 에러코드 관리 API
+//   * ===========================================
+//   */
+  @PostMapping(value = "/error-code/search")
+  @LogMonitoringInvocation
+  public ResponseEntity<AdminDto> getFilteredServerErrorCode(
+      @AuthenticationPrincipal CustomUserDetails customUserDetails,
+      @ModelAttribute AdminCommand command){
+    command.setMember(customUserDetails.getMember());
+    return ResponseEntity.ok(adminApiService.getFilteredServerErrorCode(command));
   }
 }

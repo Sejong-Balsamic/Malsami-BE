@@ -4,6 +4,7 @@ import com.balsamic.sejongmalsami.object.mongo.YeopjeonHistory;
 import com.balsamic.sejongmalsami.object.postgres.Course;
 import com.balsamic.sejongmalsami.object.postgres.Faculty;
 import com.balsamic.sejongmalsami.object.postgres.Member;
+import com.balsamic.sejongmalsami.object.postgres.ServerErrorCode;
 import com.balsamic.sejongmalsami.object.postgres.Yeopjeon;
 import java.util.List;
 import lombok.Builder;
@@ -28,4 +29,5 @@ public class AdminDto {
   private String fileName;
 
   private Page<Course> coursePage;
+  private Page<ServerErrorCode> serverErrorCodesPage;
 }
