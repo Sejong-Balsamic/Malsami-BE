@@ -1,7 +1,7 @@
 package com.balsamic.sejongmalsami.util.init;
 
-import static com.balsamic.sejongmalsami.util.LogUtil.lineLog;
-import static com.balsamic.sejongmalsami.util.LogUtil.lineLogError;
+import static com.balsamic.sejongmalsami.util.log.LogUtil.lineLog;
+import static com.balsamic.sejongmalsami.util.log.LogUtil.lineLogError;
 
 import com.balsamic.sejongmalsami.object.constants.SystemType;
 import com.balsamic.sejongmalsami.service.SejongAcademicService;

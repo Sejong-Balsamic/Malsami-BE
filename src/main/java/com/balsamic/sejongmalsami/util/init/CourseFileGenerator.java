@@ -1,6 +1,6 @@
 package com.balsamic.sejongmalsami.util.init;
 
-import static com.balsamic.sejongmalsami.util.LogUtil.lineLog;
+import static com.balsamic.sejongmalsami.util.log.LogUtil.lineLog;
 
 import com.balsamic.sejongmalsami.object.constants.FileStatus;
 import com.balsamic.sejongmalsami.object.constants.SystemType;

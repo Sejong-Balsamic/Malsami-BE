@@ -1,5 +1,6 @@
-package com.balsamic.sejongmalsami.util;
+package com.balsamic.sejongmalsami.util.log;
 
+import com.balsamic.sejongmalsami.util.TimeUtil;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.SerializationFeature;
@@ -132,6 +133,33 @@ public class LogUtil {
         break;
       default:
         log.info(message, args);
+    }
+  }
+
+  /**
+   * 실행 가능한 인터페이스로 예외를 처리 구성
+   */
+  @FunctionalInterface
+  public interface ThrowingRunnable {
+    void run() throws Exception;
+  }
+
+  /**
+   * 메소드 실행 시간 측정
+   */
+  public static void timeLog(ThrowingRunnable task) {
+    String methodName = new Throwable().getStackTrace()[0].getMethodName();
+    long startTime = System.currentTimeMillis();
+    try {
+      task.run();
+    } catch (Exception e) {
+      log.error("[{}] 실행 중 예외 발생: {}", methodName, e.getMessage());
+    } finally {
+      long endTime = System.currentTimeMillis();
+      long durationMillis = endTime - startTime;
+      String formattedTime = TimeUtil.convertMillisToReadableTime(durationMillis);
+      String log = "[" + methodName + "] 실행 시간: " + formattedTime;
+      lineLog(log);
     }
   }
 }
