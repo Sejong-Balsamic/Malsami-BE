@@ -1,9 +1,13 @@
 package com.balsamic.sejongmalsami.controller.view;
 
+import com.balsamic.sejongmalsami.object.AdminDto;
+import com.balsamic.sejongmalsami.object.postgres.Faculty;
+import com.balsamic.sejongmalsami.service.AdminApiService;
 import com.balsamic.sejongmalsami.util.JwtUtil;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletResponse;
+import java.util.List;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Controller;
@@ -21,6 +25,7 @@ import org.springframework.web.bind.annotation.RequestParam;
 public class AdminPageController {
 
   private final JwtUtil jwtUtil;
+  private final AdminApiService adminApiService;
 
   /**
    * 인덱스 페이지 - 토큰 검증 필요 없음
@@ -149,5 +154,24 @@ public class AdminPageController {
     response.addCookie(cookie);
 
     return "redirect:/login";
+  }
+
+  @GetMapping("/admin/subject")
+  public String subjectPage(@RequestParam String accessToken, Model model) {
+    if (!jwtUtil.validateToken(accessToken)) {
+      return "redirect:/error/403";
+    }
+    log.info(accessToken);
+
+    // DB에서 단과대 목록 조회
+    List<Faculty> faculties = adminApiService.getAllFaculties().getFaculties();
+    model.addAttribute("faculties", faculties);
+
+    // DB에서 연도 및 학기 조회
+    AdminDto adminDto = adminApiService.getSubjectYearAndSemester();
+    model.addAttribute("years", adminDto.getYears());
+    model.addAttribute("semesters", adminDto.getSemesters());
+
+    return "admin/subject";
   }
 }
