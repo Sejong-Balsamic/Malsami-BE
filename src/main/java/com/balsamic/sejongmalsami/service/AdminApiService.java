@@ -25,7 +25,6 @@ import com.balsamic.sejongmalsami.util.init.CourseService;
 import com.balsamic.sejongmalsami.util.log.LogUtil;
 import com.balsamic.sejongmalsami.util.exception.CustomException;
 import com.balsamic.sejongmalsami.util.exception.ErrorCode;
-import com.balsamic.sejongmalsami.util.sejong.data.CourseService;
 import java.io.File;
 import java.io.IOException;
 import java.util.List;
