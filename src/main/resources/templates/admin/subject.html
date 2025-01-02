@@ -226,6 +226,9 @@
     // 폼 필터 초기화 버튼 이벤트
     $('#resetFilterButton').on("click", function () {
       form.reset();
+      $("select[name='year']").parent('.ui.dropdown').dropdown('clear');
+      $("select[name='semester']").parent('.ui.dropdown').dropdown('clear');
+      $("select[name='faculty']").parent('.ui.dropdown').dropdown('clear');
       table.setData();
     });
 

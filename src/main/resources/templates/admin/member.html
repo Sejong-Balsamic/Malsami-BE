@@ -173,6 +173,11 @@
     // 폼 필터 초기화 버튼 이벤트
     document.getElementById("resetFilterButton").addEventListener("click", function () {
       form.reset();
+      $("select[name='accountStatus']").parent('.ui.dropdown').dropdown('clear');
+      $("select[name='role']").parent('.ui.dropdown').dropdown('clear');
+      $("select[name='isFirstLogin']").parent('.ui.dropdown').dropdown('clear');
+      $("select[name='isEdited']").parent('.ui.dropdown').dropdown('clear');
+      $("select[name='isDeleted']").parent('.ui.dropdown').dropdown('clear');
       table.setData();
     });
 
