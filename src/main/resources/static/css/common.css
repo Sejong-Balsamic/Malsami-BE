@@ -102,6 +102,33 @@ COMMON.CSS - 공통 컴포넌트 스타일
 
 /*
 ===========================
+   subject.html Styles
+===========================
+*/
+.subject-page .form-container {
+  max-width: 1100px;
+}
+
+.autocomplete-list {
+  background-color: #fbfbfb;
+  margin-top: 0;
+  display: none;
+  position: absolute;
+  width: 100%;
+  z-index: 999;
+  max-height: 250px;
+  overflow-y: auto;
+}
+.autocomplete-list .item {
+  padding: 8px 12px;
+  cursor: pointer;
+}
+.autocomplete-list .item:hover {
+  background-color: #f5f5f5;
+}
+
+/*
+===========================
    yeopjeon.html Styles
 ===========================
 */
