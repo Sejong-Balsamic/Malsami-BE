@@ -19,7 +19,7 @@ import com.balsamic.sejongmalsami.repository.postgres.FacultyRepository;
 import com.balsamic.sejongmalsami.repository.postgres.MemberRepository;
 import com.balsamic.sejongmalsami.repository.postgres.TestMemberRepository;
 import com.balsamic.sejongmalsami.repository.postgres.YeopjeonRepository;
-import com.balsamic.sejongmalsami.util.LogUtil;
+import com.balsamic.sejongmalsami.util.log.LogUtil;
 import com.balsamic.sejongmalsami.util.exception.CustomException;
 import com.balsamic.sejongmalsami.util.exception.ErrorCode;
 import com.balsamic.sejongmalsami.util.sejong.data.CourseService;

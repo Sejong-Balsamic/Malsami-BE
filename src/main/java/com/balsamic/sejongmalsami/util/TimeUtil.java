@@ -30,4 +30,24 @@ public class TimeUtil {
   public static String formatLocalDateTimeNowForFileName() {
     return FILENAME_DATE_TIME_FORMATTER.format(LocalDateTime.now());
   }
+
+  /**
+   * ms -> m / s
+   * 밀리초를 초/분으로 변환
+   * 예) 850ms -> 850미리초
+   * 55000ms -> 55초
+   * 125000ms -> 2분 5초
+   */
+  public static String convertMillisToReadableTime(long millis) {
+    if (millis < 1000) {
+      return millis + "미리초";
+    } else if (millis < 60 * 1000) {
+      return (millis / 1000) + "초";
+    } else {
+      long seconds = millis / 1000;
+      long minutes = seconds / 60;
+      seconds %= 60;
+      return minutes + "분 " + seconds + "초";
+    }
+  }
 }
