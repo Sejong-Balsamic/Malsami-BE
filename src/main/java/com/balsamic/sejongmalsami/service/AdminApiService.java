@@ -21,10 +21,10 @@ import com.balsamic.sejongmalsami.repository.postgres.MemberRepository;
 import com.balsamic.sejongmalsami.repository.postgres.ServerErrorCodeRepository;
 import com.balsamic.sejongmalsami.repository.postgres.TestMemberRepository;
 import com.balsamic.sejongmalsami.repository.postgres.YeopjeonRepository;
-import com.balsamic.sejongmalsami.util.init.CourseService;
-import com.balsamic.sejongmalsami.util.log.LogUtil;
 import com.balsamic.sejongmalsami.util.exception.CustomException;
 import com.balsamic.sejongmalsami.util.exception.ErrorCode;
+import com.balsamic.sejongmalsami.util.init.CourseService;
+import com.balsamic.sejongmalsami.util.log.LogUtil;
 import java.io.File;
 import java.io.IOException;
 import java.util.List;
@@ -56,6 +56,10 @@ public class AdminApiService {
   private final CourseService courseService;
   private final ServerErrorCodeRepository serverErrorCodeRepository;
 
+  /**
+   * =========================================== 회원 관리 로직 ===========================================
+   */
+
   public AdminDto processUuidPacchingko(AdminCommand command) {
     // member 가져오기
     Member member = command.getMember();
@@ -82,6 +86,42 @@ public class AdminApiService {
     return AdminDto.builder()
         .member(member)
         .yeopjeon(yeopjeon)
+        .build();
+  }
+
+  // 회원 관리 : 필터링 검색
+  public MemberDto getFilteredMembers(MemberCommand command) {
+    return MemberDto.builder()
+        .membersPage(
+            memberRepository.findAllDynamic(
+                command.getStudentId(),
+                command.getStudentName(),
+                command.getUuidNickname(),
+                command.getMajor(),
+                command.getAcademicYear(),
+                command.getEnrollmentStatus(),
+                command.getAccountStatus(),
+                command.getRole(),
+                command.getLastLoginStart(),
+                command.getLastLoginEnd(),
+                command.getIsFirstLogin(),
+                command.getIsEdited(),
+                command.getIsDeleted(),
+                PageRequest.of(
+                    command.getPageNumber(),
+                    command.getPageSize(),
+                    Sort.by(Sort.Direction.fromString(command.getSortDirection()),
+                        command.getSortField())
+                )
+            )
+        )
+        .build();
+  }
+
+  public MemberDto getMemberByMemberIdStr(MemberCommand command) {
+    return MemberDto.builder()
+        .member(memberRepository.findById(CommonUtil.toUUID(command.getMemberIdStr()))
+            .orElseThrow(() -> new CustomException(ErrorCode.MEMBER_NOT_FOUND)))
         .build();
   }
 
@@ -122,6 +162,10 @@ public class AdminApiService {
         .build();
   }
 
+  /**
+   * =========================================== 엽전 관리 로직 ===========================================
+   */
+
   @Transactional
   public AdminDto manageYeopjeon(AdminCommand command) {
     UUID memberId = CommonUtil.toUUID(command.getMemberIdStr());
@@ -154,7 +198,7 @@ public class AdminApiService {
         .yeopjeonChange(amount)
         .yeopjeonAction(YeopjeonAction.ADMIN_ADJUST)
         .resultYeopjeon(newYeopjeon)
-        .content("관리자: " + adminMember.getStudentName() + ": " +  adminMember.getStudentId())
+        .content("관리자: " + adminMember.getStudentName() + ": " + adminMember.getStudentId())
         .build();
     yeopjeonHistoryRepository.save(yeopjeonHistory);
 
@@ -173,35 +217,6 @@ public class AdminApiService {
 
     return AdminDto.builder()
         .yeopjeon(yeopjeonRepository.findByMember(member).get())
-        .build();
-  }
-
-  // 회원 관리 : 필터링 검색
-  public MemberDto getFilteredMembers(MemberCommand command) {
-    return MemberDto.builder()
-        .membersPage(
-            memberRepository.findAllDynamic(
-                command.getStudentId(),
-                command.getStudentName(),
-                command.getUuidNickname(),
-                command.getMajor(),
-                command.getAcademicYear(),
-                command.getEnrollmentStatus(),
-                command.getAccountStatus(),
-                command.getRole(),
-                command.getLastLoginStart(),
-                command.getLastLoginEnd(),
-                command.getIsFirstLogin(),
-                command.getIsEdited(),
-                command.getIsDeleted(),
-                PageRequest.of(
-                    command.getPageNumber(),
-                    command.getPageSize(),
-                    Sort.by(Sort.Direction.fromString(command.getSortDirection()),
-                        command.getSortField())
-                )
-            )
-        )
         .build();
   }
 
@@ -230,67 +245,8 @@ public class AdminApiService {
   }
 
   /**
-   * <h3>DB에 저장된 모든 단과대 조회</h3>
-   *
-   * @return
+   * =========================================== 에러코드 관리 로직 ===========================================
    */
-  public AdminDto getAllFaculties() {
-    List<Faculty> faculties = facultyRepository.findByIsActiveTrue();
-
-    return AdminDto.builder()
-        .faculties(faculties)
-        .build();
-  }
-
-  /**
-   * 교과목 연도 및 학기 조회
-   *
-   * @return
-   */
-  public AdminDto getSubjectYearAndSemester() {
-    List<Integer> years = courseRepository.findDistinctYears();
-    List<Integer> semesters = courseRepository.findDistinctSemesters();
-
-    return AdminDto.builder()
-        .years(years)
-        .semesters(semesters)
-        .build();
-  }
-
-  /**
-   * <h3>교과목 필터링</h3>
-   *
-   * @param command subject, faculty, year, semester, pageNumber, pageSize, sortDirection, sortField
-   * @return
-   */
-  public AdminDto getFilteredSubjects(AdminCommand command) {
-
-    Sort sort = Sort.by(Sort.Direction.fromString(command.getSortDirection()), command.getSortField());
-
-    Pageable pageable = PageRequest.of(
-        command.getPageNumber(),
-        command.getPageSize(),
-        sort
-    );
-
-    Page<Course> coursePage = courseRepository.findAllByFiltered(
-        (command.getSubject() == null || command.getSubject().isBlank() ? null : command.getSubject()),
-        (command.getFaculty() == null || command.getFaculty().isBlank() ? null : command.getFaculty()),
-        command.getYear(),
-        command.getSemester(),
-        pageable);
-
-    return AdminDto.builder()
-        .coursePage(coursePage)
-        .build();
-  }
-
-  public MemberDto getMemberByMemberIdStr(MemberCommand command) {
-    return MemberDto.builder()
-        .member(memberRepository.findById(CommonUtil.toUUID(command.getMemberIdStr()))
-            .orElseThrow(() -> new CustomException(ErrorCode.MEMBER_NOT_FOUND)))
-        .build();
-  }
 
   public AdminDto getFilteredServerErrorCode(AdminCommand command) {
     // 검색 파라미터
@@ -316,28 +272,67 @@ public class AdminApiService {
         .build();
   }
 
-  private Pageable createPageable(AdminCommand command, int defaultPageSize, String defaultSortField) {
-    // 1) pageNumber, pageSize
-    int pageNumber = (command.getPageNumber() != null) ? command.getPageNumber() : 0;
-    int pageSize   = (command.getPageSize()   != null) ? command.getPageSize()   : defaultPageSize;
+  /**
+   * =========================================== 교과목 관리 로직 ===========================================
+   */
 
-    // 2) sortField, sortDirection
-    String sortField = (command.getSortField() != null) ? command.getSortField() : defaultSortField;
-    String sortDirStr = (command.getSortDirection() != null) ? command.getSortDirection().toUpperCase() : "DESC";
+  /**
+   * <h3>DB에 저장된 모든 단과대 조회</h3>
+   *
+   * @return
+   */
+  @Transactional(readOnly = true)
+  public AdminDto getAllFaculties() {
+    List<Faculty> faculties = facultyRepository.findByIsActiveTrue();
 
-    // 3) Sort Direction 파싱
-    Sort.Direction direction;
-    try {
-      direction = Sort.Direction.valueOf(sortDirStr); // "ASC" or "DESC"
-    } catch (Exception e) {
-      direction = Sort.Direction.DESC; // fallback
-    }
+    return AdminDto.builder()
+        .faculties(faculties)
+        .build();
+  }
 
-    // 4) Sort 객체
-    Sort sort = Sort.by(direction, sortField);
+  /**
+   * 교과목 연도 및 학기 조회
+   *
+   * @return
+   */
+  @Transactional(readOnly = true)
+  public AdminDto getSubjectYearAndSemester() {
+    List<Integer> years = courseRepository.findDistinctYears();
+    List<Integer> semesters = courseRepository.findDistinctSemesters();
 
-    // 5) 최종 Pageable
-    return PageRequest.of(pageNumber, pageSize, sort);
+    return AdminDto.builder()
+        .years(years)
+        .semesters(semesters)
+        .build();
+  }
+
+  /**
+   * <h3>교과목 필터링</h3>
+   *
+   * @param command subject, faculty, year, semester, pageNumber, pageSize, sortDirection, sortField
+   * @return
+   */
+  @Transactional(readOnly = true)
+  public AdminDto getFilteredSubjects(AdminCommand command) {
+
+    Sort sort = Sort.by(Sort.Direction.fromString(command.getSortDirection()), command.getSortField());
+
+    Pageable pageable = PageRequest.of(
+        command.getPageNumber(),
+        command.getPageSize(),
+        sort
+    );
+
+    Page<Course> coursePage = courseRepository.findAllByFiltered(
+        (command.getSubject() == null || command.getSubject().isBlank() ? null : command.getSubject()),
+        (command.getFaculty() == null || command.getFaculty().isBlank() ? null : command.getFaculty()),
+        command.getYear(),
+        command.getSemester(),
+        pageable);
+
+    return AdminDto.builder()
+        .coursePage(coursePage)
+        .build();
   }
 
   /**
@@ -346,6 +341,7 @@ public class AdminApiService {
    * @param command String subject
    * @return
    */
+  @Transactional(readOnly = true)
   public AdminDto subjectAutoComplete(AdminCommand command) {
     List<Course> courses = courseRepository.findBySubjectContainingIgnoreCase(command.getSubject());
 
@@ -365,6 +361,7 @@ public class AdminApiService {
    * @param command file
    * @return
    */
+  @Transactional
   public AdminDto uploadCourseExcelFile(AdminCommand command) {
 
     MultipartFile multipartFile = command.getMultipartFile();
@@ -384,5 +381,33 @@ public class AdminApiService {
     } catch (IOException e) {
       throw new CustomException(ErrorCode.COURSE_SAVE_ERROR);
     }
+  }
+
+  /**
+   * =========================================== private method ===========================================
+   */
+
+  private Pageable createPageable(AdminCommand command, int defaultPageSize, String defaultSortField) {
+    // 1) pageNumber, pageSize
+    int pageNumber = (command.getPageNumber() != null) ? command.getPageNumber() : 0;
+    int pageSize = (command.getPageSize() != null) ? command.getPageSize() : defaultPageSize;
+
+    // 2) sortField, sortDirection
+    String sortField = (command.getSortField() != null) ? command.getSortField() : defaultSortField;
+    String sortDirStr = (command.getSortDirection() != null) ? command.getSortDirection().toUpperCase() : "DESC";
+
+    // 3) Sort Direction 파싱
+    Sort.Direction direction;
+    try {
+      direction = Sort.Direction.valueOf(sortDirStr); // "ASC" or "DESC"
+    } catch (Exception e) {
+      direction = Sort.Direction.DESC; // fallback
+    }
+
+    // 4) Sort 객체
+    Sort sort = Sort.by(direction, sortField);
+
+    // 5) 최종 Pageable
+    return PageRequest.of(pageNumber, pageSize, sort);
   }
 }

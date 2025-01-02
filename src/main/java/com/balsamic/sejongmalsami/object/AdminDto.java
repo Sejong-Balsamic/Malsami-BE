@@ -18,6 +18,7 @@ import org.springframework.data.domain.Page;
 @Setter
 @ToString
 public class AdminDto {
+
   private Member member;
   private Page<MemberYeopjeon> memberYeopjeonPage;
   private Yeopjeon yeopjeon;
