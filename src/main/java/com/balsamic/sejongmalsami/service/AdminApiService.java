@@ -6,11 +6,15 @@ import com.balsamic.sejongmalsami.object.AdminDto;
 import com.balsamic.sejongmalsami.object.MemberCommand;
 import com.balsamic.sejongmalsami.object.MemberDto;
 import com.balsamic.sejongmalsami.object.MemberYeopjeon;
+import com.balsamic.sejongmalsami.object.NoticePostCommand;
+import com.balsamic.sejongmalsami.object.NoticePostDto;
+import com.balsamic.sejongmalsami.object.constants.Role;
 import com.balsamic.sejongmalsami.object.constants.YeopjeonAction;
 import com.balsamic.sejongmalsami.object.mongo.YeopjeonHistory;
 import com.balsamic.sejongmalsami.object.postgres.Course;
 import com.balsamic.sejongmalsami.object.postgres.Faculty;
 import com.balsamic.sejongmalsami.object.postgres.Member;
+import com.balsamic.sejongmalsami.object.postgres.NoticePost;
 import com.balsamic.sejongmalsami.object.postgres.ServerErrorCode;
 import com.balsamic.sejongmalsami.object.postgres.TestMember;
 import com.balsamic.sejongmalsami.object.postgres.Yeopjeon;
@@ -18,6 +22,7 @@ import com.balsamic.sejongmalsami.repository.mongo.YeopjeonHistoryRepository;
 import com.balsamic.sejongmalsami.repository.postgres.CourseRepository;
 import com.balsamic.sejongmalsami.repository.postgres.FacultyRepository;
 import com.balsamic.sejongmalsami.repository.postgres.MemberRepository;
+import com.balsamic.sejongmalsami.repository.postgres.NoticePostRepository;
 import com.balsamic.sejongmalsami.repository.postgres.ServerErrorCodeRepository;
 import com.balsamic.sejongmalsami.repository.postgres.TestMemberRepository;
 import com.balsamic.sejongmalsami.repository.postgres.YeopjeonRepository;
@@ -49,6 +54,7 @@ public class AdminApiService {
   private final MemberRepository memberRepository;
   private final YeopjeonRepository yeopjeonRepository;
   private final TestMemberRepository testMemberRepository;
+  private final NoticePostRepository noticePostRepository;
   private final PasswordEncoder passwordEncoder;
   private final YeopjeonHistoryRepository yeopjeonHistoryRepository;
   private final FacultyRepository facultyRepository;
@@ -381,6 +387,54 @@ public class AdminApiService {
     } catch (IOException e) {
       throw new CustomException(ErrorCode.COURSE_SAVE_ERROR);
     }
+  }
+
+  /**
+   * =========================================== 공지사항 로직 ===========================================
+   */
+
+  /**
+   * 공지사항 글 작성
+   * 공지사항 글은 관리자만 작성 가능합니다.
+   *
+   * @param command member, title, content, isHidden
+   * @return
+   */
+  @Transactional
+  public NoticePostDto saveNoticePost(NoticePostCommand command) {
+
+    // 관리자 검증
+    if (!command.getMember().getRoles().contains(Role.ROLE_ADMIN)) {
+      log.error("공지사항 글은 관리자만 작성 가능합니다. 회원: {}, 회원 권한: {}",
+          command.getMember().getStudentId(), command.getMember().getRoles());
+      throw new CustomException(ErrorCode.ACCESS_DENIED);
+    }
+
+    // 제목 & 본문 null 검증
+    if (command.getTitle() == null || command.getTitle().isBlank()) {
+      log.error("공지사항 글 제목이 비어있습니다.");
+      throw new CustomException(ErrorCode.NOTICE_TITLE_NULL);
+    } else if (command.getContent() == null) {
+      log.error("공지사항 글 본문이 비어있습니다.");
+      throw new CustomException(ErrorCode.NOTICE_CONTENT_NULL);
+    }
+
+    // 공지사항 글 생성 및 저장
+    NoticePost savedPost = noticePostRepository.save(
+        NoticePost.builder()
+            .member(command.getMember())
+            .title(command.getTitle())
+            .content(command.getContent())
+            .viewCount(0)
+            .likeCount(0)
+            .isHidden(Boolean.TRUE.equals(command.getIsHidden()))
+            .build()
+    );
+    log.info("공지사항글 저장 완료: 제목={} id={}", command.getTitle(), savedPost.getNoticePostId());
+
+    return NoticePostDto.builder()
+        .noticePost(savedPost)
+        .build();
   }
 
   /**

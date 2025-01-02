@@ -12,11 +12,13 @@ import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
+import lombok.Setter;
 import lombok.ToString;
 import lombok.experimental.SuperBuilder;
 
 @Entity
 @Getter
+@Setter
 @SuperBuilder
 @AllArgsConstructor
 @NoArgsConstructor
@@ -46,4 +48,8 @@ public class NoticePost extends BaseEntity {
   // 좋아요 수
   @Builder.Default
   private Integer likeCount = 0;
+
+  // 공개/비공개 여부
+  @Builder.Default
+  private Boolean isHidden = false;
 }
