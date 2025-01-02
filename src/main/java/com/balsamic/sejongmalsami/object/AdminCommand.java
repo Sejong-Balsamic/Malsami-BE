@@ -20,6 +20,11 @@ public class AdminCommand {
   private String memberIdStr;
   private String uuidNickname;
 
+  private String errorCode;
+  private Integer httpStatusCode;
+  private String httpStatusMessage;
+  private String message;
+
   private Integer pageNumber;
   private Integer pageSize;
   private String sortField;

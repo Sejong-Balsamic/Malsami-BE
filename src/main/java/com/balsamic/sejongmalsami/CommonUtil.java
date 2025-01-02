@@ -1,5 +1,7 @@
 package com.balsamic.sejongmalsami;
 
+import java.nio.charset.StandardCharsets;
+import java.security.MessageDigest;
 import java.util.UUID;
 
 public class CommonUtil {
@@ -41,6 +43,26 @@ public class CommonUtil {
       return UUID.fromString(uuidString); // String을 UUID로 변환
     } catch (IllegalArgumentException e) {
       throw new IllegalStateException("잘못된 UUID 형식: " + uuidString, e);
+    }
+  }
+
+  /**
+   * 문자열의 SHA-256 해시를 계산합니다.
+   *
+   * @param input 입력 문자열
+   * @return 해시값 문자열
+   */
+  public static String calculateSha256ByStr(String input) {
+    try {
+      MessageDigest digest = MessageDigest.getInstance("SHA-256");
+      byte[] hashBytes = digest.digest(input.getBytes(StandardCharsets.UTF_8));
+      StringBuilder sb = new StringBuilder();
+      for (byte b : hashBytes) {
+        sb.append(String.format("%02x", b));
+      }
+      return sb.toString();
+    } catch (Exception e) {
+      throw new RuntimeException("SHA-256 해시 계산 실패", e);
     }
   }
 }
