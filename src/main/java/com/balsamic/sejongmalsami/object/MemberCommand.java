@@ -26,6 +26,7 @@ public class MemberCommand {
   }
 
   private UUID memberId;
+  private String memberIdStr;
   private Long studentId;
   private String studentIdString;
   private String studentName;
