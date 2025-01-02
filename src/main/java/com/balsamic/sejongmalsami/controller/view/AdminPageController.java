@@ -156,6 +156,9 @@ public class AdminPageController {
     return "redirect:/login";
   }
 
+  /**
+   * 교과목 관리 페이지
+   */
   @GetMapping("/admin/subject")
   public String subjectPage(@RequestParam String accessToken, Model model) {
     if (!jwtUtil.validateToken(accessToken)) {
@@ -173,5 +176,18 @@ public class AdminPageController {
     model.addAttribute("semesters", adminDto.getSemesters());
 
     return "admin/subject";
+  }
+
+  /**
+   * 공지사항 페이지
+   */
+  @GetMapping("/admin/notice")
+  public String noticePage(@RequestParam String accessToken, Model model) {
+    if (!jwtUtil.validateToken(accessToken)) {
+      return "redirect:/error/403";
+    }
+    log.info(accessToken);
+
+    return "admin/notice";
   }
 }
