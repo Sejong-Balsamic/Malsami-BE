@@ -29,6 +29,7 @@ dependencies {
     implementation 'org.springframework.boot:spring-boot-starter-data-jpa'
     testImplementation 'org.springframework:spring-test' //2024.11.22 : SUH : MockMultipartFile 사용
     testImplementation 'org.springframework.boot:spring-boot-starter-test'
+    testImplementation 'org.junit.jupiter:junit-jupiter:5.10.0'
 
     // security
     implementation 'org.springframework.boot:spring-boot-starter-security'

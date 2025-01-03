@@ -61,6 +61,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import net.datafaker.Faker;
 import org.springframework.stereotype.Component;
+import org.springframework.transaction.annotation.Transactional;
 
 // TODO: ENUM 타입 랜덤으로 입력받기
 @Component
@@ -174,6 +175,7 @@ public class TestDataGenerator {
    * <p>Mock 회원은 충분한 엽전 및 경험치를 소지하도록 생성합니다.</p>
    * @return Member
    */
+  @Transactional
   public Member createMockMember() {
     Member member = Member.builder()
         .studentId(Long.parseLong(generateStudentId())) // 임의의 8자리 학생 ID
