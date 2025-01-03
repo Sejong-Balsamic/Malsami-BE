@@ -96,4 +96,33 @@ public interface QuestionPostRepository extends JpaRepository<QuestionPost, UUID
   );
 
   Long countByMember(Member member);
+
+  @Query("""
+    SELECT DISTINCT q
+    FROM QuestionPost q
+         LEFT JOIN q.questionPresetTags qt
+    WHERE
+        (:query IS NULL 
+            OR LOWER(q.title) LIKE LOWER(CONCAT('%', CAST(:query AS string), '%'))
+            OR LOWER(q.content) LIKE LOWER(CONCAT('%', CAST(:query AS string), '%')))
+        AND (:subject IS NULL 
+            OR LOWER(q.subject) LIKE LOWER(CONCAT('%', CAST(:subject AS string), '%')))
+        AND (:faculty IS NULL 
+            OR :faculty member of q.faculties)
+        AND (
+            :chaetaekStatus = 'ALL'
+            OR (:chaetaekStatus = 'CHAETAEK' AND q.chaetaekStatus = true)
+            OR (:chaetaekStatus = 'NO_CHAETAEK' AND q.chaetaekStatus = false)
+        )
+        AND (:questionPresetTags IS NULL 
+            OR qt IN :questionPresetTags)
+    """)
+  Page<QuestionPost> findAllDynamicQuestionPosts(
+      @Param("query") String query,
+      @Param("subject") String subject,
+      @Param("faculty") String faculty,
+      @Param("chaetaekStatus") String chaetaekStatus,
+      @Param("questionPresetTags") List<QuestionPresetTag> questionPresetTags,
+      Pageable pageable
+  );
 }
