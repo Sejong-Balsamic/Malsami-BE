@@ -149,14 +149,14 @@ public class QuestionPostService {
     }
 
     // 벡터 생성 및 저장
-    postEmbeddingService.saveEmbedding(
-        savedQuestionPost.getQuestionPostId(),
-        questionPost.getTitle() + " " +
-            questionPost.getSubject() + " " +
-            questionPost.getContent() + " " +
-            (customTags != null ? String.join(" ", customTags) : ""),
-        ContentType.QUESTION
-    );
+//    postEmbeddingService.saveEmbedding(
+//        savedQuestionPost.getQuestionPostId(),
+//        questionPost.getTitle() + " " +
+//            questionPost.getSubject() + " " +
+//            questionPost.getContent() + " " +
+//            (customTags != null ? String.join(" ", customTags) : ""),
+//        ContentType.QUESTION
+//    );
 
     // 질문 글 등록 시 엽전 100냥 감소
     yeopjeonService.processYeopjeon(member, YeopjeonAction.CREATE_QUESTION_POST);

@@ -156,6 +156,9 @@ public class AdminPageController {
     return "redirect:/login";
   }
 
+  /**
+   *  교과목명 - 조회
+   */
   @GetMapping("/admin/subject")
   public String subjectPage(@RequestParam String accessToken, Model model) {
     if (!jwtUtil.validateToken(accessToken)) {
