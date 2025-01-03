@@ -1,5 +1,7 @@
 package com.balsamic.sejongmalsami.service;
 
+import com.balsamic.sejongmalsami.object.EmbeddingCommand;
+import com.balsamic.sejongmalsami.object.EmbeddingDto;
 import com.balsamic.sejongmalsami.object.constants.ContentType;
 import com.balsamic.sejongmalsami.object.postgres.PostEmbedding;
 import com.balsamic.sejongmalsami.repository.postgres.PostEmbeddingRepository;
@@ -50,21 +52,27 @@ public class PostEmbeddingService {
     }
   }
 
-  public Page<PostEmbedding> searchSimilarEmbeddings(
-      float[] queryVector,
-      float threshold,
-      ContentType contentType,
-      Integer pageSize,
-      Integer pageNumber) {
-    log.info("유사 Embedding 검색 시작 - threshold: {}, pageSize: {}, pageNumber: {}", threshold, pageSize, pageNumber);
+  public EmbeddingDto searchSimilarEmbeddingsByText(EmbeddingCommand command) {
+    log.info("Embedding 검색 시작 - Text: {}, threshold: {}", command.getText(), command.getThreshold());
     try {
-      Pageable pageable = PageRequest.of(pageNumber, pageSize);
-      Page<PostEmbedding> similarEmbeddings = postEmbeddingRepository.findSimilarEmbeddings(queryVector, threshold, contentType.name(), pageable);
-      log.info("유사 Embedding 검색 완료 - 총 결과 수: {}, 현재 페이지: {}, 총 페이지: {}", similarEmbeddings.getTotalElements(), similarEmbeddings.getNumber(), similarEmbeddings.getTotalPages());
-      return similarEmbeddings;
+      // 검색 텍스트 -> Embedding 변환
+      float[] queryVector = embeddingService.generateEmbedding(command.getText());
+
+      // 검색
+      Pageable pageable = PageRequest.of(command.getPageNumber(), command.getPageSize());
+      Page<PostEmbedding> postEmbeddingsPage = postEmbeddingRepository.findSimilarEmbeddings(
+          queryVector,
+          command.getThreshold(),
+          command.getContentType().name(),
+          pageable
+      );
+      log.info("Embedding 검색 완료 - 총 결과 수: {}", postEmbeddingsPage.getTotalElements());
+      return EmbeddingDto.builder()
+          .postEmbeddingsPage(postEmbeddingsPage)
+          .build();
     } catch (Exception e) {
-      log.error("유사 Embedding 검색 중 오류 발생 - 오류: {}", e.getMessage(), e);
-      throw new RuntimeException("유사 Embedding 검색 중 오류 발생");
+      log.error("Embedding 검색 중 오류 발생 - 오류: {}", e.getMessage(), e);
+      throw new RuntimeException("Embedding 검색 중 오류 발생");
     }
   }
 }
