@@ -125,6 +125,9 @@ dependencies {
     // Selenium core
     implementation 'org.seleniumhq.selenium:selenium-java:4.9.0'
     implementation 'io.github.bonigarcia:webdrivermanager:5.5.0'
+
+    // OpenAPI 사용
+    implementation 'com.fasterxml.jackson.core:jackson-databind'
 }
 
 tasks.named('test') {
