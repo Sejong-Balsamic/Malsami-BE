@@ -16,6 +16,7 @@ import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
+import jakarta.persistence.Transient;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
@@ -102,6 +103,10 @@ public class QuestionPost extends BasePost {
   // 내 정보 비공개 여부
   @Builder.Default
   private Boolean isPrivate = false;
+
+  // 커스텀 태그: 임시 필드: DB에 해당값 저장되지않음
+  @Transient
+  private List<String> customTags = new ArrayList<>();
 
   // 조회 수 증가
   public void increaseViewCount() {

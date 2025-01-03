@@ -7,17 +7,22 @@ import com.balsamic.sejongmalsami.object.MemberCommand;
 import com.balsamic.sejongmalsami.object.MemberDto;
 import com.balsamic.sejongmalsami.object.MemberYeopjeon;
 import com.balsamic.sejongmalsami.object.constants.YeopjeonAction;
+import com.balsamic.sejongmalsami.object.mongo.QuestionPostCustomTag;
 import com.balsamic.sejongmalsami.object.mongo.YeopjeonHistory;
 import com.balsamic.sejongmalsami.object.postgres.Course;
 import com.balsamic.sejongmalsami.object.postgres.Faculty;
 import com.balsamic.sejongmalsami.object.postgres.Member;
+import com.balsamic.sejongmalsami.object.postgres.QuestionPost;
 import com.balsamic.sejongmalsami.object.postgres.ServerErrorCode;
 import com.balsamic.sejongmalsami.object.postgres.TestMember;
 import com.balsamic.sejongmalsami.object.postgres.Yeopjeon;
+import com.balsamic.sejongmalsami.repository.mongo.QuestionBoardLikeRepository;
+import com.balsamic.sejongmalsami.repository.mongo.QuestionPostCustomTagRepository;
 import com.balsamic.sejongmalsami.repository.mongo.YeopjeonHistoryRepository;
 import com.balsamic.sejongmalsami.repository.postgres.CourseRepository;
 import com.balsamic.sejongmalsami.repository.postgres.FacultyRepository;
 import com.balsamic.sejongmalsami.repository.postgres.MemberRepository;
+import com.balsamic.sejongmalsami.repository.postgres.QuestionPostRepository;
 import com.balsamic.sejongmalsami.repository.postgres.ServerErrorCodeRepository;
 import com.balsamic.sejongmalsami.repository.postgres.TestMemberRepository;
 import com.balsamic.sejongmalsami.repository.postgres.YeopjeonRepository;
@@ -27,7 +32,10 @@ import com.balsamic.sejongmalsami.util.init.CourseService;
 import com.balsamic.sejongmalsami.util.log.LogUtil;
 import java.io.File;
 import java.io.IOException;
+import java.util.Collections;
 import java.util.List;
+import java.util.Map;
+import java.util.Set;
 import java.util.UUID;
 import java.util.stream.Collectors;
 import lombok.RequiredArgsConstructor;
@@ -55,6 +63,9 @@ public class AdminApiService {
   private final CourseRepository courseRepository;
   private final CourseService courseService;
   private final ServerErrorCodeRepository serverErrorCodeRepository;
+  private final QuestionPostRepository questionPostRepository;
+  private final QuestionPostCustomTagRepository questionPostCustomTagRepository;
+  private final QuestionBoardLikeRepository questionBoardLikeRepository;
 
   /**
    * =========================================== 회원 관리 로직 ===========================================
@@ -381,6 +392,63 @@ public class AdminApiService {
     } catch (IOException e) {
       throw new CustomException(ErrorCode.COURSE_SAVE_ERROR);
     }
+  }
+
+  /**
+   * =========================================== 게시글 관리 로직 ===========================================
+   */
+
+  @Transactional(readOnly = true)
+  public AdminDto getFilteredQuestionPost(AdminCommand command) {
+    // 1) 페이징/정렬 정보 생성
+    Pageable pageable = createPageable(command, 10, "createdDate");
+
+    // 2) QuestionPost 검색
+    Page<QuestionPost> questionPostPage = questionPostRepository.findAllDynamicQuestionPosts(
+        CommonUtil.nullIfBlank(command.getQuery()),
+        CommonUtil.nullIfBlank(command.getSubject()),
+        CommonUtil.nullIfBlank(command.getFaculty()),
+        command.getChaetaekStatus() == null ? "ALL" : command.getChaetaekStatus().name(),
+        command.getQuestionPresetTags() == null || command.getQuestionPresetTags().isEmpty()
+            ? null
+            : command.getQuestionPresetTags(),
+        pageable
+    );
+
+    if (questionPostPage.isEmpty()) {
+      // 결과가 없으면 바로 반환
+      return AdminDto.builder()
+          .questionPostPage(questionPostPage)
+          .build();
+    }
+
+    // 3) 가져온 QuestionPost들의 questionPostId Set 추출
+    Set<UUID> questionPostIds = questionPostPage.stream()
+        .map(QuestionPost::getQuestionPostId)
+        .collect(Collectors.toSet());
+
+    // 4) Mongo에서 CustomTag 조회
+    List<QuestionPostCustomTag> customTagList =
+        questionPostCustomTagRepository.findAllByQuestionPostIdIn(questionPostIds);
+
+    // 5) 커스텀태그를 Map<questionPostId, List<String>> 로 만들기
+    Map<UUID, List<String>> customTagMap = customTagList.stream()
+        .collect(Collectors.groupingBy(
+            QuestionPostCustomTag::getQuestionPostId,
+            Collectors.mapping(QuestionPostCustomTag::getCustomTag, Collectors.toList())
+        ));
+
+    // 6) 각 QuestionPost 엔티티에 customTags 세팅(@Transient 필드)
+    questionPostPage.getContent().forEach(qp -> {
+      List<String> tags = customTagMap.getOrDefault(qp.getQuestionPostId(), Collections.emptyList());
+      qp.setCustomTags(tags);
+    });
+
+    // 7) 이제 questionPostPage 를 그대로 AdminDto 에 담아 리턴하면,
+    //    Jackson(또는 Gson)이 JSON 변환 시 @Transient 필드도 포함해서 보내줄 수 있음.
+    return AdminDto.builder()
+        .questionPostPage(questionPostPage)
+        .build();
   }
 
   /**

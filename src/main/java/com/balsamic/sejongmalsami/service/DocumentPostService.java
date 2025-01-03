@@ -162,15 +162,15 @@ public class DocumentPostService {
       savedDocument.setThumbnailUrl(savedDocumentFiles.get(0).getThumbnailUrl());
     }
 
-    // 벡터 생성 및 저장
-    postEmbeddingService.saveEmbedding(
-        savedDocument.getDocumentPostId(),
-        savedDocument.getTitle() + " " +
-            savedDocument.getSubject() + " " +
-            savedDocument.getContent() + " " +
-            (customTags != null ? String.join(" ", customTags) : ""),
-        ContentType.DOCUMENT
-    );
+//    // 벡터 생성 및 저장
+//    postEmbeddingService.saveEmbedding(
+//        savedDocument.getDocumentPostId(),
+//        savedDocument.getTitle() + " " +
+//            savedDocument.getSubject() + " " +
+//            savedDocument.getContent() + " " +
+//            (customTags != null ? String.join(" ", customTags) : ""),
+//        ContentType.DOCUMENT
+//    );
 
     // 자료 글 등록 시 경험치 증가
     expService.processExp(member, ExpAction.CREATE_DOCUMENT_POST);

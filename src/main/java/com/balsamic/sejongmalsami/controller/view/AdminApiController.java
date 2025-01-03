@@ -8,6 +8,7 @@ import com.balsamic.sejongmalsami.object.MemberDto;
 import com.balsamic.sejongmalsami.service.AdminApiService;
 import com.balsamic.sejongmalsami.service.MemberService;
 import com.balsamic.sejongmalsami.util.log.LogMonitoringInvocation;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.MediaType;
@@ -22,6 +23,10 @@ import org.springframework.web.bind.annotation.RestController;
 @Slf4j
 @RequestMapping("/admin")
 @RequiredArgsConstructor
+@Tag(
+    name = "관리자 WEB API",
+    description = "관리자 WEB API 제공"
+)
 public class AdminApiController {
 
   private final MemberService memberService;
@@ -166,4 +171,17 @@ public class AdminApiController {
     command.setMember(customUserDetails.getMember());
     return ResponseEntity.ok(adminApiService.getFilteredServerErrorCode(command));
   }
+
+  /**
+   * =========================================== 질문 게시글 관리 API ===========================================
+   */
+  @PostMapping(value = "/question-post/filter")
+  @LogMonitoringInvocation
+  public ResponseEntity<AdminDto> getFilteredQuestionPost(
+      @AuthenticationPrincipal CustomUserDetails customUserDetails,
+      @ModelAttribute AdminCommand command) {
+    command.setMember(customUserDetails.getMember());
+    return ResponseEntity.ok(adminApiService.getFilteredQuestionPost(command));
+  }
+
 }
