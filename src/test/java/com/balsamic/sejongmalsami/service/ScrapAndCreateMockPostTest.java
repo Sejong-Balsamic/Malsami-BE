@@ -75,10 +75,10 @@ public class ScrapAndCreateMockPostTest {
 
   @Test
   public void mainTest() throws IOException, InterruptedException {
-    scrapNaverKinAndCreatePosts();
+    scrapNaverKinAndCreateQuestionPosts();
   }
 
-  private void scrapNaverKinAndCreatePosts() throws IOException, InterruptedException {
+  private void scrapNaverKinAndCreateQuestionPosts() throws IOException, InterruptedException {
     // 1. 먼저 Member 생성하고 저장
     Member member = testDataGenerator.createMockMember();
     log.info("Created mock member with ID: {}", member.getMemberId());
