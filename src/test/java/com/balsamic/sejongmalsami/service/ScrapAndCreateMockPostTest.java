@@ -39,7 +39,7 @@ import org.springframework.test.context.ActiveProfiles;
 @Slf4j
 public class ScrapAndCreateMockPostTest {
 
-  private static final int CREATE_QUESTION_POST_COUNT = 1000;
+  private static final int CREATE_QUESTION_POST_COUNT = 50;
   private static final int MAX_CUSTOM_TAGS = 4;
   private static WebDriver driver;
   private static WebDriverWait wait;
@@ -87,13 +87,13 @@ public class ScrapAndCreateMockPostTest {
     int collectedPosts = 0;
     boolean hasNextPage = true;
 
+    // 초기 페이지 로드
+    String url = "https://kin.naver.com/index.naver";
+    driver.get(url);
+    wait.until(ExpectedConditions.presenceOfElementLocated(By.cssSelector(".answer_box._noanswerItem")));
+
     while (collectedPosts < CREATE_QUESTION_POST_COUNT && hasNextPage) {
       log.info("Scraping current page");
-
-      // 네이버 지식인 답변을 기다리는 질문 페이지로 이동
-      String url = "https://kin.naver.com/index.naver";
-      driver.get(url);
-      wait.until(ExpectedConditions.presenceOfElementLocated(By.cssSelector(".answer_box._noanswerItem")));
 
       Document doc = Jsoup.parse(driver.getPageSource());
       Elements answerBoxes = doc.select(".answer_box._noanswerItem");
@@ -190,7 +190,10 @@ public class ScrapAndCreateMockPostTest {
         if (nextButton != null && nextButton.isDisplayed()) {
           log.info("Clicking '다음' button to go to the next page");
           nextButton.click();
+
+          // 새로운 페이지가 로드될 때까지 대기
           wait.until(ExpectedConditions.stalenessOf(nextButton));
+          wait.until(ExpectedConditions.presenceOfElementLocated(By.cssSelector(".answer_box._noanswerItem")));
         } else {
           log.info("No '다음' button found. Reached the last page.");
           hasNextPage = false;
