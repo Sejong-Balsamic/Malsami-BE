@@ -5,7 +5,6 @@ import com.balsamic.sejongmalsami.object.QuestionCommand;
 import com.balsamic.sejongmalsami.object.TestCommand;
 import com.balsamic.sejongmalsami.object.TestDto;
 import com.balsamic.sejongmalsami.object.constants.ContentType;
-import com.balsamic.sejongmalsami.object.constants.SystemType;
 import com.balsamic.sejongmalsami.object.postgres.AnswerPost;
 import com.balsamic.sejongmalsami.object.postgres.Comment;
 import com.balsamic.sejongmalsami.object.postgres.DocumentFile;
@@ -20,19 +19,14 @@ import com.balsamic.sejongmalsami.repository.postgres.DocumentPostRepository;
 import com.balsamic.sejongmalsami.repository.postgres.DocumentRequestPostRepository;
 import com.balsamic.sejongmalsami.repository.postgres.QuestionPostRepository;
 import com.balsamic.sejongmalsami.repository.postgres.SubjectRepository;
-import com.balsamic.sejongmalsami.util.FileUtil;
 import com.balsamic.sejongmalsami.util.TestDataGenerator;
 import com.balsamic.sejongmalsami.util.TimeUtil;
+import com.balsamic.sejongmalsami.util.WebDriverManager;
 import com.balsamic.sejongmalsami.util.exception.CustomException;
 import com.balsamic.sejongmalsami.util.exception.ErrorCode;
-import com.balsamic.sejongmalsami.util.log.LogUtil;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import jakarta.annotation.PostConstruct;
 import jakarta.annotation.PreDestroy;
 import java.io.InputStream;
-import java.net.MalformedURLException;
-import java.net.URL;
-import java.time.Duration;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
@@ -50,12 +44,8 @@ import org.openqa.selenium.By;
 import org.openqa.selenium.TimeoutException;
 import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.WebElement;
-import org.openqa.selenium.chrome.ChromeDriver;
-import org.openqa.selenium.chrome.ChromeOptions;
-import org.openqa.selenium.remote.RemoteWebDriver;
 import org.openqa.selenium.support.ui.ExpectedConditions;
 import org.openqa.selenium.support.ui.WebDriverWait;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -73,55 +63,37 @@ public class TestService {
   private final DocumentRequestPostRepository documentRequestPostRepository;
   private final GenericObjectPool<FTPClient> ftpClientPool;
   private final SubjectRepository subjectRepository;
+  private final WebDriverManager webDriverManager; // 의존성 주입
 
   private final Random random = new Random();
   private final Set<String> processedDocIds = new HashSet<>();
-  private static WebDriver driver;
-  private static WebDriverWait wait;
   private static final ObjectMapper objectMapper = new ObjectMapper();
 
-  @Value("${selenium.grid-url}")
-  private String seleniumGridUrl;
-
-  /**
-   * WebDriver 초기화
-   */
-  @PostConstruct
-  public void initWebDriver() {
-    // 공통 ChromeOptions 설정
-    ChromeOptions options = new ChromeOptions();
-    options.addArguments("--headless"); // Headless 모드
-    options.addArguments("--disable-gpu");
-    options.addArguments("--no-sandbox");
-    options.addArguments("--disable-dev-shm-usage");
-
-    try {
-      if (FileUtil.getCurrentSystem().equals(SystemType.LINUX)) {
-        driver = new RemoteWebDriver(new URL(seleniumGridUrl), options);
-        LogUtil.lineLog("Selenium Grid에 연결된 WebDriver 초기화 완료");
-      } else {
-        // Windows/Mac 환경에서 로컬 WebDriver 실행
-        driver = new ChromeDriver(options);
-        LogUtil.lineLog("로컬 WebDriver 초기화 완료");
-      }
-    } catch (MalformedURLException e) {
-      throw new RuntimeException("Selenium Grid URL이 잘못되었습니다.", e);
-    }
-
-    // WebDriverWait 설정
-    wait = new WebDriverWait(driver, Duration.ofSeconds(10));
-  }
+  // ExecutorService를 사용하여 비동기 작업 관리
+//  private final ExecutorService executorService = Executors.newFixedThreadPool(10);
 
   /**
    * WebDriver 종료
    */
   @PreDestroy
-  public void shutdownWebDriver() {
-    if (driver != null) {
-      driver.quit();
-      LogUtil.lineLog("WebDriver 종료 완료");
-    }
+  public void shutdown() {
+//    executorService.shutdown();
+    webDriverManager.quitDriver();
   }
+
+  /**
+   * 비동기적으로 Mock 질문글 생성 작업 실행
+   */
+//  public void executeAsyncCreateMockQuestionPost(TestCommand command) {
+//    executorService.submit(() -> {
+//      try {
+//        createMockQuestionPostAndAnswerPost(command);
+//      } finally {
+//        // 작업이 끝난 후 WebDriver 종료
+//        webDriverManager.quitDriver();
+//      }
+//    });
+//  }
 
   /**
    * 질문 글 Mock 데이터 생성 및 답변 글 동시 생성
@@ -217,7 +189,6 @@ public class TestService {
 
     log.info("총 {} 명의 mock 유저가 {} 개의 mock 질문글을 생성했습니다.", userCount, questionTotalCreated);
   }
-
 
   /**
    * DocumentPost 및 관련 DocumentFile Mock 데이터 생성
@@ -416,7 +387,7 @@ public class TestService {
     // 작성자 결정 (useMockMember 값에 따라 실제 Member 또는 가짜 Member 선택)
     Member member;
     if (command.isUseMockMember()) {
-      member =  testDataGenerator.createMockMember(); // 가짜 Member
+      member = testDataGenerator.createMockMember(); // 가짜 Member
       log.info("ID가 {}인 mock 회원을 생성했습니다.", member.getMemberId());
     } else {
       member = command.getMember(); // 실제 Member
@@ -427,6 +398,8 @@ public class TestService {
 
     // 초기 페이지 로드
     String url = "https://kin.naver.com/index.naver";
+    WebDriver driver = webDriverManager.getDriver();
+    WebDriverWait wait = webDriverManager.getWait();
     driver.get(url);
     try {
       wait.until(ExpectedConditions.presenceOfElementLocated(By.cssSelector(".answer_box._noanswerItem")));
@@ -593,6 +566,7 @@ public class TestService {
    * 현재 페이지의 페이지 네비게이션 요소 로깅
    */
   private void logPaginationElements() {
+    WebDriver driver = webDriverManager.getDriver();
     Document doc = Jsoup.parse(driver.getPageSource());
     Element pagingArea = doc.selectFirst("#pagingArea0");
     if (pagingArea != null) {
