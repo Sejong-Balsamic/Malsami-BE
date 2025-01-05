@@ -1,6 +1,6 @@
 package com.balsamic.sejongmalsami.util.init;
 
-import com.balsamic.sejongmalsami.CommonUtil;
+import com.balsamic.sejongmalsami.util.CommonUtil;
 import com.balsamic.sejongmalsami.object.postgres.ServerErrorCode;
 import com.balsamic.sejongmalsami.repository.postgres.ServerErrorCodeRepository;
 import com.balsamic.sejongmalsami.util.exception.ErrorCode;
@@ -27,15 +27,18 @@ public class ServerErrorCodeService {
   public void initErrorCodes() {
     String currentHash = calculateErrorCodeHash();
 
-    // 기존에 저장된 HASH 엔트리 조회
+    // 기존 HASH 조회 및 확인
     ServerErrorCode storedHashEntry = serverErrorCodeRepository.findByErrorCode("HASH").orElse(null);
     String storedHash = storedHashEntry != null ? storedHashEntry.getMessage() : null;
 
+    // HASH 값이 기존과 다른 경우 ( ServerErrorCode 초기화 )
     if (!currentHash.equals(storedHash)) {
+
       // 기존 데이터 삭제
       serverErrorCodeRepository.deleteAll();
+      serverErrorCodeRepository.flush(); // Hibernate 캐시 강제 DB 반영
 
-      // ErrorCode를 기반으로 데이터 생성
+      // ServerErrorCode 생성 및 저장
       Arrays.stream(ErrorCode.values()).forEach(errorCode -> {
         HttpStatus status = errorCode.getStatus();
         ServerErrorCode serverErrorCode = ServerErrorCode.builder()
@@ -47,17 +50,16 @@ public class ServerErrorCodeService {
         serverErrorCodeRepository.save(serverErrorCode);
       });
 
-      // HASH 엔트리 저장
+      // HASH 저장
       ServerErrorCode hashEntry = ServerErrorCode.builder()
           .errorCode("HASH")
-          .httpStatusCode(0) // 관리용 더미 값
+          .httpStatusCode(0)
           .httpStatusMessage("HASH")
           .message(currentHash)
           .build();
       serverErrorCodeRepository.save(hashEntry);
     }
   }
-
 
   // 에러코드 해시값 계산
   public String calculateErrorCodeHash() {
