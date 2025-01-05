@@ -1,7 +1,9 @@
 package com.balsamic.sejongmalsami.service;
 
 import com.amazonaws.util.IOUtils;
+import com.balsamic.sejongmalsami.object.QuestionCommand;
 import com.balsamic.sejongmalsami.object.TestCommand;
+import com.balsamic.sejongmalsami.object.TestDto;
 import com.balsamic.sejongmalsami.object.constants.ContentType;
 import com.balsamic.sejongmalsami.object.postgres.AnswerPost;
 import com.balsamic.sejongmalsami.object.postgres.Comment;
@@ -10,22 +12,44 @@ import com.balsamic.sejongmalsami.object.postgres.DocumentPost;
 import com.balsamic.sejongmalsami.object.postgres.DocumentRequestPost;
 import com.balsamic.sejongmalsami.object.postgres.Member;
 import com.balsamic.sejongmalsami.object.postgres.QuestionPost;
+import com.balsamic.sejongmalsami.object.postgres.Subject;
 import com.balsamic.sejongmalsami.repository.postgres.AnswerPostRepository;
 import com.balsamic.sejongmalsami.repository.postgres.DocumentFileRepository;
 import com.balsamic.sejongmalsami.repository.postgres.DocumentPostRepository;
 import com.balsamic.sejongmalsami.repository.postgres.DocumentRequestPostRepository;
 import com.balsamic.sejongmalsami.repository.postgres.QuestionPostRepository;
+import com.balsamic.sejongmalsami.repository.postgres.SubjectRepository;
 import com.balsamic.sejongmalsami.util.TestDataGenerator;
+import com.balsamic.sejongmalsami.util.TimeUtil;
 import com.balsamic.sejongmalsami.util.exception.CustomException;
 import com.balsamic.sejongmalsami.util.exception.ErrorCode;
+import com.balsamic.sejongmalsami.util.log.LogUtil;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import jakarta.annotation.PostConstruct;
+import jakarta.annotation.PreDestroy;
 import java.io.InputStream;
+import java.time.Duration;
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Random;
+import java.util.Set;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.net.ftp.FTPClient;
 import org.apache.commons.pool2.impl.GenericObjectPool;
+import org.jsoup.Jsoup;
+import org.jsoup.nodes.Document;
+import org.jsoup.nodes.Element;
+import org.jsoup.select.Elements;
+import org.openqa.selenium.By;
+import org.openqa.selenium.TimeoutException;
+import org.openqa.selenium.WebDriver;
+import org.openqa.selenium.WebElement;
+import org.openqa.selenium.chrome.ChromeDriver;
+import org.openqa.selenium.chrome.ChromeOptions;
+import org.openqa.selenium.support.ui.ExpectedConditions;
+import org.openqa.selenium.support.ui.WebDriverWait;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -36,13 +60,46 @@ public class TestService {
 
   private final TestDataGenerator testDataGenerator;
   private final QuestionPostRepository questionPostRepository;
+  private final QuestionPostService questionPostService;
   private final AnswerPostRepository answerPostRepository;
   private final DocumentPostRepository documentPostRepository;
   private final DocumentFileRepository documentFileRepository;
   private final DocumentRequestPostRepository documentRequestPostRepository;
   private final GenericObjectPool<FTPClient> ftpClientPool;
+  private final SubjectRepository subjectRepository;
 
   private final Random random = new Random();
+  private final Set<String> processedDocIds = new HashSet<>();
+  private static WebDriver driver;
+  private static WebDriverWait wait;
+  private static final ObjectMapper objectMapper = new ObjectMapper();
+
+  /**
+   * WebDriver 초기화
+   */
+  @PostConstruct
+  public void initWebDriver() {
+    ChromeOptions options = new ChromeOptions();
+    options.addArguments("--headless"); // Headless 모드
+    options.addArguments("--disable-gpu");
+    options.addArguments("--no-sandbox");
+    options.addArguments("--disable-dev-shm-usage");
+
+    driver = new ChromeDriver(options);
+    wait = new WebDriverWait(driver, Duration.ofSeconds(10));
+    LogUtil.lineLog("WebDriver 초기화 완료");
+  }
+
+  /**
+   * WebDriver 종료
+   */
+  @PreDestroy
+  public void shutdownWebDriver() {
+    if (driver != null) {
+      driver.quit();
+      LogUtil.lineLog("WebDriver 종료 완료");
+    }
+  }
 
   /**
    * <h3>질문 글 Mock 데이터 생성 및 답변 글 동시 생성</h3>
@@ -319,5 +376,232 @@ public class TestService {
         }
       }
     }
+  }
+
+  /**
+   * 네이버 지시인 스크래핑 -> QuestionPost 생성
+   */
+  @Transactional
+  public TestDto createMockQuestionPostFromKinNaver(TestCommand command) {
+    long startTime = System.currentTimeMillis();
+
+    Integer postCount = command.getPostCount();
+
+    // 유효성 검사 및 기본값 설정
+    if (postCount == null || postCount <= 0) {
+      log.warn("잘못된 작성 개수가 입력되었습니다. 기본 값 30개로 설정합니다.");
+      postCount = 30;
+    }
+
+    Member member = testDataGenerator.createMockMember();
+    log.info("Created mock member with ID: {}", member.getMemberId());
+
+    int collectedPosts = 0;
+    boolean hasNextPage = true;
+
+    // 초기 페이지 로드
+    String url = "https://kin.naver.com/index.naver";
+    driver.get(url);
+    try {
+      wait.until(ExpectedConditions.presenceOfElementLocated(By.cssSelector(".answer_box._noanswerItem")));
+    } catch (TimeoutException te) {
+      log.error("초기 페이지 로딩에 실패했습니다.", te);
+      return TestDto.builder()
+          .createdPostCount(0)
+          .timeTaken(TimeUtil.convertMillisToReadableTime(System.currentTimeMillis() - startTime))
+          .build();
+    }
+
+    while (collectedPosts < postCount && hasNextPage) {
+      log.info("Scraping current page");
+
+      Document doc = Jsoup.parse(driver.getPageSource());
+      Elements answerBoxes = doc.select(".answer_box._noanswerItem");
+
+      log.info("Found {} answer boxes on current page", answerBoxes.size());
+
+      if (answerBoxes.isEmpty()) {
+        log.warn("No answer boxes found on current page, stopping scraping");
+        break;
+      }
+
+      for (Element answerBox : answerBoxes) {
+        if (collectedPosts >= postCount) {
+          break;
+        }
+
+        // docId 추출
+        Element linkElement = answerBox.selectFirst("a._first_focusable_link");
+        if (linkElement == null) {
+          log.warn("Link element not found, skipping post");
+          continue;
+        }
+
+        String href = linkElement.attr("href");
+        String docId = getDocIdFromHref(href);
+        if (docId == null || processedDocIds.contains(docId)) {
+          log.info("Duplicate or invalid docId: {}, skipping", docId);
+          continue;
+        }
+
+        processedDocIds.add(docId);
+
+        Element titleElement = answerBox.selectFirst(".tit_wrap .tit_txt");
+        Element contentElement = answerBox.selectFirst(".tit_wrap .txt");
+
+        if (titleElement == null) {
+          log.warn("Title element not found, skipping post");
+          continue;
+        }
+
+        String title = titleElement.text();
+        String content = contentElement != null ? contentElement.text() : "";
+
+        log.info("Processing post: {}", title);
+
+        // 태그 처리
+        List<String> customTags = null;
+        Element tagList = answerBox.selectFirst(".tagList");
+        if (tagList != null && !tagList.hasAttr("style")) {
+          Elements tagElements = tagList.select(".tag");
+          if (!tagElements.isEmpty()) {
+            customTags = new ArrayList<>();
+            for (Element tagElement : tagElements) {
+              String tag = tagElement.text().replace("#", "").trim();
+              if (!tag.isEmpty() && tag.length() <= 10) {
+                customTags.add(tag);
+                if (customTags.size() >= 4) { // MAX_CUSTOM_TAGS=4
+                  break;
+                }
+              }
+            }
+            if (customTags.isEmpty()) {
+              customTags = null;
+            }
+          }
+        }
+
+        Element dirLink = answerBox.selectFirst(".update_info .info a");
+        String dirName = dirLink != null ? dirLink.text() : "";
+
+        QuestionCommand postCommand = QuestionCommand.builder()
+            .memberId(member.getMemberId())
+            .title(title)
+            .content(content)
+            .subject(getValidSubjectOrRandom(dirName))
+            .rewardYeopjeon(100)
+            .isPrivate(false)
+            .customTags(customTags)
+            .build();
+
+        try {
+          questionPostService.saveQuestionPost(postCommand);
+          log.info("Successfully created post: {} with tags: {}", title, customTags);
+          collectedPosts++;
+        } catch (Exception e) {
+          log.error("Failed to save post: {}", title, e);
+        }
+      }
+
+      // 페이지 네비게이션 로깅
+      logPaginationElements();
+
+      // "다음" 버튼 클릭 시도
+      try {
+        WebElement nextButton = wait.until(
+            ExpectedConditions.elementToBeClickable(By.cssSelector("#pagingArea0 a.next")));
+        if (nextButton != null && nextButton.isDisplayed()) {
+          log.info("Clicking '다음' button to go to the next page");
+          nextButton.click();
+
+          // 새로운 페이지가 로드될 때까지 대기
+          wait.until(ExpectedConditions.stalenessOf(nextButton));
+          wait.until(ExpectedConditions.presenceOfElementLocated(By.cssSelector(".answer_box._noanswerItem")));
+        } else {
+          log.info("No '다음' button found. Reached the last page.");
+          hasNextPage = false;
+        }
+      } catch (TimeoutException te) {
+        log.warn("No '다음' button found within timeout. Assuming last page.");
+        hasNextPage = false;
+      } catch (Exception e) {
+        log.error("Failed to find or click '다음' button. Stopping pagination.", e);
+        hasNextPage = false;
+      }
+    }
+
+    long endTime = System.currentTimeMillis();
+    long durationMillis = endTime - startTime;
+    String readableTime = TimeUtil.convertMillisToReadableTime(durationMillis);
+
+    log.info("Successfully created {} mock posts in {}.", collectedPosts, readableTime);
+
+    return TestDto.builder()
+        .createdPostCount(collectedPosts)
+        .timeTaken(readableTime)
+        .build();
+  }
+
+  /**
+   * href에서 docId 추출
+   *
+   * @param href href 문자열
+   * @return docId 또는 null
+   */
+  private String getDocIdFromHref(String href) {
+    // href 예시: /qna/detail.naver?d1id=8&dirId=814&docId=479952838
+    try {
+      String[] parts = href.split("&");
+      for (String part : parts) {
+        if (part.startsWith("docId=")) {
+          return part.substring(6);
+        }
+      }
+    } catch (Exception e) {
+      log.error("Failed to extract docId from href: {}", href, e);
+    }
+    return null;
+  }
+
+  /**
+   * 현재 페이지의 페이지 네비게이션 요소 로깅
+   */
+  private void logPaginationElements() {
+    Document doc = Jsoup.parse(driver.getPageSource());
+    Element pagingArea = doc.selectFirst("#pagingArea0");
+    if (pagingArea != null) {
+      Elements prevButton = pagingArea.select("a.prev");
+      Elements nextButton = pagingArea.select("a.next");
+      Elements pageNumbers = pagingArea.select("a.number");
+
+      log.info("Prev Button Present: {}", !prevButton.isEmpty());
+      log.info("Next Button Present: {}", !nextButton.isEmpty());
+
+      log.info("Page Numbers:");
+      for (Element page : pageNumbers) {
+        log.info(" - Page Number: {}, Class: {}", page.text(), page.className());
+      }
+    } else {
+      log.warn("Paging area not found.");
+    }
+  }
+
+  /**
+   * 유효한 subject 반환 또는 랜덤 선택
+   *
+   * @param dirName 카테고리 이름
+   * @return subject 이름
+   */
+  private String getValidSubjectOrRandom(String dirName) {
+    return subjectRepository.findAll().stream()
+        .filter(s -> s.getName().equalsIgnoreCase(dirName))
+        .findFirst()
+        .map(Subject::getName)
+        .orElseGet(() -> {
+          List<String> subjects = subjectRepository.findAll().stream()
+              .map(Subject::getName)
+              .toList();
+          return subjects.get(random.nextInt(subjects.size()));
+        });
   }
 }

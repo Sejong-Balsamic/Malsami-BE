@@ -1,6 +1,6 @@
 package com.balsamic.sejongmalsami.service;
 
-import com.balsamic.sejongmalsami.CommonUtil;
+import com.balsamic.sejongmalsami.util.CommonUtil;
 import com.balsamic.sejongmalsami.object.AdminCommand;
 import com.balsamic.sejongmalsami.object.AdminDto;
 import com.balsamic.sejongmalsami.object.MemberCommand;

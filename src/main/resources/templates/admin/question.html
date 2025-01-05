@@ -52,15 +52,51 @@
     </form>
     <!-- 검색/초기화 버튼 -->
     <div class="ui buttons">
-      <button class="ui button primary" id="searchButton">검색</button>
-      <button class="ui button" id="resetButton">초기화</button>
+      <button class="ui button primary" id="questionPostSearchButton">검색</button>
+      <button class="ui button" id="questionPostResetButton">초기화</button>
     </div>
   </div>
 
   <!-- Tabulator 테이블 -->
   <div class="table-container">
     <div id="totalCount" class="ui left aligned header">총 조회 수: 0건</div>
-    <div id="questionPost-table"></div>
+    <div id="questionPostTable"></div>
+  </div>
+</div>
+
+
+<!-- 회원 상세 정보 모달 -->
+<div class="ui modal" id="memberDetailModal">
+  <i class="close icon"></i>
+  <div class="header">작성자 상세 정보</div>
+  <div class="content">
+    <div class="ui grid">
+      <div class="column">
+        <div class="ui list">
+          <div class="item">
+            <strong>이름:</strong> <span id="modalStudentName"></span>
+          </div>
+          <div class="item">
+            <strong>학번:</strong> <span id="modalStudentId"></span>
+          </div>
+          <div class="item">
+            <strong>학과:</strong> <span id="modalMajor"></span>
+          </div>
+          <div class="item">
+            <strong>학년:</strong> <span id="modalAcademicYear"></span>
+          </div>
+          <div class="item">
+            <strong>재학 상태:</strong> <span id="modalEnrollmentStatus"></span>
+          </div>
+          <div class="item">
+            <strong>회원 ID:</strong> <span id="modalMemberId"></span>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+  <div class="actions">
+    <button class="ui button primary" id="memberDetailModalCloseButton">닫기</button>
   </div>
 </div>
 
@@ -96,14 +132,14 @@
 
   // 이벤트 핸들러
   function eventHandler() {
-    // 1) 검색 버튼
-    document.getElementById("searchButton").addEventListener("click", function (evt) {
+    // 검색 버튼
+    document.getElementById("questionPostSearchButton").addEventListener("click", function (evt) {
       evt.preventDefault();
       questionPostTable.setPage(1);
     });
 
-    // 2) 초기화 버튼
-    document.getElementById("resetButton").addEventListener("click", function (evt) {
+    // 초기화 버튼
+    document.getElementById("questionPostResetButton").addEventListener("click", function (evt) {
       evt.preventDefault();
       // 검색 폼 초기화
       document.getElementById("questionPostSearchForm").reset();
@@ -111,22 +147,46 @@
 
       questionPostTable.setPage(1);
     });
+
+    // 회원 정보 버튼 클릭
+    $(document).on("click", ".member-detail-button", function () {
+      const memberData = $(this).data();
+      $("#modalStudentName").text(memberData.studentName);
+      $("#modalStudentId").text(memberData.studentId);
+      $("#modalMajor").text(memberData.major);
+      $("#modalAcademicYear").text(memberData.academicYear);
+      $("#modalEnrollmentStatus").text(memberData.enrollmentStatus);
+      $("#modalMemberId").text(memberData.memberId);
+      $("#memberDetailModal").modal("show");
+    });
+
+    // 모달 닫기 버튼
+    $("#memberDetailModalCloseButton").click(function () {
+      $("#memberDetailModal").modal("hide");
+    });
+
   }
 
   // Table 초기화
   function initQuestionPostTable(){
-    const table = new Tabulator("#questionPost-table", {
+    const table = new Tabulator("#questionPostTable", {
       layout: "fitDataTable",
       columns: [
-        { title: "제목", field: "title", width: 200, sorter: "string" },
-        { title: "본문", field: "content", widthGrow: 2, sorter: "string" },
+        { title: "제목", field: "title", width: 260, sorter: "string" },
+        { title: "본문", field: "content", width: 800, sorter: "string" },
         { title: "과목", field: "subject", width: 100, sorter: "string" },
-        { title: "단과대", field: "faculties", widthGrow: 1, sorter: "string",
+        { title: "단과대", field: "faculties", width: 150, sorter: "string",
           // faculties 배열 -> 문자열로 합쳐서 표시(백엔드에서 받아올 때 join한 문자열로 줘도 됨)
           formatter: function(cell){
             const arr = cell.getValue();
             return Array.isArray(arr) ? arr.join(", ") : "";
           }
+        },
+        {
+          title: "작성자",
+          field: "member",
+          width: 150,
+          formatter: memberFormatter,
         },
         { title: "정적태그(최대2)", field: "questionPresetTags", widthGrow: 1, sorter: "string",
           formatter: function(cell){
@@ -201,6 +261,24 @@
       // height: "600px" // 필요시 사용
     });
     return table;
+  }
+
+  // QuestionPost Table Formatter : 회원 상세 정보 표시
+  function memberFormatter(cell) {
+    const member = cell.getValue();
+    if (member) {
+      return `
+        <button class="ui small button member-detail-button"
+          data-member-id="${member.memberId}"
+          data-student-id="${member.studentId}"
+          data-student-name="${member.studentName}"
+          data-major="${member.major}"
+          data-academic-year="${member.academicYear}"
+          data-enrollment-status="${member.enrollmentStatus}">
+          ${member.studentName} (${member.studentId})
+        </button>`;
+    }
+    return "정보 없음";
   }
 
 </script>

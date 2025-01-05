@@ -108,7 +108,11 @@ public interface QuestionPostRepository extends JpaRepository<QuestionPost, UUID
         AND (:subject IS NULL 
             OR LOWER(q.subject) LIKE LOWER(CONCAT('%', CAST(:subject AS string), '%')))
         AND (:faculty IS NULL 
-            OR :faculty member of q.faculties)
+            OR EXISTS (
+                SELECT 1
+                FROM QuestionPost qp, IN(qp.faculties) f
+                WHERE qp = q AND LOWER(f) LIKE LOWER(CONCAT('%', CAST(:faculty AS string), '%'))
+            ))
         AND (
             :chaetaekStatus = 'ALL'
             OR (:chaetaekStatus = 'CHAETAEK' AND q.chaetaekStatus = true)
