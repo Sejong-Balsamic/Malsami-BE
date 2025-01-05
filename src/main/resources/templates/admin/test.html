@@ -1,4 +1,3 @@
-<!-- src/main/resources/templates/admin/test.html -->
 <!DOCTYPE html>
 <html xmlns:th="http://www.thymeleaf.org">
 <head th:replace="fragments/header :: head(title='테스트 계정 관리')"></head>
@@ -7,7 +6,7 @@
 
 <div class="ui container u-margin-vertical-large u-padding-horizontal-medium">
   <div class="ui main text container u-margin-bottom-large">
-    <h1 class="ui header">테스트 계정 관리</h1>
+    <h1 class="ui header">테스트 페이지 (개발용 페이지)</h1>
   </div>
 
   <div class="ui segment form-container">
@@ -87,10 +86,60 @@
       </div>
     </form>
 
-    <!-- Tabulator 테이블 -->
+    <!-- Test Member Tabulator 테이블 -->
     <div class="table-container">
       <div id="testMemberTotalCount" class="ui left aligned header">총 조회수: 0건</div>
       <div id="testMemberTable"></div>
+    </div>
+  </div>
+
+  <!-- 질문 게시글 Mock 데이터 생성 섹션 -->
+  <div class="ui segment u-margin-top-huge">
+    <h4 class="ui dividing header">질문 게시글 Mock 데이터 생성</h4>
+    <form class="ui form" id="mockQuestionPostForm">
+      <div class="field">
+        <label>생성할 질문 게시글 수</label>
+        <div class="ui action input">
+          <input type="number" name="postCount" id="mockPostCountInput" placeholder="10" min="1" required>
+          <button type="button" class="ui button post-count-button" data-value="10">10개</button>
+          <button type="button" class="ui button post-count-button" data-value="50">50개</button>
+          <button type="button" class="ui button post-count-button" data-value="100">100개</button>
+        </div>
+        <div class="ui pointing label">
+          <i class="info circle icon"></i> 생성 작업은 시간이 오래 걸릴 수 있습니다.
+        </div>
+      </div>
+
+      <!-- 작성자/가짜회원 라디오 버튼 -->
+      <div class="field">
+        <label>작성자 설정</label>
+        <div class="inline fields">
+          <div class="field">
+            <div class="ui radio checkbox">
+              <input type="radio" name="useMockMember" id="useMockMemberFalse" value="false" checked>
+              <label for="useMockMemberFalse">내 자신</label>
+            </div>
+          </div>
+          <div class="field">
+            <div class="ui radio checkbox">
+              <input type="radio" name="useMockMember" id="useMockMemberTrue" value="true">
+              <label for="useMockMemberTrue">가짜 Member</label>
+            </div>
+          </div>
+        </div>
+        <div class="ui pointing label">
+          <i class="info circle icon"></i> 가짜 회원은 새롭게 생성됩니다.
+        </div>
+      </div>
+      <button class="ui primary button" type="submit">Mock 질문글 생성</button>
+    </form>
+
+    <!-- 반환값 표시 -->
+    <div id="mockResultContainer" class="ui hidden segment">
+      <h5>생성 결과</h5>
+      <p><strong>생성된 게시글 수:</strong> <span id="mockCreatedPostCount"></span></p>
+      <p><strong>소요 시간:</strong> <span id="mockTimeTaken"></span></p>
+      <button class="ui secondary button" onclick="Auth.navigate('/admin/question')">생성된 질문 게시글 확인하기</button>
     </div>
   </div>
 </div>
@@ -104,9 +153,7 @@
 <script th:inline="javascript">
   let testMemberTable;
 
-  // DOMContentLoaded Event
-  document.addEventListener("DOMContentLoaded", function () {
-
+  $(document).ready(function () {
     // 드롭다운 초기화
     initDropDown();
 
@@ -127,6 +174,7 @@
     testMemberTable = initTestMemberTable();
   }
 
+  // 테이블 초기화
   function initTestMemberTable() {
     return new Tabulator("#testMemberTable", {
       layout: "fitDataTable",
@@ -187,58 +235,101 @@
     });
   }
 
-  // 이벤트 핸들러
   function eventHandler(testMemberTable) {
-    // 내 정보 불러오기 버튼 이벤트
-    document.getElementById("testMemberFillInfoButton").addEventListener("click", function () {
-      const formData = new FormData();
 
-      fetch('/api/member/my-info', {
-        method: 'POST',
-        body: formData,
-        headers: {
-          "Authorization": "Bearer " + localStorage.getItem("accessToken")
-        }
-      })
-      .then(response => response.json())
-      .then(response => {
-        const member = response.member;
-        const testStudentId = '9' + member.studentId.toString().substring(1);
+    // 내 정보 불러오기
+    document.getElementById("testMemberFillInfoButton").addEventListener("click", handleFillInfo);
 
-        document.getElementById('testMemberStudentIdInput').value = testStudentId;
-        document.getElementById('testMemberNameInput').value = '테스트_' + member.studentName;
-        document.getElementById('testMemberMajorInput').value = member.major;
-        $('#testMemberAcademicYearSelect').dropdown('set selected', member.academicYear);
-        $('#testMemberEnrollmentStatusSelect').dropdown('set selected', member.enrollmentStatus);
+    // 테스트 계정 생성
+    document.getElementById("createTestMemberForm").addEventListener("submit", handleCreateTestMember);
+
+    // 질문 게시글 Mock 데이터 생성
+    document.getElementById("mockQuestionPostForm").addEventListener("submit", handleCreateMockQuestionPosts);
+
+    // PostCount 버튼 클릭시 mockPostCountInput 지정
+    document.querySelectorAll(".post-count-button").forEach((button) => {
+      button.addEventListener("click", function () {
+        document.getElementById("mockPostCountInput").value = this.getAttribute("data-value");
       });
     });
 
-    // 계정 생성 폼 제출 이벤트
-    document.getElementById("createTestMemberForm").addEventListener("submit", function(e) {
-      e.preventDefault();
-      const formData = new FormData(this);
+  }
 
-      fetch('/admin/test/account/post', {
-        method: 'POST',
-        body: formData,
-        headers: {
-          "Authorization": "Bearer " + localStorage.getItem("accessToken")
-        }
-      })
-      .then(response => response.json())
-      .then(() => {
-        testMemberTable.setData();
-        this.reset();
-      });
-    });
+  // 함수별로 핸들러 분리
+  function handleFillInfo() {
+    const formData = new FormData();
+    fetch('/api/member/my-info', {
+      method: 'POST',
+      body: formData,
+      headers: {
+        "Authorization": "Bearer " + localStorage.getItem("accessToken")
+      }
+    })
+    .then(response => response.json())
+    .then(response => {
+      const member = response.member;
+      const testStudentId = '9' + member.studentId.toString().substring(1);
 
-    // 필터 폼 제출 이벤트
-    document.getElementById("testMemberFilterForm").addEventListener("submit", function(e) {
-      e.preventDefault();
-      testMemberTable.setData();
+      document.getElementById('testMemberStudentIdInput').value = testStudentId;
+      document.getElementById('testMemberNameInput').value = '테스트_' + member.studentName;
+      document.getElementById('testMemberMajorInput').value = member.major;
+      $('#testMemberAcademicYearSelect').dropdown('set selected', member.academicYear);
+      $('#testMemberEnrollmentStatusSelect').dropdown('set selected', member.enrollmentStatus);
     });
   }
-</script>
 
+  function handleCreateTestMember(event) {
+    event.preventDefault();
+    const formData = new FormData(this);
+    fetch('/admin/test/account/post', {
+      method: 'POST',
+      body: formData,
+      headers: {
+        "Authorization": "Bearer " + localStorage.getItem("accessToken")
+      }
+    })
+    .then(response => response.json())
+    .then(() => {
+      testMemberTable.setData();
+      this.reset();
+    });
+  }
+
+  function handleCreateMockQuestionPosts(event) {
+    event.preventDefault();
+
+    // 폼 데이터 생성
+    const postCountInput = document.getElementById("mockPostCountInput");
+    const postCount = parseInt(postCountInput.value, 10) || 10;
+    // 라디오 버튼 값 가져오기
+    const useMockMember = document.querySelector('input[name="useMockMember"]:checked').value;
+
+    const formData = new FormData();
+    formData.append("postCount", postCount);
+    formData.append("useMockMember", useMockMember);
+
+    fetch("/api/test/create/question/kin-naver", {
+      method: "POST",
+      body: formData,
+      headers: {
+        "Authorization": "Bearer " + localStorage.getItem("accessToken")
+      },
+    })
+    .then(response => {
+      if (!response.ok) throw new Error("Mock 데이터 생성 요청 실패");
+      return response.json();
+    })
+    .then(result => {
+      document.getElementById("mockCreatedPostCount").textContent = result.createdPostCount;
+      document.getElementById("mockTimeTaken").textContent = result.timeTaken;
+      document.getElementById("mockResultContainer").classList.remove("hidden");
+    })
+    .catch(error => {
+      console.error("Mock 데이터 생성 중 오류 발생:", error);
+      alert("Mock 데이터 생성 중 오류가 발생했습니다.");
+    });
+  }
+
+</script>
 </body>
 </html>
