@@ -2,7 +2,9 @@ package com.balsamic.sejongmalsami.object.postgres;
 
 import com.balsamic.sejongmalsami.object.constants.ContentType;
 import com.balsamic.sejongmalsami.object.constants.DefaultValue;
+import com.balsamic.sejongmalsami.util.converter.FloatArrayConverter;
 import jakarta.persistence.Column;
+import jakarta.persistence.Convert;
 import jakarta.persistence.Entity;
 import jakarta.persistence.EnumType;
 import jakarta.persistence.Enumerated;
@@ -34,14 +36,19 @@ public class PostEmbedding extends BaseEntity{
   @Column(nullable = false)
   private UUID postId;
 
-  // Embedding 벡터값
-  @Column(columnDefinition = "TEXT", nullable = false)
-  private String embedding;
+  // Embedding Vector 값
+  @Convert(converter = FloatArrayConverter.class)
+  @Column(columnDefinition = "TEXT")
+  private float[] embedding;
 
-  // 게시글 카테고리 (자료, 질문)
+  // 게시글 카테고리 (DOCUMENT, QUESTION)
   @Enumerated(EnumType.STRING)
   @Column(nullable = false)
   private ContentType contentType;
 
+  // 작업 상태: IN_PROGRESS, COMPLETED, FAILED
   private DefaultValue defaultValue;
+
+  // 추가 설명 (목데이터, 에러메시지 등등)
+  private String message;
 }

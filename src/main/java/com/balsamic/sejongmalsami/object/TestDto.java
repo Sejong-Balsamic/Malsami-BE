@@ -12,5 +12,6 @@ import lombok.ToString;
 public class TestDto {
 
   private String fileUrl;
-
+  private int createdPostCount;
+  private String timeTaken;
 }

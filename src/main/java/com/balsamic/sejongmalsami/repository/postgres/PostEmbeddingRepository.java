@@ -12,13 +12,16 @@ import org.springframework.stereotype.Repository;
 @Repository
 public interface PostEmbeddingRepository extends JpaRepository<PostEmbedding, UUID> {
 
-  @Query(value =
-      "SELECT * FROM post_embedding WHERE content_type = :contentType AND embedding <-> :queryVector < :threshold",
-      countQuery =
-          "SELECT COUNT(*) FROM post_embedding WHERE content_type = :contentType AND embedding <-> :queryVector < :threshold",
-      nativeQuery = true)
+  @Query(value = """
+        SELECT *
+        FROM post_embedding
+        WHERE (content_type = :contentType OR :contentType IS NULL)
+        AND CAST(embedding AS vector(1536)) <-> CAST(:queryVector AS vector(1536)) < :threshold
+        ORDER BY CAST(embedding AS vector(1536)) <-> CAST(:queryVector AS vector(1536))
+        LIMIT :#{#pageable.pageSize} OFFSET :#{#pageable.offset}
+          """, nativeQuery = true)
   Page<PostEmbedding> findSimilarEmbeddings(
-      @Param("queryVector") float[] queryVector,
+      @Param("queryVector") String queryVector,
       @Param("threshold") float threshold,
       @Param("contentType") String contentType,
       Pageable pageable);
