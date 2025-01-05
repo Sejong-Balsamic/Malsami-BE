@@ -5,6 +5,7 @@ import com.balsamic.sejongmalsami.object.QuestionCommand;
 import com.balsamic.sejongmalsami.object.TestCommand;
 import com.balsamic.sejongmalsami.object.TestDto;
 import com.balsamic.sejongmalsami.object.constants.ContentType;
+import com.balsamic.sejongmalsami.object.constants.SystemType;
 import com.balsamic.sejongmalsami.object.postgres.AnswerPost;
 import com.balsamic.sejongmalsami.object.postgres.Comment;
 import com.balsamic.sejongmalsami.object.postgres.DocumentFile;
@@ -19,6 +20,7 @@ import com.balsamic.sejongmalsami.repository.postgres.DocumentPostRepository;
 import com.balsamic.sejongmalsami.repository.postgres.DocumentRequestPostRepository;
 import com.balsamic.sejongmalsami.repository.postgres.QuestionPostRepository;
 import com.balsamic.sejongmalsami.repository.postgres.SubjectRepository;
+import com.balsamic.sejongmalsami.util.FileUtil;
 import com.balsamic.sejongmalsami.util.TestDataGenerator;
 import com.balsamic.sejongmalsami.util.TimeUtil;
 import com.balsamic.sejongmalsami.util.exception.CustomException;
@@ -28,6 +30,8 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import jakarta.annotation.PostConstruct;
 import jakarta.annotation.PreDestroy;
 import java.io.InputStream;
+import java.net.MalformedURLException;
+import java.net.URL;
 import java.time.Duration;
 import java.util.ArrayList;
 import java.util.HashSet;
@@ -48,6 +52,7 @@ import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.WebElement;
 import org.openqa.selenium.chrome.ChromeDriver;
 import org.openqa.selenium.chrome.ChromeOptions;
+import org.openqa.selenium.remote.RemoteWebDriver;
 import org.openqa.selenium.support.ui.ExpectedConditions;
 import org.openqa.selenium.support.ui.WebDriverWait;
 import org.springframework.stereotype.Service;
@@ -79,15 +84,30 @@ public class TestService {
    */
   @PostConstruct
   public void initWebDriver() {
+    // 공통 ChromeOptions 설정
     ChromeOptions options = new ChromeOptions();
     options.addArguments("--headless"); // Headless 모드
     options.addArguments("--disable-gpu");
     options.addArguments("--no-sandbox");
     options.addArguments("--disable-dev-shm-usage");
 
-    driver = new ChromeDriver(options);
+    try {
+      // Linux 환경인 경우 Selenium Grid에 연결
+      if (FileUtil.getCurrentSystem().equals(SystemType.LINUX)) {
+        String seleniumGridUrl = "http://localhost:4444/wd/hub";
+        driver = new RemoteWebDriver(new URL(seleniumGridUrl), options);
+        LogUtil.lineLog("Selenium Grid에 연결된 WebDriver 초기화 완료");
+      } else {
+        // Windows/Mac 환경에서 로컬 WebDriver 실행
+        driver = new ChromeDriver(options);
+        LogUtil.lineLog("로컬 WebDriver 초기화 완료");
+      }
+    } catch (MalformedURLException e) {
+      throw new RuntimeException("Selenium Grid URL이 잘못되었습니다.", e);
+    }
+
+    // WebDriverWait 설정
     wait = new WebDriverWait(driver, Duration.ofSeconds(10));
-    LogUtil.lineLog("WebDriver 초기화 완료");
   }
 
   /**
