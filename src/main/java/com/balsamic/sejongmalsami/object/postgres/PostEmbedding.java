@@ -38,7 +38,7 @@ public class PostEmbedding extends BaseEntity{
 
   // Embedding Vector 값
   @Convert(converter = FloatArrayConverter.class)
-  @Column(columnDefinition = "TEXT", nullable = false)
+  @Column(columnDefinition = "TEXT")
   private float[] embedding;
 
   // 게시글 카테고리 (DOCUMENT, QUESTION)

@@ -1,5 +1,6 @@
 package com.balsamic.sejongmalsami.object;
 
+import com.balsamic.sejongmalsami.object.postgres.Member;
 import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.Getter;
 import lombok.Setter;
@@ -12,6 +13,8 @@ public class TestCommand {
   public TestCommand() {
     postCount = 30;
   }
+
+  private Member member;
 
   @Schema(defaultValue = "30")
   private Integer postCount;

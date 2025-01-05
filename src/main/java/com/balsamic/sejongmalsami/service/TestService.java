@@ -113,8 +113,8 @@ public class TestService {
 
     // 잘못된 값 입력시 기본 30개 설정
     if (postCount == null || postCount <= 0) {
-      log.warn("잘못된 작성개수가 입력되었습니다. {} 기본 값 30개로 설정합니다.", postCount);
-      postCount = 30;
+      log.warn("잘못된 작성개수가 입력되었습니다. {} 기본 값 10개로 설정합니다.", postCount);
+      postCount = 10;
     }
     // 답변 및 댓글 작성자 풀 생성
     List<Member> memberPool = createMemberPool(postCount);
@@ -124,8 +124,9 @@ public class TestService {
     Random random = new Random();
 
     while (questionTotalCreated < postCount) {
-      // 1. Mock 사용자 생성
-      Member questionMember = testDataGenerator.createMockMember();
+      // 1. 작성자 지정
+//      Member questionMember = testDataGenerator.createMockMember();
+      Member questionMember = command.getMember();
       userCount++;
 
       // 2. 생성할 질문글 수 결정 (1 ~ 10개)
