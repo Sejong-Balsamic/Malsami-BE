@@ -69,13 +69,31 @@ public class TestService {
   private final Set<String> processedDocIds = new HashSet<>();
   private static final ObjectMapper objectMapper = new ObjectMapper();
 
+  // ExecutorService를 사용하여 비동기 작업 관리
+//  private final ExecutorService executorService = Executors.newFixedThreadPool(10);
+
   /**
    * WebDriver 종료
    */
   @PreDestroy
-  public void shutdownWebDriver() {
+  public void shutdown() {
+//    executorService.shutdown();
     webDriverManager.quitDriver();
   }
+
+  /**
+   * 비동기적으로 Mock 질문글 생성 작업 실행
+   */
+//  public void executeAsyncCreateMockQuestionPost(TestCommand command) {
+//    executorService.submit(() -> {
+//      try {
+//        createMockQuestionPostAndAnswerPost(command);
+//      } finally {
+//        // 작업이 끝난 후 WebDriver 종료
+//        webDriverManager.quitDriver();
+//      }
+//    });
+//  }
 
   /**
    * 질문 글 Mock 데이터 생성 및 답변 글 동시 생성
@@ -171,7 +189,6 @@ public class TestService {
 
     log.info("총 {} 명의 mock 유저가 {} 개의 mock 질문글을 생성했습니다.", userCount, questionTotalCreated);
   }
-
 
   /**
    * DocumentPost 및 관련 DocumentFile Mock 데이터 생성

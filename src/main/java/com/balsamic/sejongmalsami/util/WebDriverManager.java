@@ -16,12 +16,13 @@ import org.springframework.stereotype.Component;
 
 @Component
 public class WebDriverManager {
-  private WebDriver driver;
-  private WebDriverWait wait;
   private final ChromeOptions options;
   private final String seleniumGridUrl;
   private final boolean isServerEnvironment;
 
+  // ThreadLocal -> 각 스레드 WebDriver 인스턴스 관리
+  private final ThreadLocal<WebDriver> driverThreadLocal = new ThreadLocal<>();
+  private final ThreadLocal<WebDriverWait> waitThreadLocal = new ThreadLocal<>();
 
   public WebDriverManager(@Value("${selenium.grid-url}") String seleniumGridUrl) {
     this.seleniumGridUrl = seleniumGridUrl;
@@ -33,9 +34,11 @@ public class WebDriverManager {
   /**
    * WebDriver 가져오기 (필요 시 초기화)
    */
-  public synchronized WebDriver getDriver() {
+  public WebDriver getDriver() {
+    WebDriver driver = driverThreadLocal.get();
     if (driver == null || ((RemoteWebDriver) driver).getSessionId() == null) {
-      initDriver();
+      driver = initDriver();
+      driverThreadLocal.set(driver);
     }
     return driver;
   }
@@ -43,8 +46,9 @@ public class WebDriverManager {
   /**
    * WebDriver 초기화
    */
-  private void initDriver() {
+  private WebDriver initDriver() {
     try {
+      WebDriver driver;
       if (isServerEnvironment) {
         // 서버 환경에서는 Selenium Grid에 연결
         driver = new RemoteWebDriver(new URL(seleniumGridUrl), options);
@@ -54,7 +58,9 @@ public class WebDriverManager {
         driver = new ChromeDriver(options);
         LogUtil.lineLog("로컬 WebDriver 초기화 완료");
       }
-      wait = new WebDriverWait(driver, Duration.ofSeconds(10));
+      WebDriverWait wait = new WebDriverWait(driver, Duration.ofSeconds(10));
+      waitThreadLocal.set(wait);
+      return driver;
     } catch (MalformedURLException e) {
       throw new RuntimeException("Selenium Grid URL이 잘못되었습니다.", e);
     }
@@ -63,10 +69,12 @@ public class WebDriverManager {
   /**
    * WebDriver 종료 및 메모리 정리
    */
-  public synchronized void quitDriver() {
+  public void quitDriver() {
+    WebDriver driver = driverThreadLocal.get();
     if (driver != null) {
       driver.quit();
-      driver = null; // 메모리에서 제거
+      driverThreadLocal.remove();
+      waitThreadLocal.remove();
       LogUtil.lineLog("WebDriver 세션 종료");
     }
   }
@@ -75,14 +83,19 @@ public class WebDriverManager {
    * WebDriverWait 가져오기
    */
   public WebDriverWait getWait() {
-    getDriver(); // driver가 없으면 초기화
+    WebDriverWait wait = waitThreadLocal.get();
+    if (wait == null) {
+      getDriver(); // driver가 없으면 초기화
+      wait = waitThreadLocal.get();
+    }
     return wait;
   }
 
   /**
    * 현재 WebDriver 세션 ID 가져오기
    */
-  public synchronized SessionId getSessionId() {
+  public SessionId getSessionId() {
+    WebDriver driver = driverThreadLocal.get();
     if (driver != null) {
       return ((RemoteWebDriver) driver).getSessionId();
     }
