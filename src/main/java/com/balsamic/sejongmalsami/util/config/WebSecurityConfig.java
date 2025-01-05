@@ -88,6 +88,12 @@ public class WebSecurityConfig {
             .requestMatchers(HttpMethod.POST, "/api/question/board/like").hasAnyRole("ADMIN", "USER")
             .requestMatchers(HttpMethod.POST, "/api/likes/comment").hasAnyRole("ADMIN", "USER")
             .requestMatchers(HttpMethod.POST, "/api/likes/question/board").hasAnyRole("ADMIN", "USER")
+            // 테스트
+            .requestMatchers(HttpMethod.POST, "/api/test/create/question").hasAnyRole("ADMIN", "USER")
+            .requestMatchers(HttpMethod.POST, "/api/test/create/document").hasAnyRole("ADMIN", "USER")
+            .requestMatchers(HttpMethod.POST, "/api/test/create/document-request").hasAnyRole("ADMIN", "USER")
+            .requestMatchers(HttpMethod.POST, "/api/test/download/file").hasAnyRole("ADMIN", "USER")
+            .requestMatchers(HttpMethod.POST, "/api/test/create/question/kin-naver").hasAnyRole("ADMIN", "USER")
             .anyRequest().authenticated()
         )
         .logout(logout -> logout

@@ -1,7 +1,9 @@
 package com.balsamic.sejongmalsami.controller;
 
+import com.balsamic.sejongmalsami.object.CustomUserDetails;
 import com.balsamic.sejongmalsami.object.TestCommand;
 import com.balsamic.sejongmalsami.object.TestDto;
+import com.balsamic.sejongmalsami.service.CustomUserDetailsService;
 import com.balsamic.sejongmalsami.service.TestService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
@@ -10,6 +12,7 @@ import org.springframework.http.ContentDisposition;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -25,6 +28,7 @@ import org.springframework.web.bind.annotation.RestController;
 public class TestController {
 
   private final TestService testService;
+  private final CustomUserDetailsService customUserDetailsService;
 
   @Operation(summary = "질문 글 Mock 데이터 생성",
   description = """
@@ -183,7 +187,10 @@ public class TestController {
       ### 지식IN을 파싱하여 질문 글 Mock 데이터 생성
       """)
   @PostMapping(value = "/create/question/kin-naver", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
-  public ResponseEntity<TestDto> createMockQuestionPostFromKinNaver(@ModelAttribute TestCommand command) {
+  public ResponseEntity<TestDto> createMockQuestionPostFromKinNaver(
+      @AuthenticationPrincipal CustomUserDetails customUserDetails,
+      @ModelAttribute TestCommand command) {
+    command.setMember(customUserDetails.getMember());
     return ResponseEntity.ok(testService.createMockQuestionPostFromKinNaver(command));
   }
 
