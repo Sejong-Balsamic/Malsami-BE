@@ -109,7 +109,29 @@
           <i class="info circle icon"></i> 생성 작업은 시간이 오래 걸릴 수 있습니다.
         </div>
       </div>
-      <button class="ui primary button" type="submit">Mock 데이터 생성</button>
+
+      <!-- 작성자/가짜회원 라디오 버튼 -->
+      <div class="field">
+        <label>작성자 설정</label>
+        <div class="inline fields">
+          <div class="field">
+            <div class="ui radio checkbox">
+              <input type="radio" name="useMockMember" id="useMockMemberFalse" value="false" checked>
+              <label for="useMockMemberFalse">내 자신</label>
+            </div>
+          </div>
+          <div class="field">
+            <div class="ui radio checkbox">
+              <input type="radio" name="useMockMember" id="useMockMemberTrue" value="true">
+              <label for="useMockMemberTrue">가짜 Member</label>
+            </div>
+          </div>
+        </div>
+        <div class="ui pointing label">
+          <i class="info circle icon"></i> 가짜 회원은 새롭게 생성됩니다.
+        </div>
+      </div>
+      <button class="ui primary button" type="submit">Mock 질문글 생성</button>
     </form>
 
     <!-- 반환값 표시 -->
@@ -275,11 +297,16 @@
 
   function handleCreateMockQuestionPosts(event) {
     event.preventDefault();
+
+    // 폼 데이터 생성
     const postCountInput = document.getElementById("mockPostCountInput");
     const postCount = parseInt(postCountInput.value, 10) || 10;
+    // 라디오 버튼 값 가져오기
+    const useMockMember = document.querySelector('input[name="useMockMember"]:checked').value;
 
     const formData = new FormData();
     formData.append("postCount", postCount);
+    formData.append("useMockMember", useMockMember);
 
     fetch("/api/test/create/question/kin-naver", {
       method: "POST",

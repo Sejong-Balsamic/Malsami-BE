@@ -22,4 +22,5 @@ public class TestCommand {
   @Schema(defaultValue = "/projects/sejong-malsami/document/DOCUMENT_sejong-malsami-test_b482d4cc-722c-42e7-b042-b4a3d5903ae5.mp4")
   private String filePath;
 
+  private boolean useMockMember; // true: 가짜 Member 사용, false: 실제 Member 사용
 }
