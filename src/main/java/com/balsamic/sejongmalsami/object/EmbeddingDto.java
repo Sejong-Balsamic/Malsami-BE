@@ -15,4 +15,5 @@ import org.springframework.data.domain.Page;
 @Setter
 public class EmbeddingDto {
   private Page<PostEmbedding> postEmbeddingsPage;
+  private Page<GeneralPost> generalPostsPage;
 }

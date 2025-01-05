@@ -1,4 +1,4 @@
-package com.balsamic.sejongmalsami;
+package com.balsamic.sejongmalsami.util;
 
 import java.nio.charset.StandardCharsets;
 import java.security.MessageDigest;
@@ -64,6 +64,41 @@ public class CommonUtil {
     } catch (Exception e) {
       throw new RuntimeException("SHA-256 해시 계산 실패", e);
     }
+  }
+
+  /**
+   * float[] 배열 -> 문자열로 변환
+   * 앞 뒤에 대괄호와 사이사이 "," 붙임
+   * PG에서 vector 사용시 해당 형식 준수 필요
+   */
+  public static String floatArrayToString(float[] array) {
+    if (array == null || array.length == 0) {
+      return "[]";
+    }
+    StringBuilder sb = new StringBuilder();
+    sb.append("[");
+    for (int i = 0; i < array.length; i++) {
+      if (i > 0) sb.append(",");
+      sb.append(array[i]);
+    }
+    sb.append("]");
+    return sb.toString();
+  }
+
+  /**
+   * "[0.0, 0.2, ... ]"의 문자열 -> float[] 배열로 변환
+   */
+  public static float[] stringToFloatArray(String str) {
+    if (str == null || str.isEmpty() || str.equals("[]")) {
+      return new float[0];
+    }
+    String cleaned = str.substring(1, str.length() - 1);
+    String[] stringArray = cleaned.split(",");
+    float[] floatArray = new float[stringArray.length];
+    for (int i = 0; i < stringArray.length; i++) {
+      floatArray[i] = Float.parseFloat(stringArray[i].trim());
+    }
+    return floatArray;
   }
 }
 

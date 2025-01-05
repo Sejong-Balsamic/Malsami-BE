@@ -102,33 +102,36 @@ public class PostEmbeddingService {
           pageable
       );
 
-      // Page<PostEmbeddings> -> Page<GeneralPost> 변환
+      // Page<PostEmbedding> -> Page<GeneralPost> 변환
       Page<GeneralPost> generalPostsPage = postEmbeddingsPage.map(embedding -> {
-        try {
-          if (embedding.getContentType() == ContentType.QUESTION) {
-            QuestionPost post = questionPostRepository.findById(embedding.getPostId())
-                .orElseThrow(() -> new CustomException(ErrorCode.QUESTION_POST_NOT_FOUND));
-            List<String> customTags = questionPostCustomTagRepository
-                .findAllByQuestionPostId(post.getQuestionPostId())
-                .stream()
-                .map(QuestionPostCustomTag::getCustomTag)
-                .collect(Collectors.toList());
-            return GeneralPost.fromQuestionPost(post, customTags);
-          } else if (embedding.getContentType() == ContentType.DOCUMENT) {
-            DocumentPost post = documentPostRepository.findById(embedding.getPostId())
-                .orElseThrow(() -> new CustomException(ErrorCode.DOCUMENT_POST_NOT_FOUND));
-            List<String> customTags = documentPostCustomTagRepository
-                .findAllByDocumentPostId(post.getDocumentPostId())
-                .stream()
-                .map(DocumentPostCustomTag::getCustomTag)
-                .collect(Collectors.toList());
-            return GeneralPost.fromDocumentPost(post, customTags);
-          }
-          return null;
-        } catch (Exception e) {
-          log.error("Post 조회 중 오류 발생: {}", e.getMessage());
-          return null;
+        if (embedding.getContentType() == ContentType.QUESTION) {
+          // QuestionPost 처리
+          QuestionPost post = questionPostRepository.findById(embedding.getPostId())
+              .orElseThrow(() -> new CustomException(ErrorCode.QUESTION_POST_NOT_FOUND));
+
+          List<String> customTags = questionPostCustomTagRepository
+              .findAllByQuestionPostId(post.getQuestionPostId())
+              .stream()
+              .map(QuestionPostCustomTag::getCustomTag)
+              .collect(Collectors.toList());
+
+          return GeneralPost.fromQuestionPost(post, customTags);
+
+        } else if (embedding.getContentType() == ContentType.DOCUMENT) {
+          // DocumentPost 처리
+          DocumentPost post = documentPostRepository.findById(embedding.getPostId())
+              .orElseThrow(() -> new CustomException(ErrorCode.DOCUMENT_POST_NOT_FOUND));
+
+          List<String> customTags = documentPostCustomTagRepository
+              .findAllByDocumentPostId(post.getDocumentPostId())
+              .stream()
+              .map(DocumentPostCustomTag::getCustomTag)
+              .collect(Collectors.toList());
+
+          return GeneralPost.fromDocumentPost(post, customTags);
         }
+
+        throw new CustomException(ErrorCode.INVALID_CONTENT_TYPE);
       });
 
       return EmbeddingDto.builder()
