@@ -55,6 +55,7 @@ import org.openqa.selenium.chrome.ChromeOptions;
 import org.openqa.selenium.remote.RemoteWebDriver;
 import org.openqa.selenium.support.ui.ExpectedConditions;
 import org.openqa.selenium.support.ui.WebDriverWait;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -79,6 +80,9 @@ public class TestService {
   private static WebDriverWait wait;
   private static final ObjectMapper objectMapper = new ObjectMapper();
 
+  @Value("${selenium.grid-url}")
+  private String seleniumGridUrl;
+
   /**
    * WebDriver 초기화
    */
@@ -92,9 +96,7 @@ public class TestService {
     options.addArguments("--disable-dev-shm-usage");
 
     try {
-      // Linux 환경인 경우 Selenium Grid에 연결
       if (FileUtil.getCurrentSystem().equals(SystemType.LINUX)) {
-        String seleniumGridUrl = "http://localhost:4444/wd/hub";
         driver = new RemoteWebDriver(new URL(seleniumGridUrl), options);
         LogUtil.lineLog("Selenium Grid에 연결된 WebDriver 초기화 완료");
       } else {
