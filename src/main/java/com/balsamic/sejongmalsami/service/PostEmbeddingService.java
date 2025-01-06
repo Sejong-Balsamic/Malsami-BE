@@ -44,6 +44,9 @@ public class PostEmbeddingService {
   private final QuestionPostCustomTagRepository questionPostCustomTagRepository;
   private final DocumentPostCustomTagRepository documentPostCustomTagRepository;
 
+  /**
+   * 새로운 질문/자료 글 작성 시 postEmbedding 저장
+   */
   @Async
   public void saveEmbedding(UUID postId, String text, ContentType contentType) {
     log.info("Embedding 저장 시작 - Post ID: {}, ContentType: {}", postId, contentType);
@@ -81,6 +84,9 @@ public class PostEmbeddingService {
     }
   }
 
+  /**
+   * 검색어 입력 시 검색어 Embedding 값과 유사한 글 반환
+   */
   public EmbeddingDto searchSimilarEmbeddingsByText(EmbeddingCommand command) {
     try {
       // 캐시를 통해 embedding 확보
