@@ -192,7 +192,11 @@ public enum ErrorCode {
 
   DOCUMENT_REQUEST_POST_NOT_FOUND(HttpStatus.BAD_REQUEST, "자료 요청 글을 찾을 수 없습니다."),
 
-  // Notice
+  // NoticePost
+
+  NOTICE_TITLE_NULL(HttpStatus.BAD_REQUEST, "공지사항 글의 제목이 비어있습니다."),
+
+  NOTICE_CONTENT_NULL(HttpStatus.BAD_REQUEST, "공지사항 글의 본문이 비어있습니다."),
 
   NOTICE_POST_NOT_FOUND(HttpStatus.NOT_FOUND, "공지사항 글을 찾을 수 없습니다."),
 
