@@ -1,13 +1,13 @@
 package com.balsamic.sejongmalsami.util.init;
 
 import com.balsamic.sejongmalsami.object.constants.HashType;
-import com.balsamic.sejongmalsami.object.constants.SystemType;
 import com.balsamic.sejongmalsami.object.postgres.Department;
 import com.balsamic.sejongmalsami.object.postgres.Faculty;
 import com.balsamic.sejongmalsami.repository.postgres.DepartmentRepository;
 import com.balsamic.sejongmalsami.repository.postgres.FacultyRepository;
 import com.balsamic.sejongmalsami.service.HashRegistryService;
-import com.balsamic.sejongmalsami.util.FileUtil;
+import com.balsamic.sejongmalsami.util.CommonUtil;
+import com.balsamic.sejongmalsami.util.config.ServerConfig;
 import com.balsamic.sejongmalsami.util.exception.CustomException;
 import com.balsamic.sejongmalsami.util.exception.ErrorCode;
 import com.fasterxml.jackson.databind.JsonNode;
@@ -17,8 +17,6 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.nio.file.Paths;
-import java.security.MessageDigest;
 import java.time.Duration;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
@@ -43,14 +41,14 @@ public class DepartmentService {
   private final HashRegistryService hashRegistryService;
 
   /**
-   * JSON 파일을 로드하고 Faculty 및 Department 데이터를 저장합니다. 파일의 해시값을 확인하여 중복 처리를 방지합니다.
-   *
-   * @param filePath JSON 파일의 경로
+   * JSON 파일을 로드하고 Faculty 및 Department 데이터를 저장합니다.
+   * 파일의 해시값을 반환
    */
   @Transactional
-  public void loadDepartments(Path filePath) {
+  public String initDepartments() {
+    Path filePath = ServerConfig.departmentPath;
     String fileName = filePath.getFileName().toString();
-    String fileHash = calculateFileHash(filePath);
+    String fileHash = CommonUtil.calculateFileHash(filePath);
 
     log.info("파일 로드 시작: {}", fileName);
     LocalDateTime startTime = LocalDateTime.now();
@@ -61,7 +59,7 @@ public class DepartmentService {
 
       if (storedHash != null && storedHash.equals(fileHash)) {
         log.info("이미 처리된 파일입니다. 파일 이름: {}, 해시: {}", fileName, fileHash);
-        return;
+        return storedHash; // 기존 해시 반환
       } else {
         if (storedHash != null) {
           log.info("파일이 변경되었거나 이전 처리에 실패했습니다. 재처리 진행: {}", fileName);
@@ -276,6 +274,7 @@ public class DepartmentService {
       Duration duration = Duration.between(startTime, endTime);
 
       log.info("Departments 데이터 저장 완료: 소요 시간: {}초", duration.getSeconds());
+      return fileHash;
     } catch (IOException e) {
       log.error("Departments 데이터 로드 중 IO 오류 발생: {}", e.getMessage(), e);
       throw new CustomException(ErrorCode.DEPARTMENT_IO_ERROR);
@@ -283,72 +282,5 @@ public class DepartmentService {
       log.error("Departments 데이터 로드 실패: {}", e.getMessage(), e);
       throw e; // 트랜잭션 롤백
     }
-  }
-
-  /**
-   * 파일의 SHA-256 해시값을 계산합니다.
-   *
-   * @param filePath 파일의 경로
-   * @return 해시값 문자열
-   */
-  private String calculateFileHash(Path filePath) {
-    try {
-      MessageDigest digest = MessageDigest.getInstance("SHA-256");
-      byte[] fileBytes = Files.readAllBytes(filePath);
-      byte[] hashBytes = digest.digest(fileBytes);
-      StringBuilder sb = new StringBuilder();
-      for (byte b : hashBytes) {
-        sb.append(String.format("%02x", b));
-      }
-      return sb.toString();
-    } catch (Exception e) {
-      log.error("파일 해시 계산 실패: {}", e.getMessage(), e);
-      throw new RuntimeException("파일 해시 계산 실패", e);
-    }
-  }
-
-  /**
-   * 현재 department.json 파일의 해시값을 반환합니다.
-   *
-   * @return department.json 파일의 해시값 문자열
-   */
-  public String getCurrentFileHash() {
-    Path deptPath = getDepartmentFilePath();
-    return calculateFileHash(deptPath);
-  }
-
-  /**
-   * 시스템 타입에 따라 departments.json 파일의 경로를 결정합니다.
-   *
-   * @return departments.json 파일의 Path
-   */
-  private Path getDepartmentFilePath() {
-    SystemType systemType = FileUtil.getCurrentSystem();
-    Path deptPath;
-
-    switch (systemType) {
-      case LINUX:
-        // 서버 환경: /mnt/sejong-malsami/department/departments.json
-        deptPath = Paths.get("/mnt/sejong-malsami/department/departments.json");
-        log.info("서버 환경: departments.json 경로 설정됨 = {}", deptPath);
-        break;
-      case WINDOWS:
-      case MAC:
-      case OTHER:
-      default:
-        // 로컬 환경: src/main/resources/departments.json
-        try {
-          deptPath = Paths.get(
-              getClass().getClassLoader().getResource("departments.json").toURI()
-          );
-          log.info("로컬 환경: departments.json 경로 설정됨 = {}", deptPath);
-        } catch (Exception e) {
-          log.error("로컬 환경에서 departments.json 파일을 찾을 수 없습니다.", e);
-          throw new RuntimeException("departments.json 파일을 찾을 수 없습니다.", e);
-        }
-        break;
-    }
-
-    return deptPath;
   }
 }
