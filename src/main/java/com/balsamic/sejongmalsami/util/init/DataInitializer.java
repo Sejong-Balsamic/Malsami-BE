@@ -124,9 +124,6 @@ public class DataInitializer implements ApplicationRunner {
     // Department, Course, Subject, Faculty 초기화 작업이 끝나고, isActive 핸들링
     manageDataActiveStatus();
 
-    // 서버 에러 코드 업데이트 (이미 위에서 처리했으므로 중복 실행 방지)
-    // serverErrorCodeService.initErrorCodes();
-
     LocalDateTime overallEndTime = LocalDateTime.now();
     Duration overallDuration = Duration.between(overallStartTime, overallEndTime);
     lineLog(null);
@@ -159,11 +156,11 @@ public class DataInitializer implements ApplicationRunner {
   }
 
   /**
-   * 시스템 타입에 따라 departments.json 파일 Path 반환
+   * SystemType 에 따라 departments.json 파일 Path 반환
    */
   private Path determineDepartmentFilePath() {
     if (ServerConfig.isLinuxServer) {
-      // 서버 환경: /mnt/sejong-malsami/department/departments.json
+      // 서버 환경
       log.info("서버 환경: departments.json 경로 설정됨 = {}", departmentsPath);
     } else {
       // 로컬 환경: src/main/resources/departments.json
@@ -181,11 +178,11 @@ public class DataInitializer implements ApplicationRunner {
   }
 
   /**
-   * CourseFile의 fileName을 통해 실제 파일 경로를 반환합니다. 실제 파일 저장 경로에 맞게 수정이 필요합니다.
+   * SystemType 에 따라 CourseFile Path 반환
    */
   private Path determineCoursePath() {
     if (ServerConfig.isLinuxServer) {
-      // 서버 환경: /mnt/sejong-malsami/courses/
+      // 서버 환경
     } else {
       // 로컬 환경: src/main/resources/courses/
       try {

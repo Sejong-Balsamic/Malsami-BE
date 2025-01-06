@@ -13,8 +13,8 @@ public enum FileStatus {
   DEPRECATED("더 이상 사용되지 않음"),
   INITIAL("초기 상태"),
 
-  PENDING("진행중"),
-  IN_PROGRESS("진행 중"),
+  PENDING("대기중"),
+  IN_PROGRESS("진행중"),
   SUCCESS("성공"),
   FAILURE("실패");
 
