@@ -18,8 +18,14 @@ public interface PostEmbeddingRepository extends JpaRepository<PostEmbedding, UU
         WHERE (content_type = :contentType OR :contentType IS NULL)
         AND CAST(embedding AS vector(1536)) <-> CAST(:queryVector AS vector(1536)) < :threshold
         ORDER BY CAST(embedding AS vector(1536)) <-> CAST(:queryVector AS vector(1536))
-        LIMIT :#{#pageable.pageSize} OFFSET :#{#pageable.offset}
-          """, nativeQuery = true)
+          """,
+      countQuery = """
+          SELECT COUNT(*)
+          FROM post_embedding
+          WHERE (content_type = :contentType OR :contentType IS NULL)
+          AND CAST(embedding AS vector(1536)) <-> CAST(:queryVector AS vector(1536)) < :threshold
+            """,
+      nativeQuery = true)
   Page<PostEmbedding> findSimilarEmbeddings(
       @Param("queryVector") String queryVector,
       @Param("threshold") float threshold,
