@@ -5,8 +5,11 @@ import com.balsamic.sejongmalsami.object.AdminDto;
 import com.balsamic.sejongmalsami.object.CustomUserDetails;
 import com.balsamic.sejongmalsami.object.MemberCommand;
 import com.balsamic.sejongmalsami.object.MemberDto;
+import com.balsamic.sejongmalsami.object.NoticePostCommand;
+import com.balsamic.sejongmalsami.object.NoticePostDto;
 import com.balsamic.sejongmalsami.service.AdminApiService;
 import com.balsamic.sejongmalsami.service.MemberService;
+import com.balsamic.sejongmalsami.service.NoticePostService;
 import com.balsamic.sejongmalsami.util.log.LogMonitoringInvocation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
@@ -31,6 +34,7 @@ public class AdminApiController {
 
   private final MemberService memberService;
   private final AdminApiService adminApiService;
+  private final NoticePostService noticePostService;
 
   /**
    * =========================================== 회원 관리자 API ===========================================
@@ -173,6 +177,19 @@ public class AdminApiController {
   }
 
   /**
+   * =========================================== 공지사항 관리 API ===========================================
+   */
+  @PostMapping(value = "/notice/post")
+  @LogMonitoringInvocation
+  public ResponseEntity<NoticePostDto> saveNoticePost(
+      @AuthenticationPrincipal CustomUserDetails customUserDetails,
+      @ModelAttribute NoticePostCommand command
+  ) {
+    command.setMember(customUserDetails.getMember());
+    return ResponseEntity.ok(adminApiService.saveNoticePost(command));
+  }
+
+  /**
    * =========================================== 질문 게시글 관리 API ===========================================
    */
   @PostMapping(value = "/question-post/filter")
@@ -183,5 +200,4 @@ public class AdminApiController {
     command.setMember(customUserDetails.getMember());
     return ResponseEntity.ok(adminApiService.getFilteredQuestionPost(command));
   }
-
 }
