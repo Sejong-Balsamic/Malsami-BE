@@ -34,6 +34,7 @@ public class RedisLockManager {
 
       try {
         // 락 획득 성공 시 작업 진행
+        log.info("redis lock 확득 성공 lockKey: {}", lockKey);
         return task.run();
       } catch (Exception e) {
         log.error("작업 실행 중 예외 발생", e);
