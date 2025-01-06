@@ -74,4 +74,4 @@ src/main/resources/application-prod.yml
 /src/main/resources/post-tier.yml
 
 ### cicd
-./.github/workflows
+/.github/workflows

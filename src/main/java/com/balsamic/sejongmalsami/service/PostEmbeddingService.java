@@ -36,6 +36,7 @@ import org.springframework.stereotype.Service;
 public class PostEmbeddingService {
 
   private final OpenAIEmbeddingService embeddingService;
+  private final SearchQueryCacheService searchQueryCacheService;
   private final PostEmbeddingRepository postEmbeddingRepository;
   private final ObjectMapper objectMapper;
   private final QuestionPostRepository questionPostRepository;
@@ -82,8 +83,8 @@ public class PostEmbeddingService {
 
   public EmbeddingDto searchSimilarEmbeddingsByText(EmbeddingCommand command) {
     try {
-      // 벡터값 처리
-      float[] queryVectorArray = embeddingService.generateEmbedding(command.getText());
+      // 캐시를 통해 embedding 확보
+      float[] queryVectorArray = searchQueryCacheService.getOrCreateEmbedding(command.getText());
 
       // float[] -> "[...]" 문자열 변환
       String vectorString = CommonUtil.floatArrayToString(queryVectorArray);
