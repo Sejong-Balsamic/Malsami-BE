@@ -4,7 +4,7 @@ import com.balsamic.sejongmalsami.object.EmbeddingCommand;
 import com.balsamic.sejongmalsami.object.EmbeddingDto;
 import com.balsamic.sejongmalsami.object.GeneralPost;
 import com.balsamic.sejongmalsami.object.constants.ContentType;
-import com.balsamic.sejongmalsami.object.constants.DefaultValue;
+import com.balsamic.sejongmalsami.object.constants.FileStatus;
 import com.balsamic.sejongmalsami.object.mongo.DocumentPostCustomTag;
 import com.balsamic.sejongmalsami.object.mongo.QuestionPostCustomTag;
 import com.balsamic.sejongmalsami.object.postgres.DocumentPost;
@@ -51,7 +51,7 @@ public class PostEmbeddingService {
         .postId(postId)
         .embedding(null)
         .contentType(contentType)
-        .defaultValue(DefaultValue.IN_PROGRESS)
+        .fileStatus(FileStatus.IN_PROGRESS)
         .message(null)
         .build();
     postEmbeddingRepository.save(postEmbedding);
@@ -63,7 +63,7 @@ public class PostEmbeddingService {
 
       // 정상 결과 업데이트
       postEmbedding.setEmbedding(embeddingArray);
-      postEmbedding.setDefaultValue(DefaultValue.COMPLETED);
+      postEmbedding.setFileStatus(FileStatus.SUCCESS);
       postEmbedding.setMessage("Embedding 생성 성공");
 
       postEmbeddingRepository.save(postEmbedding);
@@ -71,7 +71,7 @@ public class PostEmbeddingService {
 
     } catch (Exception e) {
       // 오류 발생 시 상태 업데이트
-      postEmbedding.setDefaultValue(DefaultValue.FAILED);
+      postEmbedding.setFileStatus(FileStatus.FAILURE);
       postEmbedding.setMessage(e.getMessage());
       postEmbeddingRepository.save(postEmbedding);
       log.error("Embedding 저장 중 오류 발생 - Post ID: {}, 오류: {}", postId, e.getMessage(), e);
