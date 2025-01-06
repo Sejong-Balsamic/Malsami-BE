@@ -130,6 +130,10 @@ public enum ErrorCode {
   
   FTP_LOGIN_ERROR(HttpStatus.UNAUTHORIZED, "FTP 로그인에 실패했습니다."),
 
+  // Department
+
+  DEPARTMENT_IO_ERROR(HttpStatus.INTERNAL_SERVER_ERROR, "학과 데이터를 로드하는 동안 IO 오류가 발생했습니다."),
+
   // Course
 
   FACULTY_NOT_FOUND(HttpStatus.NOT_FOUND, "교과목명에 해당하는 단과대를 찾을 수 없습니다."),

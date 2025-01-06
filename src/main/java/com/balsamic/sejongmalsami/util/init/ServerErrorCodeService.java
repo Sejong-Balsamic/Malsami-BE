@@ -1,8 +1,10 @@
 package com.balsamic.sejongmalsami.util.init;
 
-import com.balsamic.sejongmalsami.util.CommonUtil;
+import com.balsamic.sejongmalsami.object.constants.HashType;
 import com.balsamic.sejongmalsami.object.postgres.ServerErrorCode;
 import com.balsamic.sejongmalsami.repository.postgres.ServerErrorCodeRepository;
+import com.balsamic.sejongmalsami.service.HashRegistryService;
+import com.balsamic.sejongmalsami.util.CommonUtil;
 import com.balsamic.sejongmalsami.util.exception.ErrorCode;
 import java.util.Arrays;
 import java.util.List;
@@ -19,6 +21,7 @@ import org.springframework.transaction.annotation.Transactional;
 public class ServerErrorCodeService {
 
   private final ServerErrorCodeRepository serverErrorCodeRepository;
+  private final HashRegistryService hashRegistryService;
 
   /**
    * ErrorCode enum을 DB에 초기화 또는 업데이트
@@ -28,8 +31,7 @@ public class ServerErrorCodeService {
     String currentHash = calculateErrorCodeHash();
 
     // 기존 HASH 조회 및 확인
-    ServerErrorCode storedHashEntry = serverErrorCodeRepository.findByErrorCode("HASH").orElse(null);
-    String storedHash = storedHashEntry != null ? storedHashEntry.getMessage() : null;
+    String storedHash = hashRegistryService.getHashValue(HashType.SERVER_ERROR_CODES);
 
     // HASH 값이 기존과 다른 경우 ( ServerErrorCode 초기화 )
     if (!currentHash.equals(storedHash)) {
@@ -51,13 +53,7 @@ public class ServerErrorCodeService {
       });
 
       // HASH 저장
-      ServerErrorCode hashEntry = ServerErrorCode.builder()
-          .errorCode("HASH")
-          .httpStatusCode(0)
-          .httpStatusMessage("HASH")
-          .message(currentHash)
-          .build();
-      serverErrorCodeRepository.save(hashEntry);
+      hashRegistryService.updateHashValue(HashType.SERVER_ERROR_CODES, currentHash);
     }
   }
 

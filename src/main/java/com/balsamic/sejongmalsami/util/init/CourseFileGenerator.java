@@ -8,6 +8,7 @@ import com.balsamic.sejongmalsami.object.postgres.CourseFile;
 import com.balsamic.sejongmalsami.object.postgres.Subject;
 import com.balsamic.sejongmalsami.repository.postgres.CourseFileRepository;
 import com.balsamic.sejongmalsami.repository.postgres.SubjectRepository;
+import com.balsamic.sejongmalsami.util.CommonUtil;
 import com.balsamic.sejongmalsami.util.FileUtil;
 import com.balsamic.sejongmalsami.util.exception.CustomException;
 import com.balsamic.sejongmalsami.util.exception.ErrorCode;
@@ -19,8 +20,10 @@ import java.nio.file.Paths;
 import java.time.Duration;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
+import java.util.Comparator;
 import java.util.List;
 import java.util.Objects;
+import java.util.stream.Collectors;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.core.io.ClassPathResource;
@@ -39,7 +42,7 @@ public class CourseFileGenerator {
   private final CourseService courseService;
   private final CourseFileRepository courseFileRepository;
   private final SubjectRepository subjectRepository;
-  private final SubjectService subjectService; // SubjectService 주입
+  private final SubjectService subjectService;
 
   /**
    * 교과목 파일을 초기화합니다.
@@ -312,5 +315,78 @@ public class CourseFileGenerator {
 
       return 0;
     }
+  }
+
+  /**
+   * 모든 성공한 CourseFile의 해시를 결합하여 하나의 해시를 생성합니다.
+   *
+   * @return 결합된 해시값 문자열
+   */
+  public String getCombinedCourseHash() {
+    try {
+      List<CourseFile> successfulCourseFiles = courseFileRepository.findByFileStatus(FileStatus.SUCCESS);
+
+      // 파일 이름을 정렬하여 순서를 고정
+      List<String> fileHashes = successfulCourseFiles.stream()
+          .sorted(Comparator.comparing(CourseFile::getFileName))
+          .map(cf -> {
+            try {
+              Path path = getCourseFilePath(cf.getFileName());
+              if (Files.exists(path)) {
+                return CommonUtil.calculateFileHash(path);
+              } else {
+                log.warn("CourseFile 경로가 존재하지 않습니다: {}", path);
+                return "";
+              }
+            } catch (Exception e) {
+              log.error("CourseFile 해시 계산 중 오류 발생: {}", cf.getFileName(), e);
+              return "";
+            }
+          })
+          .filter(hash -> !hash.isEmpty())
+          .collect(Collectors.toList());
+
+      String concatenatedHashes = String.join("", fileHashes);
+      return CommonUtil.calculateSha256ByStr(concatenatedHashes);
+    } catch (Exception e) {
+      log.error("Combined Course Hash 계산 중 오류 발생", e);
+      return "";
+    }
+  }
+
+  /**
+   * CourseFile의 fileName을 통해 실제 파일 경로를 반환합니다.
+   * 실제 파일 저장 경로에 맞게 수정이 필요합니다.
+   *
+   * @param fileName 파일 이름
+   * @return 파일 경로
+   */
+  private Path getCourseFilePath(String fileName) {
+    // 시스템 타입에 따라 경로 설정 (DataInitializer의 determineDepartmentFilePath()와 유사)
+    SystemType systemType = FileUtil.getCurrentSystem();
+    Path coursesPath;
+
+    switch (systemType) {
+      case LINUX:
+        // 서버 환경: /mnt/sejong-malsami/courses/
+        coursesPath = Paths.get("/mnt/sejong-malsami/courses/");
+        break;
+      case WINDOWS:
+      case MAC:
+      case OTHER:
+      default:
+        // 로컬 환경: src/main/resources/courses/
+        try {
+          coursesPath = Paths.get(
+              getClass().getClassLoader().getResource("courses/").toURI()
+          );
+        } catch (Exception e) {
+          log.error("로컬 환경에서 courses 디렉토리를 찾을 수 없습니다.", e);
+          throw new RuntimeException("courses 디렉토리를 찾을 수 없습니다.", e);
+        }
+        break;
+    }
+
+    return coursesPath.resolve(fileName);
   }
 }
