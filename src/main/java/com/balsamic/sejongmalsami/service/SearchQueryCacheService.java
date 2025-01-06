@@ -2,9 +2,9 @@ package com.balsamic.sejongmalsami.service;
 
 import com.balsamic.sejongmalsami.object.postgres.SearchQueryCache;
 import com.balsamic.sejongmalsami.repository.postgres.SearchQueryCacheRepository;
-import java.util.Optional;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -17,9 +17,7 @@ public class SearchQueryCacheService {
   private final OpenAIEmbeddingService openAIEmbeddingService;
 
   /**
-   * 동일 검색어에 대한 Embedding 캐싱 처리
-   * DB에 존재한다면 해당 검색어 Embedding값 반환
-   * DB에 없는 경우 OpenAI 호출
+   * 동일 검색어에 대한 Embedding 캐싱 처리 DB에 존재한다면 해당 검색어 Embedding값 반환 DB에 없는 경우 OpenAI 호출
    */
   @Transactional
   public float[] getOrCreateEmbedding(String userInput) {
@@ -28,35 +26,42 @@ public class SearchQueryCacheService {
     String normalizedQuery = normalizeQuery(userInput);
 
     // DB조회
-    Optional<SearchQueryCache> optionalCache = searchQueryCacheRepository.findByQueryText(normalizedQuery);
-
-    if (optionalCache.isPresent()) {
-      // 캐시에 존재하는 경우
-      SearchQueryCache cache = optionalCache.get();
-      cache.setSearchCount(cache.getSearchCount() + 1);
-      searchQueryCacheRepository.save(cache);
-
-      log.info("캐싱된 Embedding 사용 - Query: {}, SearchCount: {}", normalizedQuery, cache.getSearchCount());
-      return cache.getEmbedding();
-    } else {
-      // 캐시에 없는 경우
-      float[] newEmbedding = openAIEmbeddingService.generateEmbedding(normalizedQuery);
-
-      SearchQueryCache cache = SearchQueryCache.builder()
-          .queryText(normalizedQuery)
-          .embedding(newEmbedding)
-          .searchCount(1)
-          .build();
-      searchQueryCacheRepository.save(cache);
-
-      log.info("새 Embedding 생성 및 캐싱 - Query: {}", normalizedQuery);
-      return newEmbedding;
-    }
+    return searchQueryCacheRepository.findByQueryText(normalizedQuery)
+        .map(this::returnEmbedding)
+        .orElseGet(() -> {
+          float[] newEmbedding = openAIEmbeddingService.generateEmbedding(normalizedQuery);
+          saveEmbeddingAsync(normalizedQuery, newEmbedding);
+          return newEmbedding;
+        });
   }
 
   /**
-   * 검색어 정규화
-   * trim + lowerCase + 다중 공백 제거
+   * 캐시에 존재하는 Embedding 업데이트 및 반환
+   */
+  private float[] returnEmbedding(SearchQueryCache cache) {
+    cache.setSearchCount(cache.getSearchCount() + 1);
+    searchQueryCacheRepository.save(cache);
+    log.info("캐싱된 Embedding 사용 - Query: {}, SearchCount: {}", cache.getQueryText(), cache.getSearchCount());
+    return cache.getEmbedding();
+  }
+
+  /**
+   * 새로운 Embedding 비동기 저장
+   */
+  @Async
+  public void saveEmbeddingAsync(String queryText, float[] embedding) {
+    SearchQueryCache newCache = SearchQueryCache.builder()
+        .queryText(queryText)
+        .embedding(embedding)
+        .searchCount(1)
+        .build();
+    searchQueryCacheRepository.save(newCache);
+    log.info("새 Embedding 생성 및 캐싱 - Query: {}", queryText);
+  }
+
+
+  /**
+   * 검색어 정규화 trim + lowerCase + 다중 공백 제거
    */
   private String normalizeQuery(String input) {
     if (input == null) {
