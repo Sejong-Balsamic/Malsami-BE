@@ -47,6 +47,7 @@ public class SearchQueryCacheService {
           .embedding(newEmbedding)
           .searchCount(1)
           .build();
+      searchQueryCacheRepository.save(cache);
 
       log.info("새 Embedding 생성 및 캐싱 - Query: {}", normalizedQuery);
       return newEmbedding;
