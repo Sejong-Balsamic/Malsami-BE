@@ -157,7 +157,7 @@ public class AdminPageController {
   }
 
   /**
-   * 교과목 관리 페이지
+   *  교과목명 - 조회
    */
   @GetMapping("/admin/subject")
   public String subjectPage(@RequestParam String accessToken, Model model) {

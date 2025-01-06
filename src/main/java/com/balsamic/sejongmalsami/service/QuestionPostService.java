@@ -60,6 +60,7 @@ public class QuestionPostService {
   private final AnswerPostRepository answerPostRepository;
   private final QuestionPostCustomTagRepository questionPostCustomTagRepository;
   private final RedisLockManager redisLockManager;
+  private final PostEmbeddingService postEmbeddingService;
 
   /**
    * <h3>질문 글 등록</h3>
@@ -146,6 +147,16 @@ public class QuestionPostService {
       String thumbnailUrl = savedMediaFiles.get(0).getThumbnailUrl();
       questionPost.setThumbnailUrl(thumbnailUrl);
     }
+
+    // 벡터 생성 및 저장
+    postEmbeddingService.saveEmbedding(
+        savedQuestionPost.getQuestionPostId(),
+        questionPost.getTitle() + " " +
+            questionPost.getSubject() + " " +
+            questionPost.getContent() + " " +
+            (customTags != null ? String.join(" ", customTags) : ""),
+        ContentType.QUESTION
+    );
 
     // 질문 글 등록 시 엽전 100냥 감소
     yeopjeonService.processYeopjeon(member, YeopjeonAction.CREATE_QUESTION_POST);

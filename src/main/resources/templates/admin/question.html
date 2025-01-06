@@ -1,53 +1,286 @@
-<!-- src/main/resources/templates/admin/question.html -->
 <!DOCTYPE html>
 <html xmlns:th="http://www.thymeleaf.org">
-<head th:replace="~{fragments/header :: head}"></head>
-<body>
-<div th:replace="~{fragments/header :: header}"></div>
-<div th:replace="~{fragments/sidebar :: sidebar}"></div>
+<head th:replace="fragments/header :: head(title='QuestionPost 관리')"></head>
+<body class="questionPost-page">
+<div th:replace="fragments/header :: header"></div>
 
-<div class="ui stackable grid">
-  <div class="three wide column">
-    <!-- 사이드바는 이미 프래그먼트로 불러왔으므로 여기에 다시 호출할 필요 없음 -->
+<div class="ui container u-margin-vertical-large u-padding-horizontal-medium">
+  <!-- 페이지 제목 -->
+  <div class="ui main text container u-margin-bottom-large">
+    <h1 class="ui header">질문 게시글 관리</h1>
   </div>
-  <div class="thirteen wide column">
-    <h2 class="ui header">질문답변게시판 관리</h2>
-    <button class="ui primary button" onclick="window.location.href='/admin/question/new'">
-      <i class="add icon"></i> 새 질문 추가
-    </button>
-    <table class="ui celled table">
-      <thead>
-      <tr>
-        <th>ID</th>
-        <th>질문 제목</th>
-        <th>작성자</th>
-        <th>작성일</th>
-        <th>상태</th>
-        <th>액션</th>
-      </tr>
-      </thead>
-      <tbody>
-      <!-- 예시 데이터 -->
-      <tr>
-        <td>1</td>
-        <td>Spring Boot 설정 방법</td>
-        <td>홍길동</td>
-        <td>2024-04-01</td>
-        <td><span class="ui green label">활성</span></td>
-        <td>
-          <div class="ui buttons">
-            <button class="ui button">수정</button>
-            <div class="or"></div>
-            <button class="ui red button">삭제</button>
-          </div>
-        </td>
-      </tr>
-      <!-- 추가 데이터 반복 -->
-      </tbody>
-    </table>
+
+  <!-- 검색 필터 -->
+  <div class="form-container ui segment">
+    <form id="questionPostSearchForm" class="ui form">
+      <div class="four fields">
+        <!-- 1) 제목/내용 통합 검색(문자열) -->
+        <div class="field">
+          <label>검색어</label>
+          <label>
+            <input type="text" name="query" placeholder="제목/본문을 검색합니다.">
+          </label>
+        </div>
+        <!-- 2) 과목(subject) -->
+        <div class="field">
+          <label>과목</label>
+          <label>
+            <input type="text" name="subject" placeholder="예) 컴퓨터구조">
+          </label>
+        </div>
+        <!-- 3) 단과대(faculty) -->
+        <div class="field">
+          <label>단과대</label>
+          <label>
+            <input type="text" name="faculty" placeholder="예) 공과대학">
+          </label>
+        </div>
+        <!-- 4) 채택 여부(chaetaekStatus) -->
+        <div class="field">
+          <label>채택여부</label>
+          <label>
+            <select name="chaetaekStatus" class="ui dropdown">
+              <option value="ALL">전체</option>
+              <option value="CHAETAEK">채택됨</option>
+              <option value="NO_CHAETAEK">채택안됨</option>
+            </select>
+          </label>
+        </div>
+      </div>
+      <!-- 필요하다면 정적 태그(QuestionPresetTag)도 검색 조건으로 추가 가능 -->
+      <!-- TODO: 여러개를 검색할지, 단일 선택인지, 프로젝트 정책에 따라 구현 -->
+    </form>
+    <!-- 검색/초기화 버튼 -->
+    <div class="ui buttons">
+      <button class="ui button primary" id="questionPostSearchButton">검색</button>
+      <button class="ui button" id="questionPostResetButton">초기화</button>
+    </div>
+  </div>
+
+  <!-- Tabulator 테이블 -->
+  <div class="table-container">
+    <div id="totalCount" class="ui left aligned header">총 조회 수: 0건</div>
+    <div id="questionPostTable"></div>
   </div>
 </div>
 
-<div th:replace="~{fragments/footer :: footer}"></div>
+
+<!-- 회원 상세 정보 모달 -->
+<div class="ui modal" id="memberDetailModal">
+  <i class="close icon"></i>
+  <div class="header">작성자 상세 정보</div>
+  <div class="content">
+    <div class="ui grid">
+      <div class="column">
+        <div class="ui list">
+          <div class="item">
+            <strong>이름:</strong> <span id="modalStudentName"></span>
+          </div>
+          <div class="item">
+            <strong>학번:</strong> <span id="modalStudentId"></span>
+          </div>
+          <div class="item">
+            <strong>학과:</strong> <span id="modalMajor"></span>
+          </div>
+          <div class="item">
+            <strong>학년:</strong> <span id="modalAcademicYear"></span>
+          </div>
+          <div class="item">
+            <strong>재학 상태:</strong> <span id="modalEnrollmentStatus"></span>
+          </div>
+          <div class="item">
+            <strong>회원 ID:</strong> <span id="modalMemberId"></span>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+  <div class="actions">
+    <button class="ui button primary" id="memberDetailModalCloseButton">닫기</button>
+  </div>
+</div>
+
+<div th:replace="fragments/footer :: footer"></div>
+
+<!-- Tabulator CSS/JS -->
+<link href="https://unpkg.com/tabulator-tables/dist/css/tabulator.min.css" rel="stylesheet">
+<script type="text/javascript" src="https://unpkg.com/tabulator-tables/dist/js/tabulator.min.js"></script>
+
+<script th:inline="javascript">
+  let questionPostTable = null;
+
+  $(document).ready(function () {
+    // 드롭다운 초기화
+    setDropdown();
+
+    // 데이터 초기화
+    initData();
+
+    // 이벤트 핸들러
+    eventHandler();
+  });
+
+  // 드롭다운 초기화
+  function setDropdown(){
+    $('.ui.dropdown').dropdown();
+  }
+
+  // 데이터 초기화
+  function initData(){
+    questionPostTable = initQuestionPostTable();
+  }
+
+  // 이벤트 핸들러
+  function eventHandler() {
+    // 검색 버튼
+    document.getElementById("questionPostSearchButton").addEventListener("click", function (evt) {
+      evt.preventDefault();
+      questionPostTable.setPage(1);
+    });
+
+    // 초기화 버튼
+    document.getElementById("questionPostResetButton").addEventListener("click", function (evt) {
+      evt.preventDefault();
+      // 검색 폼 초기화
+      document.getElementById("questionPostSearchForm").reset();
+      $('.ui.dropdown').dropdown('clear'); // 드롭다운도 초기화
+
+      questionPostTable.setPage(1);
+    });
+
+    // 회원 정보 버튼 클릭
+    $(document).on("click", ".member-detail-button", function () {
+      const memberData = $(this).data();
+      $("#modalStudentName").text(memberData.studentName);
+      $("#modalStudentId").text(memberData.studentId);
+      $("#modalMajor").text(memberData.major);
+      $("#modalAcademicYear").text(memberData.academicYear);
+      $("#modalEnrollmentStatus").text(memberData.enrollmentStatus);
+      $("#modalMemberId").text(memberData.memberId);
+      $("#memberDetailModal").modal("show");
+    });
+
+    // 모달 닫기 버튼
+    $("#memberDetailModalCloseButton").click(function () {
+      $("#memberDetailModal").modal("hide");
+    });
+
+  }
+
+  // Table 초기화
+  function initQuestionPostTable(){
+    const table = new Tabulator("#questionPostTable", {
+      layout: "fitDataTable",
+      columns: [
+        { title: "제목", field: "title", width: 260, sorter: "string" },
+        { title: "본문", field: "content", width: 800, sorter: "string" },
+        { title: "과목", field: "subject", width: 100, sorter: "string" },
+        { title: "단과대", field: "faculties", width: 150, sorter: "string",
+          // faculties 배열 -> 문자열로 합쳐서 표시(백엔드에서 받아올 때 join한 문자열로 줘도 됨)
+          formatter: function(cell){
+            const arr = cell.getValue();
+            return Array.isArray(arr) ? arr.join(", ") : "";
+          }
+        },
+        {
+          title: "작성자",
+          field: "member",
+          width: 150,
+          formatter: memberFormatter,
+        },
+        { title: "정적태그(최대2)", field: "questionPresetTags", widthGrow: 1, sorter: "string",
+          formatter: function(cell){
+            const arr = cell.getValue();
+            return Array.isArray(arr) ? arr.join(", ") : "";
+          }
+        },
+        { title: "커스텀태그", field: "customTags", widthGrow: 1, sorter: "string",
+          // questionPostCustomTag에 있는 것들
+          formatter: function(cell){
+            const arr = cell.getValue();
+            return Array.isArray(arr) ? arr.join(", ") : "";
+          }
+        },
+        { title: "좋아요 수", field: "likeCount", width: 80, sorter: "number" },
+        { title: "답변 수", field: "answerCount", width: 80, sorter: "number" },
+        { title: "조회 수", field: "viewCount", width: 80, sorter: "number" },
+        { title: "채택 여부", field: "chaetaekStatus", width: 80,
+          formatter: function(cell){
+            return cell.getValue() ? "채택됨" : "미채택";
+          }
+        },
+        { title: "작성일", field: "createdDate", width: 150, sorter: "datetime", sorterParams: { format: "YYYY-MM-DD HH:mm:ss" }},
+      ],
+      ajaxURL: "/admin/question-post/filter",  // 실제 Ajax 통신할 URL
+      ajaxConfig: {
+        method: "POST",
+        headers: {
+          "Authorization": "Bearer " + localStorage.getItem("accessToken")
+        }
+      },
+      ajaxRequestFunc: function (url, config, params) {
+        // 검색 폼 데이터를 가져온다
+        const formData = new FormData(document.getElementById('questionPostSearchForm'));
+
+        // 페이징
+        formData.append("pageNumber", (params.page ? params.page - 1 : 0));
+        formData.append("pageSize", params.size || 10);
+
+        // 정렬(멀티 정렬 가능하지만, 여기서는 첫번째 정렬 기준만 예시)
+        if (params.sorters && params.sorters.length > 0) {
+          formData.append("sortField", params.sorters[0].field);
+          formData.append("sortDirection", params.sorters[0].dir.toUpperCase());
+        } else {
+          formData.append("sortField", "createdDate");
+          formData.append("sortDirection", "DESC");
+        }
+
+        // Ajax 요청
+        return fetch(url + "?accessToken=" + localStorage.getItem("accessToken"), {
+          method: config.method,
+          headers: config.headers,
+          body: formData
+        }).then(response => response.json());
+      },
+      ajaxResponse: function (url, params, response) {
+        // 총 항목수 표시
+        // response 예시: { questionPostPage: { content: [...], totalElements: 123, totalPages: 13 } }
+        document.getElementById("totalCount").textContent =
+            `총 조회 수: ${response.questionPostPage.totalElements || 0}건`;
+
+        // Tabulator가 이해할 수 있는 데이터 구조로 반환
+        return {
+          data: response.questionPostPage.content,
+          last_page: response.questionPostPage.totalPages
+        };
+      },
+      pagination: true,
+      paginationMode: "remote",
+      paginationSize: 100,
+      paginationSizeSelector: [10, 50, 100, 200, 500, 1000]
+      // height: "600px" // 필요시 사용
+    });
+    return table;
+  }
+
+  // QuestionPost Table Formatter : 회원 상세 정보 표시
+  function memberFormatter(cell) {
+    const member = cell.getValue();
+    if (member) {
+      return `
+        <button class="ui small button member-detail-button"
+          data-member-id="${member.memberId}"
+          data-student-id="${member.studentId}"
+          data-student-name="${member.studentName}"
+          data-major="${member.major}"
+          data-academic-year="${member.academicYear}"
+          data-enrollment-status="${member.enrollmentStatus}">
+          ${member.studentName} (${member.studentId})
+        </button>`;
+    }
+    return "정보 없음";
+  }
+
+</script>
 </body>
 </html>

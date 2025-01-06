@@ -41,6 +41,35 @@ public enum ErrorCode {
 
   MISSING_AUTH_TOKEN(HttpStatus.UNAUTHORIZED, "인증 토큰이 필요합니다."),
 
+  // OpenAI API
+  OPENAI_AUTHENTICATION_ERROR(HttpStatus.UNAUTHORIZED, "OpenAI 인증 실패: API 키가 잘못되었거나 만료되었습니다."),
+
+  OPENAI_RATE_LIMIT_EXCEEDED(HttpStatus.TOO_MANY_REQUESTS, "OpenAI 요청 한도를 초과했습니다."),
+
+  OPENAI_INVALID_REQUEST_ERROR(HttpStatus.BAD_REQUEST, "OpenAI 요청이 유효하지 않습니다."),
+
+  OPENAI_SERVER_ERROR(HttpStatus.INTERNAL_SERVER_ERROR, "OpenAI 서버에서 문제가 발생했습니다."),
+
+  OPENAI_TIMEOUT_ERROR(HttpStatus.REQUEST_TIMEOUT, "OpenAI 요청 시간이 초과되었습니다."),
+
+  OPENAI_CONNECTION_ERROR(HttpStatus.SERVICE_UNAVAILABLE, "OpenAI 서비스에 연결할 수 없습니다."),
+
+  OPENAI_UNSUPPORTED_MODEL(HttpStatus.BAD_REQUEST, "OpenAI에서 지원하지 않는 모델 요청입니다."),
+
+  OPENAI_INVALID_RESPONSE(HttpStatus.INTERNAL_SERVER_ERROR, "OpenAI로부터 올바르지 않은 응답을 받았습니다."),
+
+  OPENAI_REQUEST_PAYLOAD_TOO_LARGE(HttpStatus.BAD_REQUEST, "OpenAI 요청 본문 크기가 너무 큽니다."),
+
+  OPENAI_RESOURCE_NOT_FOUND(HttpStatus.NOT_FOUND, "요청한 OpenAI 리소스를 찾을 수 없습니다."),
+
+  OPENAI_PERMISSION_DENIED(HttpStatus.FORBIDDEN, "OpenAI 요청 권한이 없습니다."),
+
+  // Embedding
+
+  EMBEDDING_GENERATION_FAILED(HttpStatus.INTERNAL_SERVER_ERROR, "Embedding 생성에 실패했습니다."),
+
+  EMBEDDING_SEARCH_FAILED(HttpStatus.INTERNAL_SERVER_ERROR, "Embedding 검색에 실패했습니다."),
+
   // File
 
   S3_FILE_UPLOAD_ERROR(HttpStatus.BAD_REQUEST, "파일 업로드 시 오류가 발생했습니다."),
