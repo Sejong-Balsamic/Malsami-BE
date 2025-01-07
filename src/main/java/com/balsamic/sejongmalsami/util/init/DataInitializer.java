@@ -37,7 +37,7 @@ public class DataInitializer implements ApplicationRunner {
   @Value("${ftp.path.courses}")
   private Path coursesPath;
 
-  @Value("${ftp.path.courses}")
+  @Value("${ftp.path.department}")
   private Path departmentsPath;
 
   @Override
