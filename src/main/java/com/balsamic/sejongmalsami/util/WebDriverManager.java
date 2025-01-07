@@ -1,6 +1,6 @@
 package com.balsamic.sejongmalsami.util;
 
-import com.balsamic.sejongmalsami.object.constants.SystemType;
+import com.balsamic.sejongmalsami.util.config.ServerConfig;
 import com.balsamic.sejongmalsami.util.log.LogUtil;
 import java.net.MalformedURLException;
 import java.net.URL;
@@ -18,7 +18,7 @@ import org.springframework.stereotype.Component;
 public class WebDriverManager {
   private final ChromeOptions options;
   private final String seleniumGridUrl;
-  private final boolean isServerEnvironment;
+  private final boolean isLinuxServer;
 
   // ThreadLocal -> 각 스레드 WebDriver 인스턴스 관리
   private final ThreadLocal<WebDriver> driverThreadLocal = new ThreadLocal<>();
@@ -26,8 +26,8 @@ public class WebDriverManager {
 
   public WebDriverManager(@Value("${selenium.grid-url}") String seleniumGridUrl) {
     this.seleniumGridUrl = seleniumGridUrl;
-    this.isServerEnvironment = FileUtil.getCurrentSystem().equals(SystemType.LINUX);
     this.options = new ChromeOptions();
+    this.isLinuxServer = ServerConfig.isLinuxServer;
     this.options.addArguments("--headless", "--disable-gpu", "--no-sandbox", "--disable-dev-shm-usage");
   }
 
@@ -49,7 +49,7 @@ public class WebDriverManager {
   private WebDriver initDriver() {
     try {
       WebDriver driver;
-      if (isServerEnvironment) {
+      if (isLinuxServer) {
         // 서버 환경에서는 Selenium Grid에 연결
         driver = new RemoteWebDriver(new URL(seleniumGridUrl), options);
         LogUtil.lineLog("Selenium Grid에 연결된 WebDriver 초기화 완료");

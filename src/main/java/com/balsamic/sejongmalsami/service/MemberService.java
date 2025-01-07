@@ -14,8 +14,8 @@ import com.balsamic.sejongmalsami.object.CustomUserDetails;
 import com.balsamic.sejongmalsami.object.MemberCommand;
 import com.balsamic.sejongmalsami.object.MemberDto;
 import com.balsamic.sejongmalsami.object.constants.AccountStatus;
-import com.balsamic.sejongmalsami.object.constants.DefaultValue;
 import com.balsamic.sejongmalsami.object.constants.ExpTier;
+import com.balsamic.sejongmalsami.object.constants.FileStatus;
 import com.balsamic.sejongmalsami.object.constants.Role;
 import com.balsamic.sejongmalsami.object.constants.SortType;
 import com.balsamic.sejongmalsami.object.mongo.RefreshToken;
@@ -169,7 +169,7 @@ public class MemberService {
       member.setFaculties(facultyNames);
       log.info("Faculties 설정 완료: {} -> {}", member.getMemberId(), facultyNames);
     } else {
-      member.setFaculties(Collections.singletonList(DefaultValue.NOT_FOUND.getDescription()));
+      member.setFaculties(Collections.singletonList(FileStatus.NOT_FOUND.name()));
       log.warn("Member의 major에 해당하는 Department를 찾을 수 없습니다: {}", major);
     }
 

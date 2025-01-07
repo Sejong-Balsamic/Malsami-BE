@@ -1,6 +1,8 @@
 package com.balsamic.sejongmalsami.util;
 
 import java.nio.charset.StandardCharsets;
+import java.nio.file.Files;
+import java.nio.file.Path;
 import java.security.MessageDigest;
 import java.util.UUID;
 
@@ -63,6 +65,27 @@ public class CommonUtil {
       return sb.toString();
     } catch (Exception e) {
       throw new RuntimeException("SHA-256 해시 계산 실패", e);
+    }
+  }
+
+  /**
+   * 파일의 SHA-256 해시값을 계산합니다.
+   *
+   * @param filePath 파일의 경로
+   * @return 해시값 문자열
+   */
+  public static String calculateFileHash(Path filePath) {
+    try {
+      MessageDigest digest = MessageDigest.getInstance("SHA-256");
+      byte[] fileBytes = Files.readAllBytes(filePath);
+      byte[] hashBytes = digest.digest(fileBytes);
+      StringBuilder sb = new StringBuilder();
+      for (byte b : hashBytes) {
+        sb.append(String.format("%02x", b));
+      }
+      return sb.toString();
+    } catch (Exception e) {
+      throw new RuntimeException("파일 해시 계산 실패", e);
     }
   }
 
