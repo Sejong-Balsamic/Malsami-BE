@@ -21,6 +21,7 @@ public class HashRegistryService {
    * @param hashType 해시값의 유형
    * @return 해시값 문자열 또는 null
    */
+  @Transactional(readOnly = true)
   public String getHashValue(HashType hashType) {
     return hashRegistryRepository.findByHashType(hashType)
         .map(HashRegistry::getHashValue)
