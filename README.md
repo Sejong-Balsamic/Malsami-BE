@@ -82,12 +82,16 @@
 - **WebSocket**
 - **MongoDB**
 - **PostgreSQL**
-- **Thymeleaf**
+- **Thymeleaf, Jquery, Semantic UI**
 - **Gradle**
 - **Docker**
 - **Swagger**
 - **Lombok**
 - **JUnit5**
+- **Gihub Action**
+- **Selenium, Jsoup**
+- **Elastic Search**
+- **OpenAI API**
 
 ## 🚀 설치 및 실행
 
