@@ -302,7 +302,7 @@ public class DocumentPostService {
     // 사용자가 좋아요를 눌렀는지 확인
     Boolean isLiked = documentBoardLikeRepository
         .existsByDocumentBoardIdAndMemberId(post.getDocumentPostId(), command.getMemberId());
-    post.updateIsLiked(isLiked);
+    post.setIsLiked(isLiked);
 
     // 해당 자료 글 반환
     return DocumentDto.builder()

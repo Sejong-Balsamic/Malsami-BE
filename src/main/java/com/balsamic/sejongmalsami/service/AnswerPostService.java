@@ -76,7 +76,7 @@ public class AnswerPostService {
         command.getAttachmentFiles());
 
     // 답변이 작성된 질문 글 답변 수 증가
-    questionPost.updateAnswerCount(answerPostRepository.countByQuestionPost(questionPost));
+    questionPost.setAnswerCount(answerPostRepository.countByQuestionPost(questionPost));
     log.info("{} 질문 글에 작성된 답변 수 : {}", questionPost.getQuestionPostId(), questionPost.getAnswerCount());
 
     // 답변 작성 시 경험치 증가 및 경험치 히스토리 내역 추가
@@ -113,7 +113,7 @@ public class AnswerPostService {
         answerPost.setMediaFiles(mediaFiles);
         Boolean isLiked = questionBoardLikeRepository
             .existsByQuestionBoardIdAndMemberId(answerPost.getAnswerPostId(), command.getMemberId());
-        answerPost.updateIsLiked(isLiked); // isLiked 필드 설정
+        answerPost.setIsLiked(isLiked); // isLiked 필드 설정
       });
     }
 
@@ -252,7 +252,7 @@ public class AnswerPostService {
     }
 
     // 질문 채택여부 true 수정
-    questionPost.markAsChaetaek();
+    questionPost.setChaetaekStatus(true);
 
     // 질문게시글, 채택된 답변 저장
     AnswerPost updatedPost = answerPostRepository.save(answerPost);

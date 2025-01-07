@@ -29,7 +29,7 @@ import lombok.experimental.SuperBuilder;
 @NoArgsConstructor
 @ToString(callSuper = true)
 @JsonIgnoreProperties({"hibernateLazyInitializer", "handler"})
-public class AnswerPost extends BaseEntity {
+public class AnswerPost extends BasePost {
 
   @Id
   @GeneratedValue(strategy = GenerationType.AUTO)
@@ -49,10 +49,6 @@ public class AnswerPost extends BaseEntity {
   // 좋아요 수
   @Builder.Default
   private Integer likeCount = 0;
-
-  // 댓글 수
-  @Builder.Default
-  private Integer commentCount = 0;
 
   // 답변 채택 여부
   @Builder.Default
@@ -87,10 +83,5 @@ public class AnswerPost extends BaseEntity {
   // 답변 채택 rollback
   public void rollbackChaetaek() {
     isChaetaek = false;
-  }
-
-  // 댓글 수 증가
-  public void increaseCommentCount() {
-    commentCount++;
   }
 }

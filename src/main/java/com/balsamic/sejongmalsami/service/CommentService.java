@@ -167,7 +167,7 @@ public class CommentService {
 
     // 각 댓글에 좋아요 여부 설정
     commentPage.forEach(comment -> comment
-        .updateIsLiked(likedCommentIds.contains(comment.getCommentId())));
+        .setIsLiked(likedCommentIds.contains(comment.getCommentId())));
 
     return CommentDto.builder()
         .commentsPage(commentPage)

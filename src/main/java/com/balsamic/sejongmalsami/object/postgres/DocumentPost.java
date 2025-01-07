@@ -2,8 +2,6 @@ package com.balsamic.sejongmalsami.object.postgres;
 
 import com.balsamic.sejongmalsami.object.constants.DocumentType;
 import com.balsamic.sejongmalsami.object.constants.PostTier;
-import com.balsamic.sejongmalsami.util.exception.CustomException;
-import com.balsamic.sejongmalsami.util.exception.ErrorCode;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import jakarta.persistence.CollectionTable;
 import jakarta.persistence.Column;
@@ -52,12 +50,12 @@ public class DocumentPost extends BasePost {
 
   private String subject; // 교과목명
 
+  @Column(nullable = false, length = 1024)
+  private String content; // 내용
+
   @ElementCollection(fetch = FetchType.LAZY)
   @Builder.Default
   private List<String> faculties = new ArrayList<>(); // 교과목명에 해당하는 단과대
-
-  @Column(nullable = false, length = 1024)
-  private String content; // 내용
 
   @Builder.Default
   @ElementCollection(targetClass = DocumentType.class, fetch = FetchType.LAZY)
@@ -76,16 +74,7 @@ public class DocumentPost extends BasePost {
   private Integer attendedYear;
 
   @Builder.Default
-  private Integer likeCount = 0; // 좋아요수
-
-  @Builder.Default
   private Integer dislikeCount = 0; // 싫어요수
-
-  @Builder.Default
-  private Integer commentCount = 0; // 댓글수
-
-  @Builder.Default
-  private Integer viewCount = 0; // 조회수
 
   @Builder.Default
   private Boolean isDepartmentPrivate = false; // 내 학과 비공개
@@ -93,40 +82,11 @@ public class DocumentPost extends BasePost {
   @Builder.Default
   private Boolean isPopular = false; //2024.11.26 : #442 : 인기 게시글 여부 추가
 
-  public void updateDocumentTypeSet(List<DocumentType> documentTypes) {
-    if (documentTypes.size() > MAX_DOCUMENT_TYPES) {
-      throw new CustomException(ErrorCode.DOCUMENT_TYPE_LIMIT_EXCEEDED);
-    }
-    this.documentTypes = documentTypes;
-  }
-
-  // 조회 수 증가
-  public void increaseViewCount() {
-    viewCount++;
-  }
-
-  // 댓글 수 증가
-  public void increaseCommentCount() {
-    commentCount++;
-  }
-
-  // 좋아요 수 증가
-  public void increaseLikeCount() {
-    likeCount++;
-  }
-
-  // 좋아요 수 롤백
-  public void decreaseLikeCount() {
-    likeCount--;
-  }
-
-  // 싫어요 수 증가
   public void increaseDislikeCount() {
-    dislikeCount++;
+    this.dislikeCount++;
   }
 
-  // 싫어요 수 롤백
   public void decreaseDislikeCount() {
-    dislikeCount--;
+    this.dislikeCount--;
   }
 }

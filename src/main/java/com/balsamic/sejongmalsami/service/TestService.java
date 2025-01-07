@@ -175,14 +175,14 @@ public class TestService {
           if (chaetaekIndex % 2 != 0) {
             AnswerPost chaetaekAnswer = answerPosts.get(chaetaekIndex);
             chaetaekAnswer.markAsChaetaek();
-            questionPost.markAsChaetaek();
+            questionPost.setChaetaekStatus(true);
             questionPostRepository.save(questionPost);
             answerPostRepository.save(chaetaekAnswer);
           }
         }
 
         // 답변 수 동기화
-        questionPost.updateAnswerCount(answerPosts.size());
+        questionPost.setAnswerCount(answerPosts.size());
         questionPostRepository.save(questionPost);
       }
     }
