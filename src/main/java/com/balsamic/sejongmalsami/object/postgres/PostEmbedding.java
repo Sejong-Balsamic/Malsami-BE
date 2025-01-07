@@ -1,7 +1,7 @@
 package com.balsamic.sejongmalsami.object.postgres;
 
 import com.balsamic.sejongmalsami.object.constants.ContentType;
-import com.balsamic.sejongmalsami.object.constants.DefaultValue;
+import com.balsamic.sejongmalsami.object.constants.FileStatus;
 import com.balsamic.sejongmalsami.util.converter.FloatArrayConverter;
 import jakarta.persistence.Column;
 import jakarta.persistence.Convert;
@@ -46,8 +46,8 @@ public class PostEmbedding extends BaseEntity{
   @Column(nullable = false)
   private ContentType contentType;
 
-  // 작업 상태: IN_PROGRESS, COMPLETED, FAILED
-  private DefaultValue defaultValue;
+  // 작업 상태: IN_PROGRESS, SUCCESS, FAILURE
+  private FileStatus fileStatus;
 
   // 추가 설명 (목데이터, 에러메시지 등등)
   private String message;

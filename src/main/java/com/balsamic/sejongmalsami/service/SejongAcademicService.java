@@ -5,6 +5,7 @@ import com.balsamic.sejongmalsami.object.SejongAcademicDto;
 import com.balsamic.sejongmalsami.object.postgres.Faculty;
 import com.balsamic.sejongmalsami.repository.postgres.FacultyRepository;
 import com.balsamic.sejongmalsami.repository.postgres.SubjectRepository;
+import com.balsamic.sejongmalsami.util.TimeUtil;
 import com.balsamic.sejongmalsami.util.log.LogUtil;
 import java.time.LocalDateTime;
 import java.util.Arrays;
@@ -120,7 +121,7 @@ public class SejongAcademicService {
       }
     }
     facultyRepository.saveAll(allFaculties);
-    LogUtil.lineLog("단과대(Faculty) 정보 업데이트 완료 : " + LocalDateTime.now().toString());
+    LogUtil.lineLog("단과대(Faculty) 정보 업데이트 완료 : " + TimeUtil.readableCurrentLocalDateTime());
   }
 
   @Cacheable(value = "subjects")
