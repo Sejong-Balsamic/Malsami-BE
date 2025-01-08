@@ -271,6 +271,10 @@ public enum ErrorCode {
 
   LIKE_COUNT_CANNOT_BE_NEGATIVE(HttpStatus.BAD_REQUEST, "좋아요 개수의 최소값은 0입니다."),
 
+  // Report
+
+  ALREADY_REPORTED(HttpStatus.CONFLICT , "이미 해당 게시글을 신고하셨습니다."),
+
   // ErrorCode
 
   SERVER_ERROR_CODE_NOT_FOUND(HttpStatus.NOT_FOUND, "서버 에러코드를 찾을 수 없습니다.");
