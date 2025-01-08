@@ -275,6 +275,8 @@ public enum ErrorCode {
 
   ALREADY_REPORTED(HttpStatus.CONFLICT , "이미 해당 게시글을 신고하셨습니다."),
 
+  CANNOT_REPORT_OWN_CONTENT(HttpStatus.BAD_REQUEST, "자신의 게시물은 신고할 수 없습니다."),
+
   // ErrorCode
 
   SERVER_ERROR_CODE_NOT_FOUND(HttpStatus.NOT_FOUND, "서버 에러코드를 찾을 수 없습니다.");

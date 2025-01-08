@@ -8,5 +8,5 @@ import org.springframework.stereotype.Repository;
 @Repository
 public interface ReportRepository extends MongoRepository<Report, String> {
 
-  boolean existsByReporterIdAndReportedIdAndReportedEntityId(UUID reporterId, UUID reportedId, UUID reportedEntityId);
+  boolean existsByReporterIdAndReportedEntityId(UUID reporterId, UUID reportedEntityId);
 }

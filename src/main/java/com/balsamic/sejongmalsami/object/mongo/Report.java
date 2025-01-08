@@ -28,7 +28,7 @@ public class Report extends BaseMongoEntity {
 
   @Indexed
   @NotNull
-  private UUID reportedId; // 신고 당한 자
+  private UUID reportedMemberId; // 신고 당한 자
 
   // 신고 대상 Entity ID
   private UUID reportedEntityId;

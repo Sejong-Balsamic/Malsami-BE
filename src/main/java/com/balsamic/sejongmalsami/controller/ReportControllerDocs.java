@@ -15,6 +15,11 @@ public interface ReportControllerDocs {
 
   @ApiChangeLogs({
       @ApiChangeLog(
+          date = "2025.01.08",
+          author = Author.SUHSAECHAN,
+          description = "ContentType 에 대한 Entity 유효성 확인, Member 유효성 확인 중복신고, 셀프신고 예외처리"
+      ),
+      @ApiChangeLog(
           date = "2025.01.05",
           author = Author.SUHSAECHAN,
           description = "신고 저장 | TODO: ContentType 에 대한 Entity 존재 확인"
@@ -31,8 +36,6 @@ public interface ReportControllerDocs {
             
             ### **요청 파라미터**
             - **`ReportCommand`**: 신고에 필요한 정보
-              - **`UUID memberId`**: 신고자 회원 ID
-              - **`UUID reportedId`**: 신고 대상 회원 ID
               - **`UUID reportedEntityId`**: 신고 대상 게시글 ID
               - **`ContentType contentType`**: 신고 대상 콘텐츠 타입 (예: QUESTION, ANSWER 등)
               - **`ReportReason reportReason`**: 신고 사유 (예: SPAM, HARASSMENT 등)
@@ -62,10 +65,17 @@ public interface ReportControllerDocs {
             - **`ReportDto`**: 저장된 신고 정보
               - **`Report report`**: 저장된 신고 객체
               
-            ### **오류 응답**
-            - **`409 Conflict`**: 이미 해당 게시글을 신고한 경우
-            - **`400 Bad Request`**: 유효성 검사 실패 시
-            - **`500 Internal Server Error`**: 서버 내부 오류 발생 시
+            ### **오류 코드**
+            - **`ALREADY_REPORTED`**: 이미 해당 게시글을 신고한 경우
+            - **`CANNOT_REPORT_OWN_CONTENT`**: 자신의 게시물을 신고하려는 경우
+            - **`COMMENT_NOT_FOUND`**: 신고하려는 댓글을 찾을 수 없는 경우
+            - **`QUESTION_POST_NOT_FOUND`**: 신고하려는 질문 게시글을 찾을 수 없는 경우
+            - **`ANSWER_POST_NOT_FOUND`**: 신고하려는 답변 게시글을 찾을 수 없는 경우
+            - **`DOCUMENT_POST_NOT_FOUND`**: 신고하려는 자료 게시글을 찾을 수 없는 경우
+            - **`DOCUMENT_REQUEST_POST_NOT_FOUND`**: 신고하려는 자료요청 게시글을 찾을 수 없는 경우
+            - **`MEMBER_NOT_FOUND`**: 신고자 또는 신고 대상자 정보를 찾을 수 없는 경우
+            - **`INVALID_CONTENT_TYPE`**: 잘못된 콘텐츠 타입이 지정된 경우
+            - **`INTERNAL_SERVER_ERROR`**: 서버 내부 오류 발생 시
             """
   )
   ResponseEntity<ReportDto> saveReportPost(

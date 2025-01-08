@@ -20,11 +20,9 @@ public class ReportCommand {
     this.pageSize = 30;
   }
 
-  private UUID memberId;
-
   private Member member;
 
-  private UUID reportedId;
+  private UUID reportedMemberId;
 
   private UUID reportedEntityId;
 
