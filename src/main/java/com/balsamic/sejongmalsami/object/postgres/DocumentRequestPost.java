@@ -12,6 +12,7 @@ import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.ManyToOne;
+import jakarta.persistence.Transient;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
@@ -62,4 +63,9 @@ public class DocumentRequestPost extends BasePost {
   @Builder.Default
   @Column
   private List<DocumentType> documentTypes = new ArrayList<>();
+
+  // 좋아요 누른 글 여부
+  @Transient
+  @Builder.Default
+  private Boolean isLiked = false;
 }

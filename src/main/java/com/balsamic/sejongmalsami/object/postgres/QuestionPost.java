@@ -96,6 +96,11 @@ public class QuestionPost extends BasePost {
   @Builder.Default
   private Long weeklyScore = 0L;
 
+  // 좋아요 누른 글 여부
+  @Transient
+  @Builder.Default
+  private Boolean isLiked = false;
+
   // 커스텀 태그: 임시 필드: DB에 해당값 저장되지않음
   @Transient
   private List<String> customTags = new ArrayList<>();

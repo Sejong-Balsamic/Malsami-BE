@@ -52,6 +52,11 @@ public class AnswerPost extends BasePost {
   @Transient
   private List<MediaFile> mediaFiles;
 
+  // 좋아요 누른 글 여부
+  @Transient
+  @Builder.Default
+  private Boolean isLiked = false;
+
   // 답변 채택
   public void markAsChaetaek() {
     isChaetaek = true;
