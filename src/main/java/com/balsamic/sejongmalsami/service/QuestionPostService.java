@@ -208,7 +208,7 @@ public class QuestionPostService {
     Boolean isLiked = questionBoardLikeRepository
         .existsByQuestionBoardIdAndMemberId(command.getPostId(), command.getMemberId());
 
-    questionPost.updateIsLiked(isLiked);
+    questionPost.setIsLiked(isLiked);
 
     // 답변 조회 (없으면 null 반환)
     List<AnswerPost> answerPosts = answerPostRepository

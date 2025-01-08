@@ -23,7 +23,7 @@ import lombok.experimental.SuperBuilder;
 @AllArgsConstructor
 @NoArgsConstructor
 @ToString(callSuper = true)
-public class NoticePost extends BaseEntity {
+public class NoticePost extends BasePost {
 
   @Id
   @GeneratedValue(strategy = GenerationType.AUTO)
@@ -40,14 +40,6 @@ public class NoticePost extends BaseEntity {
   // 본문
   @Column(nullable = false)
   private String content;
-
-  // 조회 수
-  @Builder.Default
-  private Integer viewCount = 0;
-
-  // 좋아요 수
-  @Builder.Default
-  private Integer likeCount = 0;
 
   // 공개/비공개 여부
   @Builder.Default
