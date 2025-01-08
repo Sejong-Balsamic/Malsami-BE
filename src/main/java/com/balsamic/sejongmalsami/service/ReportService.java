@@ -81,7 +81,6 @@ public class ReportService {
             .reportedEntityId(command.getReportedEntityId())
             .contentType(command.getContentType())
             .reportReason(command.getReportReason())
-            .message(command.getMessage())
             .build()
     );
 

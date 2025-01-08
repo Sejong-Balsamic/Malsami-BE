@@ -22,19 +22,15 @@ public class ReportCommand {
 
   private Member member;
 
-  private UUID reportedMemberId;
-
   private UUID reportedEntityId;
 
   private ContentType contentType;
 
   private ReportReason reportReason;
 
-  private String message;
-
   @Schema(defaultValue = "0")
-  private Integer pageNumber = 0;
+  private Integer pageNumber;
 
   @Schema(defaultValue = "30")
-  private Integer pageSize = 30;
+  private Integer pageSize;
 }
