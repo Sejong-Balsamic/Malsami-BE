@@ -82,6 +82,14 @@ public class DocumentPost extends BasePost {
   @Builder.Default
   private Boolean isPopular = false; //2024.11.26 : #442 : 인기 게시글 여부 추가
 
+  // 일간 인기글 점수
+  @Builder.Default
+  private Long dailyScore = 0L;
+
+  // 주간 인기글 점수
+  @Builder.Default
+  private Long weeklyScore = 0L;
+
   public void increaseDislikeCount() {
     this.dislikeCount++;
   }

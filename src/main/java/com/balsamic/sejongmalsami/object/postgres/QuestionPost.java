@@ -88,6 +88,14 @@ public class QuestionPost extends BasePost {
   @Builder.Default
   private Boolean chaetaekStatus = false;
 
+  // 일간 인기글 점수
+  @Builder.Default
+  private Long dailyScore = 0L;
+
+  // 주간 인기글 점수
+  @Builder.Default
+  private Long weeklyScore = 0L;
+
   // 커스텀 태그: 임시 필드: DB에 해당값 저장되지않음
   @Transient
   private List<String> customTags = new ArrayList<>();

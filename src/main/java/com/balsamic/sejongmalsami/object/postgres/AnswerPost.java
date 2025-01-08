@@ -1,7 +1,5 @@
 package com.balsamic.sejongmalsami.object.postgres;
 
-import com.balsamic.sejongmalsami.util.exception.CustomException;
-import com.balsamic.sejongmalsami.util.exception.ErrorCode;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
@@ -46,34 +44,13 @@ public class AnswerPost extends BasePost {
   @Column(nullable = false)
   private String content;
 
-  // 좋아요 수
-  @Builder.Default
-  private Integer likeCount = 0;
-
   // 답변 채택 여부
   @Builder.Default
   private Boolean isChaetaek = false;
 
-  // 닉네임 비공개 여부
-  @Builder.Default
-  private Boolean isPrivate = false;
-
   // 답변 첨부파일
   @Transient
   private List<MediaFile> mediaFiles;
-
-  // 답변 좋아요 증가
-  public void increaseLikeCount() {
-    likeCount++;
-  }
-
-  // 답변 좋아요 감소 (롤백)
-  public void decreaseLikeCount() {
-    if (likeCount <= 0) {
-      throw new CustomException(ErrorCode.LIKE_COUNT_CANNOT_BE_NEGATIVE);
-    }
-    likeCount--;
-  }
 
   // 답변 채택
   public void markAsChaetaek() {

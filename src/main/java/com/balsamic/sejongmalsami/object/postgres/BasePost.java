@@ -21,14 +21,6 @@ import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 @EntityListeners(AuditingEntityListener.class)
 public abstract class BasePost extends BaseEntity{
 
-  // 일간 인기글 점수
-  @Builder.Default
-  private Long dailyScore = 0L;
-
-  // 주간 인기글 점수
-  @Builder.Default
-  private Long weeklyScore = 0L;
-
   // 좋아요
   @Builder.Default
   private Integer likeCount = 0;
@@ -46,7 +38,6 @@ public abstract class BasePost extends BaseEntity{
   private Boolean isPrivate = false;
 
   // 공통 메서드
-
   public void increaseLikeCount() {
     likeCount++;
   }
