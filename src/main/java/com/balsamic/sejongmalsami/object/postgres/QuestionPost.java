@@ -76,21 +76,9 @@ public class QuestionPost extends BasePost {
   // 썸네일
   private String thumbnailUrl;
 
-  // 조회 수
-  @Builder.Default
-  private Integer viewCount = 0;
-
-  // 좋아요 수
-  @Builder.Default
-  private Integer likeCount = 0;
-
   // 답변 수
   @Builder.Default
   private Integer answerCount = 0;
-
-  // 댓글 수
-  @Builder.Default
-  private Integer commentCount = 0;
 
   // 엽전 현상금
   @Builder.Default
@@ -100,36 +88,17 @@ public class QuestionPost extends BasePost {
   @Builder.Default
   private Boolean chaetaekStatus = false;
 
-  // 내 정보 비공개 여부
+  // 일간 인기글 점수
   @Builder.Default
-  private Boolean isPrivate = false;
+  private Long dailyScore = 0L;
+
+  // 주간 인기글 점수
+  @Builder.Default
+  private Long weeklyScore = 0L;
 
   // 커스텀 태그: 임시 필드: DB에 해당값 저장되지않음
   @Transient
   private List<String> customTags = new ArrayList<>();
-
-  // 조회 수 증가
-  public void increaseViewCount() {
-    viewCount++;
-  }
-
-  // 좋아요 증가
-  public void increaseLikeCount() {
-    likeCount++;
-  }
-
-  // 댓글 수 증가
-  public void increaseCommentCount() {
-    commentCount++;
-  }
-
-  // 좋아요 감소 (롤백)
-  public void decreaseLikeCount() {
-    if (likeCount <= 0) {
-      throw new CustomException(ErrorCode.LIKE_COUNT_CANNOT_BE_NEGATIVE);
-    }
-    likeCount--;
-  }
 
   // 질문글 정적 태그 추가(최대 2개)
   public void addPresetTag(QuestionPresetTag tag) {
@@ -140,25 +109,5 @@ public class QuestionPost extends BasePost {
 
     // 태그 추가
     questionPresetTags.add(tag);
-  }
-
-  // 답변 수 동기화
-  public void updateAnswerCount(Integer answerCount) {
-    this.answerCount = answerCount;
-  }
-
-  // 질문 글 썸네일 설정
-  public void addThumbnailUrl(String thumbnailUrl) {
-    this.thumbnailUrl = thumbnailUrl;
-  }
-
-  // 답변 채택
-  public void markAsChaetaek() {
-    chaetaekStatus = true;
-  }
-
-  // 답변 채택 rollback
-  public void rollbackChaetaek() {
-    chaetaekStatus = false;
   }
 }

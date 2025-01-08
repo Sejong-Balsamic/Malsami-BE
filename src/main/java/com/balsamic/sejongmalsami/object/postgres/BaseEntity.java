@@ -9,6 +9,7 @@ import java.time.LocalDateTime;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
+import lombok.Setter;
 import lombok.ToString;
 import lombok.experimental.SuperBuilder;
 import org.springframework.data.annotation.CreatedDate;
@@ -19,6 +20,7 @@ import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 @SuperBuilder
 @MappedSuperclass
 @Getter
+@Setter
 @NoArgsConstructor
 @EntityListeners(AuditingEntityListener.class)
 public abstract class BaseEntity {
@@ -41,36 +43,16 @@ public abstract class BaseEntity {
   @Builder.Default
   private Boolean isDeleted = false;
 
+  // 엔티티 업데이트 시 호출 (수정여부)
+  @PreUpdate
+  public void beforeUpdate() {
+    if (!createdDate.isEqual(updatedDate)) {
+      this.isEdited = true;
+    }
+  }
+
   // 좋아요 누른 글 여부
   @Transient
   @Builder.Default
   private Boolean isLiked = false;
-
-  // 수정
-  public void markAsEdited() {
-    isEdited = true;
-  }
-
-  // 엔티티 업데이트 시 호출
-  @PreUpdate
-  public void beforeUpdate() {
-    if (!createdDate.isEqual(updatedDate)) {
-      markAsEdited();
-    }
-  }
-
-  // 삭제
-  public void markAsDeleted() {
-    isDeleted = true;
-  }
-
-  // 삭제 취소
-  public void markAsNotDeleted() {
-    isDeleted = false;
-  }
-
-  // 좋아요 누른 글 여부 업데이트
-  public void updateIsLiked(Boolean isLiked) {
-    this.isLiked = isLiked;
-  }
 }

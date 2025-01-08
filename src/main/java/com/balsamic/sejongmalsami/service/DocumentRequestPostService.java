@@ -190,7 +190,7 @@ public class DocumentRequestPostService {
 
     Boolean isLiked = documentBoardLikeRepository
         .existsByDocumentBoardIdAndMemberId(post.getDocumentRequestPostId(), command.getMemberId());
-    post.updateIsLiked(isLiked);
+    post.setIsLiked(isLiked);
 
     return DocumentDto.builder()
         .documentRequestPost(post)
