@@ -11,6 +11,7 @@ import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.ManyToOne;
+import jakarta.persistence.Transient;
 import java.util.UUID;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -54,6 +55,11 @@ public class Comment extends BaseEntity{
   // 닉네임 비공개 여부
   @Builder.Default
   private Boolean isPrivate = false;
+
+  // 좋아요 누른 글 여부
+  @Transient
+  @Builder.Default
+  private Boolean isLiked = false;
 
   // 좋아요 증가
   public void increaseLikeCount() {

@@ -14,6 +14,7 @@ import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.ManyToOne;
+import jakarta.persistence.Transient;
 import jakarta.validation.constraints.NotNull;
 import java.util.ArrayList;
 import java.util.List;
@@ -89,6 +90,11 @@ public class DocumentPost extends BasePost {
   // 주간 인기글 점수
   @Builder.Default
   private Long weeklyScore = 0L;
+
+  // 좋아요 누른 글 여부
+  @Transient
+  @Builder.Default
+  private Boolean isLiked = false;
 
   public void increaseDislikeCount() {
     this.dislikeCount++;
