@@ -28,7 +28,7 @@ import lombok.experimental.SuperBuilder;
 @AllArgsConstructor
 @NoArgsConstructor
 @ToString(callSuper = true)
-public class DocumentRequestPost extends BaseEntity {
+public class DocumentRequestPost extends BasePost {
 
   private static final int MAX_DOCUMENT_TYPES = 2;
 
@@ -62,40 +62,4 @@ public class DocumentRequestPost extends BaseEntity {
   @Builder.Default
   @Column
   private List<DocumentType> documentTypes = new ArrayList<>();
-
-  // 조회 수
-  @Builder.Default
-  private Integer viewCount = 0;
-
-  // 좋아요 수
-  @Builder.Default
-  private Integer likeCount = 0;
-
-  // 댓글 수
-  @Builder.Default
-  private Integer commentCount = 0;
-
-  // 닉네임 비공개
-  @Builder.Default
-  private boolean isPrivate = false;
-
-  // 조회 수 증가
-  public void increaseViewCount() {
-    viewCount++;
-  }
-
-  // 좋아요 증가
-  public void increaseLikeCount() {
-    likeCount++;
-  }
-
-  // 좋아요 롤백
-  public void decreaseLikeCount() {
-    likeCount--;
-  }
-
-  // 댓글 수 증가
-  public void increaseCommentCount() {
-    commentCount++;
-  }
 }
