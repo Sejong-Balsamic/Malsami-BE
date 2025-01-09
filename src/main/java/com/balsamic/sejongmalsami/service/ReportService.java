@@ -11,9 +11,11 @@ import com.balsamic.sejongmalsami.util.exception.CustomException;
 import com.balsamic.sejongmalsami.util.exception.ErrorCode;
 import java.util.UUID;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 
 @Service
+@Slf4j
 @RequiredArgsConstructor
 public class ReportService {
 
@@ -25,55 +27,91 @@ public class ReportService {
   private final DocumentRequestPostRepository documentRequestPostRepository;
 
   public ReportDto saveReportPost(ReportCommand command) {
+    log.debug("신고 저장 시작: {}", command);
 
-    // 신고자
+    // 신고자 정보 추출
     Member reporter = command.getMember();
+    log.debug("신고자 정보 - memberId: {}, studentId: {}", reporter.getMemberId(), reporter.getStudentId());
 
-    // 신고한 Entity 유효성 확인 및 신고 당한자 조회
+    // 신고 대상의 ID와 타입 추출
     UUID reportedMemberId = null;
     UUID reportedId = command.getReportedEntityId();
     ContentType contentType = command.getContentType();
 
-    // 댓글
-    if(contentType.equals(ContentType.COMMENT)) {
+    log.debug("신고 대상 - contentType: {}, reportedId: {}", contentType, reportedId);
+
+    // 신고 대상에 따라 분기 처리
+    if (contentType.equals(ContentType.COMMENT)) {
+      // 댓글 신고 처리
       Comment comment = commentRepository.findById(reportedId)
-          .orElseThrow(() -> new CustomException(ErrorCode.COMMENT_NOT_FOUND));
+          .orElseThrow(() -> {
+            log.error("해당 ID의 댓글을 찾을 수 없음: {}", reportedId);
+            return new CustomException(ErrorCode.COMMENT_NOT_FOUND);
+          });
       reportedMemberId = comment.getMember().getMemberId();
-    // 질문
+      log.debug("신고된 댓글의 작성자 memberId: {}", reportedMemberId);
     } else if (contentType.equals(ContentType.QUESTION)) {
+      // 질문 게시글 신고 처리
       QuestionPost questionPost = questionPostRepository.findById(reportedId)
-          .orElseThrow(() -> new CustomException(ErrorCode.QUESTION_POST_NOT_FOUND));
+          .orElseThrow(() -> {
+            log.error("해당 ID의 질문 게시글을 찾을 수 없음: {}", reportedId);
+            return new CustomException(ErrorCode.QUESTION_POST_NOT_FOUND);
+          });
       reportedMemberId = questionPost.getMember().getMemberId();
-    // 답변
+      log.debug("신고된 질문 게시글의 작성자 memberId: {}", reportedMemberId);
     } else if (contentType.equals(ContentType.ANSWER)) {
+      // 답변 게시글 신고 처리
       AnswerPost answerPost = answerPostRepository.findById(reportedId)
-          .orElseThrow(() -> new CustomException(ErrorCode.ANSWER_POST_NOT_FOUND));
+          .orElseThrow(() -> {
+            log.error("해당 ID의 답변 게시글을 찾을 수 없음: {}", reportedId);
+            return new CustomException(ErrorCode.ANSWER_POST_NOT_FOUND);
+          });
       reportedMemberId = answerPost.getMember().getMemberId();
-    // 자료
+      log.debug("신고된 답변 게시글의 작성자 memberId: {}", reportedMemberId);
     } else if (contentType.equals(ContentType.DOCUMENT)) {
+      // 자료 게시글 신고 처리
       DocumentPost documentPost = documentPostRepository.findById(reportedId)
-          .orElseThrow(() -> new CustomException(ErrorCode.DOCUMENT_POST_NOT_FOUND));
+          .orElseThrow(() -> {
+            log.error("해당 ID의 자료 게시글을 찾을 수 없음: {}", reportedId);
+            return new CustomException(ErrorCode.DOCUMENT_POST_NOT_FOUND);
+          });
       reportedMemberId = documentPost.getMember().getMemberId();
-    // 자료 요청
+      log.debug("신고된 자료 게시글의 작성자 memberId: {}", reportedMemberId);
     } else if (contentType.equals(ContentType.DOCUMENT_REQUEST)) {
+      // 자료 요청 게시글 신고 처리
       DocumentRequestPost documentRequestPost = documentRequestPostRepository.findById(reportedId)
-          .orElseThrow(() -> new CustomException(ErrorCode.DOCUMENT_REQUEST_POST_NOT_FOUND));
+          .orElseThrow(() -> {
+            log.error("해당 ID의 자료 요청 게시글을 찾을 수 없음: {}", reportedId);
+            return new CustomException(ErrorCode.DOCUMENT_REQUEST_POST_NOT_FOUND);
+          });
       reportedMemberId = documentRequestPost.getMember().getMemberId();
+      log.debug("신고된 자료 요청 게시글의 작성자 memberId: {}", reportedMemberId);
+    } else {
+      // 유효하지 않은 콘텐츠 타입 처리
+      log.error("유효하지 않은 ContentType: {}", contentType);
+      throw new CustomException(ErrorCode.INVALID_CONTENT_TYPE);
     }
 
-    // 자신의 자료글 신고 방지
+    // 자신의 콘텐츠를 신고하려는 시도 방지
     if (reporter.getMemberId().equals(reportedMemberId)) {
+      log.debug("신고자가 자신의 콘텐츠를 신고하려 함 - reporterId: {}, studentId: {}, reportedMemberId: {}",
+          reporter.getMemberId(), reporter.getStudentId(), reportedMemberId);
       throw new CustomException(ErrorCode.CANNOT_REPORT_OWN_CONTENT);
     }
 
-    // 중복 신고 방지
+    // 중복 신고 방지 확인
     boolean isReportExists = reportRepository.existsByReporterIdAndReportedEntityId(
         reporter.getMemberId(), command.getReportedEntityId());
+    log.error("중복 신고 여부 확인 - reporterId: {}, reportedEntityId: {}, exists: {}",
+        reporter.getMemberId(), command.getReportedEntityId(), isReportExists);
+
     if (isReportExists) {
+      log.error("이미 신고된 콘텐츠입니다 - reporterId: {}, reportedEntityId: {}",
+          reporter.getMemberId(), command.getReportedEntityId());
       throw new CustomException(ErrorCode.ALREADY_REPORTED);
     }
 
-    // 보고서 저장
+    // 신고서 저장
     Report savedReport = reportRepository.save(
         Report.builder()
             .reporterId(reporter.getMemberId())
@@ -83,7 +121,7 @@ public class ReportService {
             .reportReason(command.getReportReason())
             .build()
     );
-
+    log.debug("신고 저장 완료 - reportId: {}", savedReport.getReportId());
     return ReportDto.builder()
         .report(savedReport)
         .build();

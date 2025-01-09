@@ -26,6 +26,7 @@ public class ReportController implements ReportControllerDocs {
 
   private final ReportService reportService;
 
+  @Override
   @PostMapping(value = "/post", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
   @LogMonitoringInvocation
   public ResponseEntity<ReportDto> saveReportPost(
