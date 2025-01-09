@@ -32,7 +32,7 @@ COMMON.CSS - 공통 컴포넌트 스타일
 
 /* Tabulator 공통 스타일 */
 .table-container .tabulator {
-  min-width: 1200px;
+  /*min-width: 1200px;*/
   width: 100%;
   background: #ffffff;
 }
