@@ -24,15 +24,20 @@ public class Report extends BaseMongoEntity {
 
   @Indexed
   @NotNull
-  private UUID reporterId;
+  private UUID reporterId; // 신고한 자
 
-  // 신고 대상 게시글 ID
-  private UUID reportedPostId;
+  @Indexed
+  @NotNull
+  private UUID reportedMemberId; // 신고 당한 자
+
+  // 신고 대상 Entity ID
+  private UUID reportedEntityId;
 
   private ContentType contentType;
 
   // 신고사유
   private ReportReason reportReason;
 
-  private String description; // ReportReason 이 Other 인 경우
+  // 추가 설명
+  private String message;
 }

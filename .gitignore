@@ -66,12 +66,15 @@ Thumbs.db
 /src/main/resources/application-dev.yml
 /src/main/resources/application-prod.yml
 /src/main/resources/application-prod.yml.base64
-src/main/resources/application-prod.yml
+/src/main/resources/application-prod.yml
 /src/main/resources/yeopjeon.yml
 /src/main/resources/score.yml
 /src/main/resources/exp.yml
 /src/main/resources/admin.yml
 /src/main/resources/post-tier.yml
+
+### Firebase Admin SDK
+/src/main/resources/firebase-admin-sdk.json
 
 ### cicd
 /.github/workflows
