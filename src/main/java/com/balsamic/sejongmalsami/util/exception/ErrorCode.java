@@ -82,7 +82,9 @@ public enum ErrorCode {
 
   INVALID_FILE_FORMAT(HttpStatus.BAD_REQUEST, "지원하지 않는 파일 형식입니다."),
 
-  DUPLICATE_COURSE_UPLOAD(HttpStatus.BAD_REQUEST, "중복된 교과목명 파일입니다."),
+  INVALID_FILE_NAME(HttpStatus.BAD_REQUEST, "잘못된 파일 이름입니다."),
+
+  DUPLICATE_COURSE_FILE_UPLOAD(HttpStatus.BAD_REQUEST, "중복된 교과목명 파일입니다."),
 
   WRONG_COURSE_FILE_FORMAT(HttpStatus.BAD_REQUEST, "교과목명 업로드 파일 포맷 오류"),
 
