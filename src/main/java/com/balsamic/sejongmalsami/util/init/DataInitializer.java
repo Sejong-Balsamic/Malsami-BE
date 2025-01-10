@@ -184,7 +184,7 @@ public class DataInitializer implements ApplicationRunner {
     if (ServerConfig.isLinuxServer) {
       // 서버 환경
     } else {
-      // 로컬 환경: src/main/resources/courses/
+      // 로컬 환경: build/resources/main/courses/ 경로
       try {
         coursesPath = Paths.get(Objects.requireNonNull(getClass().getClassLoader().getResource("courses/")).toURI());
       } catch (Exception e) {
