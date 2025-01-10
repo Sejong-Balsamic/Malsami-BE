@@ -511,6 +511,12 @@
    * courseFile '다운로드' 버튼
    */
   function clickDownloadButton(fileName) {
+    // Linux 환경에서만 작동
+    if (![[${isLinuxServer}]]) {
+      alert("로컬환경에서는 교과목 파일을 다운로드 할 수 없습니다.");
+      return;
+    }
+
     if (!fileName) {
       alert("파일이 존재하지 않습니다.");
       return;
