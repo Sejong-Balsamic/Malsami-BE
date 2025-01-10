@@ -32,7 +32,7 @@ COMMON.CSS - 공통 컴포넌트 스타일
 
 /* Tabulator 공통 스타일 */
 .table-container .tabulator {
-  /*min-width: 1200px;*/
+  min-width: 1200px;
   width: 100%;
   background: #ffffff;
 }
@@ -43,6 +43,34 @@ COMMON.CSS - 공통 컴포넌트 스타일
   position: sticky;
   top: 0;
   z-index: 3;
+}
+
+/*
+===========================
+   Modal Table Container Styles
+===========================
+*/
+.modal-table-container {
+  max-width: 100%;
+  overflow-x: auto;
+  -webkit-overflow-scrolling: touch;
+  background: #ffffff;
+  border-radius: 0.28571429rem;
+  box-shadow: 0 1px 3px rgba(0,0,0,0.12);
+  margin-bottom: 2em;
+}
+
+.modal-table-container .tabulator-header {
+  background-color: #f9fafb;
+  border-bottom: 2px solid #d4d4d5;
+  position: sticky;
+  top: 0;
+  z-index: 3;
+}
+
+.modal-table-container .tabulator {
+  width: 100%;
+  background: #ffffff;
 }
 
 /*
