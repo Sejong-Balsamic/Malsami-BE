@@ -53,6 +53,12 @@ jobs:
         run: |
           echo "${{ secrets.POSTTIER_YML }}" > ./src/main/resources/post-tier.yml
 
+      # firebase-admin-sdk.json 파일을 생성
+      - name: Create Firebase Config File
+        run: |
+          echo "${{ secrets.FIREBASE_CONFIG_JSON }}" | sed 's/\\n/\n/g' > ./src/main/resources/firebase-admin-sdk.json
+
+
       # prod 프로파일을 활성화하여 빌드
       - name: Build with Gradle
         run: ./gradlew clean build -x test -Dspring.profiles.active=prod
