@@ -56,9 +56,9 @@ jobs:
       # firebase-admin-sdk.json 파일을 생성
       - name: Create Firebase Config
         env:
-          FIREBASE_CONFIG: ${{ secrets.FIREBASE_CONFIG }}
+          FIREBASE_CONFIG_JSON: ${{ secrets.FIREBASE_CONFIG_JSON }}
         run: |
-          printf "%b" "$FIREBASE_CONFIG" > firebase-admin-sdk.json
+          printf "%b" "$FIREBASE_CONFIG_JSON" > firebase-admin-sdk.json
           cat firebase-admin-sdk.json
 
       # prod 프로파일을 활성화하여 빌드
