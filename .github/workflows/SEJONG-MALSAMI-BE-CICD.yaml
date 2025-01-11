@@ -54,9 +54,12 @@ jobs:
           echo "${{ secrets.POSTTIER_YML }}" > ./src/main/resources/post-tier.yml
 
       # firebase-admin-sdk.json 파일을 생성
-      - name: Create firebase-admin-sdk.json
+      - name: Create Firebase Config
+        env:
+          FIREBASE_CONFIG: ${{ secrets.FIREBASE_CONFIG }}
         run: |
-          echo "${{ secrets.FIREBASE_CONFIG_JSON }}" | sed 's/\\n/\/g' > ./src/main/resources/firebase-admin-sdk.json
+          printf "%b" "$FIREBASE_CONFIG" > firebase-admin-sdk.json
+          cat firebase-admin-sdk.json
 
       # prod 프로파일을 활성화하여 빌드
       - name: Build with Gradle
