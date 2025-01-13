@@ -422,8 +422,14 @@ public class AdminApiService {
     }
 
     String filePath = storageService.uploadFile(ContentType.COURSES, multipartFile);
+    log.info("교과목 엑셀파일 업로드 성공: filePath = {}", filePath);
 
     courseFileGenerator.initCourses();
+
+    // FIXME: 실제 서비스 배포 시 FilePath 수정
+    CourseFile courseFile = courseFileRepository.findByFileName(originalFilename)
+        .orElseThrow(() -> new CustomException(ErrorCode.FILE_NOT_FOUND));
+    courseFile.setFilePath(filePath);
 
     return AdminDto.builder()
         .fileName(originalFilename)
