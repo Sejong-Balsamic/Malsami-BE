@@ -73,7 +73,7 @@ public class DocumentFile extends BaseEntity {
   private Boolean isInitialPasswordSet = false;
 
   @Transient
-  private Boolean isDownloaded = false;
+  private Boolean isDownloaded;
 
   // 다운로드 횟수 1 증가 (3개의 항목 전부에 대해서)
   public void incrementDownloadCounts() {
