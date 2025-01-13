@@ -401,7 +401,7 @@ public class AdminApiService {
 
     String[] parts = Objects.requireNonNull(originalFilename).split("-");
     if (parts.length < 3 || !parts[0].equals("course")) {
-      log.info("교과목명 파싱 파일 형식 오류: {}", originalFilename);
+      log.error("교과목명 파싱 파일 형식 오류: {}", originalFilename);
       throw new CustomException(ErrorCode.WRONG_COURSE_FILE_FORMAT);
     }
 
