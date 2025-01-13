@@ -1,7 +1,6 @@
 package com.balsamic.sejongmalsami.service;
 
 import com.balsamic.sejongmalsami.object.constants.ContentType;
-import com.balsamic.sejongmalsami.object.postgres.PostEmbedding;
 import com.balsamic.sejongmalsami.util.log.LogUtil;
 import java.util.UUID;
 import lombok.extern.slf4j.Slf4j;
@@ -29,8 +28,8 @@ class EmbeddingServiceTest {
     ContentType contentType = ContentType.QUESTION;
 
     log.info("Embedding 테스트 시작 - Post ID: {}", postId);
-    PostEmbedding postEmbedding = postEmbeddingService.saveEmbedding(postId, text, contentType);
-    LogUtil.superLog(postEmbedding);
+//    PostEmbedding postEmbedding = postEmbeddingService.saveEmbedding(postId, text, contentType);
+//    LogUtil.superLog(postEmbedding);
     log.info("Embedding 테스트 완료 - Post ID: {}", postId);
   }
 }

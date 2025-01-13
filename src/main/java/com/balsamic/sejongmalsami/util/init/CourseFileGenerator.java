@@ -50,11 +50,13 @@ public class CourseFileGenerator {
 
     // coursePath 불러오기
     Path coursesPath = ServerConfig.coursePath;
+    log.info("ServerCoursePath: {}", coursesPath);
 
     // XLSX 파일 목록 수집
     List<Path> xlsxFiles = new ArrayList<>();
     try (DirectoryStream<Path> stream = Files.newDirectoryStream(coursesPath, "*.xlsx")) {
       for (Path filePath : stream) {
+        log.info("파일 경로: {}", filePath);
         xlsxFiles.add(filePath);
       }
     } catch (Exception e) {
@@ -192,6 +194,7 @@ public class CourseFileGenerator {
                 .fileName(targetFileName)
                 .processedAt(LocalDateTime.now())
                 .fileStatus(FileStatus.FAILURE)
+                .filePath(filePath.toString())
                 .errorMessage("파일 이름 -> 잘못된 파일 이름 형식")
                 .build());
         return 0;
@@ -221,6 +224,7 @@ public class CourseFileGenerator {
           .semester(semester)
           .processedAt(LocalDateTime.now())
           .fileStatus(FileStatus.PENDING)
+          .filePath(filePath.toString())
           .build();
       courseFileRepository.save(courseFile);
       log.info("현재 작업중인 파일 : PENDING : {}", targetFileName);

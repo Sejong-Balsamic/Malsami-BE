@@ -12,8 +12,11 @@ import com.balsamic.sejongmalsami.service.MemberService;
 import com.balsamic.sejongmalsami.service.NoticePostService;
 import com.balsamic.sejongmalsami.util.log.LogMonitoringInvocation;
 import io.swagger.v3.oas.annotations.tags.Tag;
+import java.nio.charset.StandardCharsets;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.http.ContentDisposition;
+import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
@@ -141,7 +144,7 @@ public class AdminApiController {
       @ModelAttribute AdminCommand command
   ) {
     command.setMember(customUserDetails.getMember());
-    return ResponseEntity.ok(adminApiService.getFilteredSubjects(command));
+    return ResponseEntity.ok(adminApiService.getFilteredSubject(command));
   }
 
   // 교과목 자동완성
@@ -156,12 +159,43 @@ public class AdminApiController {
 
   // 교과목 엑셀파일 업로드
   @PostMapping(value = "/subject/upload", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
-  public ResponseEntity<AdminDto> uploadCourseExcelFile(
+  public ResponseEntity<AdminDto> uploadCourseFile(
       @AuthenticationPrincipal CustomUserDetails customUserDetails,
       @ModelAttribute AdminCommand command
   ) {
     command.setMember(customUserDetails.getMember());
-    return ResponseEntity.ok(adminApiService.uploadCourseExcelFile(command));
+    return ResponseEntity.ok(adminApiService.uploadCourseFile(command));
+  }
+
+  // 교과목 엑셀파일 필터링 조회
+  @PostMapping(value = "/course-file/filter", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
+  public ResponseEntity<AdminDto> getFilteredCourseFile(
+      @AuthenticationPrincipal CustomUserDetails customUserDetails,
+      @ModelAttribute AdminCommand command
+  ) {
+    command.setMember(customUserDetails.getMember());
+    return ResponseEntity.ok(adminApiService.getFilteredCourseFile(command));
+  }
+
+  // 교과목 엑셀파일 다운로드
+  @PostMapping(value = "/course-file/download", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
+  public ResponseEntity<byte[]> downloadCourseFile(
+      @AuthenticationPrincipal CustomUserDetails customUserDetails,
+      @ModelAttribute AdminCommand command
+  ) {
+    command.setMember(customUserDetails.getMember());
+    AdminDto dto = adminApiService.downloadCourseFile(command);
+
+    // Content-Disposition 설정 (파일 이름 안전하게 인코딩)
+    ContentDisposition contentDisposition = ContentDisposition
+        .attachment()
+        .filename(dto.getFileName(), StandardCharsets.UTF_8)
+        .build();
+
+    return ResponseEntity.ok()
+        .header(HttpHeaders.CONTENT_DISPOSITION, contentDisposition.toString())
+        .contentType(MediaType.parseMediaType("application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"))
+        .body(dto.getFileBytes());
   }
 
   /**

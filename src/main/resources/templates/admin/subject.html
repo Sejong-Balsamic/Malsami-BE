@@ -13,7 +13,7 @@
 
   <!-- 교과목 필터링 -->
   <div class="form-container ui segment">
-    <form id="searchForm" class="ui form">
+    <form id="searchSubjectForm" class="ui form">
 
       <!-- 교과목 검색 -->
       <div class="field">
@@ -31,7 +31,6 @@
               <option th:each="year : ${years}"
                       th:value="${year}"
                       th:text="${year} + '년'">
-
               </option>
             </select>
           </div>
@@ -60,19 +59,19 @@
         </select>
       </div>
 
-      <div class="four fields">
+      <div class="five fields">
         <div class="field">
           <button class="ui primary button" type="submit">
             <i class="search icon"></i>검색
           </button>
         </div>
         <div class="field">
-          <button class="ui button" id="resetFilterButton" type="button">
+          <button class="ui button" id="subjectResetFilterButton" type="button">
             <i class="undo icon"></i>필터 초기화
           </button>
         </div>
         <div class="field">
-          <button class="ui button" id="resetSortButton" type="button">
+          <button class="ui button" id="subjectResetSortButton" type="button">
             <i class="undo icon"></i>정렬 초기화
           </button>
         </div>
@@ -81,14 +80,19 @@
             <i class="file icon"></i>엑셀 파일 업로드
           </button>
         </div>
+        <div class="field">
+          <button id="deleteFileButton" class="ui button" type="button">
+            <i class="delete icon"></i>엑셀 파일 관리
+          </button>
+        </div>
       </div>
     </form>
   </div>
 
   <!-- Tabulator 테이블 -->
   <div class="table-container">
-    <div id="totalCount" class="ui left aligned header">총 조회 수: 0건</div>
-    <div id="subject-table"></div>
+    <div id="totalCourseCount" class="ui left aligned header">총 조회 수: 0건</div>
+    <div id="subjectTable"></div>
   </div>
 
   <!-- 엑셀 파일 업로드 Modal -->
@@ -120,6 +124,61 @@
     </div>
   </div>
 
+  <!--  엑셀 파일 관리 Modal  -->
+  <div id="deleteFileModal" class="ui modal">
+    <div class="header">
+      교과목 파일 관리
+      <i id="deleteFileModalCloseButton" class="delete icon"></i>
+    </div>
+    <div class="content">
+      <form id="searchCourseFileForm" class="ui form">
+        <div class="field">
+          <div class="two fields">
+            <div class="field">
+              <label>연도</label>
+              <select class="ui dropdown" name="year">
+                <option value="">--연도를 선택하세요--</option>
+                <option th:each="year : ${years}"
+                        th:value="${year}"
+                        th:text="${year} + '년'">
+                </option>
+              </select>
+            </div>
+            <div class="field">
+              <label>학기</label>
+              <select class="ui dropdown" name="semester">
+                <option value="">--학기를 선택하세요--</option>
+                <option th:each="semester : ${semesters}"
+                        th:value="${semester}"
+                        th:text="${semester} + '학기'">
+                </option>
+              </select>
+            </div>
+          </div>
+        </div>
+        <div class="five fields">
+          <div class="field"></div>
+          <div class="field"></div>
+          <div class="field"></div>
+          <div class="field">
+            <button class="ui button" id="courseFileResetFilterButton" type="button">
+              <i class="undo icon"></i>필터 초기화
+            </button>
+          </div>
+          <div class="field">
+            <button class="ui button" id="courseFileResetSortButton" type="button">
+              <i class="undo icon"></i>정렬 초기화
+            </button>
+          </div>
+        </div>
+      </form>
+      <!-- Tabulator 테이블 -->
+      <div class="modal-table-container">
+        <div id="totalFileCount" class="ui left aligned header">총 파일 수: 0건</div>
+        <div id="courseFileTable"></div>
+      </div>
+    </div>
+  </div>
 </div>
 
 <div th:replace="fragments/footer :: footer"></div>
@@ -127,9 +186,10 @@
 <link href="https://unpkg.com/tabulator-tables/dist/css/tabulator.min.css" rel="stylesheet">
 <script type="text/javascript" src="https://unpkg.com/tabulator-tables/dist/js/tabulator.min.js"></script>
 
-<script type="text/javascript">
+<script type="text/javascript" th:inline="javascript">
 
   let subjectTable = new Tabulator();
+  let courseFileTable = new Tabulator();
 
   // DOM 완성 시
   $(document).ready(function () {
@@ -137,7 +197,8 @@
     initData();
 
     // 이벤트 처리
-    eventHandler(subjectTable);
+    subjectTableEventHandler(subjectTable);
+    courseFileTableEventHandler(courseFileTable);
 
     // 교과목 자동완성
     subjectInputChange();
@@ -151,15 +212,24 @@
    */
   function initData() {
     subjectTable = initSubjectTable();
+    courseFileTable = initCourseFileTable();
   }
 
   /**
    * Modal 초기화
    */
   function initModal() {
+    initUploadFileModal();
+    initDeleteFileModal();
+  }
+
+  /**
+   * "엑셀 파일 업로드" Modal init
+   */
+  function initUploadFileModal() {
     let uploadFileModal = $('#uploadFileModal');
 
-    // Modal 밖 클릭시 닫힘 방지
+    // Modal 밖 클릭 시 닫힘 방지
     uploadFileModal.modal({
       closable: false
     });
@@ -175,16 +245,61 @@
       uploadFileModal.modal('hide');
     });
 
-    // "업로드" 버튼 클릭 시
-    $('#submitUploadButton').on('click', uploadExcelFile);
+    // "업로드" 버튼 클릭 시 파일 업로드
+    $('#submitUploadButton').on('click', uploadCourseFile);
+  }
+
+  /**
+   * "엑셀 파일 관리" Modal init
+   */
+  function initDeleteFileModal() {
+    let deleteFileModal = $('#deleteFileModal');
+    let closeButton = $('#deleteFileModalCloseButton');
+
+    // Modal 밖 클릭 시 닫힘 방지
+    deleteFileModal.modal({
+      closable: false,
+      onVisible: function() {
+        courseFileTable.redraw();  // 모달이 실제로 표시된 뒤 테이블 레이아웃 다시 계산
+      }
+    });
+
+    // "엑셀 파일 관리" 버튼 클릭 -> 모달 열기
+    $('#deleteFileButton').on('click', function () {
+      deleteFileModal.modal('show');
+    });
+
+    // 'x' 아이콘 클릭 시 모달 닫기
+    closeButton.on('click', function (e) {
+      e.preventDefault();
+      deleteFileModal.modal('hide');
+    });
+
+    // 커서 모양 변경
+    closeButton.on('mouseenter', function () {
+      $(this).css('cursor', 'pointer');
+    });
+    closeButton.on('mouseleave', function () {
+      $(this).css('cursor', 'default');
+    });
   }
 
   /**
    * 교과목 엑셀 파일 업로드
    */
-  function uploadExcelFile() {
+  function uploadCourseFile() {
+    // Linux 환경에서만 작동
+    if (![[${isLinuxServer}]]) {
+      alert("로컬환경에서는 교과목 파일을 업로드 할 수 없습니다.");
+      return;
+    }
     const form = $('#uploadFileForm')[0];
     const formData = new FormData(form);
+
+    if (!formData.get('multipartFile')) {
+      alert("파일이 선택되지 않았습니다.");
+      return;
+    }
 
     $.ajax({
       url: "/admin/subject/upload",
@@ -207,15 +322,14 @@
         console.log("교과목 엑셀파일 업로드 오류: ", error);
         alert("교과목 엑셀파일 업로드 중 오류가 발생했습니다.");
       },
-    })
+    });
   }
 
   /**
-   * 이벤트 핸들러
-   * @param table
+   * 과목 테이블 이벤트 핸들러
    */
-  function eventHandler(table) {
-    const form = document.getElementById("searchForm");
+  function subjectTableEventHandler(table) {
+    const form = document.getElementById("searchSubjectForm");
 
     // 검색 버튼 이벤트
     form.addEventListener("submit", function (e) {
@@ -224,7 +338,7 @@
     });
 
     // 폼 필터 초기화 버튼 이벤트
-    $('#resetFilterButton').on("click", function () {
+    $('#subjectResetFilterButton').on("click", function () {
       form.reset();
       $("select[name='year']").parent('.ui.dropdown').dropdown('clear');
       $("select[name='semester']").parent('.ui.dropdown').dropdown('clear');
@@ -233,18 +347,37 @@
     });
 
     // 정렬 초기화
-    $('#resetSortButton').on("click", function () {
+    $('#subjectResetSortButton').on("click", function () {
       table.clearSort();
     });
   }
 
   /**
-   * 테이블 초기화
-   * @returns {Tabulator}
+   * 교과목 파일 테이블 이벤트 핸들러
+   */
+  function courseFileTableEventHandler(table) {
+    const form = document.getElementById("searchCourseFileForm");
+
+    // 폼 필터 초기화 버튼 이벤트
+    $('#courseFileResetFilterButton').on("click", function () {
+      form.reset();
+      $("select[name='year']").parent('.ui.dropdown').dropdown('clear');
+      $("select[name='semester']").parent('.ui.dropdown').dropdown('clear');
+      table.setData();
+    });
+
+    // 정렬 초기화
+    $('#courseFileResetSortButton').on("click", function () {
+      table.clearSort();
+    });
+  }
+
+  /**
+   * 과목 테이블 초기화
    */
   function initSubjectTable() {
 
-    var table = new Tabulator("#subject-table", {
+    var table = new Tabulator("#subjectTable", {
       layout: "fitDataTable",
       columns: [
         {title: "과목명", field: "subject", width: 200},
@@ -262,7 +395,7 @@
         }
       },
       ajaxRequestFunc: function (url, config, params) {
-        const formData = new FormData($('#searchForm')[0]);
+        const formData = new FormData($('#searchSubjectForm')[0]);
 
         formData.append("pageNumber", (params.page ? params.page - 1 : 0));
         formData.append("pageSize", params.size || 10);
@@ -278,7 +411,7 @@
       },
       ajaxResponse: function (url, params, response) {
         // 총 항목수 표시
-        $('#totalCount').text(`총 조회 수: ${response.coursePage.totalElements || 0}건`);
+        $('#totalCourseCount').text(`총 조회 수: ${response.coursePage.totalElements || 0}건`);
 
         return {
           data: response.coursePage.content,
@@ -293,6 +426,147 @@
     });
 
     return table;
+  }
+
+  /**
+   * 엑셀 파일 테이블 초기화
+   */
+  function initCourseFileTable() {
+
+    var table = new Tabulator("#courseFileTable", {
+      layout: "fitDataTable",
+      columns: [
+        {
+          title: "순번",
+          formatter: "rownum",     // 내부적으로 1부터 순번 표시
+          hozAlign: "center",
+          width: 60
+        },
+        {title: "파일명", field: "fileName", width: 200},
+        {title: "연도", field: "year", width: 100},
+        {title: "학기", field: "semester", width: 100},
+        {title: "상태", field: "fileStatus", width: 100},
+        {
+          title: "관리", width: 170, formatter: function (cell) {
+            const data = cell.getRow().getData();
+            return `
+            <div class="ui two mini buttons">
+                <button class="ui blue button" onclick="clickDownloadButton('${data.fileName}')">다운로드</button>
+                <button class="ui red button" onclick="clickDeleteButton('${data.fileName}')">삭제</button>
+            </div>
+          `;
+          }
+        }
+      ],
+
+      ajaxURL: "/admin/course-file/filter",
+      ajaxConfig: {
+        method: "POST",
+        headers: {
+          "Authorization": "Bearer " + localStorage.getItem("accessToken"),
+        }
+      },
+      ajaxRequestFunc: function (url, config, params) {
+        const formData = new FormData();
+
+        formData.append("pageNumber", (params.page ? params.page - 1 : 0));
+        formData.append("pageSize", params.size || 10);
+        formData.append("sortField", params.sortField || "createdDate");
+        formData.append("sortDirection", params.sortDirection || "desc");
+
+        return fetch(url + "?accessToken=" + localStorage.getItem("accessToken"), {
+          method: "POST",
+          headers: config.headers,
+          body: formData
+        })
+        .then(response => response.json())
+      },
+      ajaxResponse: function (url, params, response) {
+        // 총 항목수 표시
+        $('#totalFileCount').text(`총 파일 수: ${response.courseFilePage.totalElements || 0}건`);
+
+        return {
+          data: response.courseFilePage.content,
+          last_page: response.courseFilePage.totalPages
+        };
+      },
+      pagination: true,
+      paginationMode: "remote",
+      paginationSize: 10,
+      height: "300px"
+    });
+
+    return table;
+  }
+
+  /**
+   * courseFile '삭제' 버튼
+   */
+  function clickDeleteButton(fileName) {
+    //TODO: courseFile 삭제 기능 추가
+    alert("서비스 준비중입니다...");
+  }
+
+  /**
+   * courseFile '다운로드' 버튼
+   */
+  function clickDownloadButton(fileName) {
+    // Linux 환경에서만 작동
+    if (![[${isLinuxServer}]]) {
+      alert("로컬환경에서는 교과목 파일을 다운로드 할 수 없습니다.");
+      return;
+    }
+
+    if (!fileName) {
+      alert("파일이 존재하지 않습니다.");
+      return;
+    }
+
+    if (!confirm(fileName + " 파일을 다운로드 하시겠습니까?")) {
+      return;
+    }
+    alert("다운로드를 시작합니다");
+
+    let formData = new FormData();
+    formData.append("fileName", fileName);
+
+    $.ajax({
+      url: '/admin/course-file/download',
+      method: 'POST',
+      headers: {
+        "Authorization": "Bearer " + localStorage.getItem("accessToken")
+      },
+      processData: false,
+      contentType: false,
+      data: formData,
+
+      // 응답을 Blob 형태로 받도록 설정
+      xhrFields: {
+        responseType: 'blob'
+      },
+
+      success: function(blob) {
+        // 1) 브라우저 메모리에 Blob URL을 생성
+        const downloadUrl = URL.createObjectURL(blob);
+
+        // 2) 임시 <a> 태그를 만들어서, 강제로 클릭하여 다운로드
+        const a = document.createElement('a');
+        a.href = downloadUrl;
+        a.download = fileName;  // 실제 다운로드될 때 파일명
+        document.body.appendChild(a);
+        a.click();
+
+        // 3) 사용 끝난 뒤 정리
+        document.body.removeChild(a);
+        URL.revokeObjectURL(downloadUrl);
+
+        console.log(fileName + " 다운로드가 완료되었습니다.");
+      },
+      error: function(error) {
+        console.log("다운로드 실패:", error);
+        alert("다운로드 요청 중 오류가 발생했습니다.");
+      }
+    });
   }
 
   /**

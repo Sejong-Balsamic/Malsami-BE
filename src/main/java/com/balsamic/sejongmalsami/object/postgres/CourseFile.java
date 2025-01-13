@@ -41,6 +41,8 @@ public class CourseFile extends BaseEntity {
   @Enumerated(EnumType.STRING)
   private FileStatus fileStatus;
 
+  private String filePath;
+
   private String errorMessage;
 
   private Long durationSeconds;
