@@ -40,6 +40,7 @@ import com.balsamic.sejongmalsami.util.init.CourseFileGenerator;
 import com.balsamic.sejongmalsami.util.init.CourseService;
 import com.balsamic.sejongmalsami.util.log.LogUtil;
 import com.balsamic.sejongmalsami.util.storage.FtpStorageService;
+import com.balsamic.sejongmalsami.util.storage.StorageService;
 import java.nio.file.Paths;
 import java.util.Collections;
 import java.util.List;
@@ -77,6 +78,7 @@ public class AdminApiService {
   private final DocumentPostService documentPostService;
   private final CourseFileGenerator courseFileGenerator;
   private final FtpStorageService ftpStorageService;
+  private final StorageService storageService;
   private final ServerErrorCodeRepository serverErrorCodeRepository;
   private final QuestionPostRepository questionPostRepository;
   private final QuestionPostCustomTagRepository questionPostCustomTagRepository;
@@ -419,7 +421,7 @@ public class AdminApiService {
       throw new CustomException(ErrorCode.DUPLICATE_COURSE_FILE_UPLOAD);
     }
 
-    String filePath = ftpStorageService.uploadFile(ContentType.COURSES, multipartFile);
+    String filePath = storageService.uploadFile(ContentType.COURSES, multipartFile);
 
     courseFileGenerator.initCourses();
 
