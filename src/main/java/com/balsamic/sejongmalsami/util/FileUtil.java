@@ -47,6 +47,9 @@ public class FileUtil {
    * @return CONTENTTYPE_파일명_UUID.확장자
    */
   public static String generateFileName(ContentType contentType, String originalFilename) {
+    if (contentType.equals(ContentType.COURSES)) {
+      return originalFilename;
+    }
     String header = contentType.name();
     String baseName = sanitizeFileName(getBaseName(originalFilename));
     String extension = getExtension(originalFilename);

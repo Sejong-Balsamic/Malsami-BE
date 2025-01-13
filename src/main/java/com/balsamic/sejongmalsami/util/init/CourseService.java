@@ -81,7 +81,7 @@ public class CourseService {
     // 중복 파일 업로드 확인
     if (courseRepository.existsByYearAndSemester(year, semester)) {
       log.info("교과목명 중복됨: 년도: {} , 학기: {}", year, semester);
-      throw new CustomException(ErrorCode.DUPLICATE_COURSE_UPLOAD);
+      throw new CustomException(ErrorCode.DUPLICATE_COURSE_FILE_UPLOAD);
     }
 
     // InputStream을 사용하여 Workbook 생성

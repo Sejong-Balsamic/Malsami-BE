@@ -36,7 +36,10 @@ public class AdminCommand {
   private String faculty;
   private Integer year;
   private Integer semester;
+
+  // courseFile
   private MultipartFile multipartFile;
+  private String fileName;
 
   // 에러코드
   private String errorCode;
