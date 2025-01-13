@@ -1,6 +1,5 @@
 package com.balsamic.sejongmalsami.service;
 
-import com.balsamic.sejongmalsami.util.CommonUtil;
 import com.balsamic.sejongmalsami.object.AdminCommand;
 import com.balsamic.sejongmalsami.object.AdminDto;
 import com.balsamic.sejongmalsami.object.MemberCommand;
@@ -8,11 +7,13 @@ import com.balsamic.sejongmalsami.object.MemberDto;
 import com.balsamic.sejongmalsami.object.MemberYeopjeon;
 import com.balsamic.sejongmalsami.object.NoticePostCommand;
 import com.balsamic.sejongmalsami.object.NoticePostDto;
+import com.balsamic.sejongmalsami.object.constants.ContentType;
 import com.balsamic.sejongmalsami.object.constants.Role;
 import com.balsamic.sejongmalsami.object.constants.YeopjeonAction;
 import com.balsamic.sejongmalsami.object.mongo.QuestionPostCustomTag;
 import com.balsamic.sejongmalsami.object.mongo.YeopjeonHistory;
 import com.balsamic.sejongmalsami.object.postgres.Course;
+import com.balsamic.sejongmalsami.object.postgres.CourseFile;
 import com.balsamic.sejongmalsami.object.postgres.Faculty;
 import com.balsamic.sejongmalsami.object.postgres.Member;
 import com.balsamic.sejongmalsami.object.postgres.NoticePost;
@@ -23,6 +24,7 @@ import com.balsamic.sejongmalsami.object.postgres.Yeopjeon;
 import com.balsamic.sejongmalsami.repository.mongo.QuestionBoardLikeRepository;
 import com.balsamic.sejongmalsami.repository.mongo.QuestionPostCustomTagRepository;
 import com.balsamic.sejongmalsami.repository.mongo.YeopjeonHistoryRepository;
+import com.balsamic.sejongmalsami.repository.postgres.CourseFileRepository;
 import com.balsamic.sejongmalsami.repository.postgres.CourseRepository;
 import com.balsamic.sejongmalsami.repository.postgres.FacultyRepository;
 import com.balsamic.sejongmalsami.repository.postgres.MemberRepository;
@@ -31,15 +33,19 @@ import com.balsamic.sejongmalsami.repository.postgres.QuestionPostRepository;
 import com.balsamic.sejongmalsami.repository.postgres.ServerErrorCodeRepository;
 import com.balsamic.sejongmalsami.repository.postgres.TestMemberRepository;
 import com.balsamic.sejongmalsami.repository.postgres.YeopjeonRepository;
+import com.balsamic.sejongmalsami.util.CommonUtil;
 import com.balsamic.sejongmalsami.util.exception.CustomException;
 import com.balsamic.sejongmalsami.util.exception.ErrorCode;
+import com.balsamic.sejongmalsami.util.init.CourseFileGenerator;
 import com.balsamic.sejongmalsami.util.init.CourseService;
 import com.balsamic.sejongmalsami.util.log.LogUtil;
-import java.io.File;
-import java.io.IOException;
+import com.balsamic.sejongmalsami.util.storage.FtpStorageService;
+import com.balsamic.sejongmalsami.util.storage.StorageService;
+import java.nio.file.Paths;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.Set;
 import java.util.UUID;
 import java.util.stream.Collectors;
@@ -67,7 +73,12 @@ public class AdminApiService {
   private final YeopjeonHistoryRepository yeopjeonHistoryRepository;
   private final FacultyRepository facultyRepository;
   private final CourseRepository courseRepository;
+  private final CourseFileRepository courseFileRepository;
   private final CourseService courseService;
+  private final DocumentPostService documentPostService;
+  private final CourseFileGenerator courseFileGenerator;
+  private final FtpStorageService ftpStorageService;
+  private final StorageService storageService;
   private final ServerErrorCodeRepository serverErrorCodeRepository;
   private final QuestionPostRepository questionPostRepository;
   private final QuestionPostCustomTagRepository questionPostCustomTagRepository;
@@ -330,7 +341,7 @@ public class AdminApiService {
    * @return
    */
   @Transactional(readOnly = true)
-  public AdminDto getFilteredSubjects(AdminCommand command) {
+  public AdminDto getFilteredSubject(AdminCommand command) {
 
     Sort sort = Sort.by(Sort.Direction.fromString(command.getSortDirection()), command.getSortField());
 
@@ -375,36 +386,109 @@ public class AdminApiService {
   /**
    * 교과목 엑셀파일 업로드
    *
-   * @param command file
+   * @param command multipartFile
    * @return
    */
   @Transactional
-  public AdminDto uploadCourseExcelFile(AdminCommand command) {
+  public AdminDto uploadCourseFile(AdminCommand command) {
 
+    if (command.getMultipartFile() == null || command.getMultipartFile().isEmpty()) {
+      throw new CustomException(ErrorCode.FILE_EMPTY);
+    }
     MultipartFile multipartFile = command.getMultipartFile();
-    if (multipartFile == null || multipartFile.isEmpty()) {
-      throw new CustomException(ErrorCode.FILE_NOT_FOUND);
+
+    // 업로드 파일명
+    String originalFilename = multipartFile.getOriginalFilename();
+    int year, semester;
+
+    String[] parts = Objects.requireNonNull(originalFilename).split("-");
+    if (parts.length < 3 || !parts[0].equals("course")) {
+      log.error("교과목명 파싱 파일 형식 오류: {}", originalFilename);
+      throw new CustomException(ErrorCode.WRONG_COURSE_FILE_FORMAT);
     }
 
     try {
-      String originalFilename = multipartFile.getOriginalFilename();
-      File tempFile = new File(System.getProperty("java.io.tmpdir") + File.separator + originalFilename);
-      multipartFile.transferTo(tempFile);
-      courseService.parseAndSaveCourses(tempFile);
-      tempFile.deleteOnExit();
-      return AdminDto.builder()
-          .fileName(originalFilename)
-          .build();
-    } catch (IOException e) {
-      throw new CustomException(ErrorCode.COURSE_SAVE_ERROR);
+      log.info("교과목명 파싱 파일: {}", originalFilename);
+      year = Integer.parseInt(parts[1]);
+      semester = Integer.parseInt(parts[2].split("\\.")[0]);
+    } catch (Exception e) {
+      log.error("년도 또는 학기 추출 실패: {}", originalFilename, e);
+      throw new CustomException(ErrorCode.WRONG_COURSE_FILE_FORMAT);
     }
+
+    // 중복 파일 체크 (DB에 이미 저장된 courseFile인지 확인)
+    if (courseRepository.existsByYearAndSemester(year, semester)) {
+      throw new CustomException(ErrorCode.DUPLICATE_COURSE_FILE_UPLOAD);
+    }
+
+    String filePath = storageService.uploadFile(ContentType.COURSES, multipartFile);
+    log.info("교과목 엑셀파일 업로드 성공: filePath = {}", filePath);
+
+    courseFileGenerator.initCourses();
+
+    // FIXME: 실제 서비스 배포 시 FilePath 수정
+    CourseFile courseFile = courseFileRepository.findByFileName(originalFilename)
+        .orElseThrow(() -> new CustomException(ErrorCode.FILE_NOT_FOUND));
+    courseFile.setFilePath(filePath);
+
+    return AdminDto.builder()
+        .fileName(originalFilename)
+        .filePath(filePath)
+        .build();
+  }
+
+  /**
+   * 교과목 엑셀파일 조회 및 필터링
+   *
+   * @param command year, semester, pageNumber, pageSize, sortDirection, sortField
+   */
+  @Transactional(readOnly = true)
+  public AdminDto getFilteredCourseFile(AdminCommand command) {
+
+    Sort sort = Sort.by(Sort.Direction.fromString(command.getSortDirection()), command.getSortField());
+
+    Pageable pageable = PageRequest.of(
+        command.getPageNumber(),
+        command.getPageSize(),
+        sort
+    );
+
+    Page<CourseFile> courseFiles = courseFileRepository
+        .findAllByFiltered(command.getYear(), command.getSemester(), pageable);
+
+    return AdminDto.builder()
+        .courseFilePage(courseFiles)
+        .build();
+  }
+
+  /**
+   * 교과목 엑셀파일 다운로드
+   *
+   * @param command fileName
+   */
+  @Transactional
+  public AdminDto downloadCourseFile(AdminCommand command) {
+
+    CourseFile courseFile = courseFileRepository.findByFileName(command.getFileName())
+        .orElseThrow(() -> new CustomException(ErrorCode.INVALID_FILE_NAME));
+
+    // path 받기
+    String filePath = courseFile.getFilePath();
+    log.info("파일 경로: {}", filePath);
+
+    byte[] fileBytes = documentPostService.downloadFile(filePath);
+    String fileName = Paths.get(filePath).getFileName().toString();
+
+    return AdminDto.builder()
+        .fileBytes(fileBytes)
+        .fileName(fileName)
+        .build();
   }
 
   /**
    * =========================================== 공지사항 로직 ===========================================
    */
 
-  
   /**
    * 공지사항 글 작성 공지사항 글은 관리자만 작성 가능합니다.
    *
@@ -413,7 +497,6 @@ public class AdminApiService {
    */
   @Transactional
   public NoticePostDto saveNoticePost(NoticePostCommand command) {
-
     // 관리자 검증
     if (!command.getMember().getRoles().contains(Role.ROLE_ADMIN)) {
       log.error("공지사항 글은 관리자만 작성 가능합니다. 회원: {}, 회원 권한: {}",

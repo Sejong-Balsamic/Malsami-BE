@@ -2,6 +2,7 @@ package com.balsamic.sejongmalsami.object;
 
 import com.balsamic.sejongmalsami.object.mongo.YeopjeonHistory;
 import com.balsamic.sejongmalsami.object.postgres.Course;
+import com.balsamic.sejongmalsami.object.postgres.CourseFile;
 import com.balsamic.sejongmalsami.object.postgres.Faculty;
 import com.balsamic.sejongmalsami.object.postgres.Member;
 import com.balsamic.sejongmalsami.object.postgres.QuestionPost;
@@ -29,8 +30,11 @@ public class AdminDto {
   private List<Integer> years;
   private List<Integer> semesters;
   private String fileName;
+  private String filePath;
+  private byte[] fileBytes;
 
   private Page<Course> coursePage;
+  private Page<CourseFile> courseFilePage;
   private Page<ServerErrorCode> serverErrorCodesPage;
   private Page<QuestionPost> questionPostPage;
 }
