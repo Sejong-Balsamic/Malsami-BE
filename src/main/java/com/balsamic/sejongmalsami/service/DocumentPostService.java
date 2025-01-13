@@ -265,39 +265,47 @@ public class DocumentPostService {
   @Transactional
   public DocumentDto getDocumentPost(DocumentCommand command) {
 
+    // 회원 유효성 확인
     Member member = memberRepository.findById(command.getMemberId())
         .orElseThrow(() -> new CustomException(ErrorCode.MEMBER_NOT_FOUND));
 
+    // 자료 게시글 유효성 확인
     DocumentPost post = documentPostRepository.findById(command.getDocumentPostId())
         .orElseThrow(() -> new CustomException(ErrorCode.DOCUMENT_POST_NOT_FOUND));
 
-    List<DocumentFile> documentFiles
-        = documentFileRepository.findByDocumentPost_DocumentPostId(post.getDocumentPostId());
-
+    // 자료게시글 PostTier 추출
     PostTier postTier = post.getPostTier();
 
     // 해당 게시판 접근 가능 여부 확인
     canAccessDocumentBoard(member, postTier);
 
+    // 자료 파일들 불러오기
+    List<DocumentFile> documentFiles
+        = documentFileRepository.findByDocumentPost_DocumentPostId(post.getDocumentPostId());
+
+    // 각각 자료파일 -> 다운로드 했던 파일인지 확인하기
+    documentFileService.updateIsDownloadedDocumentFiles(member, documentFiles);
+
     // 조회수 증가 (Redis 락을 사용하여 보호)
     String lockKey = "lock:documentPost:" + command.getDocumentPostId();
     redisLockManager.executeLock(lockKey, WAIT_TIME, LEASE_TIME, () -> {
-      // 게시글 등급에 따라 사용자 엽전 변동 및 엽전 히스토리 저장
-      switch (postTier) {
-        case CHEONMIN -> yeopjeonService
-            .processYeopjeon(member, VIEW_DOCUMENT_CHEONMIN_POST);
-        case JUNGIN -> yeopjeonService
-            .processYeopjeon(member, VIEW_DOCUMENT_JUNGIN_POST);
-        case YANGBAN -> yeopjeonService
-            .processYeopjeon(member, VIEW_DOCUMENT_YANGBAN_POST);
-        case KING -> yeopjeonService
-            .processYeopjeon(member, VIEW_DOCUMENT_KING_POST);
-      }
       // 해당 자료 글 조회수 증가
       post.increaseViewCount();
       documentPostRepository.save(post);
       return null;
     });
+
+    // 게시글 등급에 따라 사용자 엽전 변동 및 엽전 히스토리 저장
+    switch (postTier) {
+      case CHEONMIN -> yeopjeonService
+          .processYeopjeon(member, VIEW_DOCUMENT_CHEONMIN_POST);
+      case JUNGIN -> yeopjeonService
+          .processYeopjeon(member, VIEW_DOCUMENT_JUNGIN_POST);
+      case YANGBAN -> yeopjeonService
+          .processYeopjeon(member, VIEW_DOCUMENT_YANGBAN_POST);
+      case KING -> yeopjeonService
+          .processYeopjeon(member, VIEW_DOCUMENT_KING_POST);
+    }
 
     // 사용자가 좋아요를 눌렀는지 확인
     Boolean isLiked = documentBoardLikeRepository
