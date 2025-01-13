@@ -465,7 +465,7 @@ public class AdminApiService {
         .orElseThrow(() -> new CustomException(ErrorCode.INVALID_FILE_NAME));
 
     // path 받기
-    String filePath = courseFile.getFilePath() + "/" + courseFile.getFileName();
+    String filePath = courseFile.getFilePath();
     log.info("파일 경로: {}", filePath);
 
     byte[] fileBytes = documentPostService.downloadFile(filePath);
