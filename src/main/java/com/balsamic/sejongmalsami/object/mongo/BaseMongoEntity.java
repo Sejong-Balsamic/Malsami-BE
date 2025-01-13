@@ -1,5 +1,6 @@
 package com.balsamic.sejongmalsami.object.mongo;
 
+import jakarta.persistence.PreUpdate;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -27,4 +28,16 @@ public abstract class BaseMongoEntity {
   // 수정 여부
   @Builder.Default
   private Boolean isEdited = false;
+
+  // 삭제여부
+  @Builder.Default
+  private Boolean isDeleted = false;
+
+  // 엔티티 업데이트 시 호출 (수정여부)
+  @PreUpdate
+  public void beforeUpdate() {
+    if (!createdDate.isEqual(updatedDate)) {
+      this.isEdited = true;
+    }
+  }
 }

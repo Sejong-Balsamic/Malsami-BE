@@ -129,6 +129,9 @@ dependencies {
 
     // OpenAPI 사용
     implementation 'com.fasterxml.jackson.core:jackson-databind'
+
+    // FireBase
+    implementation 'com.google.firebase:firebase-admin:9.2.0'
 }
 
 tasks.named('test') {

@@ -4,7 +4,6 @@ import jakarta.persistence.Column;
 import jakarta.persistence.EntityListeners;
 import jakarta.persistence.MappedSuperclass;
 import jakarta.persistence.PreUpdate;
-import jakarta.persistence.Transient;
 import java.time.LocalDateTime;
 import lombok.Builder;
 import lombok.Getter;
@@ -50,9 +49,4 @@ public abstract class BaseEntity {
       this.isEdited = true;
     }
   }
-
-  // 좋아요 누른 글 여부
-  @Transient
-  @Builder.Default
-  private Boolean isLiked = false;
 }
