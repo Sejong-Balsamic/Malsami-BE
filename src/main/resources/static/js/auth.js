@@ -6,7 +6,6 @@ const Auth = {
    * @param {string} url - 이동할 URL
    */
   navigate: function(url) {
-    // 로그아웃 처리
     if (url === '/logout') {
       this.logout();
       return;
@@ -20,7 +19,12 @@ const Auth = {
         window.location.href = '/error/403';
         return;
       }
-      url = url + (url.includes('?') ? '&' : '?') + `accessToken=${accessToken}`;
+
+      // URL accessToken 추가
+      const separator = url.includes('?') ? '&' : '?';
+      const finalUrl = `${url}${separator}accessToken=${accessToken}`;
+      window.location.href = finalUrl;
+      return;
     }
 
     window.location.href = url;

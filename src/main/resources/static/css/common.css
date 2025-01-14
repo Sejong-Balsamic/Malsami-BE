@@ -8,6 +8,94 @@ COMMON.CSS - 공통 컴포넌트 스타일
 
 /*
 ===========================
+   Header Styles
+===========================
+*/
+
+/* 기본 메뉴 스타일 */
+.ui.menu .item {
+  font-weight: 500;
+  padding: 10px 10px;
+}
+
+.ui.menu .item i.icon {
+  margin-right: 8px;
+}
+
+.ui.menu .right.menu {
+  display: flex !important;
+}
+
+/* 모바일 메뉴 헤더 스타일 */
+.mobile-menu-header {
+  display: none;
+  padding: 1rem;
+  font-weight: bold;
+  background: #f8f9fa;
+  text-align: center;
+  border-bottom: 1px solid #ddd;
+}
+
+/* 모바일 반응형 스타일 */
+@media only screen and (max-width: 767px) {
+  /* 상단 헤더 크기 조정 */
+  .ui.fixed.menu {
+    padding: 0.5em 1em;
+  }
+
+  /* 로고 이미지 크기 조정 */
+  .ui.menu .header.item img {
+    width: 40px;
+    height: auto;
+  }
+
+  /* 로고 텍스트 크기 조정 */
+  .ui.menu .header.item span.title {
+    font-size: 1.2em;
+  }
+
+  /* 햄버거 메뉴 아이콘 크기 조정 */
+  .ui.dropdown.item i.icon {
+    font-size: 1.5em !important;
+    margin: 0;
+  }
+
+  /* 드롭다운 메뉴 스타일 개선 */
+  .ui.dropdown .menu {
+    width: 100vw;
+    position: fixed !important;
+    top: 60px !important;
+    left: 0 !important;
+    margin: 0 !important;
+    border-radius: 0 !important;
+    max-height: calc(100vh - 60px) !important;
+    overflow-y: auto;
+  }
+
+  /* 드롭다운 메뉴 아이템 크기 조정 */
+  .ui.dropdown .menu > .item {
+    padding: 1rem !important;
+    border-bottom: 1px solid #f0f0f0;
+  }
+
+  /* 드롭다운 메뉴 아이콘 크기 조정 */
+  .ui.dropdown .menu > .item i.icon {
+    font-size: 1.2em;
+    width: 1.5em;
+    margin-right: 1rem;
+  }
+
+  /* 컨테이너 여백 조정 */
+  .ui.container {
+    margin-left: 0 !important;
+    margin-right: 0 !important;
+    width: 100% !important;
+  }
+}
+
+
+/*
+===========================
    Table Container Styles
 ===========================
 */
