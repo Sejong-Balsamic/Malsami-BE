@@ -293,7 +293,7 @@ public class DocumentFileService {
 
     for (DocumentFile documentFile : documentFiles) {
       CompletableFuture<Void> future = CompletableFuture.runAsync(() -> {
-        boolean isDownloaded = purchaseHistoryRepository.existsByMember_MemberIdAndDocumentFile_DocumentFileId(member.getMemberId(), documentFile.getDocumentFileId());
+        boolean isDownloaded = purchaseHistoryRepository.existsByMemberIdAndDocumentFileId(member.getMemberId(), documentFile.getDocumentFileId());
         documentFile.setIsDownloaded(isDownloaded);
       }, taskExecutor);
       futures.add(future);
