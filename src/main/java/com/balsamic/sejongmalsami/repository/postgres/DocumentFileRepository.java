@@ -13,4 +13,6 @@ public interface DocumentFileRepository extends JpaRepository<DocumentFile, UUID
   List<DocumentFile> findByDocumentPost_DocumentPostId(UUID documentPostId);
 
   List<DocumentFile> findByUploader(Member uploader);
+
+  boolean existsByUploader(Member member);
 }

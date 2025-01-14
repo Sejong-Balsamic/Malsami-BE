@@ -1,6 +1,7 @@
 package com.balsamic.sejongmalsami.repository.postgres;
 
 import com.balsamic.sejongmalsami.object.postgres.PostEmbedding;
+import java.util.Optional;
 import java.util.UUID;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -31,5 +32,7 @@ public interface PostEmbeddingRepository extends JpaRepository<PostEmbedding, UU
       @Param("threshold") float threshold,
       @Param("contentType") String contentType,
       Pageable pageable);
+
+  Optional<PostEmbedding> findByPostId(UUID postId);
 }
 
