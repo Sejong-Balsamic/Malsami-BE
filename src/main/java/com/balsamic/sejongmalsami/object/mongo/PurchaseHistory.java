@@ -1,9 +1,7 @@
 package com.balsamic.sejongmalsami.object.mongo;
 
-import com.balsamic.sejongmalsami.object.postgres.DocumentFile;
-import com.balsamic.sejongmalsami.object.postgres.DocumentPost;
-import com.balsamic.sejongmalsami.object.postgres.Member;
 import jakarta.validation.constraints.NotNull;
+import java.util.UUID;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
@@ -24,15 +22,15 @@ public class PurchaseHistory extends BaseMongoEntity {
 
   @Indexed
   @NotNull
-  private Member member;
+  private UUID memberId;
 
   @Indexed
   @NotNull
-  private DocumentPost documentPost;
+  private UUID documentPostId;
 
   @Indexed
   @NotNull
-  private DocumentFile documentFile;
+  private UUID documentFileId;
 
   private YeopjeonHistory yeopjeonHistory;
 }
