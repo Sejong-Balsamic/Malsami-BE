@@ -400,9 +400,9 @@ public class DocumentPostService {
     // 자료 게시글 PurchaseHistory 저장
     purchaseHistoryRepository.save(
         PurchaseHistory.builder()
-            .member(member)
-            .documentPost(documentFile.getDocumentPost())
-            .documentFile(documentFile)
+            .memberId(member.getMemberId())
+            .documentPostId(documentFile.getDocumentPost().getDocumentPostId())
+            .documentFileId(documentFile.getDocumentFileId())
             .yeopjeonHistory(yeopjeonHistory)
             .build()
     );
