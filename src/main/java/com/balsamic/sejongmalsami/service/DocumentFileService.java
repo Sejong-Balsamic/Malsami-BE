@@ -6,6 +6,7 @@ import com.balsamic.sejongmalsami.object.constants.UploadType;
 import com.balsamic.sejongmalsami.object.postgres.DocumentFile;
 import com.balsamic.sejongmalsami.object.postgres.DocumentPost;
 import com.balsamic.sejongmalsami.object.postgres.Member;
+import com.balsamic.sejongmalsami.repository.mongo.PurchaseHistoryRepository;
 import com.balsamic.sejongmalsami.repository.postgres.DocumentFileRepository;
 import com.balsamic.sejongmalsami.repository.postgres.DocumentPostRepository;
 import com.balsamic.sejongmalsami.util.FileUtil;
@@ -19,8 +20,11 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
+import java.util.concurrent.CompletableFuture;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Qualifier;
+import org.springframework.core.task.TaskExecutor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
@@ -32,10 +36,13 @@ public class DocumentFileService {
 
   private final DocumentFileRepository documentFileRepository;
   private final DocumentPostRepository documentPostRepository;
+  private final PurchaseHistoryRepository purchaseHistoryRepository;
 
   private final StorageService storageService;
   private final ImageThumbnailGenerator imageThumbnailGenerator;
   private final FtpConfig ftpConfig;
+  @Qualifier("applicationTaskExecutor")
+  private final TaskExecutor taskExecutor;
 
   // 파일 유형별 최대 업로드 크기 (MB)
   private static final int MAX_BASIC_UPLOAD_SIZE = 50;    // 이미지, 문서 등
@@ -267,5 +274,33 @@ public class DocumentFileService {
       default:
         return ""; // 빈 URL 설정 (프론트가 해주시겠지)
     }
+  }
+
+/**
+ * Member 가 DocumentFile 을 다운로드했는지 확인 후 isDownloaded 필드 업데이트
+ * 멀티 스레드 사용: 각 파일이 Member 에 의해 다운로드되었는지 여부 판단
+ */
+  public void updateIsDownloadedDocumentFiles(Member member, List<DocumentFile> documentFiles) {
+    List<CompletableFuture<Void>> futures = new ArrayList<>();
+
+    // documentFiles 유효성 확인
+    if (documentFiles == null || documentFiles.isEmpty()) {
+      log.debug("업데이트할 DocumentFile이 없습니다.");
+      return;
+    }
+
+    log.debug("DocumentFile 다운여부 확인 작업 시작. 전체 파일 수: {}", documentFiles.size());
+
+    for (DocumentFile documentFile : documentFiles) {
+      CompletableFuture<Void> future = CompletableFuture.runAsync(() -> {
+        boolean isDownloaded = purchaseHistoryRepository.existsByMember_MemberIdAndDocumentFile_DocumentFileId(member.getMemberId(), documentFile.getDocumentFileId());
+        documentFile.setIsDownloaded(isDownloaded);
+      }, taskExecutor);
+      futures.add(future);
+    }
+
+    // 모든 CompletableFuture 완료 대기
+    futures.forEach(CompletableFuture::join);
+    log.debug("DocumentFile 다운여부 확인 작업 완료.");
   }
 }
