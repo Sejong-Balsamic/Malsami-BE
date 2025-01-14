@@ -199,12 +199,11 @@
     // 이벤트 처리
     subjectTableEventHandler(subjectTable);
     courseFileTableEventHandler(courseFileTable);
+    uploadCourseFileEventHandler();
+    deleteCourseFileEventHandler();
 
     // 교과목 자동완성
     subjectInputChange();
-
-    // Modal 초기화
-    initModal();
   });
 
   /**
@@ -213,163 +212,6 @@
   function initData() {
     subjectTable = initSubjectTable();
     courseFileTable = initCourseFileTable();
-  }
-
-  /**
-   * Modal 초기화
-   */
-  function initModal() {
-    initUploadFileModal();
-    initDeleteFileModal();
-  }
-
-  /**
-   * "엑셀 파일 업로드" Modal init
-   */
-  function initUploadFileModal() {
-    let uploadFileModal = $('#uploadFileModal');
-
-    // Modal 밖 클릭 시 닫힘 방지
-    uploadFileModal.modal({
-      closable: false
-    });
-
-    // "엑셀 파일 업로드" 버튼 클릭 -> 모달 열기
-    $('#uploadFileButton').on('click', function () {
-      uploadFileModal.modal('show');
-    });
-
-    // "취소" 버튼 클릭 시 모달 닫기
-    $('#cancelUploadButton').on('click', function (e) {
-      e.preventDefault();
-      uploadFileModal.modal('hide');
-    });
-
-    // "업로드" 버튼 클릭 시 파일 업로드
-    $('#submitUploadButton').on('click', uploadCourseFile);
-  }
-
-  /**
-   * "엑셀 파일 관리" Modal init
-   */
-  function initDeleteFileModal() {
-    let deleteFileModal = $('#deleteFileModal');
-    let closeButton = $('#deleteFileModalCloseButton');
-
-    // Modal 밖 클릭 시 닫힘 방지
-    deleteFileModal.modal({
-      closable: false,
-      onVisible: function() {
-        courseFileTable.redraw();  // 모달이 실제로 표시된 뒤 테이블 레이아웃 다시 계산
-      }
-    });
-
-    // "엑셀 파일 관리" 버튼 클릭 -> 모달 열기
-    $('#deleteFileButton').on('click', function () {
-      deleteFileModal.modal('show');
-    });
-
-    // 'x' 아이콘 클릭 시 모달 닫기
-    closeButton.on('click', function (e) {
-      e.preventDefault();
-      deleteFileModal.modal('hide');
-    });
-
-    // 커서 모양 변경
-    closeButton.on('mouseenter', function () {
-      $(this).css('cursor', 'pointer');
-    });
-    closeButton.on('mouseleave', function () {
-      $(this).css('cursor', 'default');
-    });
-  }
-
-  /**
-   * 교과목 엑셀 파일 업로드
-   */
-  function uploadCourseFile() {
-    // Linux 환경에서만 작동
-    if (![[${isLinuxServer}]]) {
-      alert("로컬환경에서는 교과목 파일을 업로드 할 수 없습니다.");
-      return;
-    }
-    const form = $('#uploadFileForm')[0];
-    const formData = new FormData(form);
-
-    if (!formData.get('multipartFile')) {
-      alert("파일이 선택되지 않았습니다.");
-      return;
-    }
-
-    $.ajax({
-      url: "/admin/subject/upload",
-      method: "POST",
-      headers: {
-        "Authorization": "Bearer " + localStorage.getItem("accessToken")
-      },
-      processData: false,
-      contentType: false,
-      data: formData,
-      success: function (data) {
-        console.log("교과목 엑셀파일 업로드 성공: ", data);
-        alert("교과목 엑셀파일 업로드가 성공적으로 완료되었습니다.");
-        // 모달 닫기
-        $('#uploadFileModal').modal('hide');
-        // 교과목 테이블 로드
-        subjectTable.setData();
-      },
-      error: function (error) {
-        console.log("교과목 엑셀파일 업로드 오류: ", error);
-        alert("교과목 엑셀파일 업로드 중 오류가 발생했습니다.");
-      },
-    });
-  }
-
-  /**
-   * 과목 테이블 이벤트 핸들러
-   */
-  function subjectTableEventHandler(table) {
-    const form = document.getElementById("searchSubjectForm");
-
-    // 검색 버튼 이벤트
-    form.addEventListener("submit", function (e) {
-      e.preventDefault();
-      table.setData(); // 테이블 데이터 새로 로드
-    });
-
-    // 폼 필터 초기화 버튼 이벤트
-    $('#subjectResetFilterButton').on("click", function () {
-      form.reset();
-      $("select[name='year']").parent('.ui.dropdown').dropdown('clear');
-      $("select[name='semester']").parent('.ui.dropdown').dropdown('clear');
-      $("select[name='faculty']").parent('.ui.dropdown').dropdown('clear');
-      table.setData();
-    });
-
-    // 정렬 초기화
-    $('#subjectResetSortButton').on("click", function () {
-      table.clearSort();
-    });
-  }
-
-  /**
-   * 교과목 파일 테이블 이벤트 핸들러
-   */
-  function courseFileTableEventHandler(table) {
-    const form = document.getElementById("searchCourseFileForm");
-
-    // 폼 필터 초기화 버튼 이벤트
-    $('#courseFileResetFilterButton').on("click", function () {
-      form.reset();
-      $("select[name='year']").parent('.ui.dropdown').dropdown('clear');
-      $("select[name='semester']").parent('.ui.dropdown').dropdown('clear');
-      table.setData();
-    });
-
-    // 정렬 초기화
-    $('#courseFileResetSortButton').on("click", function () {
-      table.clearSort();
-    });
   }
 
   /**
@@ -497,6 +339,157 @@
     });
 
     return table;
+  }
+
+  /**
+   * 과목 테이블 이벤트 핸들러
+   */
+  function subjectTableEventHandler(table) {
+    const form = document.getElementById("searchSubjectForm");
+
+    // 검색 버튼 이벤트
+    form.addEventListener("submit", function (e) {
+      e.preventDefault();
+      table.setData(); // 테이블 데이터 새로 로드
+    });
+
+    // 폼 필터 초기화 버튼 이벤트
+    $('#subjectResetFilterButton').on("click", function () {
+      form.reset();
+      $("select[name='year']").parent('.ui.dropdown').dropdown('clear');
+      $("select[name='semester']").parent('.ui.dropdown').dropdown('clear');
+      $("select[name='faculty']").parent('.ui.dropdown').dropdown('clear');
+      table.setData();
+    });
+
+    // 정렬 초기화
+    $('#subjectResetSortButton').on("click", function () {
+      table.clearSort();
+    });
+  }
+
+  /**
+   * 교과목 파일 테이블 이벤트 핸들러
+   */
+  function courseFileTableEventHandler(table) {
+    const form = document.getElementById("searchCourseFileForm");
+
+    // 폼 필터 초기화 버튼 이벤트
+    $('#courseFileResetFilterButton').on("click", function () {
+      form.reset();
+      $("select[name='year']").parent('.ui.dropdown').dropdown('clear');
+      $("select[name='semester']").parent('.ui.dropdown').dropdown('clear');
+      table.setData();
+    });
+
+    // 정렬 초기화
+    $('#courseFileResetSortButton').on("click", function () {
+      table.clearSort();
+    });
+  }
+
+  /**
+   * "엑셀 파일 업로드" Modal 이벤트 핸들러
+   */
+  function uploadCourseFileEventHandler() {
+    let uploadFileModal = $('#uploadFileModal');
+
+    // Modal 밖 클릭 시 닫힘 방지
+    uploadFileModal.modal({
+      closable: false
+    });
+
+    // "엑셀 파일 업로드" 버튼 클릭 -> 모달 열기
+    $('#uploadFileButton').on('click', function () {
+      uploadFileModal.modal('show');
+    });
+
+    // "취소" 버튼 클릭 시 모달 닫기
+    $('#cancelUploadButton').on('click', function (e) {
+      e.preventDefault();
+      uploadFileModal.modal('hide');
+    });
+
+    // "업로드" 버튼 클릭 시 파일 업로드
+    $('#submitUploadButton').on('click', uploadCourseFile);
+  }
+
+  /**
+   * "엑셀 파일 관리" Modal 이벤트 핸들러
+   */
+  function deleteCourseFileEventHandler() {
+    let deleteFileModal = $('#deleteFileModal');
+    let closeButton = $('#deleteFileModalCloseButton');
+
+    // Modal 밖 클릭 시 닫힘 방지
+    deleteFileModal.modal({
+      closable: false,
+      onVisible: function() {
+        courseFileTable.redraw();  // 모달이 실제로 표시된 뒤 테이블 레이아웃 다시 계산
+      }
+    });
+
+    // "엑셀 파일 관리" 버튼 클릭 -> 모달 열기
+    $('#deleteFileButton').on('click', function () {
+      deleteFileModal.modal('show');
+    });
+
+    // 'x' 아이콘 클릭 시 모달 닫기
+    closeButton.on('click', function (e) {
+      e.preventDefault();
+      deleteFileModal.modal('hide');
+    });
+
+    // 커서 모양 변경
+    closeButton.on('mouseenter', function () {
+      $(this).css('cursor', 'pointer');
+    });
+    closeButton.on('mouseleave', function () {
+      $(this).css('cursor', 'default');
+    });
+  }
+
+  /**
+   * 교과목 엑셀 파일 업로드
+   */
+  function uploadCourseFile() {
+    // Linux 환경에서만 작동
+    if (![[${isLinuxServer}]]) {
+      alert("로컬환경에서는 교과목 파일을 업로드 할 수 없습니다.");
+      return;
+    }
+    const form = $('#uploadFileForm')[0];
+    const formData = new FormData(form);
+
+    if (!formData.get('multipartFile')) {
+      alert("파일이 선택되지 않았습니다.");
+      return;
+    }
+
+    $.ajax({
+      url: "/admin/subject/upload",
+      method: "POST",
+      headers: {
+        "Authorization": "Bearer " + localStorage.getItem("accessToken")
+      },
+      processData: false,
+      contentType: false,
+      data: formData,
+      success: function (data) {
+        console.log("교과목 엑셀파일 업로드 성공: ", data);
+        alert("교과목 엑셀파일 업로드가 성공적으로 완료되었습니다.");
+        // 모달 닫기
+        $('#uploadFileModal').modal('hide');
+        // 교과목 테이블 로드
+        subjectTable.setData();
+        // courseFile 테이블 로드
+        courseFileTable.setData();
+      },
+      error: function (error) {
+        console.log("교과목 엑셀파일 업로드 오류: ", error);
+        alert("교과목 엑셀파일 업로드 중 오류가 발생했습니다.");
+      },
+    });
   }
 
   /**
