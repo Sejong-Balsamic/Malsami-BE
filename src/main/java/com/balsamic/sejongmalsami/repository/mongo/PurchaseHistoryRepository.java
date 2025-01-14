@@ -8,5 +8,5 @@ import org.springframework.stereotype.Repository;
 @Repository
 public interface PurchaseHistoryRepository extends MongoRepository<PurchaseHistory, String> {
 
-  boolean existsByMember_MemberIdAndDocumentFile_DocumentFileId(UUID memberId, UUID documentFileId);
+  boolean existsByMemberIdAndDocumentFileId(UUID memberId, UUID documentFileId);
 }
