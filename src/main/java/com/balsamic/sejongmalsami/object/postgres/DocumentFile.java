@@ -9,6 +9,7 @@ import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.ManyToOne;
+import jakarta.persistence.Transient;
 import java.util.UUID;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -70,6 +71,9 @@ public class DocumentFile extends BaseEntity {
   // 이미 비밀번호가 설정되어 있는 파일인지
   @Builder.Default
   private Boolean isInitialPasswordSet = false;
+
+  @Transient
+  private Boolean isDownloaded;
 
   // 다운로드 횟수 1 증가 (3개의 항목 전부에 대해서)
   public void incrementDownloadCounts() {
