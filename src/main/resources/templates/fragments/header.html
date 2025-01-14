@@ -2,7 +2,6 @@
 <!DOCTYPE html>
 <html xmlns:th="http://www.thymeleaf.org">
 
-<!-- Head Fragment: 페이지의 헤더 정보 포함 -->
 <head th:fragment="head">
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -15,123 +14,48 @@
   <script th:src="@{/js/semantic.min.js}"></script>
   <script th:src="@{/js/auth.js}"></script>
   <script th:src="@{/js/common-sejong-malsami.js}"></script>
-  <style>
-    /* 기본 메뉴 스타일 */
-    .ui.menu .item {
-      font-weight: 500;
-      padding: 10px 10px;
+
+  <script>
+    $(document).ready(function () {
+      initDropdown();
+      eventHandler()
+    });
+
+    // 드롭다운 초기화
+    function initDropdown() {
+      $('.ui.dropdown').dropdown({
+        transition: 'slide down',
+        duration: 200
+      });
     }
 
-    .ui.menu .item i.icon {
-      margin-right: 8px;
+    function eventHandler(){
+
+      // 로고 클릭 이벤트 핸들러
+      $('.header.item.main-logo').on('click', function(e) {
+        e.preventDefault();
+        if (localStorage.getItem('accessToken')) {
+          Auth.navigate('/admin/dashboard');
+        } else {
+          window.location.href = '/';
+        }
+      });
+
     }
-
-    .ui.menu .right.menu {
-      display: flex !important;
-    }
-
-    /* 모바일 메뉴 헤더 스타일 */
-    .mobile-menu-header {
-      display: none;
-      padding: 1rem;
-      font-weight: bold;
-      background: #f8f9fa;
-      text-align: center;
-      border-bottom: 1px solid #ddd;
-    }
-
-    /* 모바일 반응형 스타일 */
-    @media only screen and (max-width: 767px) {
-      /* 상단 헤더 크기 조정 */
-      .ui.fixed.menu {
-        height: 60px;
-        padding: 0.5em 1em;
-      }
-
-      /* 로고 이미지 크기 조정 */
-      .ui.menu .header.item img {
-        width: 40px;
-        height: auto;
-      }
-
-      /* 로고 텍스트 크기 조정 */
-      .ui.menu .header.item span.title {
-        font-size: 1.2em;
-      }
-
-      /* 햄버거 메뉴 아이콘 크기 조정 */
-      .ui.dropdown.item i.icon {
-        font-size: 1.5em !important;
-        margin: 0;
-      }
-
-      /* 드롭다운 메뉴 스타일 개선 */
-      .ui.dropdown .menu {
-        width: 100vw;
-        position: fixed !important;
-        top: 60px !important;
-        left: 0 !important;
-        margin: 0 !important;
-        border-radius: 0 !important;
-        max-height: calc(100vh - 60px) !important;
-        overflow-y: auto;
-      }
-
-      /* 드롭다운 메뉴 헤더 표시 */
-      .mobile-menu-header {
-        /*display: block;*/
-      }
-
-      /* 드롭다운 메뉴 아이템 크기 조정 */
-      .ui.dropdown .menu > .item {
-        padding: 1rem !important;
-        border-bottom: 1px solid #f0f0f0;
-      }
-
-      /* 드롭다운 메뉴 아이콘 크기 조정 */
-      .ui.dropdown .menu > .item i.icon {
-        font-size: 1.2em;
-        width: 1.5em;
-        margin-right: 1rem;
-      }
-
-      /* 컨테이너 여백 조정 */
-      .ui.container {
-        margin-left: 0 !important;
-        margin-right: 0 !important;
-        width: 100% !important;
-      }
-    }
-
-    /* 태블릿 반응형 스타일 */
-    @media only screen and (min-width: 768px) and (max-width: 991px) {
-      .ui.container {
-        width: 95% !important;
-      }
-
-      .ui.menu .header.item span.title {
-        font-size: 1.1em;
-      }
-    }
-  </style>
+  </script>
 </head>
-
 <body>
-<!-- Header Fragment: 상단 고정 메뉴 포함 -->
 <div th:fragment="header">
-  <!-- 고정된 상단 메뉴: 로고 및 네비게이션 포함 -->
   <div class="ui fixed menu">
     <div class="ui container" style="display: flex; justify-content: space-between; align-items: center; width: 100%;">
-      <!-- 왼쪽: 로고와 텍스트 -->
-      <a href="/" class="header item"
+      <a href="javascript:Auth.navigate('/admin/dashboard')" class="header item main-logo"
          style="display: flex; align-items: center; background-color: white; width: -webkit-fill-available;">
         <img src="/images/sejong_malsami.png" alt="Sejong Malsami 브랜드 로고" class="ui mini image">
         <span class="ui title" style="margin-left: 10px; font-weight: bold; font-size: 1.2em; color: black;">
-            Sejong Malsami Admin
-          </span>
+          Sejong Malsami Admin
+        </span>
       </a>
 
-      <!-- 오른쪽: 메뉴 드롭다운 -->
       <div class="right menu">
         <div class="ui dropdown item" style="margin-left: auto;">
           <i class="bars icon large"></i>
@@ -140,26 +64,29 @@
             <a href="javascript:Auth.navigate('/admin/dashboard')" class="item">
               <i class="dashboard icon"></i> Dashboard
             </a>
-            <a href="javascript:Auth.navigate('/admin/question')" class="item">
-              <i class="question circle icon"></i> 질문답변게시판
-            </a>
-            <a href="javascript:Auth.navigate('/admin/document')" class="item">
-              <i class="file alternate icon"></i> 자료게시판
-            </a>
-            <a href="javascript:Auth.navigate('/admin/course')" class="item">
-              <i class="book icon"></i> 교과목 관리
-            </a>
             <a href="javascript:Auth.navigate('/admin/member')" class="item">
-              <i class="users icon"></i> 회원 관리
+              <i class="users icon"></i> 회원
+            </a>
+            <a href="javascript:Auth.navigate('/admin/yeopjeon')" class="item">
+              <i class="circle outline icon"></i> 엽전
+            </a>
+            <a href="javascript:Auth.navigate('/admin/test')" class="item">
+              <i class="flask icon"></i> 테스트용
+            </a>
+            <a href="javascript:Auth.navigate('/admin/subject')" class="item">
+              <i class="book icon"></i> 교과목
+            </a>
+            <a href="javascript:Auth.navigate('/admin/question')" class="item">
+              <i class="question circle icon"></i> Q&A
+            </a>
+            <a href="/admin/resources" class="item">
+              <i class="file alternate icon"></i> 자료실
             </a>
             <a href="javascript:Auth.navigate('/admin/notice')" class="item">
-              <i class="bell icon"></i> 공지사항
+              <i class="announcement icon"></i> 공지사항
             </a>
-            <a href="javascript:Auth.navigate('/admin/status')" class="item">
-              <i class="server icon"></i> 서버 상태
-            </a>
-            <a href="javascript:Auth.navigate('/admin/testPage1')" class="item">
-              <i class="server icon"></i> 테스트 페이지 1
+            <a href="javascript:Auth.navigate('/admin/error-code')" class="item">
+              <i class="bug icon"></i> 에러코드
             </a>
             <div class="divider"></div>
             <a href="javascript:Auth.navigate('/logout')" class="item">
@@ -171,32 +98,8 @@
     </div>
   </div>
 
-  <div class="ui container" style="margin-top: 7em;">
-    <!-- 페이지별 콘텐츠 영역 -->
-  </div>
+  <!-- 마진 컨테이너 추가 -->
+  <div class="ui container" style="margin-top: 5em;"></div>
 </div>
-
-<script>
-  $(document).ready(function() {
-    // 드롭다운 메뉴 초기화
-    $('.ui.dropdown').dropdown({
-      transition: 'slide down',
-      duration: 200,
-      onShow: function() {
-        $('body').addClass('menu-open');
-      },
-      onHide: function() {
-        $('body').removeClass('menu-open');
-      }
-    });
-
-    // 메뉴 아이템 클릭 시 자동으로 드롭다운 닫기
-    $('.ui.dropdown .menu .item').on('click', function() {
-      if (window.innerWidth <= 767) {
-        $('.ui.dropdown').dropdown('hide');
-      }
-    });
-  });
-</script>
 </body>
 </html>
