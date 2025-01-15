@@ -281,7 +281,11 @@ public enum ErrorCode {
 
   // ErrorCode
 
-  SERVER_ERROR_CODE_NOT_FOUND(HttpStatus.NOT_FOUND, "서버 에러코드를 찾을 수 없습니다.");
+  SERVER_ERROR_CODE_NOT_FOUND(HttpStatus.NOT_FOUND, "서버 에러코드를 찾을 수 없습니다."),
+
+  // Notification
+
+  MESSAGE_SENT_FAILED(HttpStatus.BAD_REQUEST, "FCM 메시지 발송에 실패했습니다.");
 
   private final HttpStatus status;
   private final String message;
