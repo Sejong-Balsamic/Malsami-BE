@@ -129,6 +129,8 @@ jobs:
 
             echo "새로운 컨테이너 $CONTAINER_NAME 실행 중..."
             echo $PW | sudo -S docker run -d -p ${PORT}:8080 --name $CONTAINER_NAME \
+              --network sejong-malsami-network \
+              -v /var/run/docker.sock:/var/run/docker.sock \
               -e TZ=Asia/Seoul \
               -e "SPRING_PROFILES_ACTIVE=prod" \
               -v /etc/localtime:/etc/localtime:ro \
