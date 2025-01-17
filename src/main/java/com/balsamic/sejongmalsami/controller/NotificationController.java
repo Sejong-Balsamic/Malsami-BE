@@ -28,6 +28,6 @@ public class NotificationController implements NotificationControllerDocs {
       @AuthenticationPrincipal CustomUserDetails customUserDetails,
       @ModelAttribute NotificationCommand command) {
     command.setMember(customUserDetails.getMember());
-    return ResponseEntity.ok(notificationService.sendNotification(command));
+    return ResponseEntity.ok(notificationService.sendNotificationByToken(command));
   }
 }
