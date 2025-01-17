@@ -1,6 +1,8 @@
 package com.balsamic.sejongmalsami.object;
 
+import com.balsamic.sejongmalsami.object.constants.NotificationCategory;
 import com.balsamic.sejongmalsami.object.postgres.Member;
+import java.util.Map;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
@@ -17,6 +19,10 @@ public class NotificationCommand {
   private Member member;
 
   private String token;
+  private NotificationCategory category;
   private String title;
   private String body;
+
+  // NotificationCategory 템플릿에 치환할 값
+  private Map<String, String> dataMap;
 }
