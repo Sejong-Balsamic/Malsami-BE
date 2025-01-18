@@ -1,0 +1,639 @@
+<!-- src/main/resources/templates/admin/subject.html -->
+<!doctype html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{fragments/header :: head}"></head>
+
+<body class="subject-page">
+
+<div th:replace="fragments/header :: header"></div>
+<div class="ui content u-margin-vertical-large u-padding-horizontal-medium">
+  <!-- 페이지 제목 -->
+  <div class="ui main text container u-margin-bottom-large">
+    <h1 class="ui header">교과목 관리</h1>
+  </div>
+
+  <!-- 교과목 필터링 -->
+  <div class="form-container ui segment">
+    <form id="searchSubjectForm" class="ui form">
+
+      <!-- 교과목 검색 -->
+      <div class="field">
+        <label>교과목명</label>
+        <input type="text" id="subject" name="subject" placeholder="교과목명 검색" autocomplete="off">
+        <div class="ui list autocomplete-list"></div>
+      </div>
+
+      <div class="field">
+        <div class="two fields">
+          <div class="field">
+            <label>연도</label>
+            <select class="ui dropdown" name="year">
+              <option value="">--연도를 선택하세요--</option>
+              <option th:each="year : ${years}"
+                      th:value="${year}"
+                      th:text="${year} + '년'">
+              </option>
+            </select>
+          </div>
+          <div class="field">
+            <label>학기</label>
+            <select class="ui dropdown" name="semester">
+              <option value="">--학기를 선택하세요--</option>
+              <option th:each="semester : ${semesters}"
+                      th:value="${semester}"
+                      th:text="${semester} + '학기'">
+              </option>
+            </select>
+          </div>
+        </div>
+      </div>
+
+      <div class="field">
+        <label>단과대</label>
+        <select class="ui dropdown" name="faculty">
+          <option value="">--단과대를 선택하세요--</option>
+          <!-- DB에서 불러온 faculties 목록을 순회하며 옵션을 생성-->
+          <option th:each="faculty : ${faculties}"
+                  th:value="${faculty.name}"
+                  th:text="${faculty.name}">
+          </option>
+        </select>
+      </div>
+
+      <div class="five fields">
+        <div class="field">
+          <button class="ui primary button" type="submit">
+            <i class="search icon"></i>검색
+          </button>
+        </div>
+        <div class="field">
+          <button class="ui button" id="subjectResetFilterButton" type="button">
+            <i class="undo icon"></i>필터 초기화
+          </button>
+        </div>
+        <div class="field">
+          <button class="ui button" id="subjectResetSortButton" type="button">
+            <i class="undo icon"></i>정렬 초기화
+          </button>
+        </div>
+        <div class="field">
+          <button id="uploadFileButton" class="ui button" type="button">
+            <i class="file icon"></i>엑셀 파일 업로드
+          </button>
+        </div>
+        <div class="field">
+          <button id="deleteFileButton" class="ui button" type="button">
+            <i class="delete icon"></i>엑셀 파일 관리
+          </button>
+        </div>
+      </div>
+    </form>
+  </div>
+
+  <!-- Tabulator 테이블 -->
+  <div class="table-container">
+    <div id="totalCourseCount" class="ui left aligned header">총 조회 수: 0건</div>
+    <div id="subjectTable"></div>
+  </div>
+
+  <!-- 엑셀 파일 업로드 Modal -->
+  <div id="uploadFileModal" class="ui modal">
+    <div class="header">교과목 파일 업로드</div>
+    <div class="content">
+      <form id="uploadFileForm" class="ui form" enctype="multipart/form-data">
+        <div class="field">
+          <div class="field">
+            <ul>
+              <li>
+                <p class="text">교과목 엑셀 파일명은 "course-YYYY-semester.xlsx"과 같은 형태만 업로드 가능합니다.</p>
+              </li>
+              <li>
+                <p class="text">엑셀 파일 내부에는 '개설학과', '개설학과전공', '교과목명' 을 제외한 다른 행이 존재할 수 없습니다.</p>
+              </li>
+              <li>
+                <p class="text">중복되는 교과목은 엑셀파일에서 중복 제거 후 업로드해야합니다.</p>
+              </li>
+            </ul>
+          </div>
+          <input type="file" name="multipartFile" class="ui input" accept=".xls,.xlsx" required>
+        </div>
+      </form>
+      <div class="actions">
+        <button class="ui button cancel" type="button" id="cancelUploadButton"><i class="cancel icon"></i>취소</button>
+        <button class="ui primary button" type="button" id="submitUploadButton"><i class="save icon"></i> 업로드</button>
+      </div>
+    </div>
+  </div>
+
+  <!--  엑셀 파일 관리 Modal  -->
+  <div id="deleteFileModal" class="ui modal">
+    <div class="header">
+      교과목 파일 관리
+      <i id="deleteFileModalCloseButton" class="delete icon"></i>
+    </div>
+    <div class="content">
+      <form id="searchCourseFileForm" class="ui form">
+        <div class="field">
+          <div class="two fields">
+            <div class="field">
+              <label>연도</label>
+              <select class="ui dropdown" name="year">
+                <option value="">--연도를 선택하세요--</option>
+                <option th:each="year : ${years}"
+                        th:value="${year}"
+                        th:text="${year} + '년'">
+                </option>
+              </select>
+            </div>
+            <div class="field">
+              <label>학기</label>
+              <select class="ui dropdown" name="semester">
+                <option value="">--학기를 선택하세요--</option>
+                <option th:each="semester : ${semesters}"
+                        th:value="${semester}"
+                        th:text="${semester} + '학기'">
+                </option>
+              </select>
+            </div>
+          </div>
+        </div>
+        <div class="five fields">
+          <div class="field"></div>
+          <div class="field"></div>
+          <div class="field"></div>
+          <div class="field">
+            <button class="ui button" id="courseFileResetFilterButton" type="button">
+              <i class="undo icon"></i>필터 초기화
+            </button>
+          </div>
+          <div class="field">
+            <button class="ui button" id="courseFileResetSortButton" type="button">
+              <i class="undo icon"></i>정렬 초기화
+            </button>
+          </div>
+        </div>
+      </form>
+      <!-- Tabulator 테이블 -->
+      <div class="modal-table-container">
+        <div id="totalFileCount" class="ui left aligned header">총 파일 수: 0건</div>
+        <div id="courseFileTable"></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div th:replace="fragments/footer :: footer"></div>
+
+<link href="https://unpkg.com/tabulator-tables/dist/css/tabulator.min.css" rel="stylesheet">
+<script type="text/javascript" src="https://unpkg.com/tabulator-tables/dist/js/tabulator.min.js"></script>
+
+<script type="text/javascript" th:inline="javascript">
+
+  let subjectTable = new Tabulator();
+  let courseFileTable = new Tabulator();
+
+  // DOM 완성 시
+  $(document).ready(function () {
+    // 데이터 초기화
+    initData();
+
+    // 이벤트 처리
+    subjectTableEventHandler(subjectTable);
+    courseFileTableEventHandler(courseFileTable);
+    uploadCourseFileEventHandler();
+    deleteCourseFileEventHandler();
+
+    // 교과목 자동완성
+    subjectInputChange();
+  });
+
+  /**
+   * 데이터 초기화
+   */
+  function initData() {
+    subjectTable = initSubjectTable();
+    courseFileTable = initCourseFileTable();
+  }
+
+  /**
+   * 과목 테이블 초기화
+   */
+  function initSubjectTable() {
+
+    var table = new Tabulator("#subjectTable", {
+      layout: "fitDataTable",
+      columns: [
+        {title: "과목명", field: "subject", width: 200},
+        {title: "단과대학", field: "faculty", width: 200},
+        {title: "학과", field: "department", width: 300},
+        {title: "개설학기", field: "semester", width: 100},
+        {title: "연도", field: "year", width: 100}
+      ],
+
+      ajaxURL: "/admin/subject/filter",
+      ajaxConfig: {
+        method: "POST",
+        headers: {
+          "Authorization": "Bearer " + localStorage.getItem("accessToken"),
+        }
+      },
+      ajaxRequestFunc: function (url, config, params) {
+        const formData = new FormData($('#searchSubjectForm')[0]);
+
+        formData.append("pageNumber", (params.page ? params.page - 1 : 0));
+        formData.append("pageSize", params.size || 10);
+        formData.append("sortField", params.sortField || "createdDate");
+        formData.append("sortDirection", params.sortDirection || "desc");
+
+        return fetch(url + "?accessToken=" + localStorage.getItem("accessToken"), {
+          method: "POST",
+          headers: config.headers,
+          body: formData
+        })
+        .then(response => response.json())
+      },
+      ajaxResponse: function (url, params, response) {
+        // 총 항목수 표시
+        $('#totalCourseCount').text(`총 조회 수: ${response.coursePage.totalElements || 0}건`);
+
+        return {
+          data: response.coursePage.content,
+          last_page: response.coursePage.totalPages
+        };
+      },
+      pagination: true,
+      paginationMode: "remote",
+      paginationSize: 100,
+      paginationSizeSelector: [10, 30, 50, 100],
+      height: "600px"
+    });
+
+    return table;
+  }
+
+  /**
+   * 엑셀 파일 테이블 초기화
+   */
+  function initCourseFileTable() {
+
+    var table = new Tabulator("#courseFileTable", {
+      layout: "fitDataTable",
+      columns: [
+        {
+          title: "순번",
+          formatter: "rownum",     // 내부적으로 1부터 순번 표시
+          hozAlign: "center",
+          width: 60
+        },
+        {title: "파일명", field: "fileName", width: 200},
+        {title: "연도", field: "year", width: 100},
+        {title: "학기", field: "semester", width: 100},
+        {title: "상태", field: "fileStatus", width: 100},
+        {
+          title: "관리", width: 170, formatter: function (cell) {
+            const data = cell.getRow().getData();
+            return `
+            <div class="ui two mini buttons">
+                <button class="ui blue button" onclick="clickDownloadButton('${data.fileName}')">다운로드</button>
+                <button class="ui red button" onclick="clickDeleteButton('${data.fileName}')">삭제</button>
+            </div>
+          `;
+          }
+        }
+      ],
+
+      ajaxURL: "/admin/course-file/filter",
+      ajaxConfig: {
+        method: "POST",
+        headers: {
+          "Authorization": "Bearer " + localStorage.getItem("accessToken"),
+        }
+      },
+      ajaxRequestFunc: function (url, config, params) {
+        const formData = new FormData();
+
+        formData.append("pageNumber", (params.page ? params.page - 1 : 0));
+        formData.append("pageSize", params.size || 10);
+        formData.append("sortField", params.sortField || "createdDate");
+        formData.append("sortDirection", params.sortDirection || "desc");
+
+        return fetch(url + "?accessToken=" + localStorage.getItem("accessToken"), {
+          method: "POST",
+          headers: config.headers,
+          body: formData
+        })
+        .then(response => response.json())
+      },
+      ajaxResponse: function (url, params, response) {
+        // 총 항목수 표시
+        $('#totalFileCount').text(`총 파일 수: ${response.courseFilePage.totalElements || 0}건`);
+
+        return {
+          data: response.courseFilePage.content,
+          last_page: response.courseFilePage.totalPages
+        };
+      },
+      pagination: true,
+      paginationMode: "remote",
+      paginationSize: 10,
+      height: "300px"
+    });
+
+    return table;
+  }
+
+  /**
+   * 과목 테이블 이벤트 핸들러
+   */
+  function subjectTableEventHandler(table) {
+    const form = document.getElementById("searchSubjectForm");
+
+    // 검색 버튼 이벤트
+    form.addEventListener("submit", function (e) {
+      e.preventDefault();
+      table.setData(); // 테이블 데이터 새로 로드
+    });
+
+    // 폼 필터 초기화 버튼 이벤트
+    $('#subjectResetFilterButton').on("click", function () {
+      form.reset();
+      $("select[name='year']").parent('.ui.dropdown').dropdown('clear');
+      $("select[name='semester']").parent('.ui.dropdown').dropdown('clear');
+      $("select[name='faculty']").parent('.ui.dropdown').dropdown('clear');
+      table.setData();
+    });
+
+    // 정렬 초기화
+    $('#subjectResetSortButton').on("click", function () {
+      table.clearSort();
+    });
+  }
+
+  /**
+   * 교과목 파일 테이블 이벤트 핸들러
+   */
+  function courseFileTableEventHandler(table) {
+    const form = document.getElementById("searchCourseFileForm");
+
+    // 폼 필터 초기화 버튼 이벤트
+    $('#courseFileResetFilterButton').on("click", function () {
+      form.reset();
+      $("select[name='year']").parent('.ui.dropdown').dropdown('clear');
+      $("select[name='semester']").parent('.ui.dropdown').dropdown('clear');
+      table.setData();
+    });
+
+    // 정렬 초기화
+    $('#courseFileResetSortButton').on("click", function () {
+      table.clearSort();
+    });
+  }
+
+  /**
+   * "엑셀 파일 업로드" Modal 이벤트 핸들러
+   */
+  function uploadCourseFileEventHandler() {
+    let uploadFileModal = $('#uploadFileModal');
+
+    // Modal 밖 클릭 시 닫힘 방지
+    uploadFileModal.modal({
+      closable: false
+    });
+
+    // "엑셀 파일 업로드" 버튼 클릭 -> 모달 열기
+    $('#uploadFileButton').on('click', function () {
+      uploadFileModal.modal('show');
+    });
+
+    // "취소" 버튼 클릭 시 모달 닫기
+    $('#cancelUploadButton').on('click', function (e) {
+      e.preventDefault();
+      uploadFileModal.modal('hide');
+    });
+
+    // "업로드" 버튼 클릭 시 파일 업로드
+    $('#submitUploadButton').on('click', uploadCourseFile);
+  }
+
+  /**
+   * "엑셀 파일 관리" Modal 이벤트 핸들러
+   */
+  function deleteCourseFileEventHandler() {
+    let deleteFileModal = $('#deleteFileModal');
+    let closeButton = $('#deleteFileModalCloseButton');
+
+    // Modal 밖 클릭 시 닫힘 방지
+    deleteFileModal.modal({
+      closable: false,
+      onVisible: function() {
+        courseFileTable.redraw();  // 모달이 실제로 표시된 뒤 테이블 레이아웃 다시 계산
+      }
+    });
+
+    // "엑셀 파일 관리" 버튼 클릭 -> 모달 열기
+    $('#deleteFileButton').on('click', function () {
+      deleteFileModal.modal('show');
+    });
+
+    // 'x' 아이콘 클릭 시 모달 닫기
+    closeButton.on('click', function (e) {
+      e.preventDefault();
+      deleteFileModal.modal('hide');
+    });
+
+    // 커서 모양 변경
+    closeButton.on('mouseenter', function () {
+      $(this).css('cursor', 'pointer');
+    });
+    closeButton.on('mouseleave', function () {
+      $(this).css('cursor', 'default');
+    });
+  }
+
+  /**
+   * 교과목 엑셀 파일 업로드
+   */
+  function uploadCourseFile() {
+    // Linux 환경에서만 작동
+    if (![[${isLinuxServer}]]) {
+      alert("로컬환경에서는 교과목 파일을 업로드 할 수 없습니다.");
+      return;
+    }
+    const form = $('#uploadFileForm')[0];
+    const formData = new FormData(form);
+
+    if (!formData.get('multipartFile')) {
+      alert("파일이 선택되지 않았습니다.");
+      return;
+    }
+
+    $.ajax({
+      url: "/admin/subject/upload",
+      method: "POST",
+      headers: {
+        "Authorization": "Bearer " + localStorage.getItem("accessToken")
+      },
+      processData: false,
+      contentType: false,
+      data: formData,
+      success: function (data) {
+        console.log("교과목 엑셀파일 업로드 성공: ", data);
+        alert("교과목 엑셀파일 업로드가 성공적으로 완료되었습니다.");
+        // 모달 닫기
+        $('#uploadFileModal').modal('hide');
+        // 교과목 테이블 로드
+        subjectTable.setData();
+        // courseFile 테이블 로드
+        courseFileTable.setData();
+      },
+      error: function (error) {
+        console.log("교과목 엑셀파일 업로드 오류: ", error);
+        alert("교과목 엑셀파일 업로드 중 오류가 발생했습니다.");
+      },
+    });
+  }
+
+  /**
+   * courseFile '삭제' 버튼
+   */
+  function clickDeleteButton(fileName) {
+    //TODO: courseFile 삭제 기능 추가
+    alert("서비스 준비중입니다...");
+  }
+
+  /**
+   * courseFile '다운로드' 버튼
+   */
+  function clickDownloadButton(fileName) {
+    // Linux 환경에서만 작동
+    if (![[${isLinuxServer}]]) {
+      alert("로컬환경에서는 교과목 파일을 다운로드 할 수 없습니다.");
+      return;
+    }
+
+    if (!fileName) {
+      alert("파일이 존재하지 않습니다.");
+      return;
+    }
+
+    if (!confirm(fileName + " 파일을 다운로드 하시겠습니까?")) {
+      return;
+    }
+    alert("다운로드를 시작합니다");
+
+    let formData = new FormData();
+    formData.append("fileName", fileName);
+
+    $.ajax({
+      url: '/admin/course-file/download',
+      method: 'POST',
+      headers: {
+        "Authorization": "Bearer " + localStorage.getItem("accessToken")
+      },
+      processData: false,
+      contentType: false,
+      data: formData,
+
+      // 응답을 Blob 형태로 받도록 설정
+      xhrFields: {
+        responseType: 'blob'
+      },
+
+      success: function(blob) {
+        // 1) 브라우저 메모리에 Blob URL을 생성
+        const downloadUrl = URL.createObjectURL(blob);
+
+        // 2) 임시 <a> 태그를 만들어서, 강제로 클릭하여 다운로드
+        const a = document.createElement('a');
+        a.href = downloadUrl;
+        a.download = fileName;  // 실제 다운로드될 때 파일명
+        document.body.appendChild(a);
+        a.click();
+
+        // 3) 사용 끝난 뒤 정리
+        document.body.removeChild(a);
+        URL.revokeObjectURL(downloadUrl);
+
+        console.log(fileName + " 다운로드가 완료되었습니다.");
+      },
+      error: function(error) {
+        console.log("다운로드 실패:", error);
+        alert("다운로드 요청 중 오류가 발생했습니다.");
+      }
+    });
+  }
+
+  /**
+   * 교과목명 자동완성
+   */
+  function subjectInputChange() {
+    // 검색 입력 이벤트 등록
+    $('#subject').on('input', function () {
+      const keyword = $(this).val().trim();
+
+      // 글자가 1개 이상일 때만 api 요청
+      if (keyword.length > 0) {
+        $.ajax({
+          url: '/admin/subject/autocomplete',
+          method: 'POST',
+          headers: {
+            "Authorization": "Bearer " + localStorage.getItem("accessToken")
+          },
+          data: {subject: keyword},
+          success: function (data) {
+            renderAutocompleteList(data);
+          },
+          error: function (error) {
+            console.error('Subject AutoComplete Error:', error);
+          }
+        });
+      } else {
+        // 입력이 없는 경우
+        $('.autocomplete-list').empty().hide();
+      }
+    });
+
+    // 추천 검색어 목록을 클릭하면 해당 값을 input에 채우고, 목록 숨김
+    $(document).on('click', '.autocomplete-list a.item', function () {
+      const text = $(this).text().trim();
+      $('#subject').val(text);
+      $('.autocomplete-list').empty().hide();
+    });
+  }
+
+  /**
+   * 자동완성 리스트 랜더링
+   *
+   * @param data
+   */
+  function renderAutocompleteList(data) {
+    const list = $('.autocomplete-list');
+
+    // 리스트 초기화
+    list.empty();
+
+    const items = data.subjects || [];
+
+    // 데이터가 없으면 숨기기
+    if (items.length === 0) {
+      list.hide();
+      return;
+    }
+
+    // 자동완성 항목 생성
+    items.forEach(item => {
+      const listItem = `
+      <a class="item">
+        <i class="search icon"></i>
+        ${item}
+      </a>
+      `;
+      list.append(listItem);
+    });
+
+    list.show();
+  }
+
+</script>
+</body>
+</html>

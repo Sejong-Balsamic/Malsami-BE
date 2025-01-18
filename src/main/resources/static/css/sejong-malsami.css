@@ -1,0 +1,67 @@
+/* src/main/resources/static/css/sejong-malsami.css */
+
+/*
+===========================================
+SEJONG-MALSAMI.CSS
+===========================================
+ */
+
+/* ========================= */
+/*        Font Styles        */
+/* ========================= */
+
+/* AppleSDGothicNeoM00 폰트 정의 */
+@font-face {
+  font-family: 'AppleSDGothicNeoM00';
+  src: url('/fonts/AppleSDGothicNeoM.ttf') format('truetype');
+  font-weight: normal;
+  font-style: normal;
+}
+
+/* AppleSDGothicNeoB 폰트 정의 */
+@font-face {
+  font-family: 'AppleSDGothicNeoB';
+  src: url('/fonts/AppleSDGothicNeoB.ttf') format('truetype');
+  font-weight: bold;
+  font-style: normal;
+}
+
+/* AppleSDGothicNeoM00 폰트 전역 적용 */
+body {
+  font-family: 'AppleSDGothicNeoM00', sans-serif;
+}
+
+/* 색상 변수 정의 */
+:root {
+  --malsami-green: #03B89E;    /* 시그니쳐 청록색 */
+  --malsami-orange: #F46B02;  /* 당근색 */
+}
+
+/* 클래스 정의 추가 */
+.malsami-green {
+  background-color: var(--malsami-green) !important;
+  color: white !important;
+}
+
+.malsami-orange {
+  background-color: var(--malsami-orange) !important;
+  color: white !important;
+}
+
+/* 텍스트 색상용 클래스 */
+.malsami-green-text {
+  color: var(--malsami-green) !important;
+}
+
+.malsami-orange-text {
+  color: var(--malsami-orange) !important;
+}
+
+/* 호버 효과 */
+.malsami-green:hover {
+  background-color: #029b84 !important; /* 약간 어두운 녹색 */
+}
+
+.malsami-orange:hover {
+  background-color: #d25802 !important; /* 약간 어두운 주황색 */
+}

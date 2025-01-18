@@ -1,0 +1,130 @@
+<!-- src/main/resources/templates/fragments/footer.html -->
+<!DOCTYPE html>
+<div th:fragment="footer">
+  <div class="ui vertical footer segment" style="padding: 2em 0; margin-top: 3em; border-top: 2px solid #4183c4;">
+    <div class="ui container">
+      <div class="ui stackable two column grid center aligned horizontally padded">
+
+        <!-- Team 섹션 -->
+        <div class="column">
+          <h4 class="ui header" style="color: #1b1c1d; margin-bottom: 1em;">
+            Team
+          </h4>
+          <div style="color: #1b1c1d; margin: 1em;">
+            <p style="margin-bottom: 0.7em;">
+              <i class="server icon" style="color: #4183c4;" aria-hidden="true"></i>
+              Backend : 서새찬, 백지훈, 백민홍
+            </p>
+            <p style="margin-bottom: 0.7em;">
+              <i class="desktop icon" style="color: #4183c4;" aria-hidden="true"></i>
+              Frontend : 이유진, 손재호
+            </p>
+            <p style="margin-bottom: 0.7em;">
+              <i class="paint brush icon" style="color: #4183c4;" aria-hidden="true"></i>
+              Design : 김성림, 이예진, 윤지희
+            </p>
+          </div>
+        </div>
+
+        <!-- Contact Us 섹션 -->
+        <div class="column">
+          <h4 class="ui header" style="color: #1b1c1d; margin-bottom: 1em;">
+            Contact Us
+          </h4>
+          <p style="color: #1b1c1d; margin-bottom: 1em;">
+            <i class="envelope open outline icon" style="color: #4183c4;"></i>
+            Email:
+            <a href="mailto:sejong-balsamic-official@gmail.com"
+               style="color: #4183c4; transition: all 0.3s ease;"
+               onmouseover="this.style.color='#5a95d4'"
+               onmouseout="this.style.color='#4183c4'">
+              sejong-balsamic-official@gmail.com
+            </a>
+          </p>
+
+          <p style="color: #1b1c1d;">
+            <i class="github icon" style="color: #4183c4;"></i>
+            GitHub:
+            <a href="https://github.com/Sejong-Balsamic"
+               target="_blank"
+               style="color: #4183c4; transition: all 0.3s ease;"
+               onmouseover="this.style.color='#5a95d4'"
+               onmouseout="this.style.color='#4183c4'">
+              Sejong-Balsamic
+            </a>
+          </p>
+        </div>
+
+      </div>
+
+      <!-- 저작권 정보 -->
+      <div style="color: #666; text-align: center; margin-top: 2em;">
+        <i class="copyright outline icon" aria-hidden="true"></i>
+        2024 Sejong-Malsami Interface |
+        <i class="code icon" style="color: #4183c4;" aria-hidden="true"></i>
+        Balsamic Team
+        <i class="gem outline icon" style="color: #4183c4;" aria-hidden="true"></i>
+      </div>
+    </div>
+  </div>
+
+  <!-- 스크립트 파일 포함 -->
+  <script th:src="@{/js/jquery.min.js}"></script>
+  <script th:src="@{/js/semantic.min.js}"></script>
+
+  <!-- 반응형 스타일 적용 -->
+  <style>
+    .ui.footer.segment {
+      margin-top: 3em;
+      padding: 2em 0;
+      border-top: 2px solid #4183c4;
+    }
+
+    @media only screen and (max-width: 767px) {
+      .ui.footer.segment {
+        padding: 1em;
+        margin-top: 2em;
+      }
+
+      .ui.stackable.grid .column {
+        padding: 1em !important;
+      }
+
+      .ui.footer.segment .column p {
+        font-size: 0.9em;
+        margin-bottom: 0.5em;
+      }
+
+      .ui.footer.segment .copyright {
+        font-size: 0.8em;
+      }
+    }
+  </style>
+
+  <script>
+    $(document).ready(function() {
+      $('.ui.dropdown').dropdown({
+        transition: 'drop'
+      });
+
+      // 모바일에서 메뉴 클릭 시 자동으로 닫히도록 설정
+      $(document).ready(function() {
+        $('.ui.dropdown').dropdown({
+          transition: 'drop',
+          onHide: function() {
+            if (window.innerWidth <= 767) {
+              $('.ui.dropdown').dropdown('hide');
+            }
+          }
+        });
+
+        // 모바일에서 메뉴 아이템 클릭 시 메뉴 닫기
+        $('.ui.dropdown .menu .item').on('click', function() {
+          if (window.innerWidth <= 767) {
+            $('.ui.dropdown').dropdown('hide');
+          }
+        });
+      });
+    });
+  </script>
+</div>

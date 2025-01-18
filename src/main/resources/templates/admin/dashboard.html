@@ -1,0 +1,548 @@
+<!-- src/main/resources/templates/admin/dashboard.html -->
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head th:replace="fragments/header :: head(title='Dashboard')">
+</head>
+<body class="dashboard-page">
+<!-- 헤더 포함 -->
+<div th:replace="fragments/header :: header"></div>
+
+<!-- 메인 컨테이너 -->
+<div class="ui container u-margin-vertical-large u-padding-horizontal-medium">
+
+  <!-- 대시보드 제목 -->
+  <div class="ui main text container u-margin-bottom-large"
+       style="position: relative; display: flex; align-items: center;">
+    <h1 class="ui header" id="dashboardTitle"
+        style="cursor: pointer; display: inline-block; position: relative; margin-right: 10px;">
+      <span>🎯DASHBOARD</span>
+    </h1>
+    <img id="playgroundIcon" src="/images/play-ground.png"
+         style="width:42px; height:45px; cursor:pointer; margin-left:10px; position:relative; transition: transform
+         0.3s ease;"/>
+    <a id="devPlaygroundButton" href="javascript:Auth.navigate('/admin/play-ground')" class="ui pink icon tiny button"
+       style="display:none;">
+      🎪개발자 놀이터
+    </a>
+  </div>
+
+  <!-- 네비게이션 버튼 섹션 -->
+  <div class="ui segment">
+    <h3 class="ui header">
+      <i class="cogs icon"></i>
+      관리 메뉴
+    </h3>
+
+    <div class="ui card fluid">
+      <div class="content">
+        <div class="ui five column stackable grid u-margin-bottom-large u-display-mobile-flex"
+             style="max-width: 1200px; margin: 0 auto;">
+          <div class="column">
+            <a href="javascript:Auth.navigate('/admin/member')" class="ui blue icon labeled button">
+              <i class="users icon"></i>
+              회원
+            </a>
+          </div>
+          <div class="column">
+            <a href="javascript:Auth.navigate('/admin/yeopjeon')" class="ui yellow icon labeled button">
+              <i class="circle outline icon"></i>
+              <span style="color: black">엽전</span>
+            </a>
+          </div>
+          <div class="column">
+            <a href="javascript:Auth.navigate('/admin/test')" class="ui black icon labeled button">
+              <i class="flask icon"></i>
+              테스트용
+            </a>
+          </div>
+          <div class="column">
+            <a href="javascript:Auth.navigate('/admin/subject')" class="ui green icon labeled button">
+              <i class="book icon"></i>
+              교과목
+            </a>
+          </div>
+          <div class="column">
+            <a href="javascript:Auth.navigate('/admin/question')" class="ui orange icon labeled button">
+              <i class="question circle icon"></i>
+              Q&A
+            </a>
+          </div>
+          <div class="column">
+            <a href="/admin/resources" class="ui purple icon labeled button">
+              <i class="file alternate icon"></i>
+              자료실
+            </a>
+          </div>
+          <div class="column">
+            <a href="javascript:Auth.navigate('/admin/notice')" class="ui red icon labeled button">
+              <i class="announcement icon"></i>
+              공지사항
+            </a>
+          </div>
+          <div class="column">
+            <a href="javascript:Auth.navigate('/admin/error-code')" class="ui orange icon labeled button">
+              <i class="bug icon"></i>
+              에러코드
+            </a>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- 경고 알림 섹션 -->
+  <div id="alerts-section" class="u-display-none u-margin-bottom-large">
+    <div class="ui icon warning message">
+      <i class="warning sign icon"></i>
+      <div class="content">
+        <div class="header">시스템 경고</div>
+        <div id="alerts-list"></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- 통계 개요 섹션 -->
+  <div class="ui statistics-overview segments u-margin-bottom-large">
+    <div class="ui segment">
+      <h3 class="ui header">
+        <i class="chart line icon"></i>
+        실시간 통계
+      </h3>
+      <div class="ui five stackable cards">
+        <!-- 통계 로딩 플레이스홀더 -->
+        <div class="card" id="statistics-placeholder">
+          <div class="content">
+            <div class="ui placeholder">
+              <div class="header">
+                <div class="line"></div>
+              </div>
+              <div class="paragraph">
+                <div class="line"></div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- 실제 통계 카드들 -->
+        <div class="ui cards" id="statistics-data" style="display: none;">
+          <!-- 회원 통계 카드 -->
+          <div class="card">
+            <div class="content">
+              <div class="ui tiny statistics">
+                <div class="statistic">
+                  <div class="value" id="memberCount">0</div>
+                  <div class="label">총 회원</div>
+                </div>
+                <div class="statistic">
+                  <div class="value" id="activeUsers">0</div>
+                  <div class="label">활성 사용자</div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- 게시물 통계 카드 -->
+          <div class="card">
+            <div class="content">
+              <div class="ui tiny statistics">
+                <div class="statistic">
+                  <div class="value" id="totalPosts">0</div>
+                  <div class="label">전체 게시물</div>
+                </div>
+                <div class="statistic">
+                  <div class="value" id="todayPosts">0</div>
+                  <div class="label">오늘 작성</div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- 추가 통계 카드들... -->
+        </div>
+      </div>
+    </div>
+
+    <!-- 차트 섹션 -->
+    <div class="ui stackable two column grid u-margin-bottom-large">
+      <!-- 주간 활동 차트 -->
+      <div class="column">
+        <div class="ui segment">
+          <h4 class="ui header">
+            <i class="chart bar icon"></i>
+            주간 활동 통계
+          </h4>
+          <div class="chart-container u-padding-vertical-small">
+            <canvas id="weeklyActivityChart" height="200"></canvas>
+            <!-- 로딩 플레이스홀더 -->
+            <div class="ui placeholder chart-placeholder">
+              <div class="rectangular image"></div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- 사용자 분포 차트 -->
+      <div class="column">
+        <div class="ui segment">
+          <h4 class="ui header">
+            <i class="pie chart icon"></i>
+            사용자 분포
+          </h4>
+          <div class="chart-container u-padding-vertical-small">
+            <canvas id="userDistributionChart" height="200"></canvas>
+            <!-- 로딩 플레이스홀더 -->
+            <div class="ui placeholder chart-placeholder">
+              <div class="rectangular image"></div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- 시스템 리소스 모니터링 섹션 -->
+    <div class="ui segment u-margin-bottom-large">
+      <h3 class="ui header">
+        <i class="server icon"></i>
+        시스템 리소스 모니터링
+      </h3>
+      <div class="ui three column stackable grid">
+        <!-- CPU 사용량 -->
+        <div class="column">
+          <div class="ui segment">
+            <div class="ui tiny statistics">
+              <div class="statistic">
+                <div class="value">
+                  <div id="cpuGauge"></div>
+                </div>
+                <div class="label">CPU 사용량</div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- 메모리 사용량 -->
+        <div class="column">
+          <div class="ui segment">
+            <div class="ui tiny statistics">
+              <div class="statistic">
+                <div class="value">
+                  <div id="memoryGauge"></div>
+                </div>
+                <div class="label">메모리 사용량</div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- 디스크 사용량 -->
+        <div class="column">
+          <div class="ui segment">
+            <div class="ui tiny statistics">
+              <div class="statistic">
+                <div class="value">
+                  <div id="diskGauge"></div>
+                </div>
+                <div class="label">디스크 사용량</div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- 최근 경고 로그 섹션 -->
+    <div class="ui segment">
+      <h3 class="ui header">
+        <i class="exclamation triangle icon"></i>
+        최근 경고 로그
+      </h3>
+      <div class="ui relaxed divided list" id="warningLogs">
+        <!-- 로딩 플레이스홀더 -->
+        <div class="ui placeholder">
+          <div class="line"></div>
+          <div class="line"></div>
+          <div class="line"></div>
+        </div>
+      </div>
+    </div>
+  </div>
+  <!-- 푸터 포함 -->
+  <div th:replace="fragments/footer :: footer"></div>
+</body>
+<!-- Chart.js CDN -->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/3.7.0/chart.min.js"></script>
+
+<!-- 대시보드 스크립트 -->
+<script th:inline="javascript">
+  $(document).ready(function () {
+    // 차트 초기화
+    initializeCharts();
+
+    // 통계 데이터 로드
+    loadStatistics();
+
+    // 시스템 리소스 모니터링 시작
+    startSystemMonitoring();
+
+    // 경고 로그 로드
+    loadWarningLogs();
+
+    // 자동 새로고침 설정 (임시 비활성화)
+    // setInterval(loadStatistics, 300000); // 5분
+    // setInterval(updateSystemResources, 5000); // 5초
+  });
+
+  function initializeCharts() {
+    // 주간 활성화 차트
+    const weeklyCtx = document.getElementById('weeklyActivityChart').getContext('2d');
+    window.weeklyChart = new Chart(weeklyCtx, {
+      type: 'line',
+      data: {
+        labels: ['월', '화', '수', '목', '금', '토', '일'],
+        datasets: [{
+          label: '활동량',
+          data: [0, 0, 0, 0, 0, 0, 0],
+          borderColor: 'rgb(75, 192, 192)',
+          tension: 0.1
+        }]
+      },
+      options: {
+        responsive: true,
+        maintainAspectRatio: false,
+        plugins: {
+          legend: {
+            display: true
+          }
+        },
+        scales: {
+          x: {
+            display: true,
+            title: {
+              display: true,
+              text: '요일'
+            }
+          },
+          y: {
+            display: true,
+            title: {
+              display: true,
+              text: '활동량'
+            },
+            beginAtZero: true
+          }
+        }
+      }
+    });
+
+    // 사용자 분포 차트
+    const distributionCtx = document.getElementById('userDistributionChart').getContext('2d');
+    window.distributionChart = new Chart(distributionCtx, {
+      type: 'doughnut',
+      data: {
+        labels: ['활성', '휴면', '신규'],
+        datasets: [{
+          data: [0, 0, 0],
+          backgroundColor: [
+            'rgb(54, 162, 235)',
+            'rgb(255, 99, 132)',
+            'rgb(75, 192, 192)'
+          ]
+        }]
+      },
+      options: {
+        responsive: true,
+        maintainAspectRatio: false,
+        plugins: {
+          legend: {
+            position: 'bottom'
+          }
+        }
+      }
+    });
+  }
+
+  function loadStatistics() {
+    $.ajax({
+      url: '/api/admin/statistics',
+      method: 'GET',
+      headers: {
+        'Authorization': 'Bearer ' + localStorage.getItem('accessToken')
+      },
+      success: function (response) {
+        updateStatisticsDisplay(response);
+        updateCharts(response);
+        $('#statistics-placeholder').hide();
+        $('#statistics-data').show();
+      },
+      error: function (xhr, status, error) {
+        console.error('통계 데이터 로드 실패:', error);
+        showError('통계 데이터를 불러오는데 실패했습니다.');
+      }
+    });
+  }
+
+  function startSystemMonitoring() {
+    updateSystemResources();
+  }
+
+  function updateSystemResources() {
+    $.ajax({
+      url: '/api/admin/system-resources',
+      method: 'GET',
+      headers: {
+        'Authorization': 'Bearer ' + localStorage.getItem('accessToken')
+      },
+      success: function (response) {
+        updateResourceGauges(response);
+        checkResourceWarnings(response);
+      },
+      error: function (xhr, status, error) {
+        console.error('시스템 리소스 모니터링 실패:', error);
+      }
+    });
+  }
+
+  function updateResourceGauges(data) {
+    // CPU 게이지 업데이트
+    $('#cpuGauge').text(`${data.cpuUsage}%`).removeClass('red green yellow').addClass(
+        data.cpuUsage > 80 ? 'red' : 'green');
+
+    // 메모리 게이지 업데이트
+    $('#memoryGauge').text(`${data.memoryUsage}%`).removeClass('red green yellow').addClass(
+        data.memoryUsage > 80 ? 'red' : 'green');
+
+    // 디스크 게이지 업데이트
+    $('#diskGauge').text(`${data.diskUsage}%`).removeClass('red green yellow').addClass(
+        data.diskUsage > 80 ? 'red' : 'green');
+  }
+
+  function checkResourceWarnings(data) {
+    let warnings = [];
+
+    if (data.cpuUsage > 80) {
+      warnings.push('CPU 사용량이 80%를 초과했습니다.');
+    }
+    if (data.memoryUsage > 80) {
+      warnings.push('메모리 사용량이 80%를 초과했습니다.');
+    }
+    if (data.diskUsage > 80) {
+      warnings.push('디스크 사용량이 80%를 초과했습니다.');
+    }
+
+    if (warnings.length > 0) {
+      showWarnings(warnings);
+    } else {
+      $('#alerts-section').hide();
+    }
+  }
+
+  function showWarnings(warnings) {
+    const alertsList = $('#alerts-list');
+    alertsList.empty();
+
+    warnings.forEach(warning => {
+      alertsList.append(`
+          <div class="ui warning message">
+            <i class="warning icon"></i>
+            ${warning}
+          </div>
+        `);
+    });
+
+    $('#alerts-section').show();
+  }
+
+  function loadWarningLogs() {
+    $.ajax({
+      url: '/api/admin/warning-logs',
+      method: 'GET',
+      headers: {
+        'Authorization': 'Bearer ' + localStorage.getItem('accessToken')
+      },
+      success: function (response) {
+        updateWarningLogs(response);
+      },
+      error: function (xhr, status, error) {
+        console.error('경고 로그 로드 실패:', error);
+      }
+    });
+  }
+
+  function updateWarningLogs(logs) {
+    const logsContainer = $('#warningLogs');
+    logsContainer.empty();
+
+    logs.forEach(log => {
+      logsContainer.append(`
+          <div class="item">
+            <i class="large warning circle middle aligned icon"></i>
+            <div class="content">
+              <div class="header">${log.title}</div>
+              <div class="description">${log.message}</div>
+              <div class="meta">
+                <span class="date">${log.timestamp}</span>
+              </div>
+            </div>
+          </div>
+        `);
+    });
+  }
+
+  function updateStatisticsDisplay(data) {
+    $('#memberCount').text(data.totalMembers);
+    $('#activeUsers').text(data.activeUsers);
+    $('#totalPosts').text(data.totalPosts);
+    $('#todayPosts').text(data.todayPosts);
+    // 추가 통계 업데이트...
+  }
+
+  function updateCharts(data) {
+    // 주간 활성화 차트 업데이트
+    window.weeklyChart.data.datasets[0].data = data.weeklyActivity;
+    window.weeklyChart.update();
+
+    // 사용자 분포 차트 업데이트
+    window.distributionChart.data.datasets[0].data = [data.activeUsers, data.dormantUsers, data.newUsers];
+    window.distributionChart.update();
+  }
+
+  function showError(message) {
+    console.error(message);
+  }
+
+  // 기존 title 클릭 로직
+  let titleClickCount = 0;
+  let lastTitleClickTime = 0;
+  const titleClickResetTime = 3000; // 3초
+  let currentPosition = 0;
+  const moveDistance = 20; // 한 번에 이동할 거리 (픽셀)
+  const maxMoves = 3; // 최대 이동 횟수
+
+  document.addEventListener('DOMContentLoaded', function () {
+    const playgroundIcon = document.getElementById('playgroundIcon');
+    const devPlaygroundButton = document.getElementById('devPlaygroundButton');
+    let clickCount = 0;
+    let offset = 0; // 아이콘이 이동할 위치값
+
+    playgroundIcon.addEventListener('click', function () {
+      clickCount++;
+      if (clickCount % 2 === 1) {
+        offset = 50;
+      } else {
+        offset = 20;
+      }
+      playgroundIcon.style.transform = `translateX(${offset}px)`;
+
+      if (clickCount === 5) {
+        devPlaygroundButton.style.display = 'inline-block';
+        devPlaygroundButton.style.transform = 'scale(0)';
+        devPlaygroundButton.style.transition = 'transform 0.3s ease';
+        requestAnimationFrame(() => {
+          devPlaygroundButton.style.transform = 'scale(1)';
+        });
+        playgroundIcon.style.display='none';
+      }
+    });
+  });
+</script>
+</html>

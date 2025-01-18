@@ -1,0 +1,105 @@
+<!-- src/main/resources/templates/fragments/header.html -->
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+
+<head th:fragment="head">
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>세종말싸미</title>
+  <link rel="stylesheet" th:href="@{/css/semantic.min.css}">
+  <link rel="stylesheet" th:href="@{/css/sejong-malsami.css}">
+  <link rel="stylesheet" th:href="@{/css/semantic-custom-utilities.css}">
+  <link rel="stylesheet" th:href="@{/css/common.css}">
+  <script th:src="@{/js/jquery.min.js}"></script>
+  <script th:src="@{/js/semantic.min.js}"></script>
+  <script th:src="@{/js/auth.js}"></script>
+  <script th:src="@{/js/common-sejong-malsami.js}"></script>
+
+  <script>
+    $(document).ready(function () {
+      initDropdown();
+      eventHandler()
+    });
+
+    // 드롭다운 초기화
+    function initDropdown() {
+      $('.ui.dropdown').dropdown({
+        transition: 'slide down',
+        duration: 200
+      });
+    }
+
+    function eventHandler(){
+
+      // 로고 클릭 이벤트 핸들러
+      $('.header.item.main-logo').on('click', function(e) {
+        e.preventDefault();
+        if (localStorage.getItem('accessToken')) {
+          Auth.navigate('/admin/dashboard');
+        } else {
+          window.location.href = '/';
+        }
+      });
+
+    }
+  </script>
+</head>
+<body>
+<div th:fragment="header">
+  <div class="ui fixed menu">
+    <div class="ui container" style="display: flex; justify-content: space-between; align-items: center; width: 100%;">
+      <a href="javascript:Auth.navigate('/admin/dashboard')" class="header item main-logo"
+         style="display: flex; align-items: center; background-color: white; width: -webkit-fill-available;">
+        <img src="/images/sejong_malsami.png" alt="Sejong Malsami 브랜드 로고" class="ui mini image">
+        <span class="ui title" style="margin-left: 10px; font-weight: bold; font-size: 1.2em; color: black;">
+          Sejong Malsami Admin
+        </span>
+      </a>
+
+      <div class="right menu">
+        <div class="ui dropdown item" style="margin-left: auto;">
+          <i class="bars icon large"></i>
+          <div class="menu">
+            <div class="mobile-menu-header">메뉴</div>
+            <a href="javascript:Auth.navigate('/admin/dashboard')" class="item">
+              <i class="dashboard icon"></i> Dashboard
+            </a>
+            <a href="javascript:Auth.navigate('/admin/member')" class="item">
+              <i class="users icon"></i> 회원
+            </a>
+            <a href="javascript:Auth.navigate('/admin/yeopjeon')" class="item">
+              <i class="circle outline icon"></i> 엽전
+            </a>
+            <a href="javascript:Auth.navigate('/admin/test')" class="item">
+              <i class="flask icon"></i> 테스트용
+            </a>
+            <a href="javascript:Auth.navigate('/admin/subject')" class="item">
+              <i class="book icon"></i> 교과목
+            </a>
+            <a href="javascript:Auth.navigate('/admin/question')" class="item">
+              <i class="question circle icon"></i> Q&A
+            </a>
+            <a href="/admin/resources" class="item">
+              <i class="file alternate icon"></i> 자료실
+            </a>
+            <a href="javascript:Auth.navigate('/admin/notice')" class="item">
+              <i class="announcement icon"></i> 공지사항
+            </a>
+            <a href="javascript:Auth.navigate('/admin/error-code')" class="item">
+              <i class="bug icon"></i> 에러코드
+            </a>
+            <div class="divider"></div>
+            <a href="javascript:Auth.navigate('/logout')" class="item">
+              <i class="sign out alternate icon"></i> Logout
+            </a>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- 마진 컨테이너 추가 -->
+  <div class="ui container" style="margin-top: 5em;"></div>
+</div>
+</body>
+</html>

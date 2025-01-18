@@ -1,0 +1,336 @@
+<!-- src/main/resources/templates/admin/test.html -->
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head th:replace="fragments/header :: head(title='테스트 계정 관리')"></head>
+<body class="test-page">
+<div th:replace="fragments/header :: header"></div>
+
+<div class="ui container u-margin-vertical-large u-padding-horizontal-medium">
+  <div class="ui main text container u-margin-bottom-large">
+    <h1 class="ui header">테스트 페이지 (개발용 페이지)</h1>
+  </div>
+
+  <div class="ui segment form-container">
+    <form class="ui form" id="createTestMemberForm">
+      <h4 class="ui dividing header">새 테스트 계정 생성</h4>
+
+      <div class="field">
+        <label>내 정보로 생성하기</label>
+        <button type="button" class="ui secondary button" id="testMemberFillInfoButton">내 정보 불러오기</button>
+      </div>
+
+      <div class="field">
+        <label>학번 (주의!! 9로 시작하는 8자리여야합니다)</label>
+        <div class="ui input">
+          <input type="text" name="studentId" id="testMemberStudentIdInput" pattern="^9\d{7}$" required
+                 placeholder="예: 98010561" maxlength="8" minlength="8">
+        </div>
+        <div class="ui pointing label">
+          추천생성방식: 실제 학번의 첫 자리를 9로 변경하여 사용 (예: 18010561 → 98010561)
+        </div>
+      </div>
+
+      <div class="field">
+        <label>비밀번호</label>
+        <input type="password" name="sejongPortalPassword" id="testMemberPasswordInput" required>
+      </div>
+
+      <div class="fields">
+        <div class="eight wide field">
+          <label>이름</label>
+          <input type="text" name="studentName" id="testMemberNameInput" required>
+        </div>
+        <div class="eight wide field">
+          <label>전공</label>
+          <input type="text" name="major" id="testMemberMajorInput" required>
+        </div>
+      </div>
+
+      <div class="two fields">
+        <div class="field">
+          <label>학년</label>
+          <select class="ui dropdown" name="academicYear" id="testMemberAcademicYearSelect">
+            <option value="1">1학년</option>
+            <option value="2">2학년</option>
+            <option value="3">3학년</option>
+            <option value="4">4학년</option>
+          </select>
+        </div>
+        <div class="field">
+          <label>재학 상태</label>
+          <select class="ui dropdown" name="enrollmentStatus" id="testMemberEnrollmentStatusSelect">
+            <option value="재학">재학</option>
+            <option value="휴학">휴학</option>
+            <option value="졸업">졸업</option>
+          </select>
+        </div>
+      </div>
+
+      <button class="ui primary button" type="submit">생성</button>
+    </form>
+  </div>
+
+  <!-- 테스트 계정 목록 -->
+  <div class="ui segment u-margin-top-huge">
+    <h4 class="ui dividing header">테스트 계정 목록</h4>
+
+    <!-- 필터 폼 -->
+    <form class="ui form" id="testMemberFilterForm">
+      <div class="fields">
+        <div class="four wide field">
+          <input type="text" name="studentId" id="testMemberFilterStudentIdInput" placeholder="학번">
+        </div>
+        <div class="four wide field">
+          <input type="text" name="studentName" id="testMemberFilterNameInput" placeholder="이름">
+        </div>
+        <button type="submit" class="ui button" id="testMemberFilterSubmitButton">검색</button>
+      </div>
+    </form>
+
+    <!-- Test Member Tabulator 테이블 -->
+    <div class="table-container">
+      <div id="testMemberTotalCount" class="ui left aligned header">총 조회수: 0건</div>
+      <div id="testMemberTable"></div>
+    </div>
+  </div>
+
+  <!-- 질문 게시글 Mock 데이터 생성 섹션 -->
+  <div class="ui segment u-margin-top-huge">
+    <h4 class="ui dividing header">질문 게시글 Mock 데이터 생성</h4>
+    <form class="ui form" id="mockQuestionPostForm">
+      <div class="field">
+        <label>생성할 질문 게시글 수</label>
+        <div class="ui action input">
+          <input type="number" name="postCount" id="mockPostCountInput" placeholder="10" min="1" required>
+          <button type="button" class="ui button post-count-button" data-value="10">10개</button>
+          <button type="button" class="ui button post-count-button" data-value="50">50개</button>
+          <button type="button" class="ui button post-count-button" data-value="100">100개</button>
+        </div>
+        <div class="ui pointing label">
+          <i class="info circle icon"></i> 생성 작업은 시간이 오래 걸릴 수 있습니다.
+        </div>
+      </div>
+
+      <!-- 작성자/가짜회원 라디오 버튼 -->
+      <div class="field">
+        <label>작성자 설정</label>
+        <div class="inline fields">
+          <div class="field">
+            <div class="ui radio checkbox">
+              <input type="radio" name="useMockMember" id="useMockMemberFalse" value="false" checked>
+              <label for="useMockMemberFalse">내 자신</label>
+            </div>
+          </div>
+          <div class="field">
+            <div class="ui radio checkbox">
+              <input type="radio" name="useMockMember" id="useMockMemberTrue" value="true">
+              <label for="useMockMemberTrue">가짜 Member</label>
+            </div>
+          </div>
+        </div>
+        <div class="ui pointing label">
+          <i class="info circle icon"></i> 가짜 회원은 새롭게 생성됩니다.
+        </div>
+      </div>
+      <button class="ui primary button" type="submit">Mock 질문글 생성</button>
+    </form>
+
+    <!-- 반환값 표시 -->
+    <div id="mockResultContainer" class="ui hidden segment">
+      <h5>생성 결과</h5>
+      <p><strong>생성된 게시글 수:</strong> <span id="mockCreatedPostCount"></span></p>
+      <p><strong>소요 시간:</strong> <span id="mockTimeTaken"></span></p>
+      <button class="ui secondary button" onclick="Auth.navigate('/admin/question')">생성된 질문 게시글 확인하기</button>
+    </div>
+  </div>
+</div>
+
+<div th:replace="fragments/footer :: footer"></div>
+
+<!-- tabulator -->
+<link href="https://unpkg.com/tabulator-tables/dist/css/tabulator.min.css" rel="stylesheet">
+<script type="text/javascript" src="https://unpkg.com/tabulator-tables/dist/js/tabulator.min.js"></script>
+
+<script th:inline="javascript">
+  let testMemberTable;
+
+  $(document).ready(function () {
+    // 드롭다운 초기화
+    initDropDown();
+
+    // 데이터 초기화
+    initData();
+
+    // 이벤트 처리
+    eventHandler(testMemberTable);
+  });
+
+  // 드롭다운 초기화
+  function initDropDown() {
+    $('.ui.dropdown').dropdown();
+  }
+
+  // 데이터 초기화
+  function initData() {
+    testMemberTable = initTestMemberTable();
+  }
+
+  // 테이블 초기화
+  function initTestMemberTable() {
+    return new Tabulator("#testMemberTable", {
+      layout: "fitDataTable",
+      pagination: true,
+      paginationSize: 100,
+      columns: [
+        {title: "테스트학번", field: "testStudentId", sorter: "number", width: 100},
+        {title: "테스트이름", field: "testStudentName", sorter: "string", width: 100},
+        {title: "전공", field: "testMajor", sorter: "string", width: 150},
+        {title: "학년", field: "testAcademicYear", sorter: "number", width: 100},
+        {title: "상태", field: "testEnrollmentStatus", sorter: "string", width: 100},
+        {title: "생성자", field: "createdBy.studentName", sorter: "string", width: 100},
+        {
+          title: "계정상태",
+          field: "isActive",
+          width: 100,
+          formatter: function (cell) {
+            return cell.getValue() === true ?
+                '<span class="ui green label">활성</span>' :
+                '<span class="ui red label">비활성</span>';
+          }
+        },
+        {title: "고유아이디", field: "testMemberId", sorter: "number", width: 200},
+      ],
+      ajaxURL: "/admin/test/account/get-all",
+      ajaxConfig: {
+        method: "POST",
+        headers: {
+          "Authorization": "Bearer " + localStorage.getItem("accessToken")
+        }
+      },
+      ajaxRequestFunc: function (url, config, params) {
+        const formData = new FormData(document.getElementById('testMemberFilterForm'));
+
+        formData.append("pageNumber", (params.page ? params.page - 1 : 0));
+        formData.append("pageSize", params.size || 100);
+        formData.append("sortField", params.sortField || "createdDate");
+        formData.append("sortDirection", params.sortDirection || "desc");
+
+        return fetch(url + "?accessToken=" + localStorage.getItem("accessToken"), {
+          method: "POST",
+          headers: config.headers,
+          body: formData
+        })
+        .then(response => response.json())
+      },
+      ajaxResponse: function (url, params, response) {
+        // 총 항목수 표시
+        document.getElementById("testMemberTotalCount").textContent =
+            `총 조회 수: ${response.testMembersPage.totalElements || 0}건`;
+        return {
+          data: response.testMembersPage.content,
+          last_page: response.testMembersPage.totalPages
+        };
+      },
+      paginationMode: "remote",
+      paginationSizeSelector: [10, 30, 50, 100],
+    });
+  }
+
+  function eventHandler(testMemberTable) {
+
+    // 내 정보 불러오기
+    document.getElementById("testMemberFillInfoButton").addEventListener("click", handleFillInfo);
+
+    // 테스트 계정 생성
+    document.getElementById("createTestMemberForm").addEventListener("submit", handleCreateTestMember);
+
+    // 질문 게시글 Mock 데이터 생성
+    document.getElementById("mockQuestionPostForm").addEventListener("submit", handleCreateMockQuestionPosts);
+
+    // PostCount 버튼 클릭시 mockPostCountInput 지정
+    document.querySelectorAll(".post-count-button").forEach((button) => {
+      button.addEventListener("click", function () {
+        document.getElementById("mockPostCountInput").value = this.getAttribute("data-value");
+      });
+    });
+
+  }
+
+  // 함수별로 핸들러 분리
+  function handleFillInfo() {
+    const formData = new FormData();
+    fetch('/api/member/my-info', {
+      method: 'POST',
+      body: formData,
+      headers: {
+        "Authorization": "Bearer " + localStorage.getItem("accessToken")
+      }
+    })
+    .then(response => response.json())
+    .then(response => {
+      const member = response.member;
+      const testStudentId = '9' + member.studentId.toString().substring(1);
+
+      document.getElementById('testMemberStudentIdInput').value = testStudentId;
+      document.getElementById('testMemberNameInput').value = '테스트_' + member.studentName;
+      document.getElementById('testMemberMajorInput').value = member.major;
+      $('#testMemberAcademicYearSelect').dropdown('set selected', member.academicYear);
+      $('#testMemberEnrollmentStatusSelect').dropdown('set selected', member.enrollmentStatus);
+    });
+  }
+
+  function handleCreateTestMember(event) {
+    event.preventDefault();
+    const formData = new FormData(this);
+    fetch('/admin/test/account/post', {
+      method: 'POST',
+      body: formData,
+      headers: {
+        "Authorization": "Bearer " + localStorage.getItem("accessToken")
+      }
+    })
+    .then(response => response.json())
+    .then(() => {
+      testMemberTable.setData();
+      this.reset();
+    });
+  }
+
+  function handleCreateMockQuestionPosts(event) {
+    event.preventDefault();
+
+    // 폼 데이터 생성
+    const postCountInput = document.getElementById("mockPostCountInput");
+    const postCount = parseInt(postCountInput.value, 10) || 10;
+    // 라디오 버튼 값 가져오기
+    const useMockMember = document.querySelector('input[name="useMockMember"]:checked').value;
+
+    const formData = new FormData();
+    formData.append("postCount", postCount);
+    formData.append("useMockMember", useMockMember);
+
+    fetch("/api/test/create/question/kin-naver", {
+      method: "POST",
+      body: formData,
+      headers: {
+        "Authorization": "Bearer " + localStorage.getItem("accessToken")
+      },
+    })
+    .then(response => {
+      if (!response.ok) throw new Error("Mock 데이터 생성 요청 실패");
+      return response.json();
+    })
+    .then(result => {
+      document.getElementById("mockCreatedPostCount").textContent = result.createdPostCount;
+      document.getElementById("mockTimeTaken").textContent = result.timeTaken;
+      document.getElementById("mockResultContainer").classList.remove("hidden");
+    })
+    .catch(error => {
+      console.error("Mock 데이터 생성 중 오류 발생:", error);
+      alert("Mock 데이터 생성 중 오류가 발생했습니다.");
+    });
+  }
+
+</script>
+</body>
+</html>

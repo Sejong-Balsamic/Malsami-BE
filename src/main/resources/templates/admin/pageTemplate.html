@@ -1,0 +1,129 @@
+<!-- src/main/resources/templates/admin/pageTemplate.html -->
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head th:replace="fragments/header :: head(title='example')"></head>
+<body class="exmaple-page">
+<div th:replace="fragments/header :: header"></div>
+
+<div class="ui container u-margin-vertical-large u-padding-horizontal-medium">
+
+  <!-- 페이지 제목 -->
+  <div class="ui main text container u-margin-bottom-large">
+    <h1 class="ui header">example 관리</h1>
+  </div>
+
+  <!-- 검색 필터  -->
+  <div class="form-container ui segment">
+    <form id="exampleForm" class="ui form">
+    </form>
+  </div>
+
+  <!-- Tabulator 테이블 -->
+  <div class="table-container">
+    <div id="totalCount" class="ui left aligned header">총 조회 수: 0건</div>
+    <div id="example-table"></div>
+  </div>
+</div>
+
+<div th:replace="fragments/footer :: footer"></div>
+
+<script th:inline="javascript">
+  let exampleTable = new Tabulator();
+  $(document).ready(function () {
+    // 드롭다운 초기화
+    setDropdown();
+
+    // 데이터 초기화
+    initData();
+
+    // 이벤트 핸들러
+    eventHandler();
+  });
+
+  // 드롭다운 초기화
+  function setDropdown(){
+    $('.ui.dropdown').dropdown();
+  }
+
+  // 데이터 초기화
+  function initData(){
+    exampleTable = initExampleTable()
+  }
+
+  // 이벤트 핸들러
+  function eventHandler(table) {
+    // 내 정보 불러오기 버튼 이벤트
+    document.getElementById("testMemberFillInfoButton").addEventListener("click", function () {
+      const formData = new FormData();
+
+      fetch('/api/member/my-info', { //TODO: 필요없으면 수정
+        method: 'POST',
+        body: formData,
+        headers: {
+          "Authorization": "Bearer " + localStorage.getItem("accessToken")
+        }
+      })
+      .then(response => response.json())
+      .then(response => {
+        const member = response.member;
+        document.getElementById('testMemberNameInput').value = '테스트_' + member.studentName; //TODO: input값이 지정되어있음
+        $('#testMemberAcademicYearSelect').dropdown('set selected', member.academicYear); //TODO: 어떤것이 select 되게 만듬
+      });
+    });
+
+  }
+
+  // Table 초기화
+  function initExampleTable(){
+
+    var table = new Tabulator("#member-table", {
+      layout: "fitDataTable",
+      columns: [
+        {title: "example", field: "exampleId", width: 100},
+      ],
+
+      ajaxURL: "/admin/",
+      ajaxConfig: {
+        method: "POST",
+        headers: {
+          "Authorization": "Bearer " + localStorage.getItem("accessToken")
+        }
+      },
+      ajaxRequestFunc: function (url, config, params) {
+        const formData = new FormData(document.getElementById('searchForm')); //TODO: form 제목 정의
+
+        formData.append("pageNumber", (params.page ? params.page - 1 : 0));
+        formData.append("pageSize", params.size || 10);
+        formData.append("sortField", params.sortField || "createdDate");
+        formData.append("sortDirection", params.sortDirection || "desc");
+
+        return fetch(url + "?accessToken=" + localStorage.getItem("accessToken"), {
+          method: "POST",
+          headers: config.headers,
+          body: formData
+        })
+        .then(response => response.json())
+      },
+      ajaxResponse: function (url, params, response) {
+        // 총 항목수 표시
+        document.getElementById("totalCount").textContent =
+            `총 조회 수: ${response.examplePage.totalElements || 0}건`; //TODO: DTO 페이지 정의
+
+        return {
+          data: response.examplePage.content,      //TODO: DTO 페이지 정의 : 현재 페이지 데이터 목록
+          last_page: response.examplePage.totalPages //TODO: DTO 페이지 정의 : 총 페이지 수
+        };
+      },
+      pagination: true,
+      paginationMode: "remote",
+      paginationSize: 100,
+      paginationSizeSelector: [10, 30, 50, 100]
+      // height: "600px"
+    });
+    return table;
+  }
+
+</script>
+
+</body>
+</html>

@@ -28,6 +28,38 @@ jobs:
         run: |
           echo "${{ secrets.APPLICATION_PROD_YML }}" > ./src/main/resources/application-prod.yml
 
+      # yeopjeon.yml 파일을 빌드 전에 생성
+      - name: Create yeopjeon.yml from secret
+        run: |
+          echo "${{ secrets.YEOPJEON_YML }}" > ./src/main/resources/yeopjeon.yml
+
+      # score.yml 파일을 빌드 전에 생성
+      - name: Create score.yml from secret
+        run: |
+          echo "${{ secrets.SCORE_YML }}" > ./src/main/resources/score.yml
+
+      # exp.yml 파일을 빌드 전에 생성
+      - name: Create exp.yml from secret
+        run: |
+          echo "${{ secrets.EXP_YML }}" > ./src/main/resources/exp.yml
+
+      # admin.yml 파일을 빌드 전에 생성
+      - name: Create admin.yml from secret
+        run: |
+          echo "${{ secrets.ADMIN_YML }}" > ./src/main/resources/admin.yml
+
+      # post-tier.yml 파일을 빌드 전에 생성
+      - name: Create post-tier.yml from secret
+        run: |
+          echo "${{ secrets.POSTTIER_YML }}" > ./src/main/resources/post-tier.yml
+
+      # firebase-admin-sdk.json 파일을 생성
+      - name: Create Firebase Config File
+        env:
+          FIREBASE_CONFIG_JSON: ${{ secrets.FIREBASE_CONFIG_JSON }}
+        run: |
+          echo "$FIREBASE_CONFIG_JSON" | sed 's/\\n/\n/g' > ./src/main/resources/firebase-admin-sdk.json
+
       # prod 프로파일을 활성화하여 빌드
       - name: Build with Gradle
         run: ./gradlew clean build -x test -Dspring.profiles.active=prod
@@ -63,22 +95,46 @@ jobs:
           password: ${{ secrets.SERVER_PASSWORD }}
           port: 2022
           script: |
+            set -e  # 에러 발생 시 스크립트 중단
+
+            echo "환경 변수 설정 중..."
             export PATH=$PATH:/usr/local/bin
             export PW=${{ secrets.SERVER_PASSWORD }}
             BRANCH=${{ github.ref_name }}
             PORT=8080
             CONTAINER_NAME="sejong-malsami-back"
+
             if [ "$BRANCH" == "main" ]; then
               PORT=8087
             elif [ "$BRANCH" == "test" ]; then
               CONTAINER_NAME="sejong-malsami-back-test"
               PORT=8088
             fi
+
+            echo "브랜치: $BRANCH"
+            echo "컨테이너 이름: $CONTAINER_NAME"
+            echo "포트: $PORT"
+
+            echo "도커 이미지 풀: ${{ secrets.DOCKERHUB_USERNAME }}/sejong-malsami-back-container:${BRANCH}"
             echo $PW | sudo -S docker pull ${{ secrets.DOCKERHUB_USERNAME }}/sejong-malsami-back-container:${BRANCH}
-            echo $PW | sudo -S docker stop $CONTAINER_NAME || true
-            echo $PW | sudo -S docker rm $CONTAINER_NAME || true
+
+            echo "컨테이너 $CONTAINER_NAME 존재 여부 확인 중..."
+            if sudo docker ps -a --format '{{.Names}}' | grep -Eq "^${CONTAINER_NAME}\$"; then
+              echo "컨테이너 $CONTAINER_NAME 이(가) 존재합니다. 중지 및 삭제 중..."
+              echo $PW | sudo -S docker rm -f $CONTAINER_NAME
+              echo "컨테이너 $CONTAINER_NAME 이(가) 삭제되었습니다."
+            else
+              echo "존재하는 컨테이너 $CONTAINER_NAME 이(가) 없습니다."
+            fi
+
+            echo "새로운 컨테이너 $CONTAINER_NAME 실행 중..."
             echo $PW | sudo -S docker run -d -p ${PORT}:8080 --name $CONTAINER_NAME \
+              --network sejong-malsami-network \
+              -v /var/run/docker.sock:/var/run/docker.sock \
               -e TZ=Asia/Seoul \
               -e "SPRING_PROFILES_ACTIVE=prod" \
               -v /etc/localtime:/etc/localtime:ro \
+              -v /volume1/projects/sejong-malsami:/mnt/sejong-malsami \
               ${{ secrets.DOCKERHUB_USERNAME }}/sejong-malsami-back-container:${BRANCH}
+
+            echo "배포가 성공적으로 완료되었습니다."

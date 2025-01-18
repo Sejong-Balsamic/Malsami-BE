@@ -1,0 +1,344 @@
+/* src/main/resources/static/css/semantic-custom-utilities.css */
+/*
+===========================================
+SEMANTIC-CUSTOM-UTILITIES.CSS
+===========================================
+ */
+
+/* ===========================
+   1. Margin Utilities
+   =========================== */
+
+/* 전체 마진 */
+.u-margin-0 { margin: 0 !important; }
+.u-margin-tiny { margin: 4px !important; }
+.u-margin-small { margin: 8px !important; }
+.u-margin-medium { margin: 16px !important; }
+.u-margin-large { margin: 24px !important; }
+.u-margin-huge { margin: 32px !important; }
+
+/* 마진 상단 */
+.u-margin-top-0 { margin-top: 0 !important; }
+.u-margin-top-tiny { margin-top: 4px !important; }
+.u-margin-top-small { margin-top: 8px !important; }
+.u-margin-top-medium { margin-top: 16px !important; }
+.u-margin-top-large { margin-top: 24px !important; }
+.u-margin-top-huge { margin-top: 32px !important; }
+
+/* 마진 하단 */
+.u-margin-bottom-0 { margin-bottom: 0 !important; }
+.u-margin-bottom-tiny { margin-bottom: 4px !important; }
+.u-margin-bottom-small { margin-bottom: 8px !important; }
+.u-margin-bottom-medium { margin-bottom: 16px !important; }
+.u-margin-bottom-large { margin-bottom: 24px !important; }
+.u-margin-bottom-huge { margin-bottom: 32px !important; }
+
+/* 마진 좌측 */
+.u-margin-left-0 { margin-left: 0 !important; }
+.u-margin-left-tiny { margin-left: 4px !important; }
+.u-margin-left-small { margin-left: 8px !important; }
+.u-margin-left-medium { margin-left: 16px !important; }
+.u-margin-left-large { margin-left: 24px !important; }
+.u-margin-left-huge { margin-left: 32px !important; }
+
+/* 마진 우측 */
+.u-margin-right-0 { margin-right: 0 !important; }
+.u-margin-right-tiny { margin-right: 4px !important; }
+.u-margin-right-small { margin-right: 8px !important; }
+.u-margin-right-medium { margin-right: 16px !important; }
+.u-margin-right-large { margin-right: 24px !important; }
+.u-margin-right-huge { margin-right: 32px !important; }
+
+/* 마진 좌우 */
+.u-margin-horizontal-0 { margin-left: 0 !important; margin-right: 0 !important; }
+.u-margin-horizontal-tiny { margin-left: 4px !important; margin-right: 4px !important; }
+.u-margin-horizontal-small { margin-left: 8px !important; margin-right: 8px !important; }
+.u-margin-horizontal-medium { margin-left: 16px !important; margin-right: 16px !important; }
+.u-margin-horizontal-large { margin-left: 24px !important; margin-right: 24px !important; }
+.u-margin-horizontal-huge { margin-left: 32px !important; margin-right: 32px !important; }
+
+/* 마진 상하 */
+.u-margin-vertical-0 { margin-top: 0 !important; margin-bottom: 0 !important; }
+.u-margin-vertical-tiny { margin-top: 4px !important; margin-bottom: 4px !important; }
+.u-margin-vertical-small { margin-top: 8px !important; margin-bottom: 8px !important; }
+.u-margin-vertical-medium { margin-top: 16px !important; margin-bottom: 16px !important; }
+.u-margin-vertical-large { margin-top: 24px !important; margin-bottom: 24px !important; }
+.u-margin-vertical-huge { margin-top: 32px !important; margin-bottom: 32px !important; }
+
+/* ===========================
+   2. Padding Utilities
+   =========================== */
+
+/* 전체 패딩 */
+.u-padding-0 { padding: 0 !important; }
+.u-padding-tiny { padding: 4px !important; }
+.u-padding-small { padding: 8px !important; }
+.u-padding-medium { padding: 16px !important; }
+.u-padding-large { padding: 24px !important; }
+.u-padding-huge { padding: 32px !important; }
+
+/* 패딩 상단 */
+.u-padding-top-0 { padding-top: 0 !important; }
+.u-padding-top-tiny { padding-top: 4px !important; }
+.u-padding-top-small { padding-top: 8px !important; }
+.u-padding-top-medium { padding-top: 16px !important; }
+.u-padding-top-large { padding-top: 24px !important; }
+.u-padding-top-huge { padding-top: 32px !important; }
+
+/* 패딩 하단 */
+.u-padding-bottom-0 { padding-bottom: 0 !important; }
+.u-padding-bottom-tiny { padding-bottom: 4px !important; }
+.u-padding-bottom-small { padding-bottom: 8px !important; }
+.u-padding-bottom-medium { padding-bottom: 16px !important; }
+.u-padding-bottom-large { padding-bottom: 24px !important; }
+.u-padding-bottom-huge { padding-bottom: 32px !important; }
+
+/* 패딩 좌측 */
+.u-padding-left-0 { padding-left: 0 !important; }
+.u-padding-left-tiny { padding-left: 4px !important; }
+.u-padding-left-small { padding-left: 8px !important; }
+.u-padding-left-medium { padding-left: 16px !important; }
+.u-padding-left-large { padding-left: 24px !important; }
+.u-padding-left-huge { padding-left: 32px !important; }
+
+/* 패딩 우측 */
+.u-padding-right-0 { padding-right: 0 !important; }
+.u-padding-right-tiny { padding-right: 4px !important; }
+.u-padding-right-small { padding-right: 8px !important; }
+.u-padding-right-medium { padding-right: 16px !important; }
+.u-padding-right-large { padding-right: 24px !important; }
+.u-padding-right-huge { padding-right: 32px !important; }
+
+/* 패딩 좌우 */
+.u-padding-horizontal-0 { padding-left: 0 !important; padding-right: 0 !important; }
+.u-padding-horizontal-tiny { padding-left: 4px !important; padding-right: 4px !important; }
+.u-padding-horizontal-small { padding-left: 8px !important; padding-right: 8px !important; }
+.u-padding-horizontal-medium { padding-left: 16px !important; padding-right: 16px !important; }
+.u-padding-horizontal-large { padding-left: 24px !important; padding-right: 24px !important; }
+.u-padding-horizontal-huge { padding-left: 32px !important; padding-right: 32px !important; }
+
+/* 패딩 상하 */
+.u-padding-vertical-0 { padding-top: 0 !important; padding-bottom: 0 !important; }
+.u-padding-vertical-tiny { padding-top: 4px !important; padding-bottom: 4px !important; }
+.u-padding-vertical-small { padding-top: 8px !important; padding-bottom: 8px !important; }
+.u-padding-vertical-medium { padding-top: 16px !important; padding-bottom: 16px !important; }
+.u-padding-vertical-large { padding-top: 24px !important; padding-bottom: 24px !important; }
+.u-padding-vertical-huge { padding-top: 32px !important; padding-bottom: 32px !important; }
+
+/* ===========================
+   3. Flexbox Utilities
+   =========================== */
+
+/* Flexbox */
+.u-flex { display: flex !important; }
+.u-flex-row { flex-direction: row !important; }
+.u-flex-column { flex-direction: column !important; }
+
+/* Justify Content */
+.u-justify-start { justify-content: flex-start !important; }
+.u-justify-center { justify-content: center !important; }
+.u-justify-end { justify-content: flex-end !important; }
+.u-justify-between { justify-content: space-between !important; }
+.u-justify-around { justify-content: space-around !important; }
+.u-justify-evenly { justify-content: space-evenly !important; }
+
+/* Align Items */
+.u-align-start { align-items: flex-start !important; }
+.u-align-center { align-items: center !important; }
+.u-align-end { align-items: flex-end !important; }
+.u-align-baseline { align-items: baseline !important; }
+.u-align-stretch { align-items: stretch !important; }
+
+/* Align Content */
+.u-align-content-start { align-content: flex-start !important; }
+.u-align-content-center { align-content: center !important; }
+.u-align-content-end { align-content: flex-end !important; }
+.u-align-content-between { align-content: space-between !important; }
+.u-align-content-around { align-content: space-around !important; }
+.u-align-content-stretch { align-content: stretch !important; }
+
+/* ===========================
+   4. Display Utilities
+   =========================== */
+
+/* Display */
+.u-display-none { display: none !important; }
+.u-display-block { display: block !important; }
+.u-display-inline { display: inline !important; }
+.u-display-inline-block { display: inline-block !important; }
+.u-display-flex { display: flex !important; }
+.u-display-inline-flex { display: inline-flex !important; }
+
+/* ===========================
+   5. Text Utilities
+   =========================== */
+
+/* Text Alignment */
+.u-text-left { text-align: left !important; }
+.u-text-center { text-align: center !important; }
+.u-text-right { text-align: right !important; }
+.u-text-justify { text-align: justify !important; }
+
+/* Text Transformation */
+.u-text-uppercase { text-transform: uppercase !important; }
+.u-text-lowercase { text-transform: lowercase !important; }
+.u-text-capitalize { text-transform: capitalize !important; }
+
+/* Font Weight */
+.u-font-bold { font-weight: 700 !important; }
+.u-font-normal { font-weight: 400 !important; }
+.u-font-light { font-weight: 300 !important; }
+
+/* Font Style */
+.u-font-italic { font-style: italic !important; }
+.u-font-normal-style { font-style: normal !important; }
+
+/* ===========================
+   6. Color Utilities
+   =========================== */
+
+/* Text Color */
+.u-text-primary { color: #007bff !important; }
+.u-text-secondary { color: #6c757d !important; }
+.u-text-success { color: #28a745 !important; }
+.u-text-danger { color: #dc3545 !important; }
+.u-text-warning { color: #ffc107 !important; }
+.u-text-info { color: #17a2b8 !important; }
+.u-text-light { color: #f8f9fa !important; }
+.u-text-dark { color: #343a40 !important; }
+.u-text-muted { color: #6c757d !important; }
+.u-text-white { color: #ffffff !important; }
+
+/* Background Color */
+.u-bg-primary { background-color: #007bff !important; }
+.u-bg-secondary { background-color: #6c757d !important; }
+.u-bg-success { background-color: #28a745 !important; }
+.u-bg-danger { background-color: #dc3545 !important; }
+.u-bg-warning { background-color: #ffc107 !important; }
+.u-bg-info { background-color: #17a2b8 !important; }
+.u-bg-light { background-color: #f8f9fa !important; }
+.u-bg-dark { background-color: #343a40 !important; }
+.u-bg-white { background-color: #ffffff !important; }
+
+/* ===========================
+   7. Border Utilities
+   =========================== */
+
+/* Border */
+.u-border { border: 1px solid #dee2e6 !important; }
+.u-border-top { border-top: 1px solid #dee2e6 !important; }
+.u-border-right { border-right: 1px solid #dee2e6 !important; }
+.u-border-bottom { border-bottom: 1px solid #dee2e6 !important; }
+.u-border-left { border-left: 1px solid #dee2e6 !important; }
+.u-border-none { border: 0 !important; }
+.u-border-top-none { border-top: 0 !important; }
+.u-border-right-none { border-right: 0 !important; }
+.u-border-bottom-none { border-bottom: 0 !important; }
+.u-border-left-none { border-left: 0 !important; }
+
+/* Border Color */
+.u-border-primary { border-color: #007bff !important; }
+.u-border-secondary { border-color: #6c757d !important; }
+.u-border-success { border-color: #28a745 !important; }
+.u-border-danger { border-color: #dc3545 !important; }
+.u-border-warning { border-color: #ffc107 !important; }
+.u-border-info { border-color: #17a2b8 !important; }
+.u-border-light { border-color: #f8f9fa !important; }
+.u-border-dark { border-color: #343a40 !important; }
+
+/* ===========================
+   8. Shadow Utilities
+   =========================== */
+
+/* Shadow */
+.u-shadow { box-shadow: 0 .5rem 1rem rgba(0,0,0,.15) !important; }
+.u-shadow-sm { box-shadow: 0 .125rem .25rem rgba(0,0,0,.075) !important; }
+.u-shadow-lg { box-shadow: 0 1rem 3rem rgba(0,0,0,.175) !important; }
+
+/* ===========================
+   9. Opacity Utilities
+   =========================== */
+
+/* Opacity */
+.u-opacity-0 { opacity: 0 !important; }
+.u-opacity-25 { opacity: 0.25 !important; }
+.u-opacity-50 { opacity: 0.5 !important; }
+.u-opacity-75 { opacity: 0.75 !important; }
+.u-opacity-100 { opacity: 1 !important; }
+
+/* ===========================
+   10. Responsive Utilities
+   =========================== */
+
+/* Define Breakpoints based on Semantic UI */
+@media (max-width: 767px) { /* Mobile */
+  /* Display Utilities for Mobile */
+  .u-display-mobile-none { display: none !important; }
+  .u-display-mobile-block { display: block !important; }
+  .u-display-mobile-inline { display: inline !important; }
+  .u-display-mobile-inline-block { display: inline-block !important; }
+  .u-display-mobile-flex { display: flex !important; }
+  .u-display-mobile-inline-flex { display: inline-flex !important; }
+}
+
+@media (min-width: 768px) and (max-width: 991px) { /* Tablet */
+  /* Display Utilities for Tablet */
+  .u-display-tablet-none { display: none !important; }
+  .u-display-tablet-block { display: block !important; }
+  .u-display-tablet-inline { display: inline !important; }
+  .u-display-tablet-inline-block { display: inline-block !important; }
+  .u-display-tablet-flex { display: flex !important; }
+  .u-display-tablet-inline-flex { display: inline-flex !important; }
+}
+
+@media (min-width: 992px) and (max-width: 1199px) { /* Computer */
+  /* Display Utilities for Computer */
+  .u-display-computer-none { display: none !important; }
+  .u-display-computer-block { display: block !important; }
+  .u-display-computer-inline { display: inline !important; }
+  .u-display-computer-inline-block { display: inline-block !important; }
+  .u-display-computer-flex { display: flex !important; }
+  .u-display-computer-inline-flex { display: inline-flex !important; }
+}
+
+@media (min-width: 1200px) { /* Large Computer */
+  /* Display Utilities for Large Computer */
+  .u-display-large-computer-none { display: none !important; }
+  .u-display-large-computer-block { display: block !important; }
+  .u-display-large-computer-inline { display: inline !important; }
+  .u-display-large-computer-inline-block { display: inline-block !important; }
+  .u-display-large-computer-flex { display: flex !important; }
+  .u-display-large-computer-inline-flex { display: inline-flex !important; }
+}
+
+/* ===========================
+   11. Additional Utilities
+   =========================== */
+
+/* Cursor */
+.u-cursor-pointer { cursor: pointer !important; }
+.u-cursor-default { cursor: default !important; }
+.u-cursor-move { cursor: move !important; }
+.u-cursor-not-allowed { cursor: not-allowed !important; }
+
+/* Overflow */
+.u-overflow-hidden { overflow: hidden !important; }
+.u-overflow-auto { overflow: auto !important; }
+.u-overflow-scroll { overflow: scroll !important; }
+.u-overflow-visible { overflow: visible !important; }
+
+/* Position */
+.u-position-relative { position: relative !important; }
+.u-position-absolute { position: absolute !important; }
+.u-position-fixed { position: fixed !important; }
+.u-position-static { position: static !important; }
+.u-position-sticky { position: sticky !important; }
+
+/* Z-Index */
+.u-z-index-0 { z-index: 0 !important; }
+.u-z-index-1 { z-index: 1 !important; }
+.u-z-index-2 { z-index: 2 !important; }
+.u-z-index-3 { z-index: 3 !important; }
+.u-z-index-4 { z-index: 4 !important; }
+.u-z-index-5 { z-index: 5 !important; }
+.u-z-index-auto { z-index: auto !important; }

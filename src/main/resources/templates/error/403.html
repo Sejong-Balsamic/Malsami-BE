@@ -1,0 +1,33 @@
+<!-- src/main/resources/templates/error/403.html -->
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{fragments/header :: head}"></head>
+<body>
+<div th:replace="~{fragments/header :: header}"></div>
+
+<div class="ui middle aligned center aligned grid" style="min-height: 70vh;">
+  <div class="column">
+    <div class="ui center aligned segment">
+      <h1 class="ui icon header">
+        <i class="lock icon red"></i>
+        <div class="content">
+          접근 권한이 없습니다
+          <div class="sub header">해당 페이지에 접근할 수 있는 권한이 없습니다.</div>
+        </div>
+      </h1>
+      <div class="ui hidden divider"></div>
+      <a href="/" class="ui primary button">
+        <i class="home icon"></i>
+        홈으로 돌아가기
+      </a>
+      <a href="/login" class="ui button">
+        <i class="sign in icon"></i>
+        로그인하기
+      </a>
+    </div>
+  </div>
+</div>
+
+<div th:replace="~{fragments/footer :: footer}"></div>
+</body>
+</html>

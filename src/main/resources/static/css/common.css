@@ -1,0 +1,343 @@
+/* src/main/resources/static/css/common.css */
+
+/*
+===========================================
+COMMON.CSS - 공통 컴포넌트 스타일
+===========================================
+*/
+
+/*
+===========================
+   Header Styles
+===========================
+*/
+
+/* 기본 메뉴 스타일 */
+.ui.menu .item {
+  font-weight: 500;
+  padding: 10px 10px;
+}
+
+.ui.menu .item i.icon {
+  margin-right: 8px;
+}
+
+.ui.menu .right.menu {
+  display: flex !important;
+}
+
+/* 모바일 메뉴 헤더 스타일 */
+.mobile-menu-header {
+  display: none;
+  padding: 1rem;
+  font-weight: bold;
+  background: #f8f9fa;
+  text-align: center;
+  border-bottom: 1px solid #ddd;
+}
+
+/* 모바일 반응형 스타일 */
+@media only screen and (max-width: 767px) {
+  /* 상단 헤더 크기 조정 */
+  .ui.fixed.menu {
+    padding: 0.5em 1em;
+  }
+
+  /* 로고 이미지 크기 조정 */
+  .ui.menu .header.item img {
+    width: 40px;
+    height: auto;
+  }
+
+  /* 로고 텍스트 크기 조정 */
+  .ui.menu .header.item span.title {
+    font-size: 1.2em;
+  }
+
+  /* 햄버거 메뉴 아이콘 크기 조정 */
+  .ui.dropdown.item i.icon {
+    font-size: 1.5em !important;
+    margin: 0;
+  }
+
+  /* 드롭다운 메뉴 스타일 개선 */
+  .ui.dropdown .menu {
+    width: 100vw;
+    position: fixed !important;
+    top: 60px !important;
+    left: 0 !important;
+    margin: 0 !important;
+    border-radius: 0 !important;
+    max-height: calc(100vh - 60px) !important;
+    overflow-y: auto;
+  }
+
+  /* 드롭다운 메뉴 아이템 크기 조정 */
+  .ui.dropdown .menu > .item {
+    padding: 1rem !important;
+    border-bottom: 1px solid #f0f0f0;
+  }
+
+  /* 드롭다운 메뉴 아이콘 크기 조정 */
+  .ui.dropdown .menu > .item i.icon {
+    font-size: 1.2em;
+    width: 1.5em;
+    margin-right: 1rem;
+  }
+
+  /* 컨테이너 여백 조정 */
+  .ui.container {
+    margin-left: 0 !important;
+    margin-right: 0 !important;
+    width: 100% !important;
+  }
+}
+
+
+/*
+===========================
+   Table Container Styles
+===========================
+*/
+
+.table-container {
+  max-width: 100%;
+  overflow-x: auto;
+  -webkit-overflow-scrolling: touch;
+  background: #ffffff;
+  border-radius: 0.28571429rem;
+  box-shadow: 0 1px 3px rgba(0,0,0,0.12);
+  margin-bottom: 2em;
+}
+
+.table-container .total-count {
+  font-size: 14px;
+  font-weight: bold;
+  color: #333;
+  margin-bottom: 16px;
+  padding: 8px 0;
+}
+
+/* Tabulator 공통 스타일 */
+.table-container .tabulator {
+  min-width: 1200px;
+  width: 100%;
+  background: #ffffff;
+}
+
+.table-container .tabulator-header {
+  background-color: #f9fafb;
+  border-bottom: 2px solid #d4d4d5;
+  position: sticky;
+  top: 0;
+  z-index: 3;
+}
+
+/*
+===========================
+   Modal Table Container Styles
+===========================
+*/
+.modal-table-container {
+  max-width: 100%;
+  overflow-x: auto;
+  -webkit-overflow-scrolling: touch;
+  background: #ffffff;
+  border-radius: 0.28571429rem;
+  box-shadow: 0 1px 3px rgba(0,0,0,0.12);
+  margin-bottom: 2em;
+}
+
+.modal-table-container .tabulator-header {
+  background-color: #f9fafb;
+  border-bottom: 2px solid #d4d4d5;
+  position: sticky;
+  top: 0;
+  z-index: 3;
+}
+
+.modal-table-container .tabulator {
+  width: 100%;
+  background: #ffffff;
+}
+
+/*
+===========================
+   Dashboard Common Styles
+===========================
+*/
+
+.dashboard-page .ui.card.fluid {
+  box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+}
+
+.dashboard-page .ui.button {
+  width: 140px;
+}
+
+.dashboard-page .ui.card.fluid .button {
+  width: 100%;
+  margin: 0;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.dashboard-page .ui.card.fluid .grid {
+  padding: 1rem;
+}
+
+/*
+===========================
+   login.html Styles
+===========================
+*/
+
+.login-page .login-segment {
+  max-width: 500px;
+  margin: 0 auto;
+}
+
+/*
+===========================
+   test.html Styles
+===========================
+*/
+.test-page .form-container {
+  max-width: 500px;
+}
+
+/*
+===========================
+   member.html Styles
+===========================
+*/
+.member-page .form-container {
+  max-width: 1100px;
+}
+
+/*
+===========================
+   subject.html Styles
+===========================
+*/
+.subject-page .form-container {
+  max-width: 1100px;
+}
+
+.autocomplete-list {
+  background-color: #fbfbfb;
+  margin-top: 0;
+  display: none;
+  position: absolute;
+  width: 100%;
+  z-index: 999;
+  max-height: 250px;
+  overflow-y: auto;
+}
+.autocomplete-list .item {
+  padding: 8px 12px;
+  cursor: pointer;
+}
+.autocomplete-list .item:hover {
+  background-color: #f5f5f5;
+}
+
+/*
+===========================
+   yeopjeon.html Styles
+===========================
+*/
+.yeopjeon-page .table-container .total-count{
+  margin-top: 10px
+}
+
+/*
+===========================
+   notice.html Styles
+===========================
+*/
+.notice-page {
+
+}
+
+/*
+===========================
+  Toast Styles
+===========================
+*/
+
+/* toast-container 위치 */
+#toast-container {
+  position: fixed;
+  top: 2rem;
+  right: 2rem;
+  z-index: 9999;
+}
+
+/* Toast 개별 아이템 스타일 */
+.toast {
+  background-color: #1b1c1d; /* Semantic UI에서 검정색(기본) 배경 */
+  color: #fff;
+  padding: 1rem 1.5rem;
+  margin-bottom: 1rem;
+  border-radius: 0.28571429rem;
+  box-shadow: 0 0 2px rgba(0,0,0,0.2);
+  font-size: 1rem;
+  opacity: 0; /* 처음엔 투명 */
+  animation: fadeInOut 3s forwards; /* 등장 애니메이션 */
+}
+
+/* 등장 + 유지 + 사라짐 애니메이션 */
+@keyframes fadeInOut {
+  0%   { opacity: 0;   transform: translateY(-10px); }
+  20%  { opacity: 1;   transform: translateY(0);     }
+  80%  { opacity: 1;   transform: translateY(0);     }
+  100% { opacity: 0;   transform: translateY(-10px); }
+}
+
+/*
+===========================
+   Responsive Styles
+===========================
+*/
+
+@media (max-width: 767px) {
+  .table-container .total-count {
+    font-size: 12px;
+    margin-bottom: 12px;
+  }
+
+  .table-container {
+    margin: 0;
+    border-radius: 0;
+    box-shadow: none;
+  }
+
+  .table-container::-webkit-scrollbar {
+    height: 6px;
+  }
+
+  .table-container::-webkit-scrollbar-track {
+    background: #f1f1f1;
+  }
+
+  .table-container::-webkit-scrollbar-thumb {
+    background: #888;
+    border-radius: 3px;
+  }
+
+  .dashboard-container .ui.five.column.grid {
+    margin: 0 !important;
+  }
+
+  .dashboard-container .column {
+    padding: 0.5rem !important;
+  }
+}
+
+@media (min-width: 768px) and (max-width: 991px) {
+  .table-container {
+    margin: 0;
+  }
+}
