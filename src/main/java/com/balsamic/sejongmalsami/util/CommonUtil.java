@@ -4,6 +4,8 @@ import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.security.MessageDigest;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.UUID;
 
 public class CommonUtil {
@@ -122,6 +124,23 @@ public class CommonUtil {
       floatArray[i] = Float.parseFloat(stringArray[i].trim());
     }
     return floatArray;
+  }
+
+  /**
+   * 입력된 List를 size개씩 분할하여 반환
+   * 개수가 딱 떨어지지 않는 경우 마지막 리스트는 size크기보다 작을 수 있음
+   *
+   * @param list 분할할 원본 리스트
+   * @param size 분할할 크기
+   * @param <T> 리스트의 요소 타입
+   * @return 분할된 리스트의 리스트
+   */
+  public static <T> List<List<T>> partitionList(List<T> list, int size) {
+    List<List<T>> parts = new ArrayList<>();
+    for (int i = 0; i < list.size(); i += size) {
+      parts.add(list.subList(i, Math.min(i + size, list.size())));
+    }
+    return parts;
   }
 }
 

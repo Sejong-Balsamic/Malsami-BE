@@ -5,6 +5,7 @@ import com.balsamic.sejongmalsami.object.NotificationDto;
 import com.balsamic.sejongmalsami.object.constants.NotificationCategory;
 import com.balsamic.sejongmalsami.object.mongo.FcmToken;
 import com.balsamic.sejongmalsami.repository.mongo.FcmTokenRepository;
+import com.balsamic.sejongmalsami.util.CommonUtil;
 import com.balsamic.sejongmalsami.util.exception.CustomException;
 import com.balsamic.sejongmalsami.util.exception.ErrorCode;
 import com.google.firebase.messaging.AndroidConfig;
@@ -41,13 +42,13 @@ public class NotificationService {
   /**
    * 단일 토큰(기기) 대상 푸시 알림 전송
    *
-   * @param command targetToken, notificationCategory, title, body
+   * @param command targetToken, notificationCategory, title, body, dataMap
    */
   @Transactional
   public NotificationDto sendNotificationByToken(NotificationCommand command) {
     try {
       // 알림 카테고리 가져오기
-      NotificationCategory category = command.getCategory();
+      NotificationCategory category = command.getNotificationCategory();
       if (category == null) {
         log.error("알림 카테고리가 설정되지 않았습니다.");
         throw new CustomException(ErrorCode.INVALID_NOTIFICATION_CATEGORY);
@@ -60,8 +61,8 @@ public class NotificationService {
       String body = getBodyByCategory(command);
 
       // 동적 template 치환
-      title = applyTemplate(title, command.getDataMap());
-      body = applyTemplate(body, command.getDataMap());
+      title = applyTemplate(title, command.getTempleteValueMap());
+      body = applyTemplate(body, command.getTempleteValueMap());
 
       // Notification 객체 생성
       Notification notification = Notification.builder()
@@ -85,7 +86,7 @@ public class NotificationService {
 
       // 전송할 Message 생성
       Message message = Message.builder()
-          .setToken(command.getToken())
+          .setToken(command.getFcmToken())
           .setNotification(notification) // putData()를 통해 데이터 메시지로도 보낼 수 있음
           .setAndroidConfig(androidConfig)
           .setApnsConfig(apnsConfig)
@@ -106,12 +107,14 @@ public class NotificationService {
 
   /**
    * 모든 사용자에게 푸시 알림 전송
+   *
+   * @param command notificationCategory, title, body, dataMap
    */
   @Transactional
   public void sendNotificationToAll(NotificationCommand command) {
     // 전체 회원 FCM 토큰 조회
     List<String> allTokens = fcmTokenRepository.findAll().stream()
-        .map(FcmToken::getToken)
+        .map(FcmToken::getFcmToken)
         .collect(Collectors.toList());
 
     if (allTokens.isEmpty()) {
@@ -120,7 +123,7 @@ public class NotificationService {
     }
 
     // FCM 멀티캐스트 (최대 500개/1회) -> 청크 분할
-    List<List<String>> chunks = partitionList(allTokens, 500);
+    List<List<String>> chunks = CommonUtil.partitionList(allTokens, 500);
 
     List<CompletableFuture<Void>> futures = new ArrayList<>();
 
@@ -150,7 +153,7 @@ public class NotificationService {
    */
   private void sendMulticast(NotificationCommand command, List<String> tokens) throws FirebaseMessagingException {
     // 알림 카테고리 가져오기
-    NotificationCategory category = command.getCategory();
+    NotificationCategory category = command.getNotificationCategory();
     if (category == null) {
       log.error("알림 카테고리가 설정되지 않았습니다.");
       throw new CustomException(ErrorCode.INVALID_NOTIFICATION_CATEGORY);
@@ -163,8 +166,8 @@ public class NotificationService {
     String body = getBodyByCategory(command);
 
     // 동적 template 치환
-    title = applyTemplate(title, command.getDataMap());
-    body = applyTemplate(body, command.getDataMap());
+    title = applyTemplate(title, command.getTempleteValueMap());
+    body = applyTemplate(body, command.getTempleteValueMap());
 
     // Notification 객체 생성
     Notification notification = Notification.builder()
@@ -209,7 +212,7 @@ public class NotificationService {
     if (command.getTitle() != null && !command.getTitle().isBlank()) {
       return command.getTitle();
     }
-    return command.getCategory().getDefaultTitle();
+    return command.getNotificationCategory().getDefaultTitle();
   }
 
   /**
@@ -221,7 +224,7 @@ public class NotificationService {
     if (command.getBody() != null && !command.getBody().isBlank()) {
       return command.getBody();
     }
-    return command.getCategory().getDefaultBody();
+    return command.getNotificationCategory().getDefaultBody();
   }
 
   /**
@@ -242,16 +245,5 @@ public class NotificationService {
     }
 
     return result;
-  }
-
-  /**
-   * 리스트를 size개씩 분할
-   */
-  private List<List<String>> partitionList(List<String> list, int size) {
-    List<List<String>> parts = new ArrayList<>();
-    for (int i = 0; i < list.size(); i += size) {
-      parts.add(list.subList(i, Math.min(i + size, list.size())));
-    }
-    return parts;
   }
 }
