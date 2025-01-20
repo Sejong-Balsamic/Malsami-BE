@@ -140,9 +140,17 @@ public class NotificationService {
       futures.add(future);
     }
 
-    // 모든 CompletableFuture 완료 대기
-    futures.forEach(CompletableFuture::join);
-    log.debug("전체 사용자 알림 전송 비동기 작업 완료");
+    CompletableFuture<Void> allFutures = CompletableFuture.allOf(futures.toArray(new CompletableFuture[0]));
+
+    allFutures.whenComplete((result, throwable) -> {
+      if (throwable != null) {
+        // 전체 청크 중 하나라도 예외 발생 시
+        log.error("전체 사용자 알림 발송 중 일부 실패: {}", throwable.getMessage());
+      } else {
+        // 모든 청크가 정상적으로 완료
+        log.debug("전체 사용자 알림 전송 비동기 작업 완료");
+      }
+    });
   }
 
   /**
@@ -204,8 +212,7 @@ public class NotificationService {
   }
 
   /**
-   * 제목을 설정하지 않은경우 카테고리에 해당하는 defaultTitle 반환
-   * 제목을 설정한 경우 커스텀 제목 반환
+   * 제목을 설정하지 않은경우 카테고리에 해당하는 defaultTitle 반환 제목을 설정한 경우 커스텀 제목 반환
    */
   private String getTitleByCategory(NotificationCommand command) {
     // 커스텀 제목 존재
@@ -216,8 +223,7 @@ public class NotificationService {
   }
 
   /**
-   * body를 설정하지 않은경우 카테고리에 해당하는 defaultBody 반환
-   * body를 설정한 경우 커스텀 body 반환
+   * body를 설정하지 않은경우 카테고리에 해당하는 defaultBody 반환 body를 설정한 경우 커스텀 body 반환
    */
   private String getBodyByCategory(NotificationCommand command) {
     // 커스텀 body 존재
