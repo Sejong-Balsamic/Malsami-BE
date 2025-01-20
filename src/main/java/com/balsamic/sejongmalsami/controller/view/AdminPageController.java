@@ -1,12 +1,14 @@
 package com.balsamic.sejongmalsami.controller.view;
 
 import com.balsamic.sejongmalsami.object.AdminDto;
+import com.balsamic.sejongmalsami.object.constants.NotificationCategory;
 import com.balsamic.sejongmalsami.object.postgres.Faculty;
 import com.balsamic.sejongmalsami.service.AdminApiService;
 import com.balsamic.sejongmalsami.util.JwtUtil;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletResponse;
+import java.util.Arrays;
 import java.util.List;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -200,6 +202,10 @@ public class AdminPageController {
       return "redirect:/error/403";
     }
     log.debug(accessToken);
+
+    // notificationCategory
+    List<NotificationCategory> categories = Arrays.stream(NotificationCategory.values()).toList();
+    model.addAttribute("category", categories);
 
     return "admin/notification";
   }
