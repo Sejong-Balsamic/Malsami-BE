@@ -18,11 +18,11 @@ public class NotificationCommand {
 
   private Member member;
 
-  private String token;
-  private NotificationCategory category;
+  private String fcmToken;
+  private NotificationCategory notificationCategory;
   private String title;
   private String body;
 
   // NotificationCategory 템플릿에 치환할 값
-  private Map<String, String> dataMap;
+  private Map<String, String> templeteValueMap;
 }
