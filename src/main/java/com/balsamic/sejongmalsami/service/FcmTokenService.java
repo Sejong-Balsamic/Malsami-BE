@@ -4,6 +4,8 @@ import com.balsamic.sejongmalsami.object.FcmTokenCommand;
 import com.balsamic.sejongmalsami.object.FcmTokenDto;
 import com.balsamic.sejongmalsami.object.mongo.FcmToken;
 import com.balsamic.sejongmalsami.repository.mongo.FcmTokenRepository;
+import com.balsamic.sejongmalsami.util.exception.CustomException;
+import com.balsamic.sejongmalsami.util.exception.ErrorCode;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
@@ -19,16 +21,30 @@ public class FcmTokenService {
   /**
    * 사용자 토큰 저장
    * 로그인 -> 새로운 토큰 저장
+   * 기존 토큰이 존재하는 경우 -> 저장된 토큰 반환
    *
-   * @param command member, token
+   * @param command member, fcmToken
    * @return
    */
   @Transactional
   public FcmTokenDto saveToken(FcmTokenCommand command) {
 
+    if (command.getFcmToken() == null || command.getFcmToken().isBlank()) {
+      log.error("FCM 토큰이 존재하지 않습니다.");
+      throw new CustomException(ErrorCode.INVALID_FCM_TOKEN);
+    }
+
+    Boolean isExists = fcmTokenRepository.existsByFcmToken(command.getFcmToken());
+    if (isExists) {
+      log.debug("사용자의 FCM 토큰이 이미 존재합니다.");
+      return FcmTokenDto.builder()
+          .fcmToken(fcmTokenRepository.findByFcmToken(command.getFcmToken()))
+          .build();
+    }
+
     FcmToken fcmToken = FcmToken.builder()
         .memberId(command.getMember().getMemberId())
-        .token(command.getToken())
+        .fcmToken(command.getFcmToken())
         .build();
 
     return FcmTokenDto.builder()
@@ -45,9 +61,9 @@ public class FcmTokenService {
   @Transactional
   public void deleteToken(FcmTokenCommand command) {
 
-    fcmTokenRepository.deleteByMemberIdAndToken(
+    fcmTokenRepository.deleteByMemberIdAndFcmToken(
         command.getMember().getMemberId(),
-        command.getToken()
+        command.getFcmToken()
     );
     log.debug("사용자: {} FCM 토큰 삭제", command.getMember().getStudentId());
   }
