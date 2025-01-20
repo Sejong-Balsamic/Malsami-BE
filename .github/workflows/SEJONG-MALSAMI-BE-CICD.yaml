@@ -63,7 +63,7 @@ jobs:
       # firebase-messaging-sw.js 파일을 생성
       - name: Create firebase-messaging-sw.js from secret
         run: |
-          echo "${{ secrets.FIREBASE_MESSAGING_SW_JS }}" | sed 's/\\n/\n/g' > ./src/main/resources/static/firebase-messaging-sw.js
+          echo "${{ secrets.FIREBASE_MESSAGING_SW_JS }}" > ./src/main/resources/static/firebase-messaging-sw.js
 
       # prod 프로파일을 활성화하여 빌드
       - name: Build with Gradle
