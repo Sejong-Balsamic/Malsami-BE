@@ -16,5 +16,5 @@ public class FcmTokenCommand {
 
   private Member member;
 
-  private String token; // 푸시 알림을 전송할 FCM 토큰
+  private String fcmToken; // 푸시 알림을 전송할 FCM 토큰
 }

@@ -27,5 +27,5 @@ public class FcmToken extends BaseMongoEntity {
   private UUID memberId;
 
   @NotNull
-  private String token;
+  private String fcmToken;
 }
