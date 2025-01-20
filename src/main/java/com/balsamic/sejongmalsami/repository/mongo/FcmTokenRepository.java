@@ -6,5 +6,9 @@ import org.springframework.data.mongodb.repository.MongoRepository;
 
 public interface FcmTokenRepository extends MongoRepository<FcmToken, String> {
 
-  void deleteByMemberIdAndToken(UUID memberId, String token);
+  FcmToken findByFcmToken(String fcmToken);
+
+  Boolean existsByFcmToken(String fcmToken);
+
+  void deleteByMemberIdAndFcmToken(UUID memberId, String fcmToken);
 }
