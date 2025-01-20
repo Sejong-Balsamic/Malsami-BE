@@ -123,7 +123,7 @@ public interface AuthControllerDocs {
 
   @ApiChangeLogs({
       @ApiChangeLog(
-          date = "2024.1.15",
+          date = "2025.01.15",
           author = Author.BAEKJIHOON,
           description = "FCM 토큰 저장"
       )
