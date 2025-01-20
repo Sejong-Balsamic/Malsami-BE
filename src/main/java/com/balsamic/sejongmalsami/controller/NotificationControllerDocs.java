@@ -13,7 +13,7 @@ public interface NotificationControllerDocs {
 
   @ApiChangeLogs({
       @ApiChangeLog(
-          date = "2024.1.15",
+          date = "2025.01.15",
           author = Author.BAEKJIHOON,
           description = "FCM 알림 기능 init"
       )
