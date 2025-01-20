@@ -31,11 +31,11 @@ public interface MemberRepository extends JpaRepository<Member, UUID> {
           AND (:enrollmentStatus IS NULL OR m.enrollmentStatus LIKE %:enrollmentStatus%)
           AND (:accountStatus IS NULL OR m.accountStatus = :accountStatus)
           AND (:role IS NULL OR :role MEMBER OF m.roles)
-          AND (:lastLoginStart = '' OR m.lastLoginTime >= CAST(:lastLoginStart AS timestamp))
-          AND (:lastLoginEnd = '' OR m.lastLoginTime <= CAST(:lastLoginEnd AS timestamp))
-          AND (:isFirstLogin IS NULL OR m.isFirstLogin = :isFirstLogin)
-          AND (:isEdited IS NULL OR m.isEdited = :isEdited)
-          AND (:isDeleted IS NULL OR m.isDeleted = :isDeleted)
+          AND (:lastLoginStart IS NULL OR :lastLoginStart = '' OR m.lastLoginTime >= CAST(:lastLoginStart AS timestamp))
+          AND (:lastLoginEnd IS NULL OR :lastLoginEnd = '' OR m.lastLoginTime <= CAST(:lastLoginEnd AS timestamp))
+          AND (:isFirstLogin IS NULL OR :isFirstLogin IS NULL OR m.isFirstLogin = :isFirstLogin)
+          AND (:isEdited IS NULL OR :isEdited IS NULL OR m.isEdited = :isEdited)
+          AND (:isDeleted IS NULL OR :isDeleted IS NULL OR m.isDeleted = :isDeleted)
       """)
   Page<Member> findAllDynamic(
       @Param("studentId") Long studentId,
