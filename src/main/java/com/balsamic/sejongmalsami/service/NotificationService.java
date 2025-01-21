@@ -42,10 +42,24 @@ public class NotificationService {
   /**
    * 단일 토큰(기기) 대상 푸시 알림 전송
    *
-   * @param command targetToken, notificationCategory, title, body, dataMap
+   * @param command (memberId || fcmToken), notificationCategory, title, body, dataMap
    */
   @Transactional
   public NotificationDto sendNotificationByToken(NotificationCommand command) {
+
+    // 알림 발송 대상이 없는 경우
+    if (command.getMemberId() == null && command.getFcmToken() == null) {
+      log.error("알림 발송 대상이 지정되지 않았습니다.");
+      throw new CustomException(ErrorCode.INVALID_NOTIFICATION_RECEIVER);
+    }
+
+    // memberId 존재, fcmToken 없음
+    if (command.getMemberId() != null && command.getFcmToken() == null) {
+      FcmToken fcmToken = fcmTokenRepository.findByMemberId(command.getMemberId())
+          .orElseThrow(() -> new CustomException(ErrorCode.FCM_TOKEN_NOT_FOUND));
+      command.setFcmToken(fcmToken.getFcmToken());
+    }
+
     try {
       // 알림 카테고리 가져오기
       NotificationCategory category = command.getNotificationCategory();
