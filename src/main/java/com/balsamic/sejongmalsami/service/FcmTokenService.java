@@ -38,7 +38,8 @@ public class FcmTokenService {
     if (isExists) {
       log.debug("사용자의 FCM 토큰이 이미 존재합니다.");
       return FcmTokenDto.builder()
-          .fcmToken(fcmTokenRepository.findByFcmToken(command.getFcmToken()))
+          .fcmToken(fcmTokenRepository.findByFcmToken(command.getFcmToken())
+              .orElseThrow(() -> new CustomException(ErrorCode.FCM_TOKEN_NOT_FOUND)))
           .build();
     }
 

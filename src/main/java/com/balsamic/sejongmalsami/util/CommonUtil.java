@@ -103,7 +103,9 @@ public class CommonUtil {
     StringBuilder sb = new StringBuilder();
     sb.append("[");
     for (int i = 0; i < array.length; i++) {
-      if (i > 0) sb.append(",");
+      if (i > 0) {
+        sb.append(",");
+      }
       sb.append(array[i]);
     }
     sb.append("]");
@@ -132,7 +134,7 @@ public class CommonUtil {
    *
    * @param list 분할할 원본 리스트
    * @param size 분할할 크기
-   * @param <T> 리스트의 요소 타입
+   * @param <T>  리스트의 요소 타입
    * @return 분할된 리스트의 리스트
    */
   public static <T> List<List<T>> partitionList(List<T> list, int size) {

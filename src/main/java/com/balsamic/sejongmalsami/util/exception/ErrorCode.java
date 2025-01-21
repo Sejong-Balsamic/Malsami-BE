@@ -285,9 +285,13 @@ public enum ErrorCode {
 
   // FCM
 
+  FCM_TOKEN_NOT_FOUND(HttpStatus.BAD_REQUEST, "FCM 토큰을 찾을 수 없습니다."),
+
   INVALID_FCM_TOKEN(HttpStatus.BAD_REQUEST, "잘못된 FCM 토큰입니다."),
 
   // Notification
+
+  INVALID_NOTIFICATION_RECEIVER(HttpStatus.BAD_REQUEST, "알림 수신 대상 설정이 잘못되었습니다."),
 
   INVALID_NOTIFICATION_CATEGORY(HttpStatus.BAD_REQUEST, "잘못된 알림 카테고리가 설정되었습니다."),
 
