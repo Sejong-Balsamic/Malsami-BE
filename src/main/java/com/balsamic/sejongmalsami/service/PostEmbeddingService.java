@@ -103,7 +103,7 @@ public class PostEmbeddingService {
 
       // 페이징 요청 및 반환
       Page<PostEmbedding> postEmbeddingsPage = postEmbeddingRepository.findSimilarEmbeddings(
-          vectorString.toString(),
+          vectorString,
           command.getThreshold(),
           contentType,
           pageable

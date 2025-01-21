@@ -129,6 +129,7 @@ public class AdminApiService {
                 command.getStudentName(),
                 command.getUuidNickname(),
                 command.getMajor(),
+                command.getFaculty(),
                 command.getAcademicYear(),
                 command.getEnrollmentStatus(),
                 command.getAccountStatus(),
@@ -608,7 +609,6 @@ public class AdminApiService {
         .firebaseVapidKey(firebaseConfig.getFirebaseVapidKey())
         .build();
   }
-
 
 
   /**

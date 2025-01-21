@@ -15,23 +15,27 @@ public interface NotificationControllerDocs {
       @ApiChangeLog(
           date = "2025.01.15",
           author = Author.BAEKJIHOON,
-          description = "FCM 알림 기능 init"
+          description = "특정 사용자 알림 발송"
       )
   })
   @Operation(
-      summary = "FCM 알림 기능",
+      summary = "특정 사용자 알림 발송",
       description = """
-          **알림 발송**
+          **특정 알림 발송**
 
           **이 API는 인증이 필요하며, JWT 토큰이 존재해야합니다.**
 
           **입력 파라미터 값:**
+          
+          - **UUID memberId**: 알림 발송 대상 PK [memberId, fcmToken 택 1]
 
-          - **String token**: 알림 발송 대상 token [필수]
+          - **String fcmToken**: 알림 발송 대상 token [memberId, fcmToken 택 1]
+          
+          - **NotificationCategory notificationCategory**: 알림 카테고리 [필수]
 
-          - **String title**: 알림 제목 [필수]
+          - **String title**: 알림 제목 [선택]
 
-          - **String body**: 알림 내용 [필수]
+          - **String body**: 알림 내용 [선택]
 
           **반환 파라미터 값:**
 
@@ -40,6 +44,37 @@ public interface NotificationControllerDocs {
           """
   )
   ResponseEntity<NotificationDto> sendNotification(
+      CustomUserDetails customUserDetails,
+      NotificationCommand command);
+
+  @ApiChangeLogs({
+      @ApiChangeLog(
+          date = "2025.01.21",
+          author = Author.BAEKJIHOON,
+          description = "전체 사용자 알림 발송"
+      )
+  })
+  @Operation(
+      summary = "전체 사용자 알림 발송",
+      description = """
+          **전체 알림 발송**
+
+          **이 API는 인증이 필요하며, JWT 토큰이 존재해야합니다.**
+
+          **입력 파라미터 값:**
+          
+          - **NotificationCategory notificationCategory**: 알림 카테고리 [필수]
+
+          - **String title**: 알림 제목 [선택]
+
+          - **String body**: 알림 내용 [선택]
+
+          **반환 파라미터 값:**
+
+          `없음`
+          """
+  )
+  void sendNotificationToAll(
       CustomUserDetails customUserDetails,
       NotificationCommand command);
 }

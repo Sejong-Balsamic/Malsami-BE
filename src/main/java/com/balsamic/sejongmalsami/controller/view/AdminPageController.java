@@ -203,6 +203,10 @@ public class AdminPageController {
     }
     log.debug(accessToken);
 
+    // DB에서 단과대 목록 조회
+    List<Faculty> faculties = adminApiService.getAllFaculties().getFaculties();
+    model.addAttribute("faculties", faculties);
+
     // notificationCategory
     List<NotificationCategory> categories = Arrays.stream(NotificationCategory.values()).toList();
     model.addAttribute("category", categories);

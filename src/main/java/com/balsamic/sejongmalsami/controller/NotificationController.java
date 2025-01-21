@@ -27,7 +27,16 @@ public class NotificationController implements NotificationControllerDocs {
   public ResponseEntity<NotificationDto> sendNotification(
       @AuthenticationPrincipal CustomUserDetails customUserDetails,
       @ModelAttribute NotificationCommand command) {
-    command.setMember(customUserDetails.getMember());
     return ResponseEntity.ok(notificationService.sendNotificationByToken(command));
   }
+
+  @Override
+  @LogMonitoringInvocation
+  @PostMapping(value = "/send/all", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
+  public void sendNotificationToAll(
+      @AuthenticationPrincipal CustomUserDetails customUserDetails,
+      @ModelAttribute NotificationCommand command) {
+    notificationService.sendNotificationToAll(command);
+  }
+
 }
