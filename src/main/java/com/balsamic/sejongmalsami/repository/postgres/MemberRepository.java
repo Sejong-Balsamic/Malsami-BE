@@ -22,11 +22,12 @@ public interface MemberRepository extends JpaRepository<Member, UUID> {
 
   @Query("""
       SELECT m FROM Member m
-      WHERE 
+      WHERE
           (:studentId IS NULL OR m.studentId = :studentId)
           AND (:studentName IS NULL OR m.studentName LIKE %:studentName%)
           AND (:uuidNickname IS NULL OR m.uuidNickname LIKE %:uuidNickname%)
           AND (:major IS NULL OR m.major LIKE %:major%)
+          AND (:faculty IS NULL OR :faculty = '' OR :faculty MEMBER OF m.faculties)
           AND (:academicYear IS NULL OR m.academicYear LIKE %:academicYear%)
           AND (:enrollmentStatus IS NULL OR m.enrollmentStatus LIKE %:enrollmentStatus%)
           AND (:accountStatus IS NULL OR m.accountStatus = :accountStatus)
@@ -42,6 +43,7 @@ public interface MemberRepository extends JpaRepository<Member, UUID> {
       @Param("studentName") String studentName,
       @Param("uuidNickname") String uuidNickname,
       @Param("major") String major,
+      @Param("faculty") String faculty,
       @Param("academicYear") String academicYear,
       @Param("enrollmentStatus") String enrollmentStatus,
       @Param("accountStatus") AccountStatus accountStatus,
@@ -55,22 +57,22 @@ public interface MemberRepository extends JpaRepository<Member, UUID> {
   );
 
   @Query("""
-    SELECT new com.balsamic.sejongmalsami.object.MemberYeopjeon(
-        m.memberId,
-        m.studentId,
-        m.studentName,
-        m.uuidNickname,
-        m.major,
-        y.yeopjeon
-    )
-    FROM Member m
-    LEFT JOIN Yeopjeon y ON m.memberId = y.member.memberId
-    WHERE 
-       (:studentId IS NULL OR m.studentId = :studentId)
-       AND (:studentName IS NULL OR m.studentName LIKE %:studentName%)
-       AND (:uuidNickname IS NULL OR m.uuidNickname LIKE %:uuidNickname%)
-       AND (:memberId IS NULL OR m.memberId = :memberId)
-""")
+          SELECT new com.balsamic.sejongmalsami.object.MemberYeopjeon(
+              m.memberId,
+              m.studentId,
+              m.studentName,
+              m.uuidNickname,
+              m.major,
+              y.yeopjeon
+          )
+          FROM Member m
+          LEFT JOIN Yeopjeon y ON m.memberId = y.member.memberId
+          WHERE 
+             (:studentId IS NULL OR m.studentId = :studentId)
+             AND (:studentName IS NULL OR m.studentName LIKE %:studentName%)
+             AND (:uuidNickname IS NULL OR m.uuidNickname LIKE %:uuidNickname%)
+             AND (:memberId IS NULL OR m.memberId = :memberId)
+      """)
   Page<MemberYeopjeon> findMemberYeopjeon(
       @Param("studentId") Long studentId,
       @Param("studentName") String studentName,
