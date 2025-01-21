@@ -3,6 +3,7 @@ package com.balsamic.sejongmalsami.object;
 import com.balsamic.sejongmalsami.object.constants.NotificationCategory;
 import com.balsamic.sejongmalsami.object.postgres.Member;
 import java.util.Map;
+import java.util.UUID;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
@@ -17,6 +18,7 @@ import lombok.ToString;
 public class NotificationCommand {
 
   private Member member;
+  private UUID memberId;
 
   private String fcmToken;
   private NotificationCategory notificationCategory;
