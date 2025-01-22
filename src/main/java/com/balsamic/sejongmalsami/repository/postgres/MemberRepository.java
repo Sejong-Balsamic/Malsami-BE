@@ -22,26 +22,28 @@ public interface MemberRepository extends JpaRepository<Member, UUID> {
 
   @Query("""
       SELECT m FROM Member m
-      WHERE 
+      WHERE
           (:studentId IS NULL OR m.studentId = :studentId)
           AND (:studentName IS NULL OR m.studentName LIKE %:studentName%)
           AND (:uuidNickname IS NULL OR m.uuidNickname LIKE %:uuidNickname%)
           AND (:major IS NULL OR m.major LIKE %:major%)
+          AND (:faculty IS NULL OR :faculty = '' OR :faculty MEMBER OF m.faculties)
           AND (:academicYear IS NULL OR m.academicYear LIKE %:academicYear%)
           AND (:enrollmentStatus IS NULL OR m.enrollmentStatus LIKE %:enrollmentStatus%)
           AND (:accountStatus IS NULL OR m.accountStatus = :accountStatus)
           AND (:role IS NULL OR :role MEMBER OF m.roles)
-          AND (:lastLoginStart = '' OR m.lastLoginTime >= CAST(:lastLoginStart AS timestamp))
-          AND (:lastLoginEnd = '' OR m.lastLoginTime <= CAST(:lastLoginEnd AS timestamp))
-          AND (:isFirstLogin IS NULL OR m.isFirstLogin = :isFirstLogin)
-          AND (:isEdited IS NULL OR m.isEdited = :isEdited)
-          AND (:isDeleted IS NULL OR m.isDeleted = :isDeleted)
+          AND (:lastLoginStart IS NULL OR :lastLoginStart = '' OR m.lastLoginTime >= CAST(:lastLoginStart AS timestamp))
+          AND (:lastLoginEnd IS NULL OR :lastLoginEnd = '' OR m.lastLoginTime <= CAST(:lastLoginEnd AS timestamp))
+          AND (:isFirstLogin IS NULL OR :isFirstLogin IS NULL OR m.isFirstLogin = :isFirstLogin)
+          AND (:isEdited IS NULL OR :isEdited IS NULL OR m.isEdited = :isEdited)
+          AND (:isDeleted IS NULL OR :isDeleted IS NULL OR m.isDeleted = :isDeleted)
       """)
   Page<Member> findAllDynamic(
       @Param("studentId") Long studentId,
       @Param("studentName") String studentName,
       @Param("uuidNickname") String uuidNickname,
       @Param("major") String major,
+      @Param("faculty") String faculty,
       @Param("academicYear") String academicYear,
       @Param("enrollmentStatus") String enrollmentStatus,
       @Param("accountStatus") AccountStatus accountStatus,
@@ -55,22 +57,22 @@ public interface MemberRepository extends JpaRepository<Member, UUID> {
   );
 
   @Query("""
-    SELECT new com.balsamic.sejongmalsami.object.MemberYeopjeon(
-        m.memberId,
-        m.studentId,
-        m.studentName,
-        m.uuidNickname,
-        m.major,
-        y.yeopjeon
-    )
-    FROM Member m
-    LEFT JOIN Yeopjeon y ON m.memberId = y.member.memberId
-    WHERE 
-       (:studentId IS NULL OR m.studentId = :studentId)
-       AND (:studentName IS NULL OR m.studentName LIKE %:studentName%)
-       AND (:uuidNickname IS NULL OR m.uuidNickname LIKE %:uuidNickname%)
-       AND (:memberId IS NULL OR m.memberId = :memberId)
-""")
+          SELECT new com.balsamic.sejongmalsami.object.MemberYeopjeon(
+              m.memberId,
+              m.studentId,
+              m.studentName,
+              m.uuidNickname,
+              m.major,
+              y.yeopjeon
+          )
+          FROM Member m
+          LEFT JOIN Yeopjeon y ON m.memberId = y.member.memberId
+          WHERE 
+             (:studentId IS NULL OR m.studentId = :studentId)
+             AND (:studentName IS NULL OR m.studentName LIKE %:studentName%)
+             AND (:uuidNickname IS NULL OR m.uuidNickname LIKE %:uuidNickname%)
+             AND (:memberId IS NULL OR m.memberId = :memberId)
+      """)
   Page<MemberYeopjeon> findMemberYeopjeon(
       @Param("studentId") Long studentId,
       @Param("studentName") String studentName,

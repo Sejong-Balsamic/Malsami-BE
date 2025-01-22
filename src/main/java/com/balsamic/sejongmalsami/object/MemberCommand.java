@@ -34,6 +34,7 @@ public class MemberCommand {
   private String major;
   private String academicYear;
   private String enrollmentStatus;
+  private String faculty;
 
   private Member member;
 

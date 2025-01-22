@@ -1,0 +1,90 @@
+<!-- src/main/resources/templates/admin/subject.html -->
+<!doctype html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{fragments/header :: head}"></head>
+
+<body class="subject-page">
+
+<div th:replace="fragments/header :: header"></div>
+<div class="ui content u-margin-vertical-large u-padding-horizontal-medium">
+  <!-- 페이지 제목 -->
+  <div class="ui main text container u-margin-bottom-large">
+    <h1 class="ui header">알림 관리</h1>
+  </div>
+</div>
+
+
+<div th:replace="fragments/footer :: footer"></div>
+
+<link href="https://unpkg.com/tabulator-tables/dist/css/tabulator.min.css" rel="stylesheet">
+<script type="text/javascript" src="https://unpkg.com/tabulator-tables/dist/js/tabulator.min.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.17.2/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.17.2/firebase-messaging-compat.js"></script>
+
+<script type="text/javascript" th:inline="javascript">
+
+  // DOM 로드 시
+  $(document).ready(function () {
+    // firebase 정보 로드
+    initFirebase();
+  });
+
+  /**
+   * Firebase init
+   */
+  function initFirebase() {
+    const formData = new FormData();
+    let firebaseData;
+
+    fetch('/admin/firebase', {
+      method: "POST",
+      body: formData,
+      headers: {
+        "Authorization": "Bearer " + localStorage.getItem("accessToken")
+      }
+    })
+    .then(response => response.json())
+    .then(data => {
+      firebaseData = data;
+      const firebaseConfig = {
+        apiKey: data.firebaseApiKey,
+        authDomain: data.firebaseAuthDomain,
+        projectId: data.firebaseProjectId,
+        storageBucket: data.firebaseStorageBucket,
+        messagingSenderId: data.firebaseMessagingSenderId,
+        appId: data.firebaseAppId
+      };
+      firebase.initializeApp(firebaseConfig);
+
+      return navigator.serviceWorker.register('/firebase-messaging-sw.js');
+    })
+    .then(() => {
+      // SW가 install -> activate 되어 실제로 'ready' 상태가 될 때까지 대기
+      return navigator.serviceWorker.ready;
+    })
+    .then((registration) => {
+      const messaging = firebase.messaging();
+      const vapidKey = firebaseData.firebaseVapidKey
+
+      return messaging.getToken({
+        vapidKey: vapidKey,
+        serviceWorkerRegistration: registration
+      });
+    })
+    .then((token) => {
+      if (token) {
+        console.log("FCM Token: ", token);
+        alert("FCM Token: " + token);
+      } else {
+        console.warn("FCM 토큰을 받아오지 못했습니다. 알림 권한을 허용했는지 확인하세요.");
+      }
+    })
+    .catch((err) => {
+      console.error("FCM 토큰 가져오기 에러:", err);
+      alert('firebase 초기화 중 오류 발생: ' + err);
+    });
+  }
+
+</script>
+</body>
+</html>

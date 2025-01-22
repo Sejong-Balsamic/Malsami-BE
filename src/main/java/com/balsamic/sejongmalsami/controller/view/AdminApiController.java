@@ -3,6 +3,7 @@ package com.balsamic.sejongmalsami.controller.view;
 import com.balsamic.sejongmalsami.object.AdminCommand;
 import com.balsamic.sejongmalsami.object.AdminDto;
 import com.balsamic.sejongmalsami.object.CustomUserDetails;
+import com.balsamic.sejongmalsami.object.FirebaseDto;
 import com.balsamic.sejongmalsami.object.MemberCommand;
 import com.balsamic.sejongmalsami.object.MemberDto;
 import com.balsamic.sejongmalsami.object.NoticePostCommand;
@@ -233,5 +234,14 @@ public class AdminApiController {
       @ModelAttribute AdminCommand command) {
     command.setMember(customUserDetails.getMember());
     return ResponseEntity.ok(adminApiService.getFilteredQuestionPost(command));
+  }
+
+  /**
+   * =========================================== 알림 API ===========================================
+   */
+  @PostMapping(value = "/firebase")
+  @LogMonitoringInvocation
+  public ResponseEntity<FirebaseDto> getFirebaseConfig() {
+    return ResponseEntity.ok(adminApiService.getFirebaseConfig());
   }
 }

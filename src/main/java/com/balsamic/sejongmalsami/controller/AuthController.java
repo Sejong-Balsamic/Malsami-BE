@@ -2,7 +2,11 @@ package com.balsamic.sejongmalsami.controller;
 
 import com.balsamic.sejongmalsami.object.AuthCommand;
 import com.balsamic.sejongmalsami.object.AuthDto;
+import com.balsamic.sejongmalsami.object.CustomUserDetails;
+import com.balsamic.sejongmalsami.object.FcmTokenCommand;
+import com.balsamic.sejongmalsami.object.FcmTokenDto;
 import com.balsamic.sejongmalsami.service.AuthService;
+import com.balsamic.sejongmalsami.service.FcmTokenService;
 import com.balsamic.sejongmalsami.util.JwtUtil;
 import com.balsamic.sejongmalsami.util.exception.CustomException;
 import com.balsamic.sejongmalsami.util.exception.ErrorCode;
@@ -12,7 +16,10 @@ import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
+import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
@@ -28,6 +35,7 @@ public class AuthController implements AuthControllerDocs {
 
   private final AuthService authService;
   private final JwtUtil jwtUtil;
+  private final FcmTokenService fcmTokenService;
 
   @PostMapping(value = "/refresh")
   @LogMonitoringInvocation
@@ -41,12 +49,27 @@ public class AuthController implements AuthControllerDocs {
     return ResponseEntity.ok(authDto);
   }
 
-  @PostMapping(value = "/logout")
+  @PostMapping(value = "/logout", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
   @LogMonitoringInvocation
   @Override
-  public ResponseEntity<Void> logout(HttpServletRequest request, HttpServletResponse response) {
-    authService.logout(request, response);
+  public ResponseEntity<Void> logout(
+      @AuthenticationPrincipal CustomUserDetails customUserDetails,
+      @ModelAttribute FcmTokenCommand command,
+      HttpServletRequest request,
+      HttpServletResponse response) {
+    command.setMember(customUserDetails.getMember());
+    authService.logout(command, request, response);
     return ResponseEntity.ok().build();
+  }
+
+  @Override
+  @PostMapping(value = "/fcm/token", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
+  @LogMonitoringInvocation
+  public ResponseEntity<FcmTokenDto> saveFcmToken(
+      @AuthenticationPrincipal CustomUserDetails customUserDetails,
+      @ModelAttribute FcmTokenCommand command) {
+    command.setMember(customUserDetails.getMember());
+    return ResponseEntity.ok(fcmTokenService.saveToken(command));
   }
 
   /**
