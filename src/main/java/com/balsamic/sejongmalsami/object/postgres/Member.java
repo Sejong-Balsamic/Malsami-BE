@@ -2,12 +2,10 @@ package com.balsamic.sejongmalsami.object.postgres;
 
 import com.balsamic.sejongmalsami.object.constants.AccountStatus;
 import com.balsamic.sejongmalsami.object.constants.Role;
-import com.balsamic.sejongmalsami.util.converter.StringListConverter;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import jakarta.persistence.CollectionTable;
 import jakarta.persistence.Column;
-import jakarta.persistence.Convert;
 import jakarta.persistence.ElementCollection;
 import jakarta.persistence.Entity;
 import jakarta.persistence.EnumType;
@@ -63,8 +61,8 @@ public class Member extends BaseEntity {
   @Column
   private String profileUrl;
 
-  @Convert(converter = StringListConverter.class)
-  @Column(columnDefinition = "text[]")
+  @ElementCollection(fetch = FetchType.EAGER)
+  @CollectionTable(name = "member_faculties", joinColumns = @JoinColumn(name = "member_id"))
   @Builder.Default
   private List<String> faculties = new ArrayList<>();
 

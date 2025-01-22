@@ -1,15 +1,16 @@
 package com.balsamic.sejongmalsami.controller;
 
 import com.balsamic.sejongmalsami.object.AuthDto;
+import com.balsamic.sejongmalsami.object.CustomUserDetails;
+import com.balsamic.sejongmalsami.object.FcmTokenCommand;
+import com.balsamic.sejongmalsami.object.FcmTokenDto;
 import com.balsamic.sejongmalsami.object.constants.Author;
 import com.balsamic.sejongmalsami.util.log.ApiChangeLog;
 import com.balsamic.sejongmalsami.util.log.ApiChangeLogs;
-import com.balsamic.sejongmalsami.util.log.LogMonitoringInvocation;
 import io.swagger.v3.oas.annotations.Operation;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.PostMapping;
 
 public interface AuthControllerDocs {
 
@@ -114,8 +115,38 @@ public interface AuthControllerDocs {
         - **403 Forbidden**: 쿠키에서 리프레시 토큰을 찾을 수 없음
         """
   )
-  @PostMapping(value = "/logout")
-  @LogMonitoringInvocation
-  ResponseEntity<Void> logout(HttpServletRequest request, HttpServletResponse response);
+  ResponseEntity<Void> logout(
+      CustomUserDetails customUserDetails,
+      FcmTokenCommand command,
+      HttpServletRequest request,
+      HttpServletResponse response);
+
+  @ApiChangeLogs({
+      @ApiChangeLog(
+          date = "2025.01.15",
+          author = Author.BAEKJIHOON,
+          description = "FCM 토큰 저장"
+      )
+  })
+  @Operation(
+      summary = "FCM 토큰 저장",
+      description = """
+          **FCM 토큰 저장**
+
+          **이 API는 인증이 필요하며, JWT 토큰이 존재해야합니다.**
+
+          **입력 파라미터 값:**
+
+          - **String token**: Firebase에서 발급받은 토큰 [필수]
+
+          **반환 파라미터 값:**
+
+          - **FcmDto**: FCM 정보
+            - **FcmToken fcmToken**: FCM 토큰 정보
+          """
+  )
+  ResponseEntity<FcmTokenDto> saveFcmToken(
+      CustomUserDetails customUserDetails,
+      FcmTokenCommand command);
 }
 

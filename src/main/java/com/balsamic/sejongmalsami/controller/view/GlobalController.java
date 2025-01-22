@@ -1,4 +1,4 @@
-package com.balsamic.sejongmalsami.controller;
+package com.balsamic.sejongmalsami.controller.view;
 
 import com.balsamic.sejongmalsami.util.config.ServerConfig;
 import org.springframework.ui.Model;
