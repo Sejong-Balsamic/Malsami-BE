@@ -36,6 +36,7 @@ public class SecurityUrls {
       "/fonts/**",                     // 폰트 파일
       "/images/**",                    // 이미지 파일
       "/js/**",                        // JS 파일
+      "/firebase-messaging-sw.js",
 
       // SEO
       "/robots.txt",                   // 크롤링 허용 URL 파일

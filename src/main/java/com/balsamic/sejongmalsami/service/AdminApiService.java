@@ -2,6 +2,7 @@ package com.balsamic.sejongmalsami.service;
 
 import com.balsamic.sejongmalsami.object.AdminCommand;
 import com.balsamic.sejongmalsami.object.AdminDto;
+import com.balsamic.sejongmalsami.object.FirebaseDto;
 import com.balsamic.sejongmalsami.object.MemberCommand;
 import com.balsamic.sejongmalsami.object.MemberDto;
 import com.balsamic.sejongmalsami.object.MemberYeopjeon;
@@ -34,6 +35,7 @@ import com.balsamic.sejongmalsami.repository.postgres.ServerErrorCodeRepository;
 import com.balsamic.sejongmalsami.repository.postgres.TestMemberRepository;
 import com.balsamic.sejongmalsami.repository.postgres.YeopjeonRepository;
 import com.balsamic.sejongmalsami.util.CommonUtil;
+import com.balsamic.sejongmalsami.util.config.FirebaseConfig;
 import com.balsamic.sejongmalsami.util.exception.CustomException;
 import com.balsamic.sejongmalsami.util.exception.ErrorCode;
 import com.balsamic.sejongmalsami.util.init.CourseFileGenerator;
@@ -83,6 +85,7 @@ public class AdminApiService {
   private final QuestionPostRepository questionPostRepository;
   private final QuestionPostCustomTagRepository questionPostCustomTagRepository;
   private final QuestionBoardLikeRepository questionBoardLikeRepository;
+  private final FirebaseConfig firebaseConfig;
 
   /**
    * =========================================== 회원 관리 로직 ===========================================
@@ -126,6 +129,7 @@ public class AdminApiService {
                 command.getStudentName(),
                 command.getUuidNickname(),
                 command.getMajor(),
+                command.getFaculty(),
                 command.getAcademicYear(),
                 command.getEnrollmentStatus(),
                 command.getAccountStatus(),
@@ -587,6 +591,25 @@ public class AdminApiService {
         .questionPostPage(questionPostPage)
         .build();
   }
+
+  /*
+   * =========================================== 알림 관리 로직 ===========================================
+   */
+  @Transactional
+  public FirebaseDto getFirebaseConfig() {
+
+    return FirebaseDto.builder()
+        .firebaseApiKey(firebaseConfig.getFirebaseApiKey())
+        .firebaseAuthDomain(firebaseConfig.getFirebaseAuthDomain())
+        .firebaseProjectId(firebaseConfig.getFirebaseProjectId())
+        .firebaseStorageBucket(firebaseConfig.getFirebaseStorageBucket())
+        .firebaseMessagingSenderId(firebaseConfig.getFirebaseMessagingSenderId())
+        .firebaseAppId(firebaseConfig.getFirebaseAppId())
+        .firebaseMeasurementId(firebaseConfig.getFirebaseMeasurementID())
+        .firebaseVapidKey(firebaseConfig.getFirebaseVapidKey())
+        .build();
+  }
+
 
   /**
    * =========================================== private method ===========================================

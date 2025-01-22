@@ -6,16 +6,42 @@ import com.google.firebase.FirebaseOptions;
 import java.io.IOException;
 import java.io.InputStream;
 import javax.annotation.PostConstruct;
+import lombok.Getter;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Configuration;
 
 @Configuration
 @Slf4j
+@Getter
 public class FirebaseConfig {
 
   @Value("${firebase.config-path}")
   private String firebaseConfigPath;
+
+  @Value("${firebase.config.api-key}")
+  private String firebaseApiKey;
+
+  @Value("${firebase.config.auth-domain}")
+  private String firebaseAuthDomain;
+
+  @Value("${firebase.config.project-id}")
+  private String firebaseProjectId;
+
+  @Value("${firebase.config.storage-bucket}")
+  private String firebaseStorageBucket;
+
+  @Value("${firebase.config.messaging-sender-id}")
+  private String firebaseMessagingSenderId;
+
+  @Value("${firebase.config.app-id}")
+  private String firebaseAppId;
+
+  @Value("${firebase.config.measurement-id}")
+  private String firebaseMeasurementID;
+
+  @Value("${firebase.config.vapid-key}")
+  private String firebaseVapidKey;
 
   @PostConstruct
   public void initialize() throws IOException {
