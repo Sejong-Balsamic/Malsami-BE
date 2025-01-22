@@ -27,7 +27,7 @@ public class FcmTokenService {
    * @return
    */
   @Transactional
-  public FcmTokenDto saveToken(FcmTokenCommand command) {
+  public FcmTokenDto saveFcmToken(FcmTokenCommand command) {
 
     if (command.getFcmToken() == null || command.getFcmToken().isBlank()) {
       log.error("FCM 토큰이 존재하지 않습니다.");
@@ -57,10 +57,10 @@ public class FcmTokenService {
    * 사용자 토큰 삭제
    * 로그아웃 -> 기존 토큰 삭제
    *
-   * @param command member, token
+   * @param command member, fcmToken
    */
   @Transactional
-  public void deleteToken(FcmTokenCommand command) {
+  public void deleteFcmToken(FcmTokenCommand command) {
 
     fcmTokenRepository.deleteByMemberIdAndFcmToken(
         command.getMember().getMemberId(),

@@ -69,7 +69,7 @@ public class AuthController implements AuthControllerDocs {
       @AuthenticationPrincipal CustomUserDetails customUserDetails,
       @ModelAttribute FcmTokenCommand command) {
     command.setMember(customUserDetails.getMember());
-    return ResponseEntity.ok(fcmTokenService.saveToken(command));
+    return ResponseEntity.ok(fcmTokenService.saveFcmToken(command));
   }
 
   /**

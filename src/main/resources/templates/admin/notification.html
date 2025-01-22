@@ -9,8 +9,183 @@
 <div class="ui content u-margin-vertical-large u-padding-horizontal-medium">
   <!-- 페이지 제목 -->
   <div class="ui main text container u-margin-bottom-large">
-    <h1 class="ui header">알림 관리</h1>
+    <h1 class="ui header" style="display: inline">알림 관리</h1>
+    <i class="help circle large icon" id="helpButton"></i>
   </div>
+
+  <!-- 검색 및 필터 섹션 -->
+  <div class="form-container ui segment">
+    <form id="searchForm" class="ui form">
+      <div class="three fields">
+        <!-- 기본 정보 검색 -->
+        <div class="field">
+          <label>학번</label>
+          <input type="text" name="studentId" placeholder="학번 검색">
+        </div>
+        <div class="field">
+          <label>이름</label>
+          <input type="text" name="studentName" placeholder="이름 검색">
+        </div>
+        <div class="field">
+          <label>닉네임(UUID)</label>
+          <input type="text" name="uuidNickname" placeholder="닉네임 검색">
+        </div>
+      </div>
+
+      <div class="three fields">
+        <div class="field">
+          <label>전공</label>
+          <input type="text" name="major" placeholder="전공 검색">
+        </div>
+        <div class="field">
+          <label>단과대</label>
+          <select class="ui dropdown" name="faculty">
+            <option value="">--단과대를 선택하세요--</option>
+            <!-- DB에서 불러온 faculties 목록을 순회하며 옵션을 생성-->
+            <option th:each="faculty : ${faculties}"
+                    th:value="${faculty.name}"
+                    th:text="${faculty.name}">
+            </option>
+          </select>
+        </div>
+        <div class="field">
+          <label>학년</label>
+          <select class="ui dropdown" name="academicYear">
+            <option value="">전체</option>
+            <option value="1">1학년</option>
+            <option value="2">2학년</option>
+            <option value="3">3학년</option>
+            <option value="4">4학년</option>
+            <option value="초과학기">초과학기</option>
+          </select>
+        </div>
+      </div>
+
+      <div class="three fields">
+        <div class="field">
+          <label>재학상태</label>
+          <select class="ui dropdown" name="enrollmentStatus">
+            <option value="">전체</option>
+            <option value="재학">재학</option>
+            <option value="휴학">휴학</option>
+            <option value="졸업">졸업</option>
+          </select>
+        </div>
+        <div class="field">
+          <label>계정상태</label>
+          <select class="ui dropdown" name="accountStatus">
+            <option value="">전체</option>
+            <option value="ACTIVE">활성화</option>
+            <option value="DELETED">삭제됨</option>
+          </select>
+        </div>
+        <div class="field">
+          <label>역할</label>
+          <select class="ui dropdown" name="role">
+            <option value="">전체</option>
+            <option value="ROLE_USER">일반사용자</option>
+            <option value="ROLE_ADMIN">관리자</option>
+          </select>
+        </div>
+      </div>
+      <div class="three fields">
+        <div class="field">
+          <button class="ui primary button" type="submit">
+            <i class="search icon"></i>검색
+          </button>
+        </div>
+        <div class="field">
+          <button class="ui button" id="resetFilterButton" type="button">
+            <i class="undo icon"></i>필터 초기화
+          </button>
+        </div>
+        <div class="field">
+          <button class="ui button" id="resetSortButton" type="button">
+            <i class="undo icon"></i>정렬 초기화
+          </button>
+        </div>
+      </div>
+    </form>
+  </div>
+  <div class="form-container ui segment">
+    <form id="notificationForm" class="ui form">
+      <div class="three fields">
+        <div class="field">
+          <div class="two fields">
+            <div class="field">
+              <label>대상</label>
+              <select class="ui dropdown" name="sendTo">
+                <option value="all">전체 발송</option>
+                <option value="selected">선택 발송</option>
+              </select>
+            </div>
+            <div class="field">
+              <label>알림 카테고리</label>
+              <select class="ui dropdown" name="notificationCategory" id="notificationCategory">
+                <option value="">--카테고리 선택--</option>
+                <option th:each="category : ${category}"
+                        th:value="${category.name}"
+                        th:text="${category.description}"
+                        th:data-default-title="${category.defaultTitle}"
+                        th:data-default-body="${category.defaultBody}">
+                </option>
+              </select>
+            </div>
+          </div>
+        </div>
+        <div class="field">
+          <label>제목(미입력시 기본 제목 적용)</label>
+          <input type="text" id="title" name="title" placeholder="알림 제목 입력" autocomplete="off"/>
+        </div>
+        <div class="field">
+          <label>본문(미입력시 기본 본문 적용)</label>
+          <input type="text" id="body" name="body" placeholder="알림 본문 입력" autocomplete="off"/>
+        </div>
+      </div>
+      <div class="four fields">
+        <div class="field"></div>
+        <div class="field"></div>
+        <div class="field"></div>
+        <div class="field" style="text-align: right">
+          <button class="ui primary button" type="submit">
+            <i class="send icon"></i>알림 발송
+          </button>
+        </div>
+      </div>
+    </form>
+  </div>
+
+  <!-- Tabulator 테이블 -->
+  <div class="table-container">
+    <div id="totalCount" class="ui left aligned header">총 조회 수: 0건</div>
+    <div id="memberTable"></div>
+  </div>
+
+  <!--  도움말 Modal -->
+  <div id="helpModal" class="ui modal">
+    <div class="header" style="text-align: right">
+      <i id="helpModalCloseButton" class="delete icon"></i>
+    </div>
+    <div class="content">
+      <div class="field">
+        <ul>
+          <li>
+            <p class="text">"전체 발송" 시 모든 회원에게 알림을 발송합니다.</p>
+          </li>
+          <li>
+            <p class="text">"선택 발송" 시 선택된 회원에게 알림을 발송합니다.</p>
+          </li>
+          <li>
+            <p class="text">알림 카테고리에 따라 자동으로 제목과 본문이 작성됩니다.</p>
+          </li>
+          <li>
+            <p class="text">제목과 본문은 임의로 수정 후 발송할 수 있습니다.</p>
+          </li>
+        </ul>
+      </div>
+    </div>
+  </div>
+
 </div>
 
 
@@ -23,14 +198,34 @@
 
 <script type="text/javascript" th:inline="javascript">
 
+  let memberTable = new Tabulator();
+
   // DOM 로드 시
   $(document).ready(function () {
-    // firebase 정보 로드
-    initFirebase();
+    // fcm 토큰 발급
+    // initFirebase();
+
+    // 데이터 초기화
+    initData();
+
+    // Modal 초기화
+    initHelpModal();
+
+    // 이벤트 핸들러
+    eventHandler(memberTable);
+
+    // 카테고리 option 선택시 title, body 변경
+    attachCategoryChangeEvent();
   });
+
+  // 데이터 초기화
+  function initData() {
+    memberTable = initMemberTable();
+  }
 
   /**
    * Firebase init
+   * INFO: 단순 토큰 발급 테스트를 위한 메서드 -> 사용 X
    */
   function initFirebase() {
     const formData = new FormData();
@@ -75,6 +270,8 @@
       if (token) {
         console.log("FCM Token: ", token);
         alert("FCM Token: " + token);
+        // token 발급 후 서버로 전송 및 저장
+        saveToken(token);
       } else {
         console.warn("FCM 토큰을 받아오지 못했습니다. 알림 권한을 허용했는지 확인하세요.");
       }
@@ -83,6 +280,285 @@
       console.error("FCM 토큰 가져오기 에러:", err);
       alert('firebase 초기화 중 오류 발생: ' + err);
     });
+  }
+
+  /**
+   * 테이블 초기화
+   */
+  function initMemberTable() {
+
+    var table = new Tabulator("#memberTable", {
+      layout: "fitDataTable",
+
+      // 체크박스
+      selectable: true,
+
+      columns: [
+        // 체크박스 컬럼 (rowSelection Formatter)
+        {
+          title: "선택",
+          formatter: "rowSelection",
+          titleFormatter: "rowSelection",
+          hozAlign: "center",
+          headerSort: false,
+          width: 50
+        },
+        {title: "학번", field: "studentId", width: 100},
+        {title: "이름", field: "studentName", width: 80},
+        {title: "닉네임", field: "uuidNickname", width: 100},
+        {title: "전공", field: "major", width: 150},
+        {
+          title: "단과대학", field: "faculties", width: 150, formatter: function (cell) {
+            return cell.getValue().join(", ");
+          }
+        },
+        {title: "학년", field: "academicYear", width: 60},
+        {title: "재학상태", field: "enrollmentStatus", width: 100},
+        {title: "알림설정", field: "isNotificationEnabled", width: 80}, // 포매터 제거
+        {title: "계정상태", field: "accountStatus", width: 100},
+        {
+          title: "알림발송", width: 100, formatter: function (cell) {
+            const data = cell.getRow().getData();
+            return `
+            <button class="ui mini blue button sendNotificationButton" type="button">알림 발송</button>
+            `;
+          },
+        }
+      ],
+
+      ajaxURL: "/admin/member/filter",
+      ajaxConfig: {
+        method: "POST",
+        headers: {
+          "Authorization": "Bearer " + localStorage.getItem("accessToken")
+        }
+      },
+      ajaxRequestFunc: function (url, config, params) {
+        const formData = new FormData($('#searchForm')[0]);
+
+        formData.append("pageNumber", (params.page ? params.page - 1 : 0));
+        formData.append("pageSize", params.size || 10);
+        formData.append("sortField", params.sortField || "createdDate");
+        formData.append("sortDirection", params.sortDirection || "desc");
+
+        return fetch(url + "?accessToken=" + localStorage.getItem("accessToken"), {
+          method: "POST",
+          headers: config.headers,
+          body: formData
+        })
+        .then(response => response.json())
+      },
+      ajaxResponse: function (url, params, response) {
+        // 총 항목수 표시
+        $('#totalCount').text(`총 조회 수: ${response.membersPage.totalElements || 0}건`);
+
+        return {
+          data: response.membersPage.content,      // 현재 페이지 데이터 목록
+          last_page: response.membersPage.totalPages // 총 페이지 수
+        };
+      },
+      pagination: true,
+      paginationMode: "remote",
+      paginationSize: 100,
+      paginationSizeSelector: [10, 30, 50, 100],
+      height: "600px"
+    });
+
+    return table;
+  }
+
+  /**
+   * 도움말 Modal init
+   */
+  function initHelpModal() {
+    const helpModal = $('#helpModal');
+    const helpModalCloseButton = $('#helpModalCloseButton');
+    const helpButton = $('#helpButton');
+
+    // Modal 밖 클릭 시 닫힘 방지
+    helpModal.modal({
+      closeable: false
+    });
+
+    // 도움말 버튼 클릭 시 -> 모달 열림
+    helpButton.on("click", function () {
+      helpModal.modal('show');
+    });
+
+    // 'x' 버튼 클릭 시 -> 모달 닫힘
+    helpModalCloseButton.on("click", function () {
+      helpModal.modal('hide');
+    });
+
+    helpButton.on("mouseenter", function () {
+      changeCursorToPointer($(this));
+    });
+
+    helpButton.on("mouseleave", function () {
+      changeCursorToDefault($(this));
+    });
+
+    helpModalCloseButton.on("mouseenter", function () {
+      changeCursorToPointer($(this));
+    });
+
+    helpModalCloseButton.on("mouseleave", function () {
+      changeCursorToDefault($(this));
+    });
+  }
+
+  function changeCursorToPointer(obj) {
+    obj.css('cursor', 'pointer');
+  }
+
+  function changeCursorToDefault(obj) {
+    obj.css('cursor', 'default');
+  }
+
+  /**
+   * 이벤트 핸들러
+   */
+  function eventHandler(table) {
+    const searchForm = document.getElementById("searchForm");
+
+    // 검색 버튼 이벤트
+    searchForm.addEventListener("submit", function (e) {
+      e.preventDefault();
+      table.setData();
+    });
+
+    // 폼 필터 초기화 버튼 이벤트
+    $('#resetFilterButton').on("click", function () {
+      searchForm.reset();
+      $("select[name='accountStatus']").parent('.ui.dropdown').dropdown('clear');
+      $("select[name='faculty']").parent('.ui.dropdown').dropdown('clear');
+      $("select[name='academicYear']").parent('.ui.dropdown').dropdown('clear');
+      $("select[name='enrollmentStatus']").parent('.ui.dropdown').dropdown('clear');
+      $("select[name='role']").parent('.ui.dropdown').dropdown('clear');
+      table.setData();
+    });
+
+    // 정렬 초기화
+    $('#resetSortButton').on("click", function () {
+      table.clearSort();
+    });
+
+    const notificationForm = $('#notificationForm').on("submit", sendNotification)
+  }
+
+  /**
+   * FCM Token 서버로 전송
+   */
+  function saveToken(token) {
+    const formData = new FormData();
+    formData.append("fcmToken", token);
+
+    fetch('/api/auth/fcm/token', {
+      method: "POST",
+      body: formData,
+      headers: {
+        "Authorization": "Bearer " + localStorage.getItem("accessToken")
+      }
+    })
+    .then(response => response.json())
+    .catch((err) => {
+      console.log("FCM 토큰 저장 중 오류 발생:", err);
+      alert('FCM 토큰 저장 중 오류 발생' + err);
+    })
+  }
+
+  /**
+   * 카테고리 option 변경 시 title, body 자동 변경
+   */
+  function attachCategoryChangeEvent() {
+    const categorySelect = $("#notificationCategory");
+    const titleInput = $("#title");
+    const bodyInput = $("#body");
+
+    // 선택 값이 변경될 때
+    categorySelect.on("change", function () {
+      const selectedOption = $(this).find("option:selected");
+      const defaultTitle = selectedOption.data("default-title");
+      const defaultBody = selectedOption.data("default-body");
+
+      // 카테고리가 비어있다면 빈칸 처리
+      if (!selectedOption.val()) {
+        titleInput.val("");
+        bodyInput.val("");
+        return;
+      }
+
+      // 입력창에 기본값
+      titleInput.val(defaultTitle);
+      bodyInput.val(defaultBody);
+    });
+  }
+
+  /**
+   * 알림 전송
+   */
+  function sendNotification(e) {
+    e.preventDefault();
+    console.log("sendNotification 함수 실행");
+
+    const notificationForm = $('#notificationForm')
+    const sendTo = notificationForm.find('select[name="sendTo"]').val();
+    const notificationCategory = notificationForm.find('select[name="notificationCategory"] option:selected').text();
+    const title = notificationForm.find('input[name="title"]').val();
+    const body = notificationForm.find('input[name="body"]').val();
+
+    // 선택된 유저
+    let selectedMemberIds = [];
+    if (sendTo === 'selected') {
+      const selectedRows = memberTable.getSelectedData();
+      selectedMemberIds = selectedRows.map(member => member.memberId);
+      console.log(selectedMemberIds);
+    }
+
+    // 확인 메시지
+    let confirmMessage = `알림을 발송하시겠습니까?\n\n` +
+        `대상: ${sendTo === 'all' ? '전체 발송' : `선택 발송 (${selectedMemberIds.length}명)`}\n` +
+        `알림 카테고리: ${notificationCategory}\n` +
+        `제목: ${title}\n` +
+        `본문: ${body}`;
+
+    // 확인 창 표시
+    if (confirm(confirmMessage)) {
+      // 알림 발송 데이터 구성
+      const payload = {
+        sendTo: sendTo,
+        memberIds: selectedMemberIds, // 'selected'일 경우에만 값 존재
+        notificationCategory: notificationForm.find('select[name="notificationCategory"]').val(),
+        title: title,
+        body: body
+      };
+
+      // 서버로 알림 발송 요청
+      if (sendTo === 'all') {
+        const formData = new FormData();
+        formData.append("notificationCategory", notificationForm.find('select[name="notificationCategory"]').val());
+        formData.append("title", title);
+        formData.append("body", body);
+
+        fetch('/api/notification/send/all', {
+          method: 'POST',
+          body: formData,
+          headers: {
+            "Authorization": "Bearer " + localStorage.getItem("accessToken")
+          }
+        })
+        .then(() => {
+          alert('전체 알림 발송 성공');
+        })
+        .catch((err) => {
+          alert('전체 알림 발송 실패: ' + err);
+        })
+      } else if (sendTo === 'selected') {
+        fetch('/api/notification/send', {
+
+        })
+      }
+    }
   }
 
 </script>
