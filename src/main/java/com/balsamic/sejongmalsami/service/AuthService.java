@@ -121,7 +121,7 @@ public class AuthService {
   @Transactional
   public void logout(FcmTokenCommand command, HttpServletRequest request, HttpServletResponse response) {
     // FCM 토큰 삭제
-    fcmTokenService.deleteToken(command);
+    fcmTokenService.deleteFcmToken(command);
 
     // 리프레시 토큰 추출
     String refreshToken = extractRefreshTokenFromCookies(request.getCookies());
