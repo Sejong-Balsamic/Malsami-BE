@@ -5,6 +5,7 @@ import com.balsamic.sejongmalsami.object.NotificationCommand;
 import com.balsamic.sejongmalsami.object.NotificationDto;
 import com.balsamic.sejongmalsami.service.NotificationService;
 import com.balsamic.sejongmalsami.util.log.LogMonitoringInvocation;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
@@ -17,6 +18,10 @@ import org.springframework.web.bind.annotation.RestController;
 @RestController
 @RequestMapping("/api/notification")
 @RequiredArgsConstructor
+@Tag(
+    name = "FCM 알림 API",
+    description = "알림 발송 관련 API 제공"
+)
 public class NotificationController implements NotificationControllerDocs {
 
   private final NotificationService notificationService;
