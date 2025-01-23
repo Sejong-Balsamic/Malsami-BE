@@ -74,7 +74,7 @@ public interface NotificationControllerDocs {
           `없음`
           """
   )
-  void sendNotificationToAll(
+  ResponseEntity<Void> sendNotificationToAll(
       CustomUserDetails customUserDetails,
       NotificationCommand command);
 }
