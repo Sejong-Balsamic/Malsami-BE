@@ -33,10 +33,11 @@ public class NotificationController implements NotificationControllerDocs {
   @Override
   @LogMonitoringInvocation
   @PostMapping(value = "/send/all", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
-  public void sendNotificationToAll(
+  public ResponseEntity<Void> sendNotificationToAll(
       @AuthenticationPrincipal CustomUserDetails customUserDetails,
       @ModelAttribute NotificationCommand command) {
     notificationService.sendNotificationToAll(command);
+    return ResponseEntity.ok().build();
   }
 
 }
