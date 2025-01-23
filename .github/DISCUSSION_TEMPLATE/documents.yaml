@@ -2,52 +2,55 @@ title: "📄 [문서] {제목을 작성해주세요}"
 labels:
   - "문서"
 body:
-
-  # 안내 문구(마크다운)
   - type: markdown
     attributes:
       value: |
-        <!-- 
-        📚 GitHub Discussions 문서 작성 템플릿
-        아래 항목을 참고하여 문서를 작성해주세요. 필요한 부분을 자유롭게 작성하시면 됩니다.
-        -->
-
-  - type: markdown
-    id: content
+        This is text that will show up in the template!
+  - type: textarea
+    id: improvements
     attributes:
-      label: "본문을 작성해주세요"
-      description: "개발 과정에서 구현한 내용 or 공유할 내용을 작성해주세요"
+      label: Top 3 improvements
+      description: "What are the top 3 improvements we could make to this project?"
       value: |
-        📚 GitHub Discussions 문서 작성 템플릿
-        아래 항목을 참고하여 문서를 작성해주세요. 필요한 부분을 자유롭게 작성하시면 됩니다.
-        
-        
-        ❌ 문제 상황
-        해당 기술을 도입하게 된 문제 상황을 작성해주세요
-        
-        
-        📝 핵심 내용과 방향성
-        - 사전 지식 및 기본적인 개념
-        - 개발 과정에서 구현한 내용 or 기술적인 세부사항
-
-
-        📚 트러블슈팅 및 기대효과
-        - 구현 과정에서 발생한 문제점과 해결 방법에 대해 작성해주세요
-        - 해당 기능을 사용했을 때의 기대효과에 대해서 적어주세요
-        예: 사용자 인증 프로세스 개선
-        
-
-        🔗 관련 자료
-        관련된 문서나 외부 링크를 공유해주세요.
-        - [링크1](http://example.com)
-        - [링크2](http://example.com)
-        - #이슈번호
-        
-
-        🙋‍ 담당자
-        - 백엔드: 이름
-        - 프로트엔드: 이름
-        - 디자인: 이름
-
+        1.
+        2.
+        3.
+        ...
+      render: bash
     validations:
       required: true
+  - type: markdown
+    attributes:
+      value: |
+        ## Markdown header
+        And some more markdown
+  - type: input
+    id: has-id
+    attributes:
+      label: Suggestions
+      description: A description about suggestions to help you
+    validations:
+      required: true
+  - type: dropdown
+    id: download
+    attributes:
+      label: Which area of this project could be most improved?
+      options:
+        - Documentation
+        - Pull request review time
+        - Bug fix time
+        - Release cadence
+    validations:
+      required: true
+  - type: checkboxes
+    attributes:
+      label: Check that box!
+      options:
+        - label: This one!
+          required: true
+        - label: I won't stop you if you check this one, too
+  - type: markdown
+    attributes:
+      value: |
+        ### The thrilling conclusion
+        _to our template_
