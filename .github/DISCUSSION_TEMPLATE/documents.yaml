@@ -12,7 +12,7 @@ body:
         아래 항목을 참고하여 문서를 작성해주세요. 필요한 부분을 자유롭게 작성하시면 됩니다.
         -->
 
-  - type: textarea
+  - type: markdown
     id: content
     attributes:
       label: "본문을 작성해주세요"
