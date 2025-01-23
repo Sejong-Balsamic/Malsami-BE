@@ -3,7 +3,7 @@ labels:
   - "문서"
 body:
   # 안내 문구(마크다운)
-  - type: markdown
+  - type: textarea
     id: content
     attributes:
       value: |
