@@ -81,6 +81,11 @@ public interface AuthControllerDocs {
 
   @ApiChangeLogs({
       @ApiChangeLog(
+          date = "2025.01.23",
+          author = Author.BAEKJIHOON,
+          description = "로그아웃 시 FCM 토큰 삭제"
+      ),
+      @ApiChangeLog(
           date = "2024.11.24",
           author = Author.SUHSAECHAN,
           description = "버그수정 : #424 : 리프레시 토큰 삭제 로직 추가 및 SameSite 속성 설정"
@@ -96,9 +101,13 @@ public interface AuthControllerDocs {
       description = """
         **로그아웃 API**
 
-        클라이언트는 이 API를 호출하여 사용자 세션을 종료할 수 있습니다. 로그아웃 시, 서버는 `refreshToken` 쿠키를 삭제하고, 서버 측에서도 리프레시 토큰을 제거합니다.
+        클라이언트는 이 API를 호출하여 사용자 세션을 종료할 수 있습니다.
+        로그아웃 시, 서버는 `refreshToken` 쿠키를 삭제하고, 서버 측에서도 리프레시 토큰을 제거합니다.
+        또한 formData로 입력된 fcmToken을 데이터베이스에서 삭제합니다.
 
         **입력 파라미터 값:**
+        
+        - **String fcmToken**: 사용자의 fcmToken
 
         - **Cookie**: 리프레시 토큰이 포함된 HTTP-Only 쿠키
           - **Name:** `refreshToken`
