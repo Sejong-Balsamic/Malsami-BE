@@ -63,11 +63,6 @@ body:
     id: assignees
     attributes:
       label: "🙋‍ 담당자"
-      description: |
-        담당자가 정해져 있다면 입력해주세요.
-          - 백엔드: 이름
-          - 프로트엔드: 이름
-          - 디자인: 이름
       value: |
         - 백엔드: 이름
         - 프로트엔드: 이름
