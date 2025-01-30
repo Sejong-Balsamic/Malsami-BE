@@ -212,6 +212,11 @@ public interface MemberControllerDocs {
       @ApiChangeLog(
           date = "2025.01.30",
           author = Author.SUHSAECHAN,
+          description = "테스트 커밋 깃헙툴박스 이슈 연결 확인용 커밋"
+      ),
+      @ApiChangeLog(
+          date = "2025.01.30",
+          author = Author.SUHSAECHAN,
           description = "반환값 수정 Object -> MemberDto "
       ),
       @ApiChangeLog(
