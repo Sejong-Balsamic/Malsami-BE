@@ -210,6 +210,11 @@ public interface MemberControllerDocs {
 
   @ApiChangeLogs({
       @ApiChangeLog(
+          date = "2025.01.30",
+          author = Author.SUHSAECHAN,
+          description = "반환값 수정 Object -> MemberDto"
+      ),
+      @ApiChangeLog(
           date = "2024.12.26",
           author = Author.BAEKJIHOON,
           description = "내가 작성한 글"
@@ -245,7 +250,7 @@ public interface MemberControllerDocs {
           - **`Page<DocumentPost> documentRequestPostsPage`**: 내가 작성한 자료 요청글
           """
   )
-  ResponseEntity<Object> getAllMemberPost(
+  ResponseEntity<MemberDto> getAllMemberPost(
       @ModelAttribute MemberCommand command,
       @AuthenticationPrincipal CustomUserDetails customUserDetails);
 }
