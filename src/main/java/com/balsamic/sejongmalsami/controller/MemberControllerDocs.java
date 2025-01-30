@@ -212,7 +212,7 @@ public interface MemberControllerDocs {
       @ApiChangeLog(
           date = "2025.01.30",
           author = Author.SUHSAECHAN,
-          description = "반환값 수정 Object -> MemberDto"
+          description = "반환값 수정 Object -> MemberDto "
       ),
       @ApiChangeLog(
           date = "2024.12.26",
