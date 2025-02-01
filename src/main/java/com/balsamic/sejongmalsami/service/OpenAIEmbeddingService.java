@@ -42,7 +42,7 @@ public class OpenAIEmbeddingService {
     try {
       // 요청 데이터 생성
       Map<String, Object> requestData = new HashMap<>();
-      requestData.put("model", "text-embedding-ada-002");
+      requestData.put("model", "text-embedding-3-small");
       requestData.put("input", inputText);
       String requestBody = gson.toJson(requestData);
 
