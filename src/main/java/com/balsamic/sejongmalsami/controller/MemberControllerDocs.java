@@ -253,4 +253,37 @@ public interface MemberControllerDocs {
   ResponseEntity<MemberDto> getAllMemberPost(
       @ModelAttribute MemberCommand command,
       @AuthenticationPrincipal CustomUserDetails customUserDetails);
+
+  @ApiChangeLogs({
+      @ApiChangeLog(
+          date = "2025.01.30",
+          author = Author.SUHSAECHAN,
+          description = "회원 탈퇴 init"
+      )
+  })
+  @Operation(
+      summary = "회원 탈퇴",
+      description = """
+        **회원 탈퇴**
+
+        **이 API는 인증이 필요하며, JWT 토큰이 존재해야 합니다**
+
+        ### 요청 파라미터
+        ** 없음 ** 
+                           
+        ### 반환값
+        - **`MemberDto`**: 회원 관련 DTO
+          - **`Member member**: 탈퇴한 회원 정보
+          
+        **참고 사항:**
+        - 회원을 탈퇴 할시 데이터에서 삭제되지는 않습니다
+        - 회원의 학번은 0L 로 수정
+        - 회원의 isDeleted 값 true 로 수정
+        - 회원의 이름 값 DELETED_MEMBER_NAME("탈퇴회원") 으로 수정
+        - 회원의 delStudentInfoHash 값 null 에서 회원정보가 담긴 해시값으로 수정 ( 학번, 이름 정보 담김 )
+          """
+  )
+  ResponseEntity<MemberDto> deleteMember(
+      @ModelAttribute MemberCommand command,
+      @AuthenticationPrincipal CustomUserDetails customUserDetails);
 }

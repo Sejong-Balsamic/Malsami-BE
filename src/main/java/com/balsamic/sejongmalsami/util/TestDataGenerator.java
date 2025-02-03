@@ -190,6 +190,7 @@ public class TestDataGenerator {
         .accountStatus(AccountStatus.ACTIVE) // 계정 활성화 상태
         .lastLoginTime(LocalDateTime.now().minusDays(faker.number().numberBetween(1, 30))) // 마지막 로그인 시간
         .isFirstLogin(false) // 첫 로그인 X : 고정
+        .delStudentInfoHash(null) // 탈퇴한 회원의 해시값
         .build();
 
     // Mock 회원의 엽전 테이블 생성

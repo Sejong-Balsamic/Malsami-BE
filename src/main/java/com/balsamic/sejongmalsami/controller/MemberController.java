@@ -66,7 +66,7 @@ public class MemberController implements MemberControllerDocs {
     return ResponseEntity.ok(memberService.getDocumentBoardAccessByTier(command));
   }
 
-  // 사용자가 작성한 글 반환
+  // 회원 작성 글 반환
   @Override
   @LogMonitoringInvocation
   @PostMapping(value = "/my-post", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
@@ -75,5 +75,16 @@ public class MemberController implements MemberControllerDocs {
       @AuthenticationPrincipal CustomUserDetails customUserDetails) {
     command.setMember(customUserDetails.getMember());
     return ResponseEntity.ok(memberService.getAllMemberPost(command));
+  }
+
+  // 회원 탈퇴
+  @Override
+  @LogMonitoringInvocation
+  @PostMapping(value = "/delete", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
+  public ResponseEntity<MemberDto> deleteMember(
+      @ModelAttribute MemberCommand command,
+      @AuthenticationPrincipal CustomUserDetails customUserDetails) {
+    command.setMember(customUserDetails.getMember());
+    return ResponseEntity.ok(memberService.deleteMember(command));
   }
 }
