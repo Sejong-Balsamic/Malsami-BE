@@ -13,7 +13,7 @@ import org.springframework.data.mongodb.core.mapping.Document;
 
 @Document
 @Getter
-@Builder
+@Builder정
 @NoArgsConstructor
 @AllArgsConstructor
 public class NoticeBoardLike extends BaseMongoEntity {
@@ -25,7 +25,7 @@ public class NoticeBoardLike extends BaseMongoEntity {
 
   @NotNull
   @Indexed
-  private UUID noticeBoardId; // target UUID
+  private UUID noticePostId; // target UUID
 
   @NotNull
   @Indexed

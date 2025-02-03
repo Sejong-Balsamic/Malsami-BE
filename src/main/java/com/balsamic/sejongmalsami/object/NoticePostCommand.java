@@ -22,11 +22,12 @@ public class NoticePostCommand {
   private Member member;
   private String title;
   private String content;
-  private Boolean isHidden;
 
   // 필터링
   private String query;
   private SortType sortType;
+  private String sortField;
+  private String sortDirection;
 
   @Schema(defaultValue = "0")
   private Integer pageNumber;
