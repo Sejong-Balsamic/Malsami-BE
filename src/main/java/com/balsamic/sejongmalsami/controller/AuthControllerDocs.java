@@ -146,7 +146,7 @@ public interface AuthControllerDocs {
 
           **입력 파라미터 값:**
 
-          - **String token**: Firebase에서 발급받은 토큰 [필수]
+          - **String fcmToken**: Firebase에서 발급받은 토큰 [필수]
 
           **반환 파라미터 값:**
 
