@@ -525,7 +525,6 @@ public class AdminApiService {
             .content(command.getContent())
             .viewCount(0)
             .likeCount(0)
-            .isHidden(Boolean.TRUE.equals(command.getIsHidden()))
             .build()
     );
     log.info("공지사항글 저장 완료: 제목={} id={}", command.getTitle(), savedPost.getNoticePostId());
