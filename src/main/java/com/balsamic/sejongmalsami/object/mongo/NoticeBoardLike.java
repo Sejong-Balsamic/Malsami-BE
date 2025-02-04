@@ -13,7 +13,7 @@ import org.springframework.data.mongodb.core.mapping.Document;
 
 @Document
 @Getter
-@Builder정
+@Builder
 @NoArgsConstructor
 @AllArgsConstructor
 public class NoticeBoardLike extends BaseMongoEntity {
