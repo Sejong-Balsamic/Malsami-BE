@@ -54,7 +54,7 @@ public class NoticePostService {
       }
       sort = getJpqlSortOrder(command.getSortType());
     } else { // sortField, sortDirection 이 요청된 경우
-      String sortField = (command.getSortField() != null) ? command.getSortField() : "createDate";
+      String sortField = (command.getSortField() != null) ? command.getSortField() : "createdDate";
       String sortDirStr = (command.getSortDirection() != null) ? command.getSortDirection().toUpperCase() : "DESC";
 
       // Sort Direction 파싱
