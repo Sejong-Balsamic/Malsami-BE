@@ -150,6 +150,8 @@ public enum ErrorCode {
 
   YEOPJEON_NOT_FOUND(HttpStatus.NOT_FOUND, "유저의 엽전 테이블이 존재하지 않습니다."),
 
+  MEMBER_ALREADY_DELETED(HttpStatus.BAD_REQUEST, "이미 탈퇴한 회원입니다"),
+
   // QuestionPost
 
   QUESTION_POST_NOT_FOUND(HttpStatus.NOT_FOUND, "질문 글을 찾을 수 없습니다."),

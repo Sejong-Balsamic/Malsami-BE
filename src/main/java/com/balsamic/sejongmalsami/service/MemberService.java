@@ -41,6 +41,7 @@ import com.balsamic.sejongmalsami.repository.postgres.ExpRepository;
 import com.balsamic.sejongmalsami.repository.postgres.MemberRepository;
 import com.balsamic.sejongmalsami.repository.postgres.QuestionPostRepository;
 import com.balsamic.sejongmalsami.repository.postgres.YeopjeonRepository;
+import com.balsamic.sejongmalsami.util.CommonUtil;
 import com.balsamic.sejongmalsami.util.FileUtil;
 import com.balsamic.sejongmalsami.util.JwtUtil;
 import com.balsamic.sejongmalsami.util.SejongPortalAuthenticator;
@@ -54,6 +55,7 @@ import java.time.LocalDateTime;
 import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Objects;
 import java.util.Optional;
 import java.util.Set;
 import java.util.UUID;
@@ -95,6 +97,8 @@ public class MemberService {
   private final CommentLikeRepository commentLikeRepository;
   private final DepartmentRepository departmentRepository;
 
+  private static String DELETED_MEMBER_NAME = "탈퇴회원";
+
   /**
    * 회원 로그인 처리
    */
@@ -134,6 +138,7 @@ public class MemberService {
                   .roles(roles)
                   .accountStatus(AccountStatus.ACTIVE)
                   .isFirstLogin(true)
+                  .delStudentInfoHash(null)
                   .build());
 
           // Exp 엔티티 생성 및 저장
@@ -482,6 +487,37 @@ public class MemberService {
         .questionPostsPage(questionPostPage)
         .documentPostsPage(documentPostPage)
         .documentRequestPostsPage(documentRequestPostPage)
+        .build();
+  }
+
+  public MemberDto deleteMember(MemberCommand command) {
+    Member targetDelmember = command.getMember();
+
+    // 이미 탈퇴한 회원인지 확인
+    if (Objects.equals(targetDelmember.getMemberId(), 0L) ||
+        targetDelmember.getIsDeleted() ||
+        targetDelmember.getDelStudentInfoHash() != null
+    ) {
+      log.error("이미 탈퇴한 회원: ID: {}, NAME: {} ID_HASH: {}",
+          targetDelmember.getStudentId(), targetDelmember.getStudentName(), targetDelmember.getDelStudentInfoHash());
+      throw new CustomException(ErrorCode.MEMBER_ALREADY_DELETED);
+    }
+
+    // 회원 탈퇴 규칙
+    // 학번=0L, 삭제된여부:true, 이름:DELETED_MEMBER_NAME, 삭제된학번해시값저장: "학번 학생이름"
+    String studentInfo = targetDelmember.getStudentId().toString() + " " + targetDelmember.getStudentName();
+
+    targetDelmember.setStudentId(0L);
+    targetDelmember.setStudentName(DELETED_MEMBER_NAME);
+    targetDelmember.setIsDeleted(true);
+    targetDelmember.setDelStudentInfoHash(CommonUtil.calculateSha256ByStr(studentInfo));
+
+    Member updatedDelMember = memberRepository.save(targetDelmember);
+
+    log.info("회원 탈퇴 완료: ID: {}", updatedDelMember.getMemberId());
+
+    return MemberDto.builder()
+        .member(updatedDelMember)
         .build();
   }
 }
