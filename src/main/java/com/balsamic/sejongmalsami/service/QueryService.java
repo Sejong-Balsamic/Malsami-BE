@@ -10,12 +10,10 @@ import static com.balsamic.sejongmalsami.object.constants.SortType.getNativeQuer
 import com.balsamic.sejongmalsami.object.QueryCommand;
 import com.balsamic.sejongmalsami.object.QueryDto;
 import com.balsamic.sejongmalsami.object.constants.SortType;
-import com.balsamic.sejongmalsami.object.mongo.SearchHistory;
 import com.balsamic.sejongmalsami.object.postgres.DocumentPost;
 import com.balsamic.sejongmalsami.object.postgres.DocumentRequestPost;
 import com.balsamic.sejongmalsami.object.postgres.NoticePost;
 import com.balsamic.sejongmalsami.object.postgres.QuestionPost;
-import com.balsamic.sejongmalsami.repository.mongo.SearchHistoryRepository;
 import com.balsamic.sejongmalsami.repository.postgres.DocumentPostRepository;
 import com.balsamic.sejongmalsami.repository.postgres.DocumentRequestPostRepository;
 import com.balsamic.sejongmalsami.repository.postgres.NoticePostRepository;
@@ -41,7 +39,7 @@ public class QueryService {
   private final DocumentPostRepository documentPostRepository;
   private final DocumentRequestPostRepository documentRequestPostRepository;
   private final NoticePostRepository noticePostRepository;
-  private final SearchHistoryRepository searchHistoryRepository;
+  private final SearchHistoryService searchHistoryService;
   private final RedisLockManager redisLockManager;
 
   private static final Long WAIT_TIME = 5L;
@@ -116,34 +114,7 @@ public class QueryService {
     String lockKey = "lock:searchHistory" + command.getQuery();
     redisLockManager.executeLock(lockKey, WAIT_TIME, LEASE_TIME, () -> {
       // 검색어 히스토리 저장
-
-      SearchHistory searchHistory = searchHistoryRepository.findByKeyword(command.getQuery()).orElse(null);
-      if (searchHistory == null) {
-        log.debug("새로운 검색어 히스토리 생성: 검색어 = {}", command.getQuery());
-        searchHistory = SearchHistory.builder()
-            .keyword(command.getQuery())
-            .searchCount(0L)
-            .lastRank(-1)
-            .currentRank(-1)
-            .rankChange(0)
-            .isNew(false)
-            .build();
-      } else {
-        log.debug("기존 검색어 히스토리가 있습니다.");
-      }
-//      SearchHistory searchHistory = searchHistoryRepository
-//          .findByKeyword(command.getQuery()).orElseGet(() ->
-//              SearchHistory.builder()
-//                  .keyword(command.getQuery())
-//                  .searchCount(0L)
-//                  .lastRank(-1)
-//                  .currentRank(-1)
-//                  .rankChange(0)
-//                  .isNew(false)
-//                  .build()
-//          );
-      searchHistory.increaseSearchCount(); // 검색횟수 1증가
-      searchHistoryRepository.save(searchHistory);
+      searchHistoryService.increaseSearchCount(command.getQuery());
       return true;
     });
 

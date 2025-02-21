@@ -1,15 +1,22 @@
 package com.balsamic.sejongmalsami.service;
 
+import static com.balsamic.sejongmalsami.util.CommonUtil.nullIfBlank;
+
+import com.balsamic.sejongmalsami.object.SearchHistoryCommand;
 import com.balsamic.sejongmalsami.object.SearchHistoryDto;
 import com.balsamic.sejongmalsami.object.mongo.SearchHistory;
 import com.balsamic.sejongmalsami.repository.mongo.SearchHistoryRepository;
+import com.balsamic.sejongmalsami.util.exception.CustomException;
+import com.balsamic.sejongmalsami.util.exception.ErrorCode;
+import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
+import java.util.Set;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.scheduling.annotation.Async;
-import org.springframework.scheduling.annotation.Scheduled;
+import org.springframework.data.redis.core.RedisTemplate;
+import org.springframework.data.redis.core.ZSetOperations;
 import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
 
 @Service
 @RequiredArgsConstructor
@@ -17,48 +24,108 @@ import org.springframework.transaction.annotation.Transactional;
 public class SearchHistoryService {
 
   private final SearchHistoryRepository searchHistoryRepository;
+  private final RedisTemplate<String, Object> redisTemplate;
 
-  private static final long SEARCH_RANKING_SCHEDULED_RATE = 30 * 60 * 1000L; // 30분
+  public static final String SEARCH_RANK_KEY = "searchRank";
 
   /**
-   * 시간마다 검색어 순위 업데이트
+   * 사용자가 검색 로직 실행 시
+   * 사용자가 검색어를 입력할 때마다 Redis 점수 +1 증가
+   * Redis Sorted Set을 통한 실시간 업데이트
    */
-  @Async
-  @Transactional
-  @Scheduled(fixedRate = SEARCH_RANKING_SCHEDULED_RATE)
-  public void updateSearchRanking() {
-    log.debug("인기 검색어 순위 업데이트를 시작합니다");
-    List<SearchHistory> topKeywords = searchHistoryRepository
-        .findTop10ByOrderBySearchCountDesc();
+  public void increaseSearchCount(String keyword) {
 
-    int rank = 1;
-    for (SearchHistory keyword : topKeywords) {
-      keyword.setIsNew(false);
-      int previousRank = keyword.getCurrentRank(); // 이전 순위
-
-      keyword.setLastRank(previousRank); // 이전 순위 등록
-      keyword.setCurrentRank(rank); // 현재 순위 등록 (1위부터 순차적 진행)
-
-      // 이전 순위가 없는 경우 New 표시
-      if (previousRank == -1) {
-        keyword.setIsNew(true);
-      } else { // 등락폭 계산
-        keyword.setRankChange(previousRank - rank);
-      }
-
-      searchHistoryRepository.save(keyword);
-      rank++;
+    if (nullIfBlank(keyword) == null) {
+      log.warn("검색어가 null이므로 점수 업데이트를 진행하지 않습니다.");
+      throw new CustomException(ErrorCode.QUERY_EMPTY);
     }
-    log.debug("인기 검색어 순위 업데이트가 완료되었습니다");
+
+    redisTemplate.opsForZSet().incrementScore(
+        SEARCH_RANK_KEY
+        , keyword
+        , 1.0
+    );
+    log.debug("검색어: {} -> Redis searchCount 업데이트 완료", keyword);
   }
 
   /**
-   * 상위 10개 인기 검색어 조회 로직
+   * 실시간 인기 검색어 TOP10 요청 시
+   * 1. Redis에 저장된 상위 N개 검색어 추출
+   * 2. 각 검색어에 대해 MongoDB에 저장된 값 업데이트
    */
-  @Transactional(readOnly = true)
-  public SearchHistoryDto getTopKeywords() {
+  public SearchHistoryDto getRealTimeTopKeywords(SearchHistoryCommand command) {
+
+    log.debug("실시간 인기 검색어 TOP{}을 가져옵니다.", command.getTopN());
+    // 1. Redis에서 점수가 높은 순으로 상위 N개 검색어 가져오기
+    Set<ZSetOperations.TypedTuple<Object>> topSet = redisTemplate.opsForZSet()
+        .reverseRangeWithScores(
+            SEARCH_RANK_KEY, 0, command.getTopN() - 1);
+
+    // 상위 검색어 set이 비어있는 경우 빈 리스트 반환
+    if (topSet == null || topSet.isEmpty()) {
+      log.debug("상위 검색어가 존재하지 않습니다.");
+      return SearchHistoryDto.builder()
+          .searchHistoryList(Collections.emptyList())
+          .build();
+    }
+
+    // 2. 순위가 높은 순으로 등락 폭/신규 진입 여부 계산
+    List<SearchHistory> resultList = new ArrayList<>();
+    int rank = 1;
+
+    double scoreDouble;
+    for (ZSetOperations.TypedTuple<Object> tuple : topSet) {
+      if (tuple.getValue() == null) { // Redis에 저장된 검색어가 null 인 경우
+        log.warn("Redis에 저장된 검색어가 null이므로 건너뜁니다");
+        continue;
+      } else if (nullIfBlank(tuple.getScore()) == null) { // 검색어 점수가 0.0 인 경우
+        scoreDouble = 0.0;
+      } else { // 검색어와 점수가 모두 존재하는 경우
+        scoreDouble = tuple.getScore();
+      }
+
+      String keyword = tuple.getValue().toString();
+      long currentSearchCount = (long) scoreDouble;
+
+      // 3. MongoDB에서 이전 검색어 이력 조회
+      SearchHistory searchHistory = searchHistoryRepository.findByKeyword(keyword);
+
+      // MongoDB에 없는 경우 -> 새로 생성
+      if (searchHistory == null) {
+        searchHistory = SearchHistory.builder()
+            .keyword(keyword)
+            .searchCount(currentSearchCount)
+            .currentRank(rank)
+            .lastRank(-1)
+            .rankChange(0)
+            .isNew(true)
+            .build();
+        log.debug("MongoDB에 없는 새로운 검색어입니다. 해당 검색어를 저장합니다. 검색어: {}", keyword);
+      } else { // MongoDB에 기존 데이터가 있는 경우 -> 등록 폭 및 신규 진입 여부 계산
+        log.debug("MongoDB에 저장되어있는 검색어입니다. 순위 및 변동폭을 업데이트합니다. 검색어: {}", keyword);
+        searchHistory.setIsNew(false);
+        searchHistory.setSearchCount(currentSearchCount); // MongoDB 검색 횟수 Redis값으로 업데이트
+
+        int previousRank = searchHistory.getCurrentRank() == null ? -1 : searchHistory.getCurrentRank();
+        searchHistory.setLastRank(previousRank);
+        searchHistory.setCurrentRank(rank);
+
+        if (previousRank == -1) { // 순위권에 새로 진입한 경우
+          searchHistory.setIsNew(true); // isNew = true 설정
+          searchHistory.setRankChange(0); // 새로 들어온 경우 등락폭 0 설정
+        } else { // 기존에 순위권에 있던 키워드인경우
+          int rankChange = previousRank - rank;
+          searchHistory.setRankChange(rankChange);
+          searchHistory.setIsNew(false);
+        }
+      }
+
+      // 4. MongoDB 저장 (등락 폭 / 검색 횟수 / 순위)
+      resultList.add(searchHistoryRepository.save(searchHistory));
+      rank++;
+    }
     return SearchHistoryDto.builder()
-        .searchHistoryList(searchHistoryRepository.findTop10ByOrderBySearchCountDesc())
+        .searchHistoryList(resultList)
         .build();
   }
 }

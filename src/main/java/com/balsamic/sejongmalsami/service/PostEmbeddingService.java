@@ -7,13 +7,11 @@ import com.balsamic.sejongmalsami.object.constants.ContentType;
 import com.balsamic.sejongmalsami.object.constants.FileStatus;
 import com.balsamic.sejongmalsami.object.mongo.DocumentPostCustomTag;
 import com.balsamic.sejongmalsami.object.mongo.QuestionPostCustomTag;
-import com.balsamic.sejongmalsami.object.mongo.SearchHistory;
 import com.balsamic.sejongmalsami.object.postgres.DocumentPost;
 import com.balsamic.sejongmalsami.object.postgres.PostEmbedding;
 import com.balsamic.sejongmalsami.object.postgres.QuestionPost;
 import com.balsamic.sejongmalsami.repository.mongo.DocumentPostCustomTagRepository;
 import com.balsamic.sejongmalsami.repository.mongo.QuestionPostCustomTagRepository;
-import com.balsamic.sejongmalsami.repository.mongo.SearchHistoryRepository;
 import com.balsamic.sejongmalsami.repository.postgres.DocumentPostRepository;
 import com.balsamic.sejongmalsami.repository.postgres.PostEmbeddingRepository;
 import com.balsamic.sejongmalsami.repository.postgres.QuestionPostRepository;
@@ -45,7 +43,7 @@ public class PostEmbeddingService {
   private final DocumentPostRepository documentPostRepository;
   private final QuestionPostCustomTagRepository questionPostCustomTagRepository;
   private final DocumentPostCustomTagRepository documentPostCustomTagRepository;
-  private final SearchHistoryRepository searchHistoryRepository;
+  private final SearchHistoryService searchHistoryService;
   private final RedisLockManager redisLockManager;
 
   private static final Long WAIT_TIME = 5L;
@@ -151,20 +149,7 @@ public class PostEmbeddingService {
 
       String lockKey = "lock:searchHistory" + command.getText();
       redisLockManager.executeLock(lockKey, WAIT_TIME, LEASE_TIME, () -> {
-        // 검색어 히스토리 저장
-        SearchHistory searchHistory = searchHistoryRepository
-            .findByKeyword(command.getText()).orElseGet(() ->
-                searchHistoryRepository.save(SearchHistory.builder()
-                    .keyword(command.getText())
-                    .searchCount(0L)
-                    .lastRank(-1)
-                    .currentRank(-1)
-                    .rankChange(0)
-                    .isNew(false)
-                    .build())
-            );
-        searchHistory.increaseSearchCount(); // 검색횟수 1증가
-        searchHistoryRepository.save(searchHistory);
+        searchHistoryService.increaseSearchCount(command.getText());
         return true;
       });
 

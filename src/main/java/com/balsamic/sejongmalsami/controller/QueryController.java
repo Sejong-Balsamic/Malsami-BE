@@ -2,6 +2,7 @@ package com.balsamic.sejongmalsami.controller;
 
 import com.balsamic.sejongmalsami.object.QueryCommand;
 import com.balsamic.sejongmalsami.object.QueryDto;
+import com.balsamic.sejongmalsami.object.SearchHistoryCommand;
 import com.balsamic.sejongmalsami.object.SearchHistoryDto;
 import com.balsamic.sejongmalsami.service.QueryService;
 import com.balsamic.sejongmalsami.service.SearchHistoryService;
@@ -36,9 +37,10 @@ public class QueryController implements QueryControllerDocs {
   }
 
   @Override
-  @PostMapping(value = "/popular")
+  @PostMapping(value = "/popular", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
   @LogMonitoringInvocation
-  public ResponseEntity<SearchHistoryDto> getTopKeywords() {
-    return ResponseEntity.ok(searchHistoryService.getTopKeywords());
+  public ResponseEntity<SearchHistoryDto> getTopKeywords(
+      @ModelAttribute SearchHistoryCommand command) {
+    return ResponseEntity.ok(searchHistoryService.getRealTimeTopKeywords(command));
   }
 }

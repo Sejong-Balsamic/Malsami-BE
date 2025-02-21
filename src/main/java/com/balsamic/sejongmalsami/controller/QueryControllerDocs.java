@@ -2,6 +2,7 @@ package com.balsamic.sejongmalsami.controller;
 
 import com.balsamic.sejongmalsami.object.QueryCommand;
 import com.balsamic.sejongmalsami.object.QueryDto;
+import com.balsamic.sejongmalsami.object.SearchHistoryCommand;
 import com.balsamic.sejongmalsami.object.SearchHistoryDto;
 import com.balsamic.sejongmalsami.object.constants.Author;
 import com.balsamic.sejongmalsami.util.log.ApiChangeLog;
@@ -63,7 +64,7 @@ public interface QueryControllerDocs {
           **이 API는 인증이 필요하며, JWT 토큰이 존재해야합니다.**
            
           #### 요청 파라미터
-          `없음`
+          Integer topN: 조회하고싶은 상위 N개 인기 검색어
           
           #### 반환 파라미터
           - **`List<SearchHistory> searchHistoryList`**: 인기 검색어 리스트
@@ -74,5 +75,5 @@ public interface QueryControllerDocs {
           - isNew = true 로 설정되어 반환된 검색어들은 순위권에 진입한 검색어입니다
           """
   )
-  ResponseEntity<SearchHistoryDto> getTopKeywords();
+  ResponseEntity<SearchHistoryDto> getTopKeywords(SearchHistoryCommand command);
 }
