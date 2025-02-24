@@ -295,7 +295,11 @@ public enum ErrorCode {
 
   INVALID_NOTIFICATION_CATEGORY(HttpStatus.BAD_REQUEST, "잘못된 알림 카테고리가 설정되었습니다."),
 
-  MESSAGE_SENT_FAILED(HttpStatus.BAD_REQUEST, "FCM 메시지 발송에 실패했습니다.");
+  MESSAGE_SENT_FAILED(HttpStatus.BAD_REQUEST, "FCM 메시지 발송에 실패했습니다."),
+
+  // Query
+
+  QUERY_EMPTY(HttpStatus.BAD_REQUEST, "검색어가 null이거나 비어있습니다.");
 
   private final HttpStatus status;
   private final String message;

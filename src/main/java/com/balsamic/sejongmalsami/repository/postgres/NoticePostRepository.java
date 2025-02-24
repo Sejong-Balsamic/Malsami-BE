@@ -18,4 +18,19 @@ public interface NoticePostRepository extends JpaRepository<NoticePost, UUID> {
       @Param("query") String query,
       Pageable pageable
   );
+
+  // 검색
+  @Query(
+      value = "SELECT DISTINCT p.* FROM sejong_malsami.public.notice_post p " +
+              "WHERE (:query IS NULL OR LOWER(p.title) LIKE LOWER(CONCAT('%', :query, '%')) " +
+              "OR LOWER(p.content) LIKE LOWER(CONCAT('%', :query, '%'))) ",
+      countQuery = "SELECT COUNT(DISTINCT p.question_post_id) FROM question_post p " +
+                   "WHERE (:query IS NULL OR LOWER(p.title) LIKE LOWER(CONCAT('%', :query, '%')) " +
+                   "OR LOWER(p.content) LIKE LOWER(CONCAT('%', :query, '%'))) ",
+      nativeQuery = true
+  )
+  Page<NoticePost> findNoticePostsByQuery(
+      @Param("query") String query,
+      Pageable pageable
+  );
 }
