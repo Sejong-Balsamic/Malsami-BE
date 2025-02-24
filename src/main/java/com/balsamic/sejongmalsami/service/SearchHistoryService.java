@@ -16,7 +16,9 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.data.redis.core.ZSetOperations;
+import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 @Service
 @RequiredArgsConstructor
@@ -26,25 +28,44 @@ public class SearchHistoryService {
   private final SearchHistoryRepository searchHistoryRepository;
   private final RedisTemplate<String, Object> redisTemplate;
 
-  public static final String SEARCH_RANK_KEY = "searchRank";
+  private static final String SEARCH_RANK_KEY = "searchRank";
 
   /**
    * 사용자가 검색 로직 실행 시
    * 사용자가 검색어를 입력할 때마다 Redis 점수 +1 증가
    * Redis Sorted Set을 통한 실시간 업데이트
    */
+  @Async
+  @Transactional
   public void increaseSearchCount(String keyword) {
 
+    // 검색어 검증
     if (nullIfBlank(keyword) == null) {
       log.warn("검색어가 null이므로 점수 업데이트를 진행하지 않습니다.");
       throw new CustomException(ErrorCode.QUERY_EMPTY);
     }
 
-    redisTemplate.opsForZSet().incrementScore(
-        SEARCH_RANK_KEY
-        , keyword
-        , 1.0
-    );
+    Double currentScore = redisTemplate.opsForZSet().score(SEARCH_RANK_KEY, keyword);
+
+    // Redis에 없는 검색어 -> MongoDB에서 searchCount 확인
+    if (currentScore == null) {
+      log.debug("Redis에 없는 새로운 검색어가 입력되어 MongoDB를 확인합니다.");
+      SearchHistory searchHistory = searchHistoryRepository.findByKeyword(keyword);
+      if (searchHistory == null) { // MongoDB에도 저장되어있지 않은 새로운 검색어인경우
+        log.debug("MongoDB에도 저장되지 않은 새로운 검색어입니다.");
+        currentScore = 0.0;
+      } else { // MongoDB에 저장되어있는 검색어인 경우
+        log.debug("MongoDB에 저장되어있는 데이터를 Redis에 할당합니다.");
+        currentScore = (double) searchHistory.getSearchCount();
+      }
+
+      // Redis에 저장
+      redisTemplate.opsForZSet().add(SEARCH_RANK_KEY, keyword, currentScore);
+      log.debug("Redis에 {}점으로 초기화 (MongoDB 기준)", currentScore);
+    }
+
+    // 해당 검색어 점수 업데이트
+    redisTemplate.opsForZSet().incrementScore(SEARCH_RANK_KEY, keyword, 1.0);
     log.debug("검색어: {} -> Redis searchCount 업데이트 완료", keyword);
   }
 
