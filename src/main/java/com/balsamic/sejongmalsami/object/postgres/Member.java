@@ -44,8 +44,7 @@ public class Member extends BaseEntity {
   @Column(columnDefinition = "uuid DEFAULT uuid_generate_v4()", updatable = false, nullable = false)
   private UUID memberId;
 
-  @Column(unique = true)
-  private Long studentId;
+  private Long studentId; // 탈퇴한 회원: 0L
 
   private String studentName;
 
@@ -77,7 +76,6 @@ public class Member extends BaseEntity {
   @Builder.Default
   private Set<Role> roles = new HashSet<>();
 
-
   @Builder.Default
   @Enumerated(EnumType.STRING)
   private AccountStatus accountStatus = AccountStatus.ACTIVE;
@@ -87,6 +85,8 @@ public class Member extends BaseEntity {
   @Builder.Default
   @JsonIgnore
   private Boolean isFirstLogin = true;
+
+  private String delStudentInfoHash; // 탈퇴한 회원정보 해시값
 
   public void disableFirstLogin() {
     this.isFirstLogin = false;
