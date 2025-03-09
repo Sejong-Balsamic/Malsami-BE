@@ -1,9 +1,8 @@
 package com.balsamic.sejongmalsami.controller;
 
+import com.balsamic.sejongmalsami.object.AuthCommand;
 import com.balsamic.sejongmalsami.object.AuthDto;
 import com.balsamic.sejongmalsami.object.CustomUserDetails;
-import com.balsamic.sejongmalsami.object.FcmTokenCommand;
-import com.balsamic.sejongmalsami.object.FcmTokenDto;
 import com.balsamic.sejongmalsami.object.constants.Author;
 import com.balsamic.sejongmalsami.util.log.ApiChangeLog;
 import com.balsamic.sejongmalsami.util.log.ApiChangeLogs;
@@ -81,6 +80,11 @@ public interface AuthControllerDocs {
 
   @ApiChangeLogs({
       @ApiChangeLog(
+          date = "2025.03.09",
+          author = Author.SUHSAECHAN,
+          description = "요청값 객체 수정 , 기존 FcmCommand -> AuthCommand"
+      ),
+      @ApiChangeLog(
           date = "2025.01.23",
           author = Author.BAEKJIHOON,
           description = "로그아웃 시 FCM 토큰 삭제"
@@ -126,11 +130,16 @@ public interface AuthControllerDocs {
   )
   ResponseEntity<Void> logout(
       CustomUserDetails customUserDetails,
-      FcmTokenCommand command,
+      AuthCommand command,
       HttpServletRequest request,
       HttpServletResponse response);
 
   @ApiChangeLogs({
+      @ApiChangeLog(
+          date = "2025.03.09",
+          author = Author.SUHSAECHAN,
+          description = "요청값, 응답값 객체 수정 , 기존 Fcm Command, Dto -> Auth Command, Dto"
+      ),
       @ApiChangeLog(
           date = "2025.01.15",
           author = Author.BAEKJIHOON,
@@ -154,8 +163,8 @@ public interface AuthControllerDocs {
             - **FcmToken fcmToken**: FCM 토큰 정보
           """
   )
-  ResponseEntity<FcmTokenDto> saveFcmToken(
+  ResponseEntity<AuthDto> saveFcmToken(
       CustomUserDetails customUserDetails,
-      FcmTokenCommand command);
+      AuthCommand command);
 }
 
