@@ -1,5 +1,6 @@
 package com.balsamic.sejongmalsami.object;
 
+import com.balsamic.sejongmalsami.object.mongo.FcmToken;
 import java.util.UUID;
 import lombok.Builder;
 import lombok.Getter;
@@ -11,4 +12,5 @@ public class AuthDto {
   private Boolean isValidToken;
   private String studentName;
   private UUID memberId;
+  private FcmToken fcmToken;
 }

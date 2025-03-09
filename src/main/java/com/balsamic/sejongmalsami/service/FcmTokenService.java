@@ -1,7 +1,7 @@
 package com.balsamic.sejongmalsami.service;
 
-import com.balsamic.sejongmalsami.object.FcmTokenCommand;
-import com.balsamic.sejongmalsami.object.FcmTokenDto;
+import com.balsamic.sejongmalsami.object.AuthCommand;
+import com.balsamic.sejongmalsami.object.AuthDto;
 import com.balsamic.sejongmalsami.object.mongo.FcmToken;
 import com.balsamic.sejongmalsami.repository.mongo.FcmTokenRepository;
 import com.balsamic.sejongmalsami.util.exception.CustomException;
@@ -27,7 +27,7 @@ public class FcmTokenService {
    * @return
    */
   @Transactional
-  public FcmTokenDto saveFcmToken(FcmTokenCommand command) {
+  public AuthDto saveFcmToken(AuthCommand command) {
 
     if (command.getFcmToken() == null || command.getFcmToken().isBlank()) {
       log.error("FCM 토큰이 존재하지 않습니다.");
@@ -37,7 +37,7 @@ public class FcmTokenService {
     Boolean isExists = fcmTokenRepository.existsByFcmToken(command.getFcmToken());
     if (isExists) {
       log.debug("사용자의 FCM 토큰이 이미 존재합니다.");
-      return FcmTokenDto.builder()
+      return AuthDto.builder()
           .fcmToken(fcmTokenRepository.findByFcmToken(command.getFcmToken())
               .orElseThrow(() -> new CustomException(ErrorCode.FCM_TOKEN_NOT_FOUND)))
           .build();
@@ -48,7 +48,7 @@ public class FcmTokenService {
         .fcmToken(command.getFcmToken())
         .build();
 
-    return FcmTokenDto.builder()
+    return AuthDto.builder()
         .fcmToken(fcmTokenRepository.save(fcmToken))
         .build();
   }
@@ -60,7 +60,7 @@ public class FcmTokenService {
    * @param command member, fcmToken
    */
   @Transactional
-  public void deleteFcmToken(FcmTokenCommand command) {
+  public void deleteFcmToken(AuthCommand command) {
 
     fcmTokenRepository.deleteByMemberIdAndFcmToken(
         command.getMember().getMemberId(),
