@@ -74,6 +74,7 @@ Thumbs.db
 
 ### Firebase Admin SDK
 /src/main/resources/firebase-admin-sdk.json
+/src/main/resources/static/firebase-messaging-sw.js
 
 ### cicd
 /.github/workflows

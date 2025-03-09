@@ -70,7 +70,7 @@ public class MemberController implements MemberControllerDocs {
   @Override
   @LogMonitoringInvocation
   @PostMapping(value = "/my-post", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
-  public ResponseEntity<Object> getAllMemberPost(
+  public ResponseEntity<MemberDto> getAllMemberPost(
       @ModelAttribute MemberCommand command,
       @AuthenticationPrincipal CustomUserDetails customUserDetails) {
     command.setMember(customUserDetails.getMember());

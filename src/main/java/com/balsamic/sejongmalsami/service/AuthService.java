@@ -3,6 +3,7 @@ package com.balsamic.sejongmalsami.service;
 import com.balsamic.sejongmalsami.object.AuthCommand;
 import com.balsamic.sejongmalsami.object.AuthDto;
 import com.balsamic.sejongmalsami.object.CustomUserDetails;
+import com.balsamic.sejongmalsami.object.FcmTokenCommand;
 import com.balsamic.sejongmalsami.object.MemberCommand;
 import com.balsamic.sejongmalsami.object.MemberDto;
 import com.balsamic.sejongmalsami.object.WebLoginDto;
@@ -28,6 +29,7 @@ public class AuthService {
 
   private final MemberService memberService;
   private final CustomUserDetailsService customUserDetailsService;
+  private final FcmTokenService fcmTokenService;
   private final JwtUtil jwtUtil;
   private final RefreshTokenRepository refreshTokenRepository;
 
@@ -117,7 +119,10 @@ public class AuthService {
    * 로그아웃 처리
    */
   @Transactional
-  public void logout(HttpServletRequest request, HttpServletResponse response) {
+  public void logout(FcmTokenCommand command, HttpServletRequest request, HttpServletResponse response) {
+    // FCM 토큰 삭제
+    fcmTokenService.deleteFcmToken(command);
+
     // 리프레시 토큰 추출
     String refreshToken = extractRefreshTokenFromCookies(request.getCookies());
 

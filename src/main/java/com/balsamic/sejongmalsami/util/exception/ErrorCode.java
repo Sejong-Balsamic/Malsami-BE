@@ -281,7 +281,21 @@ public enum ErrorCode {
 
   // ErrorCode
 
-  SERVER_ERROR_CODE_NOT_FOUND(HttpStatus.NOT_FOUND, "서버 에러코드를 찾을 수 없습니다.");
+  SERVER_ERROR_CODE_NOT_FOUND(HttpStatus.NOT_FOUND, "서버 에러코드를 찾을 수 없습니다."),
+
+  // FCM
+
+  FCM_TOKEN_NOT_FOUND(HttpStatus.BAD_REQUEST, "FCM 토큰을 찾을 수 없습니다."),
+
+  INVALID_FCM_TOKEN(HttpStatus.BAD_REQUEST, "잘못된 FCM 토큰입니다."),
+
+  // Notification
+
+  INVALID_NOTIFICATION_RECEIVER(HttpStatus.BAD_REQUEST, "알림 수신 대상 설정이 잘못되었습니다."),
+
+  INVALID_NOTIFICATION_CATEGORY(HttpStatus.BAD_REQUEST, "잘못된 알림 카테고리가 설정되었습니다."),
+
+  MESSAGE_SENT_FAILED(HttpStatus.BAD_REQUEST, "FCM 메시지 발송에 실패했습니다.");
 
   private final HttpStatus status;
   private final String message;
