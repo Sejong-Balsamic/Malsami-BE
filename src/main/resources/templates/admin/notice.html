@@ -12,13 +12,64 @@
     <h1 class="ui header">공지사항</h1>
   </div>
 
-<!--  Tabulator 테이블  -->
+  <!--  공지사항 작성  -->
+  <div class="form-container ui segment">
+    <h3 class="ui header">공지사항 등록</h3>
+    <form id="createNoticePostForm" class="ui form">
+
+      <!--  공지사항 제목 작성  -->
+      <div class="field">
+        <label>제목</label>
+        <input type="text" id="title" name="title" placeholder="제목을 작성하세요" autocomplete="off">
+      </div>
+      <div class="field">
+        <label>본문</label>
+        <textarea type="text" id="content" name="content" placeholder="본문을 작성하세요" autocomplete="off"></textarea>
+      </div>
+      <div class="field">
+        <button class="ui primary button" type="submit">
+          <i class="pencil icon"></i>작성
+        </button>
+      </div>
+    </form>
+  </div>
+
+  <!--  공지사항 필터링  -->
+  <div class="form-container ui segment">
+    <h3 class="ui header">공지사항 필터링</h3>
+    <form id="searchNoticePostForm" class="ui form">
+
+      <!--  공지사항 제목 검색  -->
+      <div class="field">
+        <label>검색어</label>
+        <input type="text" id="query" name="query" placeholder="검색어를 입력하세요" autocomplete="off">
+      </div>
+      <div class="three fields">
+        <div class="field">
+          <button class="ui primary button" type="submit">
+            <i class="search icon"></i>검색
+          </button>
+        </div>
+        <div class="field">
+          <button class="ui button" id="resetFilterButton" type="button">
+            <i class="undo icon"></i>필터 초기화
+          </button>
+        </div>
+        <div class="field">
+          <button class="ui button" id="resetSortButton" type="button">
+            <i class="undo icon"></i>정렬 초기화
+          </button>
+        </div>
+      </div>
+    </form>
+  </div>
+
+  <!--  Tabulator 테이블  -->
   <div class="table-container">
-    <div id="notice-table"></div>
+    <div id="totalPostCount" class="ui left aligned header">총 공지사항 수: 0건</div>
+    <div id="noticeTable"></div>
   </div>
 </div>
-
-
 
 
 <div th:replace="fragments/footer :: footer"></div>
@@ -31,7 +82,12 @@
 
   // DOM 완성 시
   $(document).ready(function () {
+    // 데이터 초기화
     initData();
+
+    // 이벤트 처리
+    noticeTableEventHandler(noticeTable);
+    createNoticePostEventHandler();
   });
 
   /**
@@ -46,21 +102,132 @@
    */
   function initNoticeTable() {
 
-    var table = new Tabulator("#notice-table", {
+    var table = new Tabulator("#noticeTable", {
       layout: "fitDataTable",
       columns: [
-        {title: "번호", field: "id", width: 50},
-        {title: "제목", field: "title", width: 1000},
-        {title: "작성자", field: "writer", width: 100},
-        {title: "작성일", field: "createdDate", width: 100},
-        {title: "조회수", field: "viewCount", width: 50},
-        {title: "좋아요", field: "likeCount", width: 50}
+        {
+          title: "순번",
+          formatter: "rownum",     // 내부적으로 1부터 순번 표시
+          hozAlign: "center",
+          width: 60
+        },
+        {title: "제목", field: "title", width: 700},
+        {title: "작성자", field: "member.studentName", width: 100},
+        {title: "작성일", field: "createdDate", width: 120},
+        {title: "조회수", field: "viewCount", width: 100},
+        {title: "좋아요", field: "likeCount", width: 100}
       ],
 
-      ajaxURL: "/"
+      ajaxURL: "/api/notice/filter",
+      ajaxConfig: {
+        method: "POST",
+        headers: {
+          "Authorization": "Bearer " + localStorage.getItem("accessToken")
+        }
+      },
+      ajaxRequestFunc: function (url, config, params) {
+        const formData = new FormData();
+
+        formData.append("query", $('#query').val());
+        formData.append("pageNumber", (params.page ? params.page - 1 : 0));
+        formData.append("pageSize", params.size || 10);
+        formData.append("sortField", params.sortField || "createdDate");
+        formData.append("sortDirection", params.sortDirection || "desc");
+
+        return fetch(url + "?accessToken=" + localStorage.getItem("accessToken"), {
+          method: "POST",
+          headers: config.headers,
+          body: formData
+        })
+        .then(response => response.json())
+      },
+      ajaxResponse: function (url, params, response) {
+        // 총 항목수 표시
+        $('#totalCourseCount').text(`총 공지사항 수: ${response.noticePostsPage.totalElements || 0}건`);
+
+        return {
+          data: response.noticePostsPage.content,
+          last_page: response.noticePostsPage.totalPages
+        };
+      },
+      pagination: true,
+      paginationMode: "remote",
+      paginationSize: 100,
+      paginationSizeSelector: [10, 30, 50, 100],
+      height: "600px"
     });
 
     return table;
+  }
+
+  /**
+   * 공지사항 테이블 이벤트 핸들러
+   */
+  function noticeTableEventHandler(table) {
+    const searchForm = document.getElementById("searchNoticePostForm");
+
+    // 검색 버튼 이벤트
+    searchForm.addEventListener("submit", function (e) {
+      e.preventDefault();
+      table.setData();
+    });
+
+    // 폼 필터 초기화 버튼 이벤트
+    $('#resetFilterButton').on("click", function () {
+      searchForm.reset();
+    });
+
+    // 정렬 초기화
+    $('#resetSortButton').on("click", function () {
+      table.clearSort();
+    });
+  }
+
+  /**
+   * 공지사항 작성 폼 이벤트 핸들러
+   */
+  function createNoticePostEventHandler() {
+    const createForm = document.getElementById("createNoticePostForm");
+
+    // 작성 버튼 이벤트
+    createForm.addEventListener("submit", function (e) {
+      console.log("버튼 클릭");
+      e.preventDefault();
+      createNoticePost();
+    });
+  }
+
+  /**
+   * 공지사항 글 등록
+   */
+  function createNoticePost() {
+    // 폼 입력값
+    const title = document.getElementById("title").value.trim();
+    const content = document.getElementById("content").value.trim();
+
+    // FormData 구성
+    const formData = new FormData();
+    formData.append("title", title);
+    formData.append("content", content);
+
+    // 서버 요청
+    fetch('/admin/notice/post', {
+      method: 'POST',
+      body: formData,
+      headers: {
+        "Authorization": "Bearer " + localStorage.getItem("accessToken")
+      }
+    })
+    .then(response => response.json())
+    .then(() => {
+      alert('글 등록 성공');
+      noticeTable.setData();
+    })
+    .catch(err => {
+      console.log("공지사항 등록 중 오류 발생:", err);
+      alert('공지사항 등록 중 오류 발생' + err);
+    })
+
   }
 
 </script>

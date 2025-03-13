@@ -257,8 +257,8 @@ COMMON.CSS - 공통 컴포넌트 스타일
    notice.html Styles
 ===========================
 */
-.notice-page {
-
+.notice-page .form-container {
+  max-width: 1100px;
 }
 
 /*

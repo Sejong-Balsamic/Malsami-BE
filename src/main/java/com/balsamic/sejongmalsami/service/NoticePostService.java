@@ -29,30 +29,45 @@ public class NoticePostService {
 
   /**
    * 공지사항 필터링 글 조회 필터링 조건에 맞는 전체 글을 반환합니다
-   * <p>
    * [필터링] 1. 제목 필터링 (검색어 포함)
-   * <p>
-   * [정렬 조건] 1. 최신순 2. 과거순 3. 조회순 4. 추천순
+   * [sortType] 1. 최신순 2. 과거순 3. 조회순 4. 추천순
    *
-   * @param command query, sortType, pageNumber, pageSize
+   * @param command query, sortType, sortField, sortDirection, pageNumber, pageSize
    * @return
    */
   public NoticePostDto getFilteredPost(NoticePostCommand command) {
 
     // query가 비어있는 경우 null 설정
-    if (command.getQuery().isBlank()) {
+    if (command.getQuery() != null && command.getQuery().isBlank()) {
       command.setQuery(null);
     }
 
-    // 정렬 조건
-    if (!command.getSortType().equals(LATEST) &&
-        !command.getSortType().equals(OLDEST) &&
-        !command.getSortType().equals(VIEW_COUNT) &&
-        !command.getSortType().equals(MOST_LIKED)) {
-      log.error("잘못된 정렬 조건입니다. 요청 SortType: {}", command.getSortType());
-      throw new CustomException(ErrorCode.INVALID_SORT_TYPE);
+    Sort sort;
+    if (command.getSortType() != null) { // sortType 이 요청된 경우
+      // 정렬 조건
+      if (!command.getSortType().equals(LATEST) &&
+          !command.getSortType().equals(OLDEST) &&
+          !command.getSortType().equals(VIEW_COUNT) &&
+          !command.getSortType().equals(MOST_LIKED)) {
+        log.error("잘못된 정렬 조건입니다. 요청 SortType: {}", command.getSortType());
+        throw new CustomException(ErrorCode.INVALID_SORT_TYPE);
+      }
+      sort = getJpqlSortOrder(command.getSortType());
+    } else { // sortField, sortDirection 이 요청된 경우
+      String sortField = (command.getSortField() != null) ? command.getSortField() : "createdDate";
+      String sortDirStr = (command.getSortDirection() != null) ? command.getSortDirection().toUpperCase() : "DESC";
+
+      // Sort Direction 파싱
+      Sort.Direction direction;
+      try {
+        direction = Sort.Direction.valueOf(sortDirStr); // "ASC" or "DESC"
+      } catch (Exception e) {
+        direction = Sort.Direction.DESC; // fallback
+      }
+
+      // Sort 객체
+      sort = Sort.by(direction, sortField);
     }
-    Sort sort = getJpqlSortOrder(command.getSortType());
 
     // Pageable
     Pageable pageable = PageRequest.of(

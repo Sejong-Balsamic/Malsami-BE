@@ -25,7 +25,7 @@ public class NoticeBoardLike extends BaseMongoEntity {
 
   @NotNull
   @Indexed
-  private UUID noticeBoardId; // target UUID
+  private UUID noticePostId; // target UUID
 
   @NotNull
   @Indexed
