@@ -92,6 +92,11 @@ public interface DocumentPostControllerDocs {
 
   @ApiChangeLogs({
       @ApiChangeLog(
+          date = "2025.03.21",
+          author = Author.BAEKJIHOON,
+          description = "API 인증 생략"
+      ),
+      @ApiChangeLog(
           date = "2024.12.11",
           author = Author.BAEKJIHOON,
           description = "Redis 사용"
@@ -122,7 +127,7 @@ public interface DocumentPostControllerDocs {
       description = """
           **자료 일간 인기글 요청**
 
-          **이 API는 인증이 필요하며, JWT 토큰이 존재해야합니다.**
+          **이 API는 인증이 필요하지 않습니다.**
 
           #### 요청 파라미터
           `없음`
@@ -140,6 +145,11 @@ public interface DocumentPostControllerDocs {
   ResponseEntity<DocumentDto> getDailyPopularDocumentPost();
 
   @ApiChangeLogs({
+      @ApiChangeLog(
+          date = "2025.03.21",
+          author = Author.BAEKJIHOON,
+          description = "API 인증 생략"
+      ),
       @ApiChangeLog(
           date = "2024.12.11",
           author = Author.BAEKJIHOON,
@@ -171,7 +181,7 @@ public interface DocumentPostControllerDocs {
       description = """
           **자료 주간 인기글 요청**
 
-          **이 API는 인증이 필요하며, JWT 토큰이 존재해야합니다.**
+          **이 API는 인증이 필요하지 않습니다.**
 
           #### 요청 파라미터
           `없음`
@@ -233,6 +243,11 @@ public interface DocumentPostControllerDocs {
 
   @ApiChangeLogs({
       @ApiChangeLog(
+          date = "2025.03.21",
+          author = Author.BAEKJIHOON,
+          description = "API 인증 생략"
+      ),
+      @ApiChangeLog(
           date = "2024.11.30",
           author = Author.SUHSAECHAN,
           description = "member 정보 없어도 접근 가능한 API여야함 : 자료티어 확인 로직 제거"
@@ -258,7 +273,7 @@ public interface DocumentPostControllerDocs {
       description = """
           **자료 글 필터링 조회 요청**
 
-          **이 API는 인증이 필요하며, JWT 토큰이 존재해야합니다.**
+          **이 API는 인증이 필요하지 않습니다.**
 
           **입력 파라미터 값:**
                     

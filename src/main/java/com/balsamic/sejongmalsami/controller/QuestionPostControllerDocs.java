@@ -166,6 +166,11 @@ public interface QuestionPostControllerDocs {
 
   @ApiChangeLogs({
       @ApiChangeLog(
+          date = "2025.03.21",
+          author = Author.BAEKJIHOON,
+          description = "API 인증 생략"
+      ),
+      @ApiChangeLog(
           date = "2024.12.6",
           author = Author.BAEKJIHOON,
           description = "엽전 현상금 순 정렬 시 자동으로 미채택 된 글만 조회"
@@ -191,7 +196,7 @@ public interface QuestionPostControllerDocs {
       summary = "질문 글 필터링 조회",
       description = """
         ### 질문 글 필터링 조회 요청
-        이 API는 인증이 필요하며, JWT 토큰이 필요합니다.
+        **이 API는 인증이 필요하지 않습니다.**
 
         #### 요청 파라미터
         - **`subject`** (`String`, 선택): 교과목명 필터링

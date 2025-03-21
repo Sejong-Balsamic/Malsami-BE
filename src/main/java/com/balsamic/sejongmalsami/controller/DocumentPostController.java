@@ -73,7 +73,6 @@ public class DocumentPostController implements DocumentPostControllerDocs {
   public ResponseEntity<DocumentDto> filteredDocumentPost(
       @AuthenticationPrincipal CustomUserDetails customUserDetails,
       @ModelAttribute DocumentCommand command) {
-    command.setMember(customUserDetails.getMember());
     return ResponseEntity.ok(documentPostService.filteredDocumentPost(command));
   }
 
