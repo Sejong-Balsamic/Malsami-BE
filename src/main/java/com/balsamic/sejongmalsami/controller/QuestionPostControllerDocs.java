@@ -134,41 +134,6 @@ public interface QuestionPostControllerDocs {
 
   @ApiChangeLogs({
       @ApiChangeLog(
-          date = "2024.11.1",
-          author = Author.BAEKJIHOON,
-          description = "pageable 설정"
-      ),
-      @ApiChangeLog(
-          date = "2024.10.28",
-          author = Author.BAEKJIHOON,
-          description = "입력 파라미터 수정"
-      ),
-      @ApiChangeLog(
-          date = "2024.10.21",
-          author = Author.BAEKJIHOON,
-          description = "전체 질문 글 조회"
-      )
-  })
-  @Operation(
-      summary = "전체 질문 글 조회 (최신순)",
-      description = """
-          ### 전체 질문 글 조회 요청
-          이 API는 인증이 필요하며, JWT 토큰이 필요합니다.
-
-          #### 요청 파라미터
-          - **`pageNumber`** (`Integer`, 선택): 조회할 페이지 번호 (기본값 = 0)
-          - **`pageSize`** (`Integer`, 선택): 한 페이지에 조회할 글 개수 (기본값 = 30)
-
-          #### 반환 파라미터
-            - **`Page<QuestionPost> questionPosts`**: 전체 질문 글 리스트
-          """
-  )
-  ResponseEntity<QuestionDto> getAllQuestionPost(
-      QuestionCommand command
-  );
-
-  @ApiChangeLogs({
-      @ApiChangeLog(
           date = "2024.11.6",
           author = Author.BAEKJIHOON,
           description = "단과대 필터링 추가"
@@ -268,6 +233,11 @@ public interface QuestionPostControllerDocs {
 
   @ApiChangeLogs({
       @ApiChangeLog(
+          date = "2025.03.21",
+          author = Author.BAEKJIHOON,
+          description = "API 인증 생략"
+      ),
+      @ApiChangeLog(
           date = "2024.12.11",
           author = Author.BAEKJIHOON,
           description = "Redis 사용"
@@ -312,7 +282,7 @@ public interface QuestionPostControllerDocs {
       summary = "일간 인기 질문글",
       description = """
         ### 일간 인기 질문글 요청
-        이 API는 인증이 필요하며, JWT 토큰이 필요합니다.
+        이 API는 인증이 필요하지 않습니다.
 
         #### 요청 파라미터
         `없음`
@@ -331,6 +301,11 @@ public interface QuestionPostControllerDocs {
   ResponseEntity<QuestionDto> getDailyPopularQuestionPost();
 
   @ApiChangeLogs({
+      @ApiChangeLog(
+          date = "2025.03.21",
+          author = Author.BAEKJIHOON,
+          description = "API 인증 생략"
+      ),
       @ApiChangeLog(
           date = "2024.12.11",
           author = Author.BAEKJIHOON,
@@ -376,7 +351,7 @@ public interface QuestionPostControllerDocs {
       summary = "주간 인기 질문글",
       description = """
         ### 주간 인기 질문글 요청
-        이 API는 인증이 필요하며, JWT 토큰이 필요합니다.
+        이 API는 인증이 필요하지 않습니다
 
         #### 요청 파라미터
         `없음`
