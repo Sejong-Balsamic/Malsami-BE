@@ -92,6 +92,11 @@ public interface DocumentPostControllerDocs {
 
   @ApiChangeLogs({
       @ApiChangeLog(
+          date = "2025.03.21",
+          author = Author.BAEKJIHOON,
+          description = "API 인증 생략"
+      ),
+      @ApiChangeLog(
           date = "2024.12.11",
           author = Author.BAEKJIHOON,
           description = "Redis 사용"
@@ -122,7 +127,7 @@ public interface DocumentPostControllerDocs {
       description = """
           **자료 일간 인기글 요청**
 
-          **이 API는 인증이 필요하며, JWT 토큰이 존재해야합니다.**
+          **이 API는 인증이 필요하지 않습니다.**
 
           #### 요청 파라미터
           `없음`
@@ -140,6 +145,11 @@ public interface DocumentPostControllerDocs {
   ResponseEntity<DocumentDto> getDailyPopularDocumentPost();
 
   @ApiChangeLogs({
+      @ApiChangeLog(
+          date = "2025.03.21",
+          author = Author.BAEKJIHOON,
+          description = "API 인증 생략"
+      ),
       @ApiChangeLog(
           date = "2024.12.11",
           author = Author.BAEKJIHOON,
@@ -171,7 +181,7 @@ public interface DocumentPostControllerDocs {
       description = """
           **자료 주간 인기글 요청**
 
-          **이 API는 인증이 필요하며, JWT 토큰이 존재해야합니다.**
+          **이 API는 인증이 필요하지 않습니다.**
 
           #### 요청 파라미터
           `없음`
@@ -233,6 +243,11 @@ public interface DocumentPostControllerDocs {
 
   @ApiChangeLogs({
       @ApiChangeLog(
+          date = "2025.03.21",
+          author = Author.BAEKJIHOON,
+          description = "API 인증 생략"
+      ),
+      @ApiChangeLog(
           date = "2024.11.30",
           author = Author.SUHSAECHAN,
           description = "member 정보 없어도 접근 가능한 API여야함 : 자료티어 확인 로직 제거"
@@ -258,7 +273,7 @@ public interface DocumentPostControllerDocs {
       description = """
           **자료 글 필터링 조회 요청**
 
-          **이 API는 인증이 필요하며, JWT 토큰이 존재해야합니다.**
+          **이 API는 인증이 필요하지 않습니다.**
 
           **입력 파라미터 값:**
                     
@@ -365,4 +380,55 @@ public interface DocumentPostControllerDocs {
   ResponseEntity<DocumentDto> getHotDownload(
       DocumentCommand command
   );
+
+  @ApiChangeLogs({
+      @ApiChangeLog(
+          date = "2025.03.21",
+          author = Author.BAEKJIHOON,
+          description = "LikeController -> DocumentPostController API 이관"
+      ),
+      @ApiChangeLog(
+          date = "2024.11.21",
+          author = Author.BAEKJIHOON,
+          description = "자료 및 자료요청 게시판 좋아요/싫어요 init"
+      )
+  })
+  @Operation(
+      summary = "자료 & 자료요청 게시판 좋아요/싫어요",
+      description = """
+          **자료 & 자료요청 글 좋아요/싫어요 증가**
+
+          **이 API는 인증이 필요하며, JWT 토큰이 존재해야합니다.**
+
+          **입력 파라미터 값:**
+
+          - **UUID documentPostId**: 좋아요/싫어요를 누른 자료글 or 자료요청글 PK [필수]
+          
+          - **ContentType contentType**: 자료글 or 자료요청글 [필수]
+            _예: ContentType.DOCUMENT_
+            _예: ContentType.DOCUMENT_REQUEST_
+            
+          - **ReactionType likeType**: 좋아요 or 싫어요 [필수]
+            _예: ReactionType.LIKE_
+            _예: ReactionType.DISLIKE_
+
+          **반환 파라미터 값:**
+
+          - **DocumentDto**: 자료 게시판 정보 반환
+            - **DocumentBoardLike documentBoardLike**: 좋아요 내역
+
+          **참고 사항:**
+
+          - 이 API를 통해 사용자는 특정 자료 글에 좋아요 or 싫어요를 누를 수 있습니다.
+          - 이 API를 통해 사용자는 특정 자료요청 글에 좋아요를 누를 수 있습니다.
+          - 본인이 작성한 글에는 좋아요 or 싫어요를 누를 수 없습니다.
+          - 이미 좋아요 or 싫어요를 누른 글 에는 중복으로 요청할 수 없습니다.
+          - 특정 자료 등급에 접근 불가능한 사용자는 좋아요 or 싫어요 요청을 보낼 수 없습니다.
+          - 자료요청 글은 '중인'이상 접근가능합니다.
+          - Swagger에서 테스트 시 mediaFiles에 있는 "Send empty value" 체크박스 해제해야합니다.
+          """
+  )
+  ResponseEntity<DocumentDto> documentBoardLike(
+      CustomUserDetails customUserDetails,
+      DocumentCommand command);
 }
