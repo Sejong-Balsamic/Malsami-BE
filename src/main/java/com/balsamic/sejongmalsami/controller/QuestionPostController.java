@@ -3,6 +3,8 @@ package com.balsamic.sejongmalsami.controller;
 import com.balsamic.sejongmalsami.object.CustomUserDetails;
 import com.balsamic.sejongmalsami.object.QuestionCommand;
 import com.balsamic.sejongmalsami.object.QuestionDto;
+import com.balsamic.sejongmalsami.service.AnswerPostService;
+import com.balsamic.sejongmalsami.service.LikeService;
 import com.balsamic.sejongmalsami.service.PopularPostService;
 import com.balsamic.sejongmalsami.service.QuestionPostService;
 import com.balsamic.sejongmalsami.util.log.LogMonitoringInvocation;
@@ -27,6 +29,8 @@ public class QuestionPostController implements QuestionPostControllerDocs {
 
   private final QuestionPostService questionPostService;
   private final PopularPostService popularPostService;
+  private final LikeService likeService;
+  private final AnswerPostService answerPostService;
 
   @Override
   @PostMapping(value = "/post", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
@@ -49,21 +53,11 @@ public class QuestionPostController implements QuestionPostControllerDocs {
   }
 
   @Override
-  @PostMapping(value = "/get/all", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
-  @LogMonitoringInvocation
-  public ResponseEntity<QuestionDto> getAllQuestionPost(
-      @ModelAttribute QuestionCommand command
-  ) {
-    return ResponseEntity.ok(questionPostService.findAllQuestionPost(command));
-  }
-
-  @Override
   @PostMapping(value = "/unanswered", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
   @LogMonitoringInvocation
   public ResponseEntity<QuestionDto> getAllQuestionPostsNotAnswered(
       @ModelAttribute QuestionCommand command) {
-    return ResponseEntity
-        .ok(questionPostService.findAllQuestionPostsNotAnswered(command));
+    return ResponseEntity.ok(questionPostService.findAllQuestionPostsNotAnswered(command));
   }
 
   @Override
@@ -86,5 +80,45 @@ public class QuestionPostController implements QuestionPostControllerDocs {
   @LogMonitoringInvocation
   public ResponseEntity<QuestionDto> getWeeklyPopularQuestionPost() {
     return ResponseEntity.ok(popularPostService.getWeeklyPopularQuestionPosts());
+  }
+
+  @Override
+  @PostMapping(value = "/like", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
+  @LogMonitoringInvocation
+  public ResponseEntity<QuestionDto> questionBoardLike(
+      @AuthenticationPrincipal CustomUserDetails customUserDetails,
+      @ModelAttribute QuestionCommand command) {
+    command.setMemberId(customUserDetails.getMemberId());
+    return ResponseEntity.ok(likeService.questionBoardLike(command));
+  }
+
+  @Override
+  @PostMapping(value = "/answer/post", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
+  @LogMonitoringInvocation
+  public ResponseEntity<QuestionDto> saveAnswerPost(
+      @AuthenticationPrincipal CustomUserDetails customUserDetails,
+      @ModelAttribute QuestionCommand command) {
+    command.setMemberId(customUserDetails.getMemberId());
+    return ResponseEntity.ok(answerPostService.saveAnswer(command));
+  }
+
+  @Override
+  @PostMapping(value = "/answer/get/all", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
+  @LogMonitoringInvocation
+  public ResponseEntity<QuestionDto> getAnswersByQuestion(
+      @AuthenticationPrincipal CustomUserDetails customUserDetails,
+      @ModelAttribute QuestionCommand command) {
+    command.setMemberId(customUserDetails.getMemberId());
+    return ResponseEntity.ok(answerPostService.getAnswersByQuestion(command));
+  }
+
+  @Override
+  @PostMapping(value = "/answer/chaetaek", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
+  @LogMonitoringInvocation
+  public ResponseEntity<QuestionDto> chaetaekAnswerPost(
+      @AuthenticationPrincipal CustomUserDetails customUserDetails,
+      @ModelAttribute QuestionCommand command) {
+    command.setMemberId(customUserDetails.getMemberId());
+    return ResponseEntity.ok(answerPostService.chaetaekAnswer(command));
   }
 }

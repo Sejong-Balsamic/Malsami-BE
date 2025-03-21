@@ -67,6 +67,11 @@ public interface DocumentRequestPostControllerDocs {
 
   @ApiChangeLogs({
       @ApiChangeLog(
+          date = "2025.03.21",
+          author = Author.BAEKJIHOON,
+          description = "API 인증 생략"
+      ),
+      @ApiChangeLog(
           date = "2024.11.19",
           author = Author.BAEKJIHOON,
           description = "자료요청 글 필터링 조회 init"
@@ -77,7 +82,7 @@ public interface DocumentRequestPostControllerDocs {
       description = """
           **자료 요청 글 필터링**
 
-          **이 API는 인증이 필요하며, JWT 토큰이 존재해야합니다.**
+          **이 API는 인증이 필요하지 않습니다.**
           
           **모든 필터링 미 선택 시 전체 글이 최신순으로 조회됩니다.**
 
