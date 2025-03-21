@@ -3,6 +3,7 @@ package com.balsamic.sejongmalsami.controller;
 import com.balsamic.sejongmalsami.object.CustomUserDetails;
 import com.balsamic.sejongmalsami.object.QuestionCommand;
 import com.balsamic.sejongmalsami.object.QuestionDto;
+import com.balsamic.sejongmalsami.service.LikeService;
 import com.balsamic.sejongmalsami.service.PopularPostService;
 import com.balsamic.sejongmalsami.service.QuestionPostService;
 import com.balsamic.sejongmalsami.util.log.LogMonitoringInvocation;
@@ -27,6 +28,7 @@ public class QuestionPostController implements QuestionPostControllerDocs {
 
   private final QuestionPostService questionPostService;
   private final PopularPostService popularPostService;
+  private final LikeService likeService;
 
   @Override
   @PostMapping(value = "/post", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
@@ -76,5 +78,15 @@ public class QuestionPostController implements QuestionPostControllerDocs {
   @LogMonitoringInvocation
   public ResponseEntity<QuestionDto> getWeeklyPopularQuestionPost() {
     return ResponseEntity.ok(popularPostService.getWeeklyPopularQuestionPosts());
+  }
+
+  @Override
+  @PostMapping(value = "/like", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
+  @LogMonitoringInvocation
+  public ResponseEntity<QuestionDto> questionBoardLike(
+      @AuthenticationPrincipal CustomUserDetails customUserDetails,
+      @ModelAttribute QuestionCommand command) {
+    command.setMemberId(customUserDetails.getMemberId());
+    return ResponseEntity.ok(likeService.questionBoardLike(command));
   }
 }

@@ -4,6 +4,7 @@ import com.balsamic.sejongmalsami.object.CommentCommand;
 import com.balsamic.sejongmalsami.object.CommentDto;
 import com.balsamic.sejongmalsami.object.CustomUserDetails;
 import com.balsamic.sejongmalsami.service.CommentService;
+import com.balsamic.sejongmalsami.service.LikeService;
 import com.balsamic.sejongmalsami.util.log.LogMonitoringInvocation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
@@ -25,6 +26,7 @@ import org.springframework.web.bind.annotation.RestController;
 public class CommentController implements CommentControllerDocs {
 
   private final CommentService commentService;
+  private final LikeService likeService;
 
   @Override
   @PostMapping(value = "/post", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
@@ -44,5 +46,15 @@ public class CommentController implements CommentControllerDocs {
       @ModelAttribute CommentCommand command) {
     command.setMemberId(customUserDetails.getMemberId());
     return ResponseEntity.ok(commentService.getAllCommentsByPostId(command));
+  }
+
+  @Override
+  @PostMapping(value = "/like", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
+  @LogMonitoringInvocation
+  public ResponseEntity<CommentDto> commentLike(
+      @AuthenticationPrincipal CustomUserDetails customUserDetails,
+      @ModelAttribute CommentCommand command) {
+    command.setMemberId(customUserDetails.getMemberId());
+    return ResponseEntity.ok(likeService.commentLike(command));
   }
 }

@@ -4,6 +4,7 @@ import com.balsamic.sejongmalsami.object.CustomUserDetails;
 import com.balsamic.sejongmalsami.object.DocumentCommand;
 import com.balsamic.sejongmalsami.object.DocumentDto;
 import com.balsamic.sejongmalsami.service.DocumentPostService;
+import com.balsamic.sejongmalsami.service.LikeService;
 import com.balsamic.sejongmalsami.service.PopularPostService;
 import com.balsamic.sejongmalsami.util.log.LogMonitoringInvocation;
 import io.swagger.v3.oas.annotations.tags.Tag;
@@ -30,6 +31,7 @@ public class DocumentPostController implements DocumentPostControllerDocs {
 
   private final DocumentPostService documentPostService;
   private final PopularPostService popularPostService;
+  private final LikeService likeService;
 
   @Override
   @PostMapping(value = "/post", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
@@ -102,5 +104,15 @@ public class DocumentPostController implements DocumentPostControllerDocs {
   public ResponseEntity<DocumentDto> getHotDownload(
       @ModelAttribute DocumentCommand command) {
     return ResponseEntity.ok(documentPostService.getHotDownload(command));
+  }
+
+  @Override
+  @PostMapping(value = "/like", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
+  @LogMonitoringInvocation
+  public ResponseEntity<DocumentDto> documentBoardLike(
+      @AuthenticationPrincipal CustomUserDetails customUserDetails,
+      @ModelAttribute DocumentCommand command) {
+    command.setMemberId(customUserDetails.getMemberId());
+    return ResponseEntity.ok(likeService.documentBoardLike(command));
   }
 }

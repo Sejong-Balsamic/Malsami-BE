@@ -106,4 +106,43 @@ public interface CommentControllerDocs {
       CustomUserDetails customUserDetails,
       CommentCommand command);
 
+  @ApiChangeLogs({
+      @ApiChangeLog(
+          date = "2025.03.21",
+          author = Author.BAEKJIHOON,
+          description = "LikeController -> CommentController API 이관"
+      ),
+      @ApiChangeLog(
+          date = "2024.11.11",
+          author = Author.BAEKJIHOON,
+          description = "댓글 좋아요 init"
+      )
+  })
+  @Operation(
+      summary = "댓글 좋아요",
+      description = """
+          **특정 댓글 좋아요**
+
+          **이 API는 인증이 필요하며, JWT 토큰이 존재해야합니다.**
+
+          **입력 파라미터 값:**
+
+          - **UUID postId**: 특정 댓글 PK [필수]
+
+          **반환 파라미터 값:**
+
+          - **CommentDto**: 댓글 정보 반환
+            - **CommentLike commentLike**: 좋아요 내역
+
+          **참고 사항:**
+
+          - 이 API를 통해 사용자는 특정 댓글에 좋아요를 누를 수 있습니다.
+          - 본인이 작성한 댓글에는 좋아요를 누를 수 없습니다.
+          - 이미 좋아요를 누른 댓글에는 중복으로 요청할 수 없습니다.
+          - Swagger에서 테스트 시 mediaFiles에 있는 "Send empty value" 체크박스 해제해야합니다.
+          """
+  )
+  ResponseEntity<CommentDto> commentLike(
+      CustomUserDetails customUserDetails,
+      CommentCommand command);
 }
