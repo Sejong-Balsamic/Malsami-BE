@@ -101,7 +101,7 @@ public class QuestionPost extends BasePost {
   @Builder.Default
   private Boolean isLiked = false;
 
-  // 커스텀 태그: 임시 필드: DB에 해당값 저장되지않음
+  // 커스텀 태그: DB 저장X
   @Transient
   private List<String> customTags = new ArrayList<>();
 

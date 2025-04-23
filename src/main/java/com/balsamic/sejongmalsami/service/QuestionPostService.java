@@ -135,6 +135,7 @@ public class QuestionPostService {
       customTags = questionPostCustomTagService
           .saveCustomTags(command.getCustomTags(), savedQuestionPost.getQuestionPostId());
     }
+    savedQuestionPost.setCustomTags(customTags);
 
     // 첨부파일 파일 업로드 및 썸네일 저장 -> 저장된 미디어파일 리스트 반환
     List<MediaFile> savedMediaFiles = mediaFileService.handleMediaFiles(
@@ -152,9 +153,9 @@ public class QuestionPostService {
     postEmbeddingService.saveEmbedding(
         savedQuestionPost.getQuestionPostId(),
         questionPost.getTitle() + " " +
-            questionPost.getSubject() + " " +
-            questionPost.getContent() + " " +
-            (customTags != null ? String.join(" ", customTags) : ""),
+        questionPost.getSubject() + " " +
+        questionPost.getContent() + " " +
+        (customTags != null ? String.join(" ", customTags) : ""),
         ContentType.QUESTION
     );
 
@@ -222,6 +223,7 @@ public class QuestionPostService {
           .stream().map(QuestionPostCustomTag::getCustomTag)
           .collect(Collectors.toList());
     }
+    questionPost.setCustomTags(customTags);
 
     // 첨부파일 mediaFiles 가져오기
     List<MediaFile> mediaFiles = mediaFileService.getMediaFilesByPostId(questionPost.getQuestionPostId());
@@ -231,26 +233,6 @@ public class QuestionPostService {
         .answerPosts(answerPosts)
         .customTags(customTags)
         .mediaFiles(mediaFiles)
-        .build();
-  }
-
-  /**
-   * <h3>전체 질문 글 페이징 조회</h3>
-   * <p>질문 게시글에 등록 된 모든 글을 최신순으로 정렬하여 반환합니다.</p>
-   *
-   * @return 질문글 페이지 정보
-   */
-  @Transactional(readOnly = true)
-  public QuestionDto findAllQuestionPost(QuestionCommand command) {
-
-    Pageable pageable = PageRequest.of(command.getPageNumber(),
-        command.getPageSize(),
-        Sort.by("createdDate").descending());
-
-    Page<QuestionPost> posts = questionPostRepository.findAll(pageable);
-
-    return QuestionDto.builder()
-        .questionPostsPage(posts)
         .build();
   }
 
@@ -271,11 +253,12 @@ public class QuestionPostService {
         command.getPageSize(),
         Sort.by("createdDate").descending());
 
-    Page<QuestionPost> postPage = questionPostRepository
+    Page<QuestionPost> questionPostPage = questionPostRepository
         .findNotAnsweredQuestionByFilter(command.getFaculty(), pageable);
+    questionPostPage.stream().forEach(questionPostCustomTagService::findQuestionPostCustomTags);
 
     return QuestionDto.builder()
-        .questionPostsPage(postPage)
+        .questionPostsPage(questionPostPage)
         .build();
   }
 
@@ -351,16 +334,17 @@ public class QuestionPostService {
         sort);
 
     // chaetaekStatus를 String으로 변환하여 전달
-    Page<QuestionPost> posts = questionPostRepository.findQuestionPostsByFilter(
+    Page<QuestionPost> questionPostPage = questionPostRepository.findQuestionPostsByFilter(
         command.getSubject(),
         command.getFaculty(),
         command.getQuestionPresetTags(),
         chaetaekStatus.name(), // Enum을 String으로 변환하여 전달
         pageable
     );
+    questionPostPage.stream().forEach(questionPostCustomTagService::findQuestionPostCustomTags);
 
     return QuestionDto.builder()
-        .questionPostsPage(posts)
+        .questionPostsPage(questionPostPage)
         .build();
   }
 
