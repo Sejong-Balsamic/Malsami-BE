@@ -1,11 +1,13 @@
 package com.balsamic.sejongmalsami.service;
 
 import com.balsamic.sejongmalsami.object.mongo.DocumentPostCustomTag;
+import com.balsamic.sejongmalsami.object.postgres.DocumentPost;
 import com.balsamic.sejongmalsami.repository.mongo.DocumentPostCustomTagRepository;
 import com.balsamic.sejongmalsami.util.exception.CustomException;
 import com.balsamic.sejongmalsami.util.exception.ErrorCode;
 import java.util.List;
 import java.util.UUID;
+import java.util.stream.Collectors;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
@@ -45,5 +47,16 @@ public class DocumentPostCustomTagService {
     }
 
     return customTags;
+  }
+
+  // 자료 엔티티 내부 customTags 필드 적용
+  @Transactional
+  public void findDocumentPostCustomTags(DocumentPost documentPost) {
+    List<DocumentPostCustomTag> documentPostCustomTags =
+        documentPostCustomTagRepository.findAllByDocumentPostId(documentPost.getDocumentPostId());
+    List<String> customTags = documentPostCustomTags.stream()
+        .map(DocumentPostCustomTag::getCustomTag)
+        .collect(Collectors.toList());
+    documentPost.setCustomTags(customTags);
   }
 }
