@@ -228,8 +228,8 @@ public interface QuestionPostControllerDocs {
         #### 정렬 타입
         - **LATEST**: 최신순
         - **MOST_LIKED**: 좋아요순
-        - **YEOPJEON_REWARD**: 엽전 현상금 순
-        - **YEOPJEON_REWARD_LATEST**: 엽전 현상금이 존재하는 글 최신순
+        - **REWARD_YEOPJEON_DESCENDING**: 엽전 현상금 순
+        - **REWARD_YEOPJEON_LATEST**: 엽전 현상금이 존재하는 글 최신순
         - **VIEW_COUNT**: 조회수 순
 
         #### 채택 여부

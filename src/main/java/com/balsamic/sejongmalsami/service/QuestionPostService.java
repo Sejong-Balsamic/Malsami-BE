@@ -2,7 +2,7 @@ package com.balsamic.sejongmalsami.service;
 
 import static com.balsamic.sejongmalsami.object.constants.SortType.LATEST;
 import static com.balsamic.sejongmalsami.object.constants.SortType.MOST_LIKED;
-import static com.balsamic.sejongmalsami.object.constants.SortType.REWARD_YEOPJEON;
+import static com.balsamic.sejongmalsami.object.constants.SortType.REWARD_YEOPJEON_DESCENDING;
 import static com.balsamic.sejongmalsami.object.constants.SortType.REWARD_YEOPJEON_LATEST;
 import static com.balsamic.sejongmalsami.object.constants.SortType.VIEW_COUNT;
 import static com.balsamic.sejongmalsami.object.constants.SortType.getJpqlSortOrder;
@@ -313,7 +313,7 @@ public class QuestionPostService {
     SortType sortType = (command.getSortType() != null) ? command.getSortType() : LATEST;
     if (!sortType.equals(LATEST) &&
         !sortType.equals(MOST_LIKED) &&
-        !sortType.equals(REWARD_YEOPJEON) &&
+        !sortType.equals(REWARD_YEOPJEON_DESCENDING) &&
         !sortType.equals(REWARD_YEOPJEON_LATEST) &&
         !sortType.equals(VIEW_COUNT)) {
       log.error("잘못된 sortType 요청입니다. 요청된 sortType: {}", command.getSortType());
@@ -322,13 +322,13 @@ public class QuestionPostService {
 
     // 엽전 현상금 관련 필터링 시
     boolean isRewardYeopjeonRequest = false;
-    if (sortType.equals(REWARD_YEOPJEON) || sortType.equals(REWARD_YEOPJEON_LATEST)) {
+    if (sortType.equals(REWARD_YEOPJEON_DESCENDING) || sortType.equals(REWARD_YEOPJEON_LATEST)) {
       log.debug("엽전 현상금 정렬 & 엽전 현상금이 존재하는 최신순 정렬 시에는 엽전 현상금이 존재하는 글만 반환됩니다");
       isRewardYeopjeonRequest = true;
     }
 
     // 엽전현상금순 및 엽전현상금 최신순으로 정렬 시 미채택 글만 조회
-    if (sortType.equals(REWARD_YEOPJEON) && !chaetaekStatus.equals(ChaetaekStatus.NO_CHAETAEK)) {
+    if (sortType.equals(REWARD_YEOPJEON_DESCENDING) && !chaetaekStatus.equals(ChaetaekStatus.NO_CHAETAEK)) {
       log.warn("엽전 현상금 순으로 정렬 시 미채택된 글만 조회 가능합니다. 요청 chaetaekStatue: {}", chaetaekStatus);
       chaetaekStatus = ChaetaekStatus.NO_CHAETAEK;
     }
