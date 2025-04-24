@@ -13,6 +13,7 @@ public enum SortType {
   OLDEST("과거순"),
   MOST_LIKED("추천순"),
   REWARD_YEOPJEON("엽전 현상금 높은순"),
+  REWARD_YEOPJEON_LATEST("엽전 현상금 존재 최신순"),
   VIEW_COUNT("조회수 많은순"),
   COMMENT_COUNT("댓글순"),
   DOWNLOAD_COUNT("다운로드순");
