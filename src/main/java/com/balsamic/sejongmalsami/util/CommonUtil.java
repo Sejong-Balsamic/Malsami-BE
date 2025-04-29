@@ -35,6 +35,11 @@ public class CommonUtil {
       return num == 0L ? null : value;
     }
 
+    if (value instanceof Double) {
+      Double num = (Double) value;
+      return num == 0.0 ? null : value;
+    }
+
     return value; // 다른 타입은 그대로 반환
   }
 
