@@ -6,15 +6,12 @@ import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.ExpiredJwtException;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.MalformedJwtException;
-import io.jsonwebtoken.SignatureAlgorithm;
-import io.jsonwebtoken.SignatureException;
 import io.jsonwebtoken.UnsupportedJwtException;
 import io.jsonwebtoken.io.Decoders;
 import io.jsonwebtoken.security.Keys;
+import io.jsonwebtoken.security.SignatureException;
 import java.time.LocalDateTime;
 import java.util.Date;
-import java.util.HashMap;
-import java.util.Map;
 import javax.crypto.SecretKey;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -27,39 +24,85 @@ import org.springframework.stereotype.Component;
 @RequiredArgsConstructor
 @Slf4j
 public class JwtUtil {
+
   private final CustomUserDetailsService customUserDetailsService;
 
   @Value("${jwt.secret-key}")
-  private String secretKey; // JWT 비밀 키
+  private String secretKey;
+
   @Value("${jwt.access-exp-time}")
-  private Long accessTokenExpTime; // 액세스 토큰 만료 시간
+  private Long accessTokenExpTime; // AccessToken 만료 시간
+
   @Value("${jwt.refresh-exp-time}")
-  private Long refreshTokenExpTime; // 리프레시 토큰 만료 시간
+  private Long refreshTokenExpTime; // RefreshToken 만료 시간
+
   @Value("${jwt.issuer}")
   private String issuer; // JWT 발급자
 
-  private static final String ROLE = "role"; // 클레임 키
+  private static final String ACCESS_CATEGORY = "access";
+  private static final String REFRESH_CATEGORY = "refresh";
 
-  /**
-   * 액세스 토큰 생성
-   *
-   * @param customUserDetails 회원 상세 정보
-   * @return 생성된 액세스 토큰
-   */
-  public String createAccessToken(CustomUserDetails customUserDetails) {
-    log.info("액세스 토큰 생성 중: 회원 '{}'", customUserDetails.getUsername());
-    return createToken(customUserDetails, accessTokenExpTime);
+  // 토큰에서 username 파싱
+  public String getUsername(String token) {
+    return Jwts.parser()
+        .verifyWith(getSignKey())
+        .build()
+        .parseSignedClaims(token)
+        .getPayload()
+        .get("username", String.class);
+  }
+
+  // 토큰에서 role 파싱
+  public String getRole(String token) {
+    return Jwts.parser()
+        .verifyWith(getSignKey())
+        .build()
+        .parseSignedClaims(token)
+        .getPayload()
+        .get("role", String.class);
+  }
+
+  // 토큰 만료 여부 확인
+  public Boolean isExpired(String token) {
+    return Jwts.parser()
+        .verifyWith(getSignKey())
+        .build()
+        .parseSignedClaims(token)
+        .getPayload()
+        .getExpiration()
+        .before(new Date());
+  }
+
+  // Access/Refresh 토큰 여부
+  public String getCategory(String token) {
+    return Jwts.parser()
+        .verifyWith(getSignKey())
+        .build()
+        .parseSignedClaims(token)
+        .getPayload()
+        .get("category", String.class);
   }
 
   /**
-   * 리프레시 토큰 생성
+   * AccessToken 생성
    *
-   * @param customUserDetails 회원 상세 정보
-   * @return 생성된 리프레시 토큰
+   * @param customUserDetails
+   * @return
+   */
+  public String createAccessToken(CustomUserDetails customUserDetails) {
+    log.debug("엑세스 토큰 생성 중: 회원: {}", customUserDetails.getUsername());
+    return createToken(ACCESS_CATEGORY, customUserDetails, accessTokenExpTime);
+  }
+
+  /**
+   * RefreshToken 생성
+   *
+   * @param customUserDetails
+   * @return
    */
   public String createRefreshToken(CustomUserDetails customUserDetails) {
-    log.info("리프레시 토큰 생성 중: 회원 '{}'", customUserDetails.getUsername());
-    return createToken(customUserDetails, refreshTokenExpTime);
+    log.debug("리프래시 토큰 생성 중: 회원: {}", customUserDetails.getUsername());
+    return createToken(REFRESH_CATEGORY, customUserDetails, refreshTokenExpTime);
   }
 
   /**
@@ -69,19 +112,17 @@ public class JwtUtil {
    * @param expiredAt         만료 시간
    * @return 생성된 JWT 토큰
    */
-  private String createToken(CustomUserDetails customUserDetails, Long expiredAt) {
-    Date now = new Date();
-    Map<String, Object> headers = new HashMap<>();
-    headers.put("typ", "JWT");
+  private String createToken(String category, CustomUserDetails customUserDetails, Long expiredAt) {
 
     return Jwts.builder()
-        .setHeader(headers)
-        .setIssuer(issuer)
-        .setIssuedAt(now)
-        .setExpiration(new Date(now.getTime() + expiredAt))
-        .setSubject(customUserDetails.getUsername())
-        .claim(ROLE, customUserDetails.getMember().getRoles())
-        .signWith(getSigningKey(), SignatureAlgorithm.HS256)
+        .subject(customUserDetails.getUsername())
+        .claim("category", category)
+        .claim("username", customUserDetails.getUsername())
+        .claim("role", customUserDetails.getMember().getRoles())
+        .issuer(issuer)
+        .issuedAt(new Date(System.currentTimeMillis()))
+        .expiration(new Date(System.currentTimeMillis() + expiredAt))
+        .signWith(getSignKey())
         .compact();
   }
 
@@ -93,10 +134,10 @@ public class JwtUtil {
    */
   public boolean validateToken(String token) throws ExpiredJwtException {
     try {
-      Jwts.parserBuilder()
-          .setSigningKey(getSigningKey())
+      Jwts.parser()
+          .verifyWith(getSignKey())
           .build()
-          .parseClaimsJws(token);
+          .parseSignedClaims(token);
       log.info("JWT 토큰이 유효합니다.");
       return true;
     } catch (ExpiredJwtException e) {
@@ -114,34 +155,34 @@ public class JwtUtil {
     return false;
   }
 
-
-  /**
-   * JWT 토큰에서 클레임(Claims) 추출
-   *
-   * @param token JWT 토큰
-   * @return 추출된 클레임
-   */
-  public Claims getClaims(String token) {
-    return Jwts.parserBuilder()
-        .setSigningKey(getSigningKey()) // 변경된 디코더 사용
-        .build()
-        .parseClaimsJws(token)
-        .getBody();
-  }
-
   /**
    * JWT 서명에 사용할 키 생성
    *
    * @return SecretKey 객체
    */
-  private SecretKey getSigningKey() {
+  private SecretKey getSignKey() {
     try {
-      byte[] keyBytes = Decoders.BASE64URL.decode(secretKey); // BASE64URL 디코더로 변경
+      // Base64 문자열로부터 SecretKey를 생성
+      byte[] keyBytes = Decoders.BASE64.decode(secretKey);
       return Keys.hmacShaKeyFor(keyBytes);
     } catch (IllegalArgumentException e) {
-      log.error("비밀 키 디코딩 실패: {}", e.getMessage());
+      log.error("비밀 키 생성 실패: {}", e.getMessage());
       throw e; // 예외 재발생
     }
+  }
+
+  /**
+   * JWT 토큰에서 클레임 (Claims) 추출
+   *
+   * @param token JWT 토큰
+   * @return 추출된 클레임
+   */
+  public Claims getClaims(String token) {
+    return Jwts.parser()
+        .verifyWith(getSignKey())
+        .build()
+        .parseSignedClaims(token)
+        .getPayload();
   }
 
   /**
@@ -171,8 +212,8 @@ public class JwtUtil {
   public Authentication getAuthentication(String token) {
     Claims claims = getClaims(token);
     String username = claims.getSubject();
+    log.debug("JWT에서 인증정보 파싱: username={}", username);
     CustomUserDetails userDetails = customUserDetailsService.loadUserByUsername(username);
     return new UsernamePasswordAuthenticationToken(userDetails, null, userDetails.getAuthorities());
   }
-
 }

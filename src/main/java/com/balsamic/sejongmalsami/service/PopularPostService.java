@@ -49,6 +49,8 @@ public class PopularPostService {
   private static final String QUESTION_WEEKLY_KEY = "question:weekly";
   private static final String DOCUMENT_DAILY_KEY = "document:daily";
   private static final String DOCUMENT_WEEKLY_KEY = "document:weekly";
+  private final QuestionPostCustomTagService questionPostCustomTagService;
+  private final DocumentPostCustomTagService documentPostCustomTagService;
 
   /**
    * <h3>일간 인기 질문 글 조회 로직
@@ -326,6 +328,7 @@ public class PopularPostService {
           pageable,
           postCount
       );
+      questionPostPage.stream().forEach(questionPostCustomTagService::findQuestionPostCustomTags);
       return QuestionDto.builder()
           .questionPostsPage(questionPostPage)
           .build();
@@ -348,6 +351,7 @@ public class PopularPostService {
           pageable,
           postCount
       );
+      documentPostPage.stream().forEach(documentPostCustomTagService::findDocumentPostCustomTags);
       return DocumentDto.builder()
           .documentPostsPage(documentPostPage)
           .build();

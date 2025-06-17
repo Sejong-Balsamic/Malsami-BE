@@ -2,7 +2,8 @@ package com.balsamic.sejongmalsami.service;
 
 import static com.balsamic.sejongmalsami.object.constants.SortType.LATEST;
 import static com.balsamic.sejongmalsami.object.constants.SortType.MOST_LIKED;
-import static com.balsamic.sejongmalsami.object.constants.SortType.REWARD_YEOPJEON;
+import static com.balsamic.sejongmalsami.object.constants.SortType.REWARD_YEOPJEON_DESCENDING;
+import static com.balsamic.sejongmalsami.object.constants.SortType.REWARD_YEOPJEON_LATEST;
 import static com.balsamic.sejongmalsami.object.constants.SortType.VIEW_COUNT;
 import static com.balsamic.sejongmalsami.object.constants.SortType.getJpqlSortOrder;
 
@@ -135,6 +136,7 @@ public class QuestionPostService {
       customTags = questionPostCustomTagService
           .saveCustomTags(command.getCustomTags(), savedQuestionPost.getQuestionPostId());
     }
+    savedQuestionPost.setCustomTags(customTags);
 
     // 첨부파일 파일 업로드 및 썸네일 저장 -> 저장된 미디어파일 리스트 반환
     List<MediaFile> savedMediaFiles = mediaFileService.handleMediaFiles(
@@ -152,9 +154,9 @@ public class QuestionPostService {
     postEmbeddingService.saveEmbedding(
         savedQuestionPost.getQuestionPostId(),
         questionPost.getTitle() + " " +
-            questionPost.getSubject() + " " +
-            questionPost.getContent() + " " +
-            (customTags != null ? String.join(" ", customTags) : ""),
+        questionPost.getSubject() + " " +
+        questionPost.getContent() + " " +
+        (customTags != null ? String.join(" ", customTags) : ""),
         ContentType.QUESTION
     );
 
@@ -222,6 +224,7 @@ public class QuestionPostService {
           .stream().map(QuestionPostCustomTag::getCustomTag)
           .collect(Collectors.toList());
     }
+    questionPost.setCustomTags(customTags);
 
     // 첨부파일 mediaFiles 가져오기
     List<MediaFile> mediaFiles = mediaFileService.getMediaFilesByPostId(questionPost.getQuestionPostId());
@@ -231,26 +234,6 @@ public class QuestionPostService {
         .answerPosts(answerPosts)
         .customTags(customTags)
         .mediaFiles(mediaFiles)
-        .build();
-  }
-
-  /**
-   * <h3>전체 질문 글 페이징 조회</h3>
-   * <p>질문 게시글에 등록 된 모든 글을 최신순으로 정렬하여 반환합니다.</p>
-   *
-   * @return 질문글 페이지 정보
-   */
-  @Transactional(readOnly = true)
-  public QuestionDto findAllQuestionPost(QuestionCommand command) {
-
-    Pageable pageable = PageRequest.of(command.getPageNumber(),
-        command.getPageSize(),
-        Sort.by("createdDate").descending());
-
-    Page<QuestionPost> posts = questionPostRepository.findAll(pageable);
-
-    return QuestionDto.builder()
-        .questionPostsPage(posts)
         .build();
   }
 
@@ -271,32 +254,31 @@ public class QuestionPostService {
         command.getPageSize(),
         Sort.by("createdDate").descending());
 
-    Page<QuestionPost> postPage = questionPostRepository
+    Page<QuestionPost> questionPostPage = questionPostRepository
         .findNotAnsweredQuestionByFilter(command.getFaculty(), pageable);
+    questionPostPage.stream().forEach(questionPostCustomTagService::findQuestionPostCustomTags);
 
     return QuestionDto.builder()
-        .questionPostsPage(postPage)
+        .questionPostsPage(questionPostPage)
         .build();
   }
 
   /**
-   * <h3>메인 필터링/정렬 조회</h3>
-   * <p>[필터링]
-   * <ol>
-   *   <li>교과목명</li>
-   *   <li>정적태그 (최대 2개)</li>
-   *   <li>단과대</li>
-   *   <li>채택상태 (전체/채택/미채택)</li>
-   * </ol>
-   * <p>[정렬]</p>
-   * <ul>
-   *   <li>최신순 (default)</li>
-   *   <li>좋아요순</li>
-   *   <li>현상금순</li>
-   *   <li>조회순</li>
-   * </ul>
-   *
-   * <p>엽전 현상금 순 조회 시 자동으로 미채택된 글만 조회합니다.</p>
+   * 질문글 필터링
+   * [필터링]
+   * 1. 교과목명
+   * 2. 정적태그 (최대 2개)
+   * 3. 단과대
+   * 4. 채택상태 (전체/채택/미채택)
+   * <p>
+   * [정렬]
+   * 1. 최신순 (default)
+   * 2. 좋아요순
+   * 3. 조회순
+   * 4. 엽전현상금순
+   * 5. 엽전현상금 최신순
+   * <p>
+   * 엽전 현상금 순 조회 시 자동으로 미채택된 글만 조회합니다.
    *
    * @return 필터링/정렬된 질문글 페이지
    */
@@ -331,16 +313,29 @@ public class QuestionPostService {
     SortType sortType = (command.getSortType() != null) ? command.getSortType() : LATEST;
     if (!sortType.equals(LATEST) &&
         !sortType.equals(MOST_LIKED) &&
-        !sortType.equals(REWARD_YEOPJEON) &&
+        !sortType.equals(REWARD_YEOPJEON_DESCENDING) &&
+        !sortType.equals(REWARD_YEOPJEON_LATEST) &&
         !sortType.equals(VIEW_COUNT)) {
       log.error("잘못된 sortType 요청입니다. 요청된 sortType: {}", command.getSortType());
       throw new CustomException(ErrorCode.INVALID_SORT_TYPE);
     }
 
-    // 엽전현상금순으로 정렬 시 미채택 글만 조회
-    if (sortType.equals(REWARD_YEOPJEON) && !chaetaekStatus.equals(ChaetaekStatus.NO_CHAETAEK)) {
-      log.info("엽전 현상금 순으로 정렬 시 미채택된 글만 조회 가능합니다. 요청 chaetaekStatue: {}", chaetaekStatus);
+    // 엽전 현상금 관련 필터링 시
+    boolean isRewardYeopjeonRequest = false;
+    if (sortType.equals(REWARD_YEOPJEON_DESCENDING) || sortType.equals(REWARD_YEOPJEON_LATEST)) {
+      log.debug("엽전 현상금 정렬 & 엽전 현상금이 존재하는 최신순 정렬 시에는 엽전 현상금이 존재하는 글만 반환됩니다");
+      isRewardYeopjeonRequest = true;
+    }
+
+    // 엽전현상금순 및 엽전현상금 최신순으로 정렬 시 미채택 글만 조회
+    if (sortType.equals(REWARD_YEOPJEON_DESCENDING) && !chaetaekStatus.equals(ChaetaekStatus.NO_CHAETAEK)) {
+      log.warn("엽전 현상금 순으로 정렬 시 미채택된 글만 조회 가능합니다. 요청 chaetaekStatue: {}", chaetaekStatus);
       chaetaekStatus = ChaetaekStatus.NO_CHAETAEK;
+    }
+
+    // 엽전 현상금이 존재하는 최신 순 정렬 시
+    if (sortType.equals(REWARD_YEOPJEON_LATEST)) {
+      sortType = LATEST;
     }
 
     Sort sort = getJpqlSortOrder(sortType);
@@ -351,16 +346,18 @@ public class QuestionPostService {
         sort);
 
     // chaetaekStatus를 String으로 변환하여 전달
-    Page<QuestionPost> posts = questionPostRepository.findQuestionPostsByFilter(
+    Page<QuestionPost> questionPostPage = questionPostRepository.findQuestionPostsByFilter(
         command.getSubject(),
         command.getFaculty(),
         command.getQuestionPresetTags(),
         chaetaekStatus.name(), // Enum을 String으로 변환하여 전달
+        isRewardYeopjeonRequest,
         pageable
     );
+    questionPostPage.stream().forEach(questionPostCustomTagService::findQuestionPostCustomTags);
 
     return QuestionDto.builder()
-        .questionPostsPage(posts)
+        .questionPostsPage(questionPostPage)
         .build();
   }
 

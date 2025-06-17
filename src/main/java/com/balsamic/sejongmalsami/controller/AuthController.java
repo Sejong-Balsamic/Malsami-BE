@@ -3,8 +3,6 @@ package com.balsamic.sejongmalsami.controller;
 import com.balsamic.sejongmalsami.object.AuthCommand;
 import com.balsamic.sejongmalsami.object.AuthDto;
 import com.balsamic.sejongmalsami.object.CustomUserDetails;
-import com.balsamic.sejongmalsami.object.FcmTokenCommand;
-import com.balsamic.sejongmalsami.object.FcmTokenDto;
 import com.balsamic.sejongmalsami.service.AuthService;
 import com.balsamic.sejongmalsami.service.FcmTokenService;
 import com.balsamic.sejongmalsami.util.JwtUtil;
@@ -54,7 +52,7 @@ public class AuthController implements AuthControllerDocs {
   @Override
   public ResponseEntity<Void> logout(
       @AuthenticationPrincipal CustomUserDetails customUserDetails,
-      @ModelAttribute FcmTokenCommand command,
+      @ModelAttribute AuthCommand command,
       HttpServletRequest request,
       HttpServletResponse response) {
     command.setMember(customUserDetails.getMember());
@@ -65,9 +63,9 @@ public class AuthController implements AuthControllerDocs {
   @Override
   @PostMapping(value = "/fcm/token", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
   @LogMonitoringInvocation
-  public ResponseEntity<FcmTokenDto> saveFcmToken(
+  public ResponseEntity<AuthDto> saveFcmToken(
       @AuthenticationPrincipal CustomUserDetails customUserDetails,
-      @ModelAttribute FcmTokenCommand command) {
+      @ModelAttribute AuthCommand command) {
     command.setMember(customUserDetails.getMember());
     return ResponseEntity.ok(fcmTokenService.saveFcmToken(command));
   }

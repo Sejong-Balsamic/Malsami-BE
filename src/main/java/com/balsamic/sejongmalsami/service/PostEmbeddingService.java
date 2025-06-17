@@ -16,9 +16,10 @@ import com.balsamic.sejongmalsami.repository.postgres.DocumentPostRepository;
 import com.balsamic.sejongmalsami.repository.postgres.PostEmbeddingRepository;
 import com.balsamic.sejongmalsami.repository.postgres.QuestionPostRepository;
 import com.balsamic.sejongmalsami.util.CommonUtil;
+import com.balsamic.sejongmalsami.util.RedisLockManager;
 import com.balsamic.sejongmalsami.util.exception.CustomException;
 import com.balsamic.sejongmalsami.util.exception.ErrorCode;
-import com.fasterxml.jackson.databind.ObjectMapper;
+import jakarta.transaction.Transactional;
 import java.util.List;
 import java.util.UUID;
 import java.util.stream.Collectors;
@@ -38,16 +39,21 @@ public class PostEmbeddingService {
   private final OpenAIEmbeddingService embeddingService;
   private final SearchQueryCacheService searchQueryCacheService;
   private final PostEmbeddingRepository postEmbeddingRepository;
-  private final ObjectMapper objectMapper;
   private final QuestionPostRepository questionPostRepository;
   private final DocumentPostRepository documentPostRepository;
   private final QuestionPostCustomTagRepository questionPostCustomTagRepository;
   private final DocumentPostCustomTagRepository documentPostCustomTagRepository;
+  private final SearchHistoryService searchHistoryService;
+  private final RedisLockManager redisLockManager;
+
+  private static final Long WAIT_TIME = 5L;
+  private static final Long LEASE_TIME = 2L;
 
   /**
    * 새로운 질문/자료 글 작성 시 postEmbedding 저장
    */
   @Async
+  @Transactional
   public void saveEmbedding(UUID postId, String text, ContentType contentType) {
     log.info("Embedding 저장 시작 - Post ID: {}, ContentType: {}", postId, contentType);
 
@@ -139,6 +145,12 @@ public class PostEmbeddingService {
         }
 
         throw new CustomException(ErrorCode.INVALID_CONTENT_TYPE);
+      });
+
+      String lockKey = "lock:searchHistory" + command.getText();
+      redisLockManager.executeLock(lockKey, WAIT_TIME, LEASE_TIME, () -> {
+        searchHistoryService.increaseSearchCount(command.getText());
+        return true;
       });
 
       return EmbeddingDto.builder()

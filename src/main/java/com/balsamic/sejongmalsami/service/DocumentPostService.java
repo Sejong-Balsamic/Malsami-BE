@@ -26,6 +26,7 @@ import com.balsamic.sejongmalsami.object.postgres.DocumentPost;
 import com.balsamic.sejongmalsami.object.postgres.Member;
 import com.balsamic.sejongmalsami.object.postgres.Yeopjeon;
 import com.balsamic.sejongmalsami.repository.mongo.DocumentBoardLikeRepository;
+import com.balsamic.sejongmalsami.repository.mongo.DocumentPostCustomTagRepository;
 import com.balsamic.sejongmalsami.repository.mongo.PurchaseHistoryRepository;
 import com.balsamic.sejongmalsami.repository.postgres.CourseRepository;
 import com.balsamic.sejongmalsami.repository.postgres.DocumentFileRepository;
@@ -76,6 +77,7 @@ public class DocumentPostService {
   private final GenericObjectPool<FTPClient> ftpClientPool;
   private final RedisLockManager redisLockManager;
   private final PostEmbeddingService postEmbeddingService;
+  private final DocumentPostCustomTagRepository documentPostCustomTagRepository;
 
   /**
    * <h3>자료 글 저장
@@ -149,6 +151,7 @@ public class DocumentPostService {
       customTags = documentPostCustomTagService.saveCustomTags(command.getCustomTags(),
           savedDocument.getDocumentPostId());
     }
+    savedDocument.setCustomTags(customTags);
 
     // 첨부 자료 처리 및 저장 : 저장된 자료 파일은 savedDocumentFiles 에 추가
     List<DocumentFile> savedDocumentFiles = documentFileService.handleDocumentFiles(
@@ -245,6 +248,7 @@ public class DocumentPostService {
         postTier,
         pageable
     );
+    documentPostsPage.stream().forEach(documentPostCustomTagService::findDocumentPostCustomTags);
 
     return DocumentDto.builder()
         .documentPostsPage(documentPostsPage)
@@ -282,6 +286,9 @@ public class DocumentPostService {
     // 자료 파일들 불러오기
     List<DocumentFile> documentFiles
         = documentFileRepository.findByDocumentPost_DocumentPostId(post.getDocumentPostId());
+
+    // 커스텀태그 조회
+    documentPostCustomTagService.findDocumentPostCustomTags(post);
 
     // 각각 자료파일 -> 다운로드 했던 파일인지 확인하기
     documentFileService.updateIsDownloadedDocumentFiles(member, documentFiles);
@@ -329,8 +336,11 @@ public class DocumentPostService {
   public DocumentDto getHotDownload(DocumentCommand command) {
     Pageable pageable = PageRequest.of(command.getPageNumber(), command.getPageSize());
 
+    Page<DocumentPost> documentPostPage = documentPostRepository.findHotDownloads(pageable);
+    documentPostPage.stream().forEach(documentPostCustomTagService::findDocumentPostCustomTags);
+
     return DocumentDto.builder()
-        .documentPostsPage(documentPostRepository.findHotDownloads(pageable))
+        .documentPostsPage(documentPostPage)
         .build();
   }
 

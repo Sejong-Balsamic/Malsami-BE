@@ -1,6 +1,7 @@
 package com.balsamic.sejongmalsami.service;
 
 import com.balsamic.sejongmalsami.object.mongo.QuestionPostCustomTag;
+import com.balsamic.sejongmalsami.object.postgres.QuestionPost;
 import com.balsamic.sejongmalsami.repository.mongo.QuestionPostCustomTagRepository;
 import com.balsamic.sejongmalsami.util.exception.CustomException;
 import com.balsamic.sejongmalsami.util.exception.ErrorCode;
@@ -46,5 +47,18 @@ public class QuestionPostCustomTagService {
                 .build()
         ).getCustomTag()) // 저장 후 태그 반환
         .collect(Collectors.toList());
+  }
+
+  /**
+   * 질문글에 등록된 커스텀태그를 조회 후 내부 필드에 등록
+   */
+  @Transactional(readOnly = true)
+  public void findQuestionPostCustomTags(QuestionPost questionPost) {
+    List<QuestionPostCustomTag> questionPostCustomTags =
+        questionPostCustomTagRepository.findAllByQuestionPostId(questionPost.getQuestionPostId());
+    List<String> customTags = questionPostCustomTags.stream()
+        .map(QuestionPostCustomTag::getCustomTag)
+        .collect(Collectors.toList());
+    questionPost.setCustomTags(customTags);
   }
 }

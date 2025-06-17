@@ -96,6 +96,10 @@ public class DocumentPost extends BasePost {
   @Builder.Default
   private Boolean isLiked = false;
 
+  // 커스텀 태그: DB 저장X
+  @Transient
+  private List<String> customTags = new ArrayList<>();
+
   public void increaseDislikeCount() {
     this.dislikeCount++;
   }
