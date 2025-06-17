@@ -1,9 +1,11 @@
 package com.balsamic.sejongmalsami.object;
 
+import com.balsamic.sejongmalsami.object.mongo.SearchHistory;
 import com.balsamic.sejongmalsami.object.postgres.DocumentPost;
 import com.balsamic.sejongmalsami.object.postgres.DocumentRequestPost;
 import com.balsamic.sejongmalsami.object.postgres.NoticePost;
 import com.balsamic.sejongmalsami.object.postgres.QuestionPost;
+import java.util.List;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.ToString;
@@ -21,4 +23,6 @@ public class QueryDto {
   private Page<DocumentRequestPost> documentRequestPostsPage;
 
   private Page<NoticePost> noticePostsPage;
+
+  private List<SearchHistory> searchHistoryList;
 }

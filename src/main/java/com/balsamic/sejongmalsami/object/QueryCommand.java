@@ -19,10 +19,16 @@ public class QueryCommand {
   }
 
   private String query;
+
   private String subject;
+
   private SortType sortType;
+
   @Schema(defaultValue = "0")
   private Integer pageNumber;
+
   @Schema(defaultValue = "30")
   private Integer pageSize;
+
+  private Integer topN;
 }
