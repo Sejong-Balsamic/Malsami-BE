@@ -122,9 +122,8 @@ public class SearchHistoryService {
             .isNew(true)
             .build();
         log.debug("MongoDB에 없는 새로운 검색어입니다. 해당 검색어를 저장합니다. 검색어: {}", keyword);
-      } else { // MongoDB에 기존 데이터가 있는 경우 -> 등록 폭 및 신규 진입 여부 계산
+      } else { // MongoDB에 기존 데이터가 있는 경우 -> 등락 폭 및 신규 진입 여부 계산
         log.debug("MongoDB에 저장되어있는 검색어입니다. 순위 및 변동폭을 업데이트합니다. 검색어: {}", keyword);
-        searchHistory.setIsNew(false);
         searchHistory.setSearchCount(currentSearchCount); // MongoDB 검색 횟수 Redis값으로 업데이트
 
         int previousRank = searchHistory.getCurrentRank() == null ? -1 : searchHistory.getCurrentRank();
