@@ -51,12 +51,14 @@ public interface QuestionPostRepository extends JpaRepository<QuestionPost, UUID
               or (:chaetaekStatus = 'CHAETAEK' and q.chaetaekStatus = true)
               or (:chaetaekStatus = 'NO_CHAETAEK' and q.chaetaekStatus = false)
           )
+          and (:isRewardYeopjeonRequest = false or q.rewardYeopjeon > 0)
       """)
   Page<QuestionPost> findQuestionPostsByFilter(
       @Param("subject") String subject,
       @Param("faculty") String faculty,
       @Param("questionPresetTags") List<QuestionPresetTag> questionPresetTags,
       @Param("chaetaekStatus") String chaetaekStatus,
+      @Param("isRewardYeopjeonRequest") Boolean isRewardYeopjeonRequest,
       Pageable pageable);
 
 

@@ -166,6 +166,11 @@ public interface QuestionPostControllerDocs {
 
   @ApiChangeLogs({
       @ApiChangeLog(
+          date = "2025.04.24",
+          author = Author.BAEKJIHOON,
+          description = "엽전 현상금 존재 최신순 정렬 추가"
+      ),
+      @ApiChangeLog(
           date = "2025.03.21",
           author = Author.BAEKJIHOON,
           description = "API 인증 생략"
@@ -223,13 +228,18 @@ public interface QuestionPostControllerDocs {
         #### 정렬 타입
         - **LATEST**: 최신순
         - **MOST_LIKED**: 좋아요순
-        - **YEOPJEON_REWARD**: 엽전 현상금 순
+        - **REWARD_YEOPJEON_DESCENDING**: 엽전 현상금 순
+        - **REWARD_YEOPJEON_LATEST**: 엽전 현상금이 존재하는 글 최신순
         - **VIEW_COUNT**: 조회수 순
 
         #### 채택 여부
         - **ALL**: 전체
         - **CHAETAEK**: 채택
         - **NO_CHAETAEK**: 미채택
+        
+        ### 특이사항
+        - 엽전 현상금 관련 정렬 (YEOPJEON_REWARD, YEOPJEON_REWARD_LATEST) 요청시 `미채택`된 글만 반환합니다
+        - 엽전 현상금 관련 정렬 (YEOPJEON_REWARD, YEOPJEON_REWARD_LATEST) 요청시 엽전 현상금이 0으로 설정된 글은 반환하지 않습니다
         """
   )
   ResponseEntity<QuestionDto> getFilteredQuestionPosts(
