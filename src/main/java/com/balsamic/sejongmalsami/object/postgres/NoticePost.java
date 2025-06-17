@@ -42,10 +42,6 @@ public class NoticePost extends BasePost {
   @Column(nullable = false)
   private String content;
 
-  // 공개/비공개 여부
-  @Builder.Default
-  private Boolean isHidden = false;
-
   // 좋아요 누른 글 여부
   @Transient
   @Builder.Default
