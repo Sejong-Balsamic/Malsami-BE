@@ -8,7 +8,9 @@ import com.balsamic.sejongmalsami.object.MemberDto;
 import com.balsamic.sejongmalsami.object.MemberYeopjeon;
 import com.balsamic.sejongmalsami.object.NoticePostCommand;
 import com.balsamic.sejongmalsami.object.NoticePostDto;
+import com.balsamic.sejongmalsami.object.NotificationCommand;
 import com.balsamic.sejongmalsami.object.constants.ContentType;
+import com.balsamic.sejongmalsami.object.constants.NotificationCategory;
 import com.balsamic.sejongmalsami.object.constants.Role;
 import com.balsamic.sejongmalsami.object.constants.YeopjeonAction;
 import com.balsamic.sejongmalsami.object.mongo.QuestionPostCustomTag;
@@ -45,6 +47,7 @@ import com.balsamic.sejongmalsami.util.storage.FtpStorageService;
 import com.balsamic.sejongmalsami.util.storage.StorageService;
 import java.nio.file.Paths;
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
@@ -86,6 +89,7 @@ public class AdminApiService {
   private final QuestionPostCustomTagRepository questionPostCustomTagRepository;
   private final QuestionBoardLikeRepository questionBoardLikeRepository;
   private final FirebaseConfig firebaseConfig;
+  private final NotificationService notificationService;
 
   /**
    * =========================================== 회원 관리 로직 ===========================================
@@ -525,10 +529,22 @@ public class AdminApiService {
             .content(command.getContent())
             .viewCount(0)
             .likeCount(0)
-            .isHidden(Boolean.TRUE.equals(command.getIsHidden()))
             .build()
     );
     log.info("공지사항글 저장 완료: 제목={} id={}", command.getTitle(), savedPost.getNoticePostId());
+    log.info("공지사항글 등록 성공으로 전체 사용자에게 fcm알림을 발송합니다.");
+
+    // 알림 발송 템플릿 설정
+    Map<String, String> templateValueMap = new HashMap<>();
+    templateValueMap.put("title", command.getTitle());
+
+    // 전체 사용자에게 알림 발송
+    NotificationCommand notificationCommand = NotificationCommand.builder()
+        .notificationCategory(NotificationCategory.NOTICE)
+        .templeteValueMap(templateValueMap)
+        .build();
+    notificationService.sendNotificationToAll(notificationCommand);
+    log.info("전체 사용자에게 공지 알림 발송 성공");
 
     return NoticePostDto.builder()
         .noticePost(savedPost)
