@@ -2,8 +2,6 @@ package com.balsamic.sejongmalsami.controller;
 
 import com.balsamic.sejongmalsami.object.QueryCommand;
 import com.balsamic.sejongmalsami.object.QueryDto;
-import com.balsamic.sejongmalsami.object.SearchHistoryCommand;
-import com.balsamic.sejongmalsami.object.SearchHistoryDto;
 import com.balsamic.sejongmalsami.object.constants.Author;
 import com.balsamic.sejongmalsami.util.log.ApiChangeLog;
 import com.balsamic.sejongmalsami.util.log.ApiChangeLogs;
@@ -75,5 +73,5 @@ public interface QueryControllerDocs {
           - isNew = true 로 설정되어 반환된 검색어들은 순위권에 진입한 검색어입니다
           """
   )
-  ResponseEntity<SearchHistoryDto> getTopKeywords(SearchHistoryCommand command);
+  ResponseEntity<QueryDto> getTopKeywords(QueryCommand command);
 }

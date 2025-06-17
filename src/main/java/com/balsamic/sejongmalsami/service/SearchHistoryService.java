@@ -2,8 +2,8 @@ package com.balsamic.sejongmalsami.service;
 
 import static com.balsamic.sejongmalsami.util.CommonUtil.nullIfBlank;
 
-import com.balsamic.sejongmalsami.object.SearchHistoryCommand;
-import com.balsamic.sejongmalsami.object.SearchHistoryDto;
+import com.balsamic.sejongmalsami.object.QueryCommand;
+import com.balsamic.sejongmalsami.object.QueryDto;
 import com.balsamic.sejongmalsami.object.mongo.SearchHistory;
 import com.balsamic.sejongmalsami.repository.mongo.SearchHistoryRepository;
 import com.balsamic.sejongmalsami.util.exception.CustomException;
@@ -74,7 +74,7 @@ public class SearchHistoryService {
    * 1. Redis에 저장된 상위 N개 검색어 추출
    * 2. 각 검색어에 대해 MongoDB에 저장된 값 업데이트
    */
-  public SearchHistoryDto getRealTimeTopKeywords(SearchHistoryCommand command) {
+  public QueryDto getRealTimeTopKeywords(QueryCommand command) {
 
     log.debug("실시간 인기 검색어 TOP{}을 가져옵니다.", command.getTopN());
     // 1. Redis에서 점수가 높은 순으로 상위 N개 검색어 가져오기
@@ -85,7 +85,7 @@ public class SearchHistoryService {
     // 상위 검색어 set이 비어있는 경우 빈 리스트 반환
     if (topSet == null || topSet.isEmpty()) {
       log.debug("상위 검색어가 존재하지 않습니다.");
-      return SearchHistoryDto.builder()
+      return QueryDto.builder()
           .searchHistoryList(Collections.emptyList())
           .build();
     }
@@ -145,7 +145,7 @@ public class SearchHistoryService {
       resultList.add(searchHistoryRepository.save(searchHistory));
       rank++;
     }
-    return SearchHistoryDto.builder()
+    return QueryDto.builder()
         .searchHistoryList(resultList)
         .build();
   }
