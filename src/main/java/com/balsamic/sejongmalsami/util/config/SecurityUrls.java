@@ -20,6 +20,7 @@ public class SecurityUrls {
       "/api/member/signin",            // 회원가입
       "/admin/auth/login",             // 관리자 로그인 API
       "/api/sejong/subject/get-all",   // 교과목명 정보
+      "/api/notice/filter",            // 공지사항 필터링 조회
       "/api/question/filter",         // 질문 글 필터링 조회
       "/api/question/popular/**",     // 질문 인기글
       "/api/document/filter",         // 자료 글 필터링 조회
