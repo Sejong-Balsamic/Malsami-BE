@@ -38,4 +38,28 @@ public interface NoticePostControllerDocs {
       CustomUserDetails customUserDetails,
       NoticePostCommand command
   );
+
+  @ApiChangeLogs({
+      @ApiChangeLog(
+          date = "2025.6.26",
+          author = Author.BAEKJIHOON,
+          description = "PIN 된 공지사항 리스트 조회"
+      )
+  })
+  @Operation(
+      summary = "PIN된 공지사항 글 조회",
+      description = """
+      이 API는 인증이 필요하며, JWT 토큰이 필요합니다.
+
+      #### 요청 파라미터
+      `없음`
+
+      #### 반환 파라미터
+      - **`NoticePostDto`**: 공지사항 글 정보 반환
+        - **`List<NoticePost> noticePosts`**: PIN 된 공지사항 글 리스트
+      
+      #### 참고사항
+      """
+  )
+  ResponseEntity<NoticePostDto> getPinnedNoticePost();
 }

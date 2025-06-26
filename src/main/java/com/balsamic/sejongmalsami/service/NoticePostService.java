@@ -12,6 +12,7 @@ import com.balsamic.sejongmalsami.object.postgres.NoticePost;
 import com.balsamic.sejongmalsami.repository.postgres.NoticePostRepository;
 import com.balsamic.sejongmalsami.util.exception.CustomException;
 import com.balsamic.sejongmalsami.util.exception.ErrorCode;
+import java.util.List;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
@@ -19,6 +20,7 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 @Service
 @Slf4j
@@ -84,4 +86,14 @@ public class NoticePostService {
         .build();
   }
 
+  /**
+   * PIN 된 공지사항 List를 반환합니다
+   */
+  @Transactional(readOnly = true)
+  public NoticePostDto getPinnedPost() {
+    List<NoticePost> noticePosts = noticePostRepository.findAllByIsPinned(true);
+    return NoticePostDto.builder()
+        .noticePosts(noticePosts)
+        .build();
+  }
 }
