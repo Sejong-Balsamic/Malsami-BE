@@ -214,7 +214,7 @@ public class AdminApiController {
   /**
    * =========================================== 공지사항 관리 API ===========================================
    */
-  @PostMapping(value = "/notice/post")
+  @PostMapping(value = "/notice/post", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
   @LogMonitoringInvocation
   public ResponseEntity<NoticePostDto> saveNoticePost(
       @AuthenticationPrincipal CustomUserDetails customUserDetails,
@@ -222,6 +222,17 @@ public class AdminApiController {
   ) {
     command.setMember(customUserDetails.getMember());
     return ResponseEntity.ok(adminApiService.saveNoticePost(command));
+  }
+
+  @PostMapping(value = "/notice/pin", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
+  @LogMonitoringInvocation
+  public ResponseEntity<Void> pinNoticePost(
+      @AuthenticationPrincipal CustomUserDetails customUserDetails,
+      @ModelAttribute NoticePostCommand command
+  ) {
+    command.setMember(customUserDetails.getMember());
+    adminApiService.pinNoticePost(command);
+    return ResponseEntity.ok().build();
   }
 
   /**
