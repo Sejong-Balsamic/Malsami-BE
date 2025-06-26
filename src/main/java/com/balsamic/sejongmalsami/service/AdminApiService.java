@@ -500,7 +500,7 @@ public class AdminApiService {
   /**
    * 공지사항 글 작성 공지사항 글은 관리자만 작성 가능합니다.
    *
-   * @param command member, title, content, isHidden
+   * @param command member, title, content
    * @return
    */
   @Transactional
@@ -529,6 +529,7 @@ public class AdminApiService {
             .content(command.getContent())
             .viewCount(0)
             .likeCount(0)
+            .isPinned(false)
             .build()
     );
     log.info("공지사항글 저장 완료: 제목={} id={}", command.getTitle(), savedPost.getNoticePostId());
@@ -549,6 +550,22 @@ public class AdminApiService {
     return NoticePostDto.builder()
         .noticePost(savedPost)
         .build();
+  }
+
+  /**
+   * 공지사항 PIN ON/OFF 기능
+   * 이미 PIN 되어있는 글 -> OFF
+   * PIN 되어있지 않은 글 -> ON
+   *
+   * @param command noticePostId 공지사항PK
+   */
+  @Transactional
+  public void pinNoticePost(NoticePostCommand command) {
+    NoticePost noticePost = noticePostRepository.findById(command.getNoticePostId())
+        .orElseThrow(() -> new CustomException(ErrorCode.NOTICE_POST_NOT_FOUND));
+
+    noticePost.setIsPinned(!noticePost.getIsPinned());
+    noticePostRepository.save(noticePost);
   }
 
   /*

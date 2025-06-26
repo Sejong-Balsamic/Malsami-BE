@@ -34,4 +34,11 @@ public class NoticePostController implements NoticePostControllerDocs {
       @ModelAttribute NoticePostCommand command) {
     return ResponseEntity.ok(noticePostService.getFilteredPost(command));
   }
+
+  @Override
+  @PostMapping(value = "/get/pinned", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
+  @LogMonitoringInvocation
+  public ResponseEntity<NoticePostDto> getPinnedNoticePost() {
+    return ResponseEntity.ok(noticePostService.getPinnedPost());
+  }
 }

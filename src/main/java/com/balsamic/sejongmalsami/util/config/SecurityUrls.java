@@ -26,7 +26,8 @@ public class SecurityUrls {
       "/api/document/filter",         // 자료 글 필터링 조회
       "/api/document/popular/**",     // 자료 인기글
       "/api/document-request/filter", // 자료 요청 글 필터링 조회
-
+      "/api/query/popular",           // 인기 검색어 조회
+      
       // Swagger
       "/docs/**",                      // Swagger UI
       "/v3/api-docs/**",              // Swagger API 문서

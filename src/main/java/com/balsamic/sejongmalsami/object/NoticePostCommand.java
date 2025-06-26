@@ -3,6 +3,7 @@ package com.balsamic.sejongmalsami.object;
 import com.balsamic.sejongmalsami.object.constants.SortType;
 import com.balsamic.sejongmalsami.object.postgres.Member;
 import io.swagger.v3.oas.annotations.media.Schema;
+import java.util.UUID;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.Setter;
@@ -22,6 +23,7 @@ public class NoticePostCommand {
   private Member member;
   private String title;
   private String content;
+  private UUID noticePostId;
 
   // 필터링
   private String query;

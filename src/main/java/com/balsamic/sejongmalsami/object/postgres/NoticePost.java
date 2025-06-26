@@ -46,4 +46,8 @@ public class NoticePost extends BasePost {
   @Transient
   @Builder.Default
   private Boolean isLiked = false;
+
+  @Builder.Default
+  @Column(nullable = false)
+  private Boolean isPinned = false;
 }
