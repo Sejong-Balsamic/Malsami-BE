@@ -1,6 +1,7 @@
 package com.balsamic.sejongmalsami.repository.postgres;
 
 import com.balsamic.sejongmalsami.object.postgres.NoticePost;
+import java.util.List;
 import java.util.UUID;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -33,4 +34,6 @@ public interface NoticePostRepository extends JpaRepository<NoticePost, UUID> {
       @Param("query") String query,
       Pageable pageable
   );
+
+  List<NoticePost> findAllByIsPinned(Boolean isPinned);
 }
