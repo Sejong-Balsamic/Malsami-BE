@@ -78,3 +78,6 @@ Thumbs.db
 
 ### cicd
 /.github/workflows
+
+### vertex AI
+/src/main/resources/sejong-malsami-embedding.json
