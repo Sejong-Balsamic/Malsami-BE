@@ -131,6 +131,12 @@ dependencies {
 
     // FireBase
     implementation 'com.google.firebase:firebase-admin:9.2.0'
+
+    // Google Gen AI (Vertex AI) 클라이언트
+    implementation 'com.google.genai:google-genai:1.6.0'
+
+    // JSON 으로부터 ServiceAccountCredentials 로딩
+    implementation 'com.google.auth:google-auth-library-oauth2-http:1.19.0'
 }
 
 tasks.named('test') {
