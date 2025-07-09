@@ -130,8 +130,9 @@ public class PopularPostService {
     // 상위 30개 글 추출
     List<QuestionPost> topPosts = posts.subList(0, Math.min(SAVE_POPULAR_POST_COUNT, posts.size()));
 
-    // 캐시에 Id 값을 추출 후 String 형태로 변환하여 저장
+    // isPopular = true 업데이트 & 캐시에 Id 값을 추출 후 String 형태로 변환하여 저장
     List<String> topPostIds = topPosts.stream()
+        .peek(post -> post.setIsPopular(true))
         .map(post -> post.getQuestionPostId().toString())
         .toList();
 
@@ -168,8 +169,9 @@ public class PopularPostService {
     // 상위 30개 글 추출
     List<QuestionPost> topPosts = posts.subList(0, Math.min(SAVE_POPULAR_POST_COUNT, posts.size()));
 
-    // 캐시에 Id 값을 추출 후 저장
+    // isPopular = true 업데이트 & 캐시에 Id 값을 추출 후 String 형태로 변환하여 저장
     List<String> topPostIds = topPosts.stream()
+        .peek(post -> post.setIsPopular(true))
         .map(post -> post.getQuestionPostId().toString())
         .toList();
 

@@ -88,6 +88,9 @@ public class QuestionPost extends BasePost {
   @Builder.Default
   private Boolean chaetaekStatus = false;
 
+  @Builder.Default
+  private Boolean isPopular = false;
+
   // 일간 인기글 점수
   @Builder.Default
   private Long dailyScore = 0L;
