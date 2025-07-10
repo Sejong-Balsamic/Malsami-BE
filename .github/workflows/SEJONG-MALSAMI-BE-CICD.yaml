@@ -24,10 +24,12 @@ jobs:
       - name: Grant execute permission for gradlew
         run: chmod +x gradlew
 
-      # embedding.json 파일을 빌드 전에 생성
-      - name: Create embedding.json from secret
+      # embedding.json 파일을 빌드 전에 생성 (문자열 내의 \n을 실제 개행문자로 변경)
+      - name: Create sejong-malsami-embedding.json from secret
+        env:
+          EMBEDDING_JSON: ${{ secrets.SEJONG_MALSAMI_EMBEDDING_JSON }}
         run: |
-          echo "${{ secrets.SEJONG_MALSAMI_EMBEDDING_JSON }}" > ./src/main/resources/sejong-malsami-embedding.json
+          echo "$EMBEDDING_JSON" | sed 's/\n/\n/g' > ./src/main/resources/sejong-malsami-embedding.json
 
       - name: Create application-prod.yml from secret
         run: |
