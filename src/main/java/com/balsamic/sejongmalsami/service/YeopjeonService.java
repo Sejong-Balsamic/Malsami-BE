@@ -194,7 +194,7 @@ public class YeopjeonService {
 
     // 글 등록 가능 여부 확인
     Yeopjeon yeopjeon = findMemberYeopjeon(member);
-    if (yeopjeon.getYeopjeon() < totalRequiredYeopjeon) {
+    if (yeopjeon.getYeopjeon() <= totalRequiredYeopjeon) {
       log.error("회원: {} 의 엽전이 부족합니다.", member.getStudentId());
       log.error("현재 보유 엽전량: {}, 질문글 등록시 필요 엽전량: {}, 엽전 현상금 설정량: {}",
           yeopjeon.getYeopjeon(), createQuestionPostYeopjeon, rewardYeopjeon);
