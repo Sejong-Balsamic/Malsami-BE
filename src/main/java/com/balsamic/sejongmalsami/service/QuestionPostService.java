@@ -212,6 +212,10 @@ public class QuestionPostService {
 
     questionPost.setIsLiked(isLiked);
 
+    // 작성자 여부 확인
+    Boolean isAuthor = questionPost.getMember().getMemberId().equals(command.getMemberId());
+    questionPost.setIsAuthor(isAuthor);
+
     // 답변 조회 (없으면 null 반환)
     List<AnswerPost> answerPosts = answerPostRepository
         .findAllByQuestionPost(questionPost).orElse(null);

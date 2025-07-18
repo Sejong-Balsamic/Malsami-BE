@@ -104,6 +104,11 @@ public class QuestionPost extends BasePost {
   @Builder.Default
   private Boolean isLiked = false;
 
+  // 작성자 여부
+  @Transient
+  @Builder.Default
+  private Boolean isAuthor = false;
+
   // 커스텀 태그: DB 저장X
   @Transient
   private List<String> customTags = new ArrayList<>();
