@@ -270,10 +270,11 @@ public class QuestionPostService {
   /**
    * 질문글 필터링
    * [필터링]
-   * 1. 교과목명
-   * 2. 정적태그 (최대 2개)
-   * 3. 단과대
-   * 4. 채택상태 (전체/채택/미채택)
+   * 1. 검색어 (제목 + 본문)
+   * 2. 교과목명
+   * 3. 정적태그 (최대 2개)
+   * 4. 단과대
+   * 5. 채택상태 (전체/채택/미채택)
    * <p>
    * [정렬]
    * 1. 최신순 (default)
@@ -288,6 +289,11 @@ public class QuestionPostService {
    */
   @Transactional(readOnly = true)
   public QuestionDto filteredQuestions(QuestionCommand command) {
+
+    // 검색어가 비어있는 경우 null 설정
+    if (command.getQuery() != null && command.getQuery().isEmpty()) {
+      command.setQuery(null);
+    }
 
     // 과목명이 비어있는 경우 null 설정 (비어있는 경우 쿼리문에서 오류 발생)
     if (command.getSubject() != null && command.getSubject().isEmpty()) {
@@ -351,6 +357,7 @@ public class QuestionPostService {
 
     // chaetaekStatus를 String으로 변환하여 전달
     Page<QuestionPost> questionPostPage = questionPostRepository.findQuestionPostsByFilter(
+        command.getQuery(),
         command.getSubject(),
         command.getFaculty(),
         command.getQuestionPresetTags(),
