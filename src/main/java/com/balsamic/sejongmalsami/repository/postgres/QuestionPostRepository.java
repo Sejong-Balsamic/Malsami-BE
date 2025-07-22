@@ -43,7 +43,8 @@ public interface QuestionPostRepository extends JpaRepository<QuestionPost, UUID
       from QuestionPost q
       left join q.questionPresetTags qt
       where
-          (:subject is null or q.subject = :subject)
+          (:query is null or lower(q.title) like lower(concat('%', :query, '%')) or lower(q.content) like lower(concat('%', :query, '%') ))
+          and (:subject is null or q.subject = :subject)
           and (:faculty is null or :faculty member of q.faculties)
           and (:questionPresetTags is null or qt in :questionPresetTags)
           and (
@@ -54,6 +55,7 @@ public interface QuestionPostRepository extends JpaRepository<QuestionPost, UUID
           and (:isRewardYeopjeonRequest = false or q.rewardYeopjeon > 0)
       """)
   Page<QuestionPost> findQuestionPostsByFilter(
+      @Param("query") String query,
       @Param("subject") String subject,
       @Param("faculty") String faculty,
       @Param("questionPresetTags") List<QuestionPresetTag> questionPresetTags,
