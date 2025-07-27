@@ -9,6 +9,7 @@ import lombok.Getter;
 @Builder
 public class AuthDto {
   private String accessToken;
+  private String refreshToken;
   private Boolean isValidToken;
   private String studentName;
   private UUID memberId;

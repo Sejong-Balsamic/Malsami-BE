@@ -99,6 +99,53 @@ public interface MemberControllerDocs {
 
   @ApiChangeLogs({
       @ApiChangeLog(
+          date = "2025.03.22",
+          author = Author.SUHSAECHAN,
+          description = "모바일 전용 로그인 API 추가 (쿠키 대신 토큰 직접 반환)"
+      )
+  })
+  @Operation(
+      summary = "모바일 전용 로그인 요청",
+      description = """
+            **모바일 전용 로그인 요청**
+            
+            모바일 클라이언트를 위한 전용 로그인 API입니다.
+            웹과 달리 쿠키를 사용하지 않고 토큰을 직접 반환합니다.
+            
+            **이 API는 인증이 필요하지 않으며, JWT 토큰 없이 접근 가능합니다**
+            
+            **입력 파라미터 값:**
+            
+            - **String sejongPortalId**: 세종대학교 포털 ID [필수]
+            - **String sejongPortalPw**: 세종대학교 포털 비밀번호 [필수]
+            
+            **반환 파라미터 값:**
+            
+            - **Member member**: 회원 정보
+            - **String accessToken**: JWT 액세스 토큰 (API 인증용)
+            - **String refreshToken**: JWT 리프레시 토큰 (토큰 갱신용)
+            - **Boolean isFirstLogin**: 첫 로그인 여부
+            - **Boolean isAdmin**: 관리자 권한 여부
+            - **Yeopjeon yeopjeon**: 엽전 정보 (첫 로그인 시에만)
+            - **Exp exp**: 경험치 정보
+            
+            **응답 코드:**
+            
+            - **200 OK**: 로그인 성공
+            - **401 Unauthorized**: 세종포털 인증 실패
+            - **500 Internal Server Error**: 서버 내부 오류
+            
+            **주의사항:**
+            
+            - 모바일에서는 쿠키를 사용하지 않으므로 refreshToken을 안전하게 저장해야 합니다.
+            - accessToken은 Authorization 헤더에 'Bearer {token}' 형식으로 사용합니다.
+            - refreshToken은 만료 시 새로운 토큰 발급에 사용합니다.
+            """
+  )
+  ResponseEntity<MemberDto> signInForMobile(MemberCommand command);
+
+  @ApiChangeLogs({
+      @ApiChangeLog(
           date = "2024.12.14",
           author = Author.SUHSAECHAN,
           description = "자료게시판 접근권한 정보 반환 로직 추가"

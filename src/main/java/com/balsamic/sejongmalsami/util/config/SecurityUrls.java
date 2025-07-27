@@ -14,10 +14,12 @@ public class SecurityUrls {
   public static final List<String> AUTH_WHITELIST = Arrays.asList(
       // API
       "/api/auth/refresh",             // 리프레시 토큰
+      "/api/auth/mobile/refresh",      // 모바일 전용 토큰 갱신
       "/api/course/subjects/faculty",  // 교과목명 조회
       "/api/login",                    // 로그인
 //      "/api/test/**",                  // 테스트 API
       "/api/member/signin",            // 회원가입
+      "/api/member/mobile/signin",     // 모바일 전용 회원가입
       "/admin/auth/login",             // 관리자 로그인 API
       "/api/sejong/subject/get-all",   // 교과목명 정보
       "/api/notice/filter",            // 공지사항 필터링 조회

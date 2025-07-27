@@ -37,6 +37,14 @@ public class MemberController implements MemberControllerDocs {
 
   @Override
   @LogMonitoringInvocation
+  @PostMapping(value = "/mobile/signin", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
+  public ResponseEntity<MemberDto> signInForMobile(
+      @ModelAttribute MemberCommand command) {
+    return ResponseEntity.ok(memberService.signInForMobile(command));
+  }
+
+  @Override
+  @LogMonitoringInvocation
   @PostMapping(value = "/my-page", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
   public ResponseEntity<MemberDto> myPage(
       @ModelAttribute MemberCommand command,

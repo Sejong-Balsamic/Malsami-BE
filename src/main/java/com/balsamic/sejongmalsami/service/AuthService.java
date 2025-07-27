@@ -79,6 +79,67 @@ public class AuthService {
   }
 
   /**
+   * 모바일 전용 토큰 갱신 (Access + Refresh 둘 다 재발급)
+   */
+  @Transactional
+  public AuthDto refreshTokensForMobile(AuthCommand command) {
+    String oldRefreshToken = command.getRefreshToken();
+    
+    // 리프레시 토큰 검증 (JWT 유효성 검사)
+    if (!jwtUtil.validateToken(oldRefreshToken)) {
+      log.error("모바일: 리프레시 토큰이 유효하지 않습니다.");
+      throw new CustomException(ErrorCode.INVALID_REFRESH_TOKEN);
+    }
+
+    // 리프레시 토큰이 데이터베이스에 존재하는지 확인
+    RefreshToken storedToken = refreshTokenRepository.findByToken(oldRefreshToken)
+        .orElseThrow(() -> {
+          log.error("모바일: 저장된 리프레시 토큰을 찾을 수 없습니다.");
+          return new CustomException(ErrorCode.INVALID_REFRESH_TOKEN);
+        });
+
+    // 리프레시 토큰 만료 여부 확인
+    if (storedToken.getExpiryDate().isBefore(LocalDateTime.now())) {
+      log.error("모바일: 리프레시 토큰이 만료되었습니다.");
+      refreshTokenRepository.deleteByToken(oldRefreshToken); // 만료된 토큰 삭제
+      throw new CustomException(ErrorCode.INVALID_REFRESH_TOKEN);
+    }
+
+    // 리프레시 토큰에서 사용자 정보 추출
+    Claims claims = jwtUtil.getClaims(oldRefreshToken);
+    String username = claims.getSubject();
+
+    // 사용자 정보 로드
+    CustomUserDetails userDetails = customUserDetailsService.loadUserByUsername(username);
+
+    // 새로운 액세스 토큰 및 리프레시 토큰 생성
+    String newAccessToken = jwtUtil.createAccessToken(userDetails);
+    String newRefreshToken = jwtUtil.createRefreshToken(userDetails);
+
+    // 기존 리프레시 토큰 삭제
+    refreshTokenRepository.deleteByToken(oldRefreshToken);
+    log.info("모바일: 기존 리프레시 토큰 삭제 완료: 회원 = {}", userDetails.getMember().getStudentId());
+
+    // 새로운 리프레시 토큰 저장
+    RefreshToken newRefreshTokenEntity = RefreshToken.builder()
+        .token(newRefreshToken)
+        .memberId(userDetails.getMemberId())
+        .expiryDate(jwtUtil.getRefreshExpiryDate())
+        .build();
+    refreshTokenRepository.save(newRefreshTokenEntity);
+    log.info("모바일: 새로운 리프레시 토큰 저장 완료: 회원 = {}", userDetails.getMember().getStudentId());
+
+    log.info("모바일: 새로운 AccessToken 및 RefreshToken 발급 완료: 회원 = {}", userDetails.getMember().getStudentId());
+
+    return AuthDto.builder()
+        .accessToken(newAccessToken)
+        .refreshToken(newRefreshToken)
+        .studentName(userDetails.getMember().getStudentName())
+        .memberId(userDetails.getMemberId())
+        .build();
+  }
+
+  /**
    * 관리자 페이지 로그인
    */
   public WebLoginDto webLogin(MemberCommand command, HttpServletResponse response) {

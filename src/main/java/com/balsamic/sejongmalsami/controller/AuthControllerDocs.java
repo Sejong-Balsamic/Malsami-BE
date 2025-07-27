@@ -166,5 +166,47 @@ public interface AuthControllerDocs {
   ResponseEntity<AuthDto> saveFcmToken(
       CustomUserDetails customUserDetails,
       AuthCommand command);
+
+  @ApiChangeLogs({
+      @ApiChangeLog(
+          date = "2025.03.22",
+          author = Author.SUHSAECHAN,
+          description = "모바일 전용 토큰 갱신 API 추가 (Access + Refresh 둘 다 재발급)"
+      )
+  })
+  @Operation(
+      summary = "모바일 전용 토큰 갱신 (Access + Refresh 둘 다 재발급)",
+      description = """
+          **모바일 전용 토큰 갱신 API**
+
+          모바일 클라이언트에서 사용하는 전용 토큰 갱신 API입니다.
+          기존 리프레시 토큰을 전달하면 새로운 액세스 토큰과 리프레시 토큰을 모두 재발급합니다.
+
+          **이 API는 인증이 필요하지 않으며, refreshToken만으로 접근 가능합니다.**
+
+          **입력 파라미터 값:**
+
+          - **String refreshToken**: 기존 리프레시 토큰 [필수]
+
+          **반환 파라미터 값:**
+
+          - **String accessToken**: 새로운 JWT 액세스 토큰
+          - **String refreshToken**: 새로운 JWT 리프레시 토큰
+          - **String studentName**: 학생 이름
+          - **UUID memberId**: 회원 ID
+
+          **응답 코드:**
+
+          - **200 OK**: 토큰 갱신 성공
+          - **401 Unauthorized**: 리프레시 토큰이 유효하지 않거나 만료됨
+          - **400 Bad Request**: 리프레시 토큰 누락
+
+          **주의사항:**
+
+          - 모바일 환경에서는 쿠키를 사용하지 않으므로 리프레시 토큰을 직접 전달받습니다.
+          - 기존 리프레시 토큰은 무효화되고 새로운 리프레시 토큰이 발급됩니다.
+          """
+  )
+  ResponseEntity<AuthDto> refreshTokensForMobile(AuthCommand command);
 }
 
