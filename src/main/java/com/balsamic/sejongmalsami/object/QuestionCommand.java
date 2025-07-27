@@ -28,8 +28,9 @@ public class QuestionCommand {
 
   private UUID postId; // 질문, 답변
   private UUID memberId; // 질문, 답변
-  private String title; // 질문
   private UUID questionPostId; // 답변
+  private String query; // 질문
+  private String title; // 질문
   private String content; // 질문, 답변
   private String subject; // 질문
   private List<MultipartFile> attachmentFiles; // 질문, 답변
