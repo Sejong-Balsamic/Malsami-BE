@@ -43,7 +43,7 @@ public interface QuestionPostRepository extends JpaRepository<QuestionPost, UUID
       from QuestionPost q
       left join q.questionPresetTags qt
       where
-          (:query is null or lower(q.title) like lower(concat('%', :query, '%')) or lower(q.content) like lower(concat('%', :query, '%') ))
+          (:query is null or lower(q.title) like lower(concat('%', CAST(:query AS string), '%')) or lower(q.content) like lower(concat('%', CAST(:query AS string), '%')))
           and (:subject is null or q.subject = :subject)
           and (:faculty is null or :faculty member of q.faculties)
           and (:questionPresetTags is null or qt in :questionPresetTags)
