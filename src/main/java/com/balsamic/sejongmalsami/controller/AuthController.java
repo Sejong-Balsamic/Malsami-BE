@@ -3,6 +3,8 @@ package com.balsamic.sejongmalsami.controller;
 import com.balsamic.sejongmalsami.object.AuthCommand;
 import com.balsamic.sejongmalsami.object.AuthDto;
 import com.balsamic.sejongmalsami.object.CustomUserDetails;
+import com.balsamic.sejongmalsami.object.MemberCommand;
+import com.balsamic.sejongmalsami.object.MemberDto;
 import com.balsamic.sejongmalsami.service.AuthService;
 import com.balsamic.sejongmalsami.service.FcmTokenService;
 import com.balsamic.sejongmalsami.util.JwtUtil;
@@ -34,6 +36,22 @@ public class AuthController implements AuthControllerDocs {
   private final AuthService authService;
   private final JwtUtil jwtUtil;
   private final FcmTokenService fcmTokenService;
+
+  @Override
+  @LogMonitoringInvocation
+  @PostMapping(value = "/signin", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
+  public ResponseEntity<MemberDto> signIn(
+      @ModelAttribute MemberCommand command, HttpServletResponse response) {
+    return ResponseEntity.ok(authService.signIn(command, response));
+  }
+
+  @Override
+  @LogMonitoringInvocation
+  @PostMapping(value = "/mobile/signin", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
+  public ResponseEntity<MemberDto> signInForMobile(
+      @ModelAttribute MemberCommand command) {
+    return ResponseEntity.ok(authService.signInForMobile(command));
+  }
 
   @PostMapping(value = "/refresh")
   @LogMonitoringInvocation

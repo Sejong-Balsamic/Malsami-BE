@@ -6,7 +6,6 @@ import com.balsamic.sejongmalsami.object.MemberDto;
 import com.balsamic.sejongmalsami.service.MemberService;
 import com.balsamic.sejongmalsami.util.log.LogMonitoringInvocation;
 import io.swagger.v3.oas.annotations.tags.Tag;
-import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
@@ -26,22 +25,6 @@ import org.springframework.web.bind.annotation.RestController;
 public class MemberController implements MemberControllerDocs {
 
   private final MemberService memberService;
-
-  @Override
-  @LogMonitoringInvocation
-  @PostMapping(value = "/signin", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
-  public ResponseEntity<MemberDto> signIn(
-      @ModelAttribute MemberCommand command, HttpServletResponse response) {
-    return ResponseEntity.ok(memberService.signIn(command, response));
-  }
-
-  @Override
-  @LogMonitoringInvocation
-  @PostMapping(value = "/mobile/signin", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
-  public ResponseEntity<MemberDto> signInForMobile(
-      @ModelAttribute MemberCommand command) {
-    return ResponseEntity.ok(memberService.signInForMobile(command));
-  }
 
   @Override
   @LogMonitoringInvocation
