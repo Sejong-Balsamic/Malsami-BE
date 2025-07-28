@@ -47,6 +47,18 @@ public class AuthController implements AuthControllerDocs {
     return ResponseEntity.ok(authDto);
   }
 
+  /**
+   * 모바일 전용 토큰 갱신 (Access + Refresh 둘 다 재발급)
+   */
+  @PostMapping(value = "/mobile/refresh", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
+  @LogMonitoringInvocation
+  @Override
+  public ResponseEntity<AuthDto> refreshTokensForMobile(
+      @ModelAttribute AuthCommand command) {
+    AuthDto authDto = authService.refreshTokensForMobile(command);
+    return ResponseEntity.ok(authDto);
+  }
+
   @PostMapping(value = "/logout", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
   @LogMonitoringInvocation
   @Override

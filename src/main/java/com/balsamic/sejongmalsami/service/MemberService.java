@@ -261,6 +261,137 @@ public class MemberService {
         .build();
   }
 
+  /**
+   * 모바일 전용 회원 로그인 처리 (쿠키 사용 안함)
+   */
+  @Transactional
+  public MemberDto signInForMobile(MemberCommand command) {
+
+    boolean isFirstLogin = false;
+    boolean isAdmin = false;
+    Yeopjeon yeopjeon = null;
+
+    // 인증 정보 조회
+    MemberDto dto = sejongPortalAuthenticator.getMemberAuthInfos(command);
+    String studentIdString = dto.getStudentIdString();
+    Long studentId = Long.parseLong(studentIdString);
+
+    // 회원 조회 또는 신규 등록
+    Member member = memberRepository.findByStudentId(studentId)
+        .orElseGet(() -> {
+
+          // 관리자 계정 확인
+          HashSet<Role> roles = new HashSet<>(Set.of(Role.ROLE_USER));
+          if (adminConfig.isAdmin(studentIdString)) {
+            roles = new HashSet<>(Set.of(Role.ROLE_USER, Role.ROLE_ADMIN));
+            log.info("모바일: 관리자 계정 등록 완료: {}", studentIdString);
+          }
+
+          log.info("모바일: 신규 회원 등록: studentId = {}", studentId);
+          Member newMember = memberRepository.save(
+              Member.builder()
+                  .studentId(studentId)
+                  .studentName(dto.getStudentName())
+                  .uuidNickname(UUID.randomUUID().toString().substring(0, 6))
+                  .major(dto.getMajor())
+                  .academicYear(dto.getAcademicYear())
+                  .enrollmentStatus(dto.getEnrollmentStatus())
+                  .isNotificationEnabled(true)
+                  .roles(roles)
+                  .accountStatus(AccountStatus.ACTIVE)
+                  .isFirstLogin(true)
+                  .build());
+
+          // Exp 엔티티 생성 및 저장
+          Exp exp = expRepository.save(
+              Exp.builder()
+                  .member(newMember)
+                  .exp(0)
+                  .expTier(ExpTier.R)
+                  .tierStartExp(0)
+                  .tierEndExp(500)
+                  .progressPercent(0.0)
+                  .build());
+
+          log.info("모바일: 신규 회원 : Exp 객체 생성 : {}", exp.getExpId());
+
+          return newMember;
+        });
+
+    // 관리자 확인
+    if (member.getRoles().contains(Role.ROLE_ADMIN)) {
+      isAdmin = true;
+    }
+
+    // Faculty 설정
+    String major = member.getMajor();
+    Optional<List<Department>> departments = departmentRepository.findDeptMPrintOrDeptSPrint(major, major);
+
+    if (departments.isPresent() && !departments.get().isEmpty()) {
+      List<String> facultyNames = departments.get().stream()
+          .map(dept -> dept.getFaculty().getName())
+          .distinct()
+          .collect(Collectors.toList());
+      member.setFaculties(facultyNames);
+      log.info("모바일: Faculties 설정 완료: {} -> {}", member.getMemberId(), facultyNames);
+    } else {
+      member.setFaculties(Collections.singletonList(FileStatus.NOT_FOUND.name()));
+      log.warn("모바일: Member의 major에 해당하는 Department를 찾을 수 없습니다: {}", major);
+    }
+
+    // 첫 로그인 여부 확인
+    if (member.getIsFirstLogin()) {
+      isFirstLogin = true;
+
+      // 엽전 보상 지급
+      yeopjeon = yeopjeonRepository.save(Yeopjeon.builder()
+          .member(member)
+          .yeopjeon(yeopjeonConfig.getCreateAccount()) // 첫 로그인 보상
+          .build());
+      log.info("모바일: 첫 로그인 엽전 보상 지급: Yeopjeon ID = {}", yeopjeon.getYeopjeonId());
+
+      // 첫 로그인 플래그 비활성화
+      member.disableFirstLogin();
+    }
+
+    // 마지막 로그인 시간 업데이트
+    member.setLastLoginTime(LocalDateTime.now());
+    log.info("모바일: 회원 로그인 완료: studentId = {} , memberId = {}", studentId, member.getMemberId());
+    memberRepository.save(member);
+
+    // 회원 상세 정보 로드
+    CustomUserDetails userDetails = new CustomUserDetails(member);
+
+    // 액세스 토큰 및 리프레시 토큰 생성
+    String accessToken = jwtUtil.createAccessToken(userDetails);
+    String refreshToken = jwtUtil.createRefreshToken(userDetails);
+
+    log.info("모바일: 액세스 토큰 및 리프레시 토큰 생성 완료: 회원 = {}", member.getStudentId());
+    log.info("모바일: accessToken = {}", accessToken);
+    log.info("모바일: refreshToken = {}", refreshToken);
+
+    // Refresh Token 저장 (쿠키 설정 없음)
+    RefreshToken refreshTokenEntity = RefreshToken.builder()
+        .token(refreshToken)
+        .memberId(member.getMemberId())
+        .expiryDate(jwtUtil.getRefreshExpiryDate())
+        .build();
+    refreshTokenRepository.save(refreshTokenEntity);
+    log.info("모바일: 리프레시 토큰 저장 완료: 회원 = {}", member.getStudentId());
+
+    // 액세스 토큰 및 리프레시 토큰 반환
+    return MemberDto.builder()
+        .member(member)
+        .accessToken(accessToken)
+        .refreshToken(refreshToken)
+        .isFirstLogin(isFirstLogin)
+        .isAdmin(isAdmin)
+        .yeopjeon(yeopjeon)
+        .exp(expRepository.findByMember(member)
+            .orElseThrow(() -> new CustomException(ErrorCode.EXP_NOT_FOUND)))
+        .build();
+  }
+
 
   @Transactional(readOnly = true)
   public MemberDto myPage(MemberCommand command) {
