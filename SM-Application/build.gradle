@@ -1,0 +1,25 @@
+plugins {
+    id 'java-library'
+}
+
+bootJar {
+    enabled = false
+}
+
+jar {
+    enabled = true
+    archiveClassifier = ''
+}
+
+dependencies {
+    // 공통 모듈 의존성
+    implementation project(':SM-Common')
+    
+    // 도메인 모듈들 - 복합 비즈니스 로직에 필요한 모듈들
+    implementation project(':SM-Domain-Member')
+    implementation project(':SM-Domain-Post')
+    implementation project(':SM-Domain-Notice')
+    implementation project(':SM-Domain-Auth')
+    implementation project(':SM-Domain-Academic')
+    implementation project(':SM-Domain-AI')
+} 

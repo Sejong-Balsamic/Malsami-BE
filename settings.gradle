@@ -1,1 +1,11 @@
-rootProject.name = 'sejong-malsami-backend'
+rootProject.name = 'sejong-malsami'
+
+include 'SM-Common'
+include 'SM-Domain-Member'
+include 'SM-Domain-Post'
+include 'SM-Domain-Notice'
+include 'SM-Domain-Auth'
+include 'SM-Domain-Academic'
+include 'SM-Domain-AI'
+include 'SM-Application'
+include 'SM-Web'
