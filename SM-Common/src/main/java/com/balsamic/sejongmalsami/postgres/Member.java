@@ -1,7 +1,7 @@
-package com.balsamic.sejongmalsami.object.postgres;
+package com.balsamic.sejongmalsami.postgres;
 
-import com.balsamic.sejongmalsami.object.constants.AccountStatus;
-import com.balsamic.sejongmalsami.object.constants.Role;
+import com.balsamic.sejongmalsami.constants.AccountStatus;
+import com.balsamic.sejongmalsami.constants.Role;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import jakarta.persistence.CollectionTable;

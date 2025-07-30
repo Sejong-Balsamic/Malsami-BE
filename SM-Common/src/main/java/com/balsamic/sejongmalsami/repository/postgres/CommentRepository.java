@@ -1,8 +1,8 @@
 package com.balsamic.sejongmalsami.repository.postgres;
 
-import com.balsamic.sejongmalsami.object.constants.ContentType;
-import com.balsamic.sejongmalsami.object.postgres.Comment;
-import com.balsamic.sejongmalsami.object.postgres.Member;
+import com.balsamic.sejongmalsami.constants.ContentType;
+import com.balsamic.sejongmalsami.postgres.Comment;
+import com.balsamic.sejongmalsami.postgres.Member;
 import java.util.List;
 import java.util.UUID;
 import org.springframework.data.domain.Page;
@@ -15,7 +15,8 @@ public interface CommentRepository extends JpaRepository<Comment, UUID> {
 
   Long countByMember(Member member);
 
-  List<Comment> findByMember(Member member);
+  List<Comment> findByMember(
+      Member member);
 }
 
 

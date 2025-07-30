@@ -1,13 +1,13 @@
 package com.balsamic.sejongmalsami.application.dto;
 
-import com.balsamic.sejongmalsami.member.dto.MemberYeopjeon;
-import com.balsamic.sejongmalsami.object.mongo.YeopjeonHistory;
-import com.balsamic.sejongmalsami.object.postgres.Course;
-import com.balsamic.sejongmalsami.object.postgres.CourseFile;
-import com.balsamic.sejongmalsami.object.postgres.Faculty;
-import com.balsamic.sejongmalsami.object.postgres.Member;
-import com.balsamic.sejongmalsami.object.postgres.ServerErrorCode;
-import com.balsamic.sejongmalsami.object.postgres.Yeopjeon;
+import com.balsamic.sejongmalsami.dto.MemberYeopjeon;
+import com.balsamic.sejongmalsami.mongo.YeopjeonHistory;
+import com.balsamic.sejongmalsami.postgres.Course;
+import com.balsamic.sejongmalsami.postgres.CourseFile;
+import com.balsamic.sejongmalsami.postgres.Faculty;
+import com.balsamic.sejongmalsami.postgres.Member;
+import com.balsamic.sejongmalsami.postgres.ServerErrorCode;
+import com.balsamic.sejongmalsami.postgres.Yeopjeon;
 import com.balsamic.sejongmalsami.postgres.QuestionPost;
 import java.util.List;
 import lombok.Builder;

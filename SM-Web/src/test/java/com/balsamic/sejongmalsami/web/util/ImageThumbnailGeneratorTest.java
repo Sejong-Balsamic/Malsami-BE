@@ -1,7 +1,7 @@
 package com.balsamic.sejongmalsami.util;
 
-import com.balsamic.sejongmalsami.object.constants.ImageQuality;
-import com.balsamic.sejongmalsami.object.constants.MimeType;
+import com.balsamic.sejongmalsami.constants.ImageQuality;
+import com.balsamic.sejongmalsami.constants.MimeType;
 import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;

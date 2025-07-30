@@ -1,6 +1,6 @@
 package com.balsamic.sejongmalsami.util;
 
-import com.balsamic.sejongmalsami.object.constants.ExpAction;
+import com.balsamic.sejongmalsami.constants.ExpAction;
 import com.balsamic.sejongmalsami.util.config.ExpConfig;
 import com.balsamic.sejongmalsami.util.exception.CustomException;
 import com.balsamic.sejongmalsami.util.exception.ErrorCode;

@@ -2,7 +2,7 @@ package com.balsamic.sejongmalsami.academic.service;
 
 import com.balsamic.sejongmalsami.academic.dto.SejongAcademicCommand;
 import com.balsamic.sejongmalsami.object.SejongAcademicDto;
-import com.balsamic.sejongmalsami.object.postgres.Faculty;
+import com.balsamic.sejongmalsami.postgres.Faculty;
 import com.balsamic.sejongmalsami.repository.postgres.FacultyRepository;
 import com.balsamic.sejongmalsami.repository.postgres.SubjectRepository;
 import com.balsamic.sejongmalsami.util.TimeUtil;

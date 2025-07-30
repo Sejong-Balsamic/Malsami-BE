@@ -1,10 +1,10 @@
 package com.balsamic.sejongmalsami.member.dto;
 
-import com.balsamic.sejongmalsami.object.postgres.DocumentPost;
-import com.balsamic.sejongmalsami.object.postgres.DocumentRequestPost;
-import com.balsamic.sejongmalsami.object.postgres.Exp;
-import com.balsamic.sejongmalsami.object.postgres.Member;
-import com.balsamic.sejongmalsami.object.postgres.Yeopjeon;
+import com.balsamic.sejongmalsami.postgres.DocumentPost;
+import com.balsamic.sejongmalsami.postgres.DocumentRequestPost;
+import com.balsamic.sejongmalsami.postgres.Exp;
+import com.balsamic.sejongmalsami.postgres.Member;
+import com.balsamic.sejongmalsami.postgres.Yeopjeon;
 import com.balsamic.sejongmalsami.postgres.QuestionPost;
 import com.balsamic.sejongmalsami.postgres.TestMember;
 import lombok.Builder;

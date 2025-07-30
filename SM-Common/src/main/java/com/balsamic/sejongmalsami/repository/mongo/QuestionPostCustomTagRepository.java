@@ -1,6 +1,6 @@
 package com.balsamic.sejongmalsami.repository.mongo;
 
-import com.balsamic.sejongmalsami.object.mongo.QuestionPostCustomTag;
+import com.balsamic.sejongmalsami.mongo.QuestionPostCustomTag;
 import java.util.List;
 import java.util.Set;
 import java.util.UUID;

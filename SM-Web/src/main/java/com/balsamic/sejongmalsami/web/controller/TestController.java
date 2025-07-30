@@ -1,6 +1,6 @@
 package com.balsamic.sejongmalsami.controller;
 
-import com.balsamic.sejongmalsami.application.service.TestService;
+import com.balsamic.sejongmalsami.application.test.TestService;
 import com.balsamic.sejongmalsami.auth.dto.CustomUserDetails;
 import com.balsamic.sejongmalsami.auth.service.CustomUserDetailsService;
 import com.balsamic.sejongmalsami.object.TestCommand;

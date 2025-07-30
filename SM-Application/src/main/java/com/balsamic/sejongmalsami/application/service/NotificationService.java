@@ -2,8 +2,8 @@ package com.balsamic.sejongmalsami.service;
 
 import com.balsamic.sejongmalsami.object.NotificationCommand;
 import com.balsamic.sejongmalsami.object.NotificationDto;
-import com.balsamic.sejongmalsami.object.constants.NotificationCategory;
-import com.balsamic.sejongmalsami.object.mongo.FcmToken;
+import com.balsamic.sejongmalsami.constants.NotificationCategory;
+import com.balsamic.sejongmalsami.mongo.FcmToken;
 import com.balsamic.sejongmalsami.repository.mongo.FcmTokenRepository;
 import com.balsamic.sejongmalsami.util.CommonUtil;
 import com.balsamic.sejongmalsami.util.exception.CustomException;

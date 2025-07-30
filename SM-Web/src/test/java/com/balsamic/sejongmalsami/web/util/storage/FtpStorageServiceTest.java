@@ -2,7 +2,7 @@ package com.balsamic.sejongmalsami.util.storage;
 
 import static com.balsamic.sejongmalsami.util.log.LogUtil.lineLog;
 
-import com.balsamic.sejongmalsami.object.constants.ContentType;
+import com.balsamic.sejongmalsami.constants.ContentType;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;

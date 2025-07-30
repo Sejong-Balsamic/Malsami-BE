@@ -1,6 +1,6 @@
 package com.balsamic.sejongmalsami.postgres;
 
-import com.balsamic.sejongmalsami.object.constants.QuestionPresetTag;
+import com.balsamic.sejongmalsami.constants.QuestionPresetTag;
 import com.balsamic.sejongmalsami.util.exception.CustomException;
 import com.balsamic.sejongmalsami.util.exception.ErrorCode;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
@@ -36,7 +36,7 @@ import lombok.experimental.SuperBuilder;
 @NoArgsConstructor
 @ToString(callSuper = true)
 @JsonIgnoreProperties({"hibernateLazyInitializer", "handler"})
-public class QuestionPost extends com.balsamic.sejongmalsami.object.postgres.BasePost {
+public class QuestionPost extends BasePost {
 
   private static final int MAX_PRESET_TAGS = 2;
 
@@ -46,7 +46,7 @@ public class QuestionPost extends com.balsamic.sejongmalsami.object.postgres.Bas
   private UUID questionPostId;
 
   @ManyToOne(fetch = FetchType.LAZY)
-  private com.balsamic.sejongmalsami.object.postgres.Member member;
+  private Member member;
 
   // 제목
   @Column(nullable = false)

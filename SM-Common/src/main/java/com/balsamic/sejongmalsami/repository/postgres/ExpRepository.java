@@ -1,7 +1,7 @@
 package com.balsamic.sejongmalsami.repository.postgres;
 
-import com.balsamic.sejongmalsami.object.postgres.Exp;
-import com.balsamic.sejongmalsami.object.postgres.Member;
+import com.balsamic.sejongmalsami.postgres.Exp;
+import com.balsamic.sejongmalsami.postgres.Member;
 import java.util.Optional;
 import java.util.UUID;
 import org.springframework.data.jpa.repository.JpaRepository;
@@ -9,7 +9,8 @@ import org.springframework.data.jpa.repository.Query;
 
 public interface ExpRepository extends JpaRepository<Exp, UUID> {
 
-  Optional<Exp> findByMember(Member member);
+  Optional<Exp> findByMember(
+      Member member);
 
   @Query(value = """
         SELECT sub.rank

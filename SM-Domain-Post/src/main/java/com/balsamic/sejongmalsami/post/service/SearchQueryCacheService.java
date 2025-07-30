@@ -1,6 +1,6 @@
 package com.balsamic.sejongmalsami.service;
 
-import com.balsamic.sejongmalsami.object.postgres.SearchQueryCache;
+import com.balsamic.sejongmalsami.postgres.SearchQueryCache;
 import com.balsamic.sejongmalsami.repository.postgres.SearchQueryCacheRepository;
 import com.balsamic.sejongmalsami.util.RedisLockManager;
 import lombok.RequiredArgsConstructor;

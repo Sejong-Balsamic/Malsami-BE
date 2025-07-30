@@ -1,4 +1,4 @@
-package com.balsamic.sejongmalsami.object.postgres;
+package com.balsamic.sejongmalsami.postgres;
 
 import com.balsamic.sejongmalsami.util.converter.FloatArrayConverter;
 import jakarta.persistence.Column;

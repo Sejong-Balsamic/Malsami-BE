@@ -1,6 +1,6 @@
 package com.balsamic.sejongmalsami.auth.dto;
 
-import com.balsamic.sejongmalsami.object.mongo.FcmToken;
+import com.balsamic.sejongmalsami.mongo.FcmToken;
 import java.util.UUID;
 import lombok.Builder;
 import lombok.Getter;

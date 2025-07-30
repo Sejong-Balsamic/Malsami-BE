@@ -1,7 +1,7 @@
-package com.balsamic.sejongmalsami.object.postgres;
+package com.balsamic.sejongmalsami.postgres;
 
-import com.balsamic.sejongmalsami.object.constants.DocumentType;
-import com.balsamic.sejongmalsami.object.constants.PostTier;
+import com.balsamic.sejongmalsami.constants.DocumentType;
+import com.balsamic.sejongmalsami.constants.PostTier;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import jakarta.persistence.CollectionTable;
 import jakarta.persistence.Column;

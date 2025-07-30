@@ -1,14 +1,14 @@
 package com.balsamic.sejongmalsami.service;
 
-import static com.balsamic.sejongmalsami.object.constants.SortType.LATEST;
-import static com.balsamic.sejongmalsami.object.constants.SortType.MOST_LIKED;
-import static com.balsamic.sejongmalsami.object.constants.SortType.OLDEST;
-import static com.balsamic.sejongmalsami.object.constants.SortType.VIEW_COUNT;
-import static com.balsamic.sejongmalsami.object.constants.SortType.getJpqlSortOrder;
+import static com.balsamic.sejongmalsami.constants.SortType.LATEST;
+import static com.balsamic.sejongmalsami.constants.SortType.MOST_LIKED;
+import static com.balsamic.sejongmalsami.constants.SortType.OLDEST;
+import static com.balsamic.sejongmalsami.constants.SortType.VIEW_COUNT;
+import static com.balsamic.sejongmalsami.constants.SortType.getJpqlSortOrder;
 
 import com.balsamic.sejongmalsami.object.NoticePostCommand;
 import com.balsamic.sejongmalsami.object.NoticePostDto;
-import com.balsamic.sejongmalsami.object.postgres.NoticePost;
+import com.balsamic.sejongmalsami.postgres.NoticePost;
 import com.balsamic.sejongmalsami.repository.postgres.NoticePostRepository;
 import com.balsamic.sejongmalsami.util.exception.CustomException;
 import com.balsamic.sejongmalsami.util.exception.ErrorCode;

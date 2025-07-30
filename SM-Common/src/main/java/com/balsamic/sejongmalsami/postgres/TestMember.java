@@ -25,7 +25,7 @@ import lombok.experimental.SuperBuilder;
 @NoArgsConstructor
 @ToString(callSuper = true)
 @JsonIgnoreProperties({"hibernateLazyInitializer", "handler"})
-public class TestMember extends com.balsamic.sejongmalsami.object.postgres.BaseEntity {
+public class TestMember extends BaseEntity {
 
   @Id
   @GeneratedValue(strategy = GenerationType.AUTO)
@@ -47,7 +47,7 @@ public class TestMember extends com.balsamic.sejongmalsami.object.postgres.BaseE
   private String testEnrollmentStatus;
 
   @ManyToOne(fetch = FetchType.LAZY)
-  private com.balsamic.sejongmalsami.object.postgres.Member createdBy; // 생성한 관리자
+  private Member createdBy; // 생성한 관리자
 
   @Builder.Default
   private Boolean isActive = true;

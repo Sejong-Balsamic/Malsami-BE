@@ -1,6 +1,6 @@
-package com.balsamic.sejongmalsami.object.mongo;
+package com.balsamic.sejongmalsami.mongo;
 
-import com.balsamic.sejongmalsami.object.constants.YeopjeonAction;
+import com.balsamic.sejongmalsami.constants.YeopjeonAction;
 import jakarta.validation.constraints.NotNull;
 import lombok.AllArgsConstructor;
 import lombok.Builder;

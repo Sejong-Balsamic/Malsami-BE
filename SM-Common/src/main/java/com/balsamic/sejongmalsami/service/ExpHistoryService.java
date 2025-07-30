@@ -1,9 +1,9 @@
 package com.balsamic.sejongmalsami.service;
 
-import com.balsamic.sejongmalsami.object.constants.ExpAction;
-import com.balsamic.sejongmalsami.object.mongo.ExpHistory;
-import com.balsamic.sejongmalsami.object.postgres.Exp;
-import com.balsamic.sejongmalsami.object.postgres.Member;
+import com.balsamic.sejongmalsami.constants.ExpAction;
+import com.balsamic.sejongmalsami.mongo.ExpHistory;
+import com.balsamic.sejongmalsami.postgres.Exp;
+import com.balsamic.sejongmalsami.postgres.Member;
 import com.balsamic.sejongmalsami.repository.mongo.ExpHistoryRepository;
 import com.balsamic.sejongmalsami.repository.postgres.ExpRepository;
 import com.balsamic.sejongmalsami.util.ExpCalculator;

@@ -1,11 +1,11 @@
 package com.balsamic.sejongmalsami.service;
 
-import com.balsamic.sejongmalsami.object.constants.ContentType;
-import com.balsamic.sejongmalsami.object.constants.MimeType;
-import com.balsamic.sejongmalsami.object.constants.UploadType;
-import com.balsamic.sejongmalsami.object.postgres.DocumentFile;
-import com.balsamic.sejongmalsami.object.postgres.DocumentPost;
-import com.balsamic.sejongmalsami.object.postgres.Member;
+import com.balsamic.sejongmalsami.constants.ContentType;
+import com.balsamic.sejongmalsami.constants.MimeType;
+import com.balsamic.sejongmalsami.constants.UploadType;
+import com.balsamic.sejongmalsami.postgres.DocumentFile;
+import com.balsamic.sejongmalsami.postgres.DocumentPost;
+import com.balsamic.sejongmalsami.postgres.Member;
 import com.balsamic.sejongmalsami.repository.mongo.PurchaseHistoryRepository;
 import com.balsamic.sejongmalsami.repository.postgres.DocumentFileRepository;
 import com.balsamic.sejongmalsami.repository.postgres.DocumentPostRepository;

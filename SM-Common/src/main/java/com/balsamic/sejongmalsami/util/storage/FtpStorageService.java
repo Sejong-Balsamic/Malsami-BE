@@ -1,7 +1,7 @@
 package com.balsamic.sejongmalsami.util.storage;
 
-import com.balsamic.sejongmalsami.object.constants.ContentType;
-import com.balsamic.sejongmalsami.object.constants.ImageQuality;
+import com.balsamic.sejongmalsami.constants.ContentType;
+import com.balsamic.sejongmalsami.constants.ImageQuality;
 import com.balsamic.sejongmalsami.util.FileUtil;
 import com.balsamic.sejongmalsami.util.ImageThumbnailGenerator;
 import com.balsamic.sejongmalsami.util.config.FtpConfig;

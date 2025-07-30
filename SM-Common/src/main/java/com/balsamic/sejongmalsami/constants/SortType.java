@@ -1,4 +1,4 @@
-package com.balsamic.sejongmalsami.object.constants;
+package com.balsamic.sejongmalsami.constants;
 
 import com.balsamic.sejongmalsami.util.exception.CustomException;
 import com.balsamic.sejongmalsami.util.exception.ErrorCode;

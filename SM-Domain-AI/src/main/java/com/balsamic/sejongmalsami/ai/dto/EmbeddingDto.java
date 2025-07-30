@@ -1,7 +1,7 @@
 package com.balsamic.sejongmalsami.ai.dto;
 
 import com.balsamic.sejongmalsami.GeneralPost;
-import com.balsamic.sejongmalsami.object.postgres.PostEmbedding;
+import com.balsamic.sejongmalsami.postgres.PostEmbedding;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;

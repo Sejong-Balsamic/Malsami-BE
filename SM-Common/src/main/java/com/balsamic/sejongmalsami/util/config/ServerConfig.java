@@ -1,6 +1,6 @@
 package com.balsamic.sejongmalsami.util.config;
 
-import com.balsamic.sejongmalsami.object.constants.SystemType;
+import com.balsamic.sejongmalsami.constants.SystemType;
 import com.balsamic.sejongmalsami.util.FileUtil;
 import java.nio.file.Path;
 

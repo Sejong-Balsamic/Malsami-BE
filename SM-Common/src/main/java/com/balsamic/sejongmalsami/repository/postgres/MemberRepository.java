@@ -1,6 +1,7 @@
 package com.balsamic.sejongmalsami.repository.postgres;
 
-import com.balsamic.sejongmalsami.member.dto.MemberYeopjeon;
+import com.balsamic.sejongmalsami.dto.MemberYeopjeon;
+import com.balsamic.sejongmalsami.postgres.Member;
 import java.util.Optional;
 import java.util.UUID;
 import org.springframework.data.domain.Page;
@@ -11,9 +12,9 @@ import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 
 @Repository
-public interface MemberRepository extends JpaRepository<com.balsamic.sejongmalsami.object.postgres.Member, UUID> {
+public interface MemberRepository extends JpaRepository<Member, UUID> {
 
-  Optional<com.balsamic.sejongmalsami.object.postgres.Member> findByStudentId(Long studentId);
+  Optional<Member> findByStudentId(Long studentId);
 
   Boolean existsByStudentId(Long studentId);
 
@@ -35,7 +36,7 @@ public interface MemberRepository extends JpaRepository<com.balsamic.sejongmalsa
           AND (:isEdited IS NULL OR :isEdited IS NULL OR m.isEdited = :isEdited)
           AND (:isDeleted IS NULL OR :isDeleted IS NULL OR m.isDeleted = :isDeleted)
       """)
-  Page<com.balsamic.sejongmalsami.object.postgres.Member> findAllDynamic(
+  Page<Member> findAllDynamic(
       @Param("studentId") Long studentId,
       @Param("studentName") String studentName,
       @Param("uuidNickname") String uuidNickname,
@@ -43,8 +44,8 @@ public interface MemberRepository extends JpaRepository<com.balsamic.sejongmalsa
       @Param("faculty") String faculty,
       @Param("academicYear") String academicYear,
       @Param("enrollmentStatus") String enrollmentStatus,
-      @Param("accountStatus") com.balsamic.sejongmalsami.object.constants.AccountStatus accountStatus,
-      @Param("role") com.balsamic.sejongmalsami.object.constants.Role role,
+      @Param("accountStatus") com.balsamic.sejongmalsami.constants.AccountStatus accountStatus,
+      @Param("role") com.balsamic.sejongmalsami.constants.Role role,
       @Param("lastLoginStart") String lastLoginStart,
       @Param("lastLoginEnd") String lastLoginEnd,
       @Param("isFirstLogin") Boolean isFirstLogin,
@@ -54,7 +55,7 @@ public interface MemberRepository extends JpaRepository<com.balsamic.sejongmalsa
   );
 
   @Query("""
-          SELECT new MemberYeopjeon(
+          SELECT new com.balsamic.sejongmalsami.dto.MemberYeopjeon(
               m.memberId,
               m.studentId,
               m.studentName,
@@ -69,6 +70,7 @@ public interface MemberRepository extends JpaRepository<com.balsamic.sejongmalsa
              AND (:studentName IS NULL OR m.studentName LIKE %:studentName%)
              AND (:uuidNickname IS NULL OR m.uuidNickname LIKE %:uuidNickname%)
              AND (:memberId IS NULL OR m.memberId = :memberId)
+          ORDER BY m.createdDate DESC
       """)
   Page<MemberYeopjeon> findMemberYeopjeon(
       @Param("studentId") Long studentId,

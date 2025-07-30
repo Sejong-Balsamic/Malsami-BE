@@ -1,4 +1,4 @@
-package com.balsamic.sejongmalsami.object.constants;
+package com.balsamic.sejongmalsami.constants;
 
 // Swagger DOCS에서 @ApiChangeLog 어노테이션에 사용
 public enum Author {

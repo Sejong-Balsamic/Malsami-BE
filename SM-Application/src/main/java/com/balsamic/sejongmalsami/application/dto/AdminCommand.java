@@ -1,8 +1,8 @@
 package com.balsamic.sejongmalsami.object;
 
-import com.balsamic.sejongmalsami.object.constants.ChaetaekStatus;
-import com.balsamic.sejongmalsami.object.constants.QuestionPresetTag;
-import com.balsamic.sejongmalsami.object.postgres.Member;
+import com.balsamic.sejongmalsami.constants.ChaetaekStatus;
+import com.balsamic.sejongmalsami.constants.QuestionPresetTag;
+import com.balsamic.sejongmalsami.postgres.Member;
 import java.util.List;
 import java.util.UUID;
 import lombok.Getter;

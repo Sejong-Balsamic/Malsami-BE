@@ -3,7 +3,7 @@ package com.balsamic.sejongmalsami.controller;
 import com.balsamic.sejongmalsami.auth.dto.CustomUserDetails;
 import com.balsamic.sejongmalsami.academic.dto.SejongAcademicCommand;
 import com.balsamic.sejongmalsami.object.SejongAcademicDto;
-import com.balsamic.sejongmalsami.object.constants.Author;
+import com.balsamic.sejongmalsami.constants.Author;
 import com.balsamic.sejongmalsami.util.log.ApiChangeLog;
 import com.balsamic.sejongmalsami.util.log.ApiChangeLogs;
 import io.swagger.v3.oas.annotations.Operation;

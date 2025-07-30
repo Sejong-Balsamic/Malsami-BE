@@ -1,6 +1,6 @@
 package com.balsamic.sejongmalsami.repository.mongo;
 
-import com.balsamic.sejongmalsami.object.mongo.FcmToken;
+import com.balsamic.sejongmalsami.mongo.FcmToken;
 import java.util.Optional;
 import java.util.UUID;
 import org.springframework.data.mongodb.repository.MongoRepository;

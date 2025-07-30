@@ -1,6 +1,6 @@
-package com.balsamic.sejongmalsami.object.postgres;
+package com.balsamic.sejongmalsami.postgres;
 
-import com.balsamic.sejongmalsami.object.constants.FileStatus;
+import com.balsamic.sejongmalsami.constants.FileStatus;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.EnumType;

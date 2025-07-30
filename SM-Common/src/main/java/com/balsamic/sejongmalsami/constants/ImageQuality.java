@@ -1,4 +1,4 @@
-package com.balsamic.sejongmalsami.object.constants;
+package com.balsamic.sejongmalsami.constants;
 
 import lombok.Getter;
 

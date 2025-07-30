@@ -1,12 +1,12 @@
 package com.balsamic.sejongmalsami.post.service;
 
-import static com.balsamic.sejongmalsami.object.constants.ContentType.DOCUMENT;
-import static com.balsamic.sejongmalsami.object.constants.ContentType.QUESTION;
+import static com.balsamic.sejongmalsami.constants.ContentType.DOCUMENT;
+import static com.balsamic.sejongmalsami.constants.ContentType.QUESTION;
 
 import com.balsamic.sejongmalsami.object.DocumentDto;
 import com.balsamic.sejongmalsami.object.QuestionDto;
-import com.balsamic.sejongmalsami.object.constants.ContentType;
-import com.balsamic.sejongmalsami.object.postgres.DocumentPost;
+import com.balsamic.sejongmalsami.constants.ContentType;
+import com.balsamic.sejongmalsami.postgres.DocumentPost;
 import com.balsamic.sejongmalsami.postgres.QuestionPost;
 import com.balsamic.sejongmalsami.repository.postgres.DocumentPostRepository;
 import com.balsamic.sejongmalsami.repository.postgres.QuestionPostRepository;

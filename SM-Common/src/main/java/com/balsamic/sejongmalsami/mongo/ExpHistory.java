@@ -1,6 +1,6 @@
-package com.balsamic.sejongmalsami.object.mongo;
+package com.balsamic.sejongmalsami.mongo;
 
-import com.balsamic.sejongmalsami.object.constants.ExpAction;
+import com.balsamic.sejongmalsami.constants.ExpAction;
 import jakarta.validation.constraints.NotNull;
 import java.util.UUID;
 import lombok.AllArgsConstructor;

@@ -1,6 +1,6 @@
 package com.balsamic.sejongmalsami.object;
 
-import com.balsamic.sejongmalsami.object.postgres.MediaFile;
+import com.balsamic.sejongmalsami.postgres.MediaFile;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.ToString;

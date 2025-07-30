@@ -1,10 +1,10 @@
 package com.balsamic.sejongmalsami.member.dto;
 
-import com.balsamic.sejongmalsami.object.constants.AccountStatus;
-import com.balsamic.sejongmalsami.object.constants.ContentType;
-import com.balsamic.sejongmalsami.object.constants.Role;
-import com.balsamic.sejongmalsami.object.constants.SortType;
-import com.balsamic.sejongmalsami.object.postgres.Member;
+import com.balsamic.sejongmalsami.constants.AccountStatus;
+import com.balsamic.sejongmalsami.constants.ContentType;
+import com.balsamic.sejongmalsami.constants.Role;
+import com.balsamic.sejongmalsami.constants.SortType;
+import com.balsamic.sejongmalsami.postgres.Member;
 import io.swagger.v3.oas.annotations.media.Schema;
 import java.util.UUID;
 import lombok.AllArgsConstructor;

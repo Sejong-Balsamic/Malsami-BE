@@ -1,9 +1,9 @@
 package com.balsamic.sejongmalsami.repository.postgres;
 
-import com.balsamic.sejongmalsami.object.constants.DocumentType;
-import com.balsamic.sejongmalsami.object.constants.PostTier;
-import com.balsamic.sejongmalsami.object.postgres.DocumentPost;
-import com.balsamic.sejongmalsami.object.postgres.Member;
+import com.balsamic.sejongmalsami.constants.DocumentType;
+import com.balsamic.sejongmalsami.constants.PostTier;
+import com.balsamic.sejongmalsami.postgres.DocumentPost;
+import com.balsamic.sejongmalsami.postgres.Member;
 import java.util.List;
 import java.util.UUID;
 import org.springframework.data.domain.Page;

@@ -3,10 +3,10 @@ package com.balsamic.sejongmalsami.service;
 import static com.balsamic.sejongmalsami.util.log.LogUtil.lineLog;
 import static com.balsamic.sejongmalsami.util.log.LogUtil.timeLog;
 
-import com.balsamic.sejongmalsami.application.service.TestDataGenerator;
-import com.balsamic.sejongmalsami.object.postgres.DocumentFile;
-import com.balsamic.sejongmalsami.object.postgres.DocumentPost;
-import com.balsamic.sejongmalsami.object.postgres.Member;
+import com.balsamic.sejongmalsami.application.test.TestDataGenerator;
+import com.balsamic.sejongmalsami.postgres.DocumentFile;
+import com.balsamic.sejongmalsami.postgres.DocumentPost;
+import com.balsamic.sejongmalsami.postgres.Member;
 import com.balsamic.sejongmalsami.repository.postgres.DocumentFileRepository;
 import java.util.ArrayList;
 import java.util.List;

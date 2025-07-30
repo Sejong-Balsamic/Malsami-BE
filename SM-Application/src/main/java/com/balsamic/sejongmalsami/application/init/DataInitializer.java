@@ -3,7 +3,7 @@ package com.balsamic.sejongmalsami.util.init;
 import static com.balsamic.sejongmalsami.util.log.LogUtil.lineLog;
 import static com.balsamic.sejongmalsami.util.log.LogUtil.lineLogError;
 
-import com.balsamic.sejongmalsami.object.constants.HashType;
+import com.balsamic.sejongmalsami.constants.HashType;
 import com.balsamic.sejongmalsami.service.HashRegistryService;
 import com.balsamic.sejongmalsami.academic.service.SejongAcademicService;
 import com.balsamic.sejongmalsami.util.CommonUtil;

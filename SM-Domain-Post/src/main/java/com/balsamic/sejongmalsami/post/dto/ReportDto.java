@@ -1,6 +1,6 @@
 package com.balsamic.sejongmalsami.object;
 
-import com.balsamic.sejongmalsami.object.mongo.Report;
+import com.balsamic.sejongmalsami.mongo.Report;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.ToString;

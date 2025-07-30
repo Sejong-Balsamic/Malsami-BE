@@ -1,6 +1,6 @@
 package com.balsamic.sejongmalsami.repository.postgres;
 
-import com.balsamic.sejongmalsami.object.postgres.NoticePost;
+import com.balsamic.sejongmalsami.postgres.NoticePost;
 import java.util.List;
 import java.util.UUID;
 import org.springframework.data.domain.Page;

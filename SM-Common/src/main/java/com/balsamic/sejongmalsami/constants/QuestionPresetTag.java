@@ -1,4 +1,4 @@
-package com.balsamic.sejongmalsami.object.constants;
+package com.balsamic.sejongmalsami.constants;
 
 import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.AllArgsConstructor;

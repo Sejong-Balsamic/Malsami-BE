@@ -1,10 +1,10 @@
 package com.balsamic.sejongmalsami;
 
-import com.balsamic.sejongmalsami.object.constants.ContentType;
-import com.balsamic.sejongmalsami.object.constants.DocumentType;
-import com.balsamic.sejongmalsami.object.constants.PostTier;
-import com.balsamic.sejongmalsami.object.constants.QuestionPresetTag;
-import com.balsamic.sejongmalsami.object.postgres.DocumentPost;
+import com.balsamic.sejongmalsami.constants.ContentType;
+import com.balsamic.sejongmalsami.constants.DocumentType;
+import com.balsamic.sejongmalsami.constants.PostTier;
+import com.balsamic.sejongmalsami.constants.QuestionPresetTag;
+import com.balsamic.sejongmalsami.postgres.DocumentPost;
 import com.balsamic.sejongmalsami.postgres.QuestionPost;
 import java.time.LocalDateTime;
 import java.util.List;

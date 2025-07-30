@@ -1,6 +1,6 @@
 package com.balsamic.sejongmalsami.util.storage;
 
-import com.balsamic.sejongmalsami.object.constants.ContentType;
+import com.balsamic.sejongmalsami.constants.ContentType;
 import org.springframework.web.multipart.MultipartFile;
 
 /**

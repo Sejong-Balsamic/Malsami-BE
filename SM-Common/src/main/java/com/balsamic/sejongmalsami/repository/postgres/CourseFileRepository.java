@@ -1,7 +1,7 @@
 package com.balsamic.sejongmalsami.repository.postgres;
 
-import com.balsamic.sejongmalsami.object.constants.FileStatus;
-import com.balsamic.sejongmalsami.object.postgres.CourseFile;
+import com.balsamic.sejongmalsami.constants.FileStatus;
+import com.balsamic.sejongmalsami.postgres.CourseFile;
 import java.util.List;
 import java.util.Optional;
 import java.util.UUID;

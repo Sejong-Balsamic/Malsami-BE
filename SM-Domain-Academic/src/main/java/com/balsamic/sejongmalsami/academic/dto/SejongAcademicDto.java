@@ -1,6 +1,6 @@
 package com.balsamic.sejongmalsami.object;
 
-import com.balsamic.sejongmalsami.object.postgres.Faculty;
+import com.balsamic.sejongmalsami.postgres.Faculty;
 import java.io.Serial;
 import java.io.Serializable;
 import java.util.ArrayList;

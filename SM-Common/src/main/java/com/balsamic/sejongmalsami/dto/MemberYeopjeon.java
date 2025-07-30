@@ -1,4 +1,4 @@
-package com.balsamic.sejongmalsami.member.dto;
+package com.balsamic.sejongmalsami.dto;
 
 import java.util.UUID;
 import lombok.AllArgsConstructor;

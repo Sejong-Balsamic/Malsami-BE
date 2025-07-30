@@ -1,11 +1,11 @@
 package com.balsamic.sejongmalsami.post.service;
 
-import com.balsamic.sejongmalsami.object.constants.ContentType;
-import com.balsamic.sejongmalsami.object.constants.MimeType;
-import com.balsamic.sejongmalsami.object.postgres.Comment;
-import com.balsamic.sejongmalsami.object.postgres.DocumentRequestPost;
-import com.balsamic.sejongmalsami.object.postgres.MediaFile;
-import com.balsamic.sejongmalsami.object.postgres.NoticePost;
+import com.balsamic.sejongmalsami.constants.ContentType;
+import com.balsamic.sejongmalsami.constants.MimeType;
+import com.balsamic.sejongmalsami.postgres.Comment;
+import com.balsamic.sejongmalsami.postgres.DocumentRequestPost;
+import com.balsamic.sejongmalsami.postgres.MediaFile;
+import com.balsamic.sejongmalsami.postgres.NoticePost;
 import com.balsamic.sejongmalsami.postgres.AnswerPost;
 import com.balsamic.sejongmalsami.postgres.QuestionPost;
 import com.balsamic.sejongmalsami.repository.postgres.AnswerPostRepository;

@@ -1,6 +1,6 @@
 package com.balsamic.sejongmalsami.repository.mongo;
 
-import com.balsamic.sejongmalsami.object.mongo.SearchHistory;
+import com.balsamic.sejongmalsami.mongo.SearchHistory;
 import java.util.List;
 import org.springframework.data.mongodb.repository.MongoRepository;
 

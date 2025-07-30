@@ -1,6 +1,6 @@
-package com.balsamic.sejongmalsami.object.postgres;
+package com.balsamic.sejongmalsami.postgres;
 
-import com.balsamic.sejongmalsami.object.constants.ExpTier;
+import com.balsamic.sejongmalsami.constants.ExpTier;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
@@ -29,7 +29,7 @@ public class Exp {
   private UUID ExpId;
 
   @OneToOne
-  private com.balsamic.sejongmalsami.object.postgres.Member member;
+  private Member member;
 
   // 총 경험치량
   private Integer exp;

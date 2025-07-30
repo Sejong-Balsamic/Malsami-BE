@@ -1,7 +1,7 @@
 package com.balsamic.sejongmalsami.object;
 
-import com.balsamic.sejongmalsami.object.mongo.CommentLike;
-import com.balsamic.sejongmalsami.object.postgres.Comment;
+import com.balsamic.sejongmalsami.mongo.CommentLike;
+import com.balsamic.sejongmalsami.postgres.Comment;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.ToString;

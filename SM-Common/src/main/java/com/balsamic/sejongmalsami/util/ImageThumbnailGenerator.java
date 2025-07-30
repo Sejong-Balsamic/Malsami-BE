@@ -1,9 +1,9 @@
 package com.balsamic.sejongmalsami.util;
 
-import com.balsamic.sejongmalsami.object.constants.ContentType;
-import com.balsamic.sejongmalsami.object.constants.ImageQuality;
-import com.balsamic.sejongmalsami.object.constants.MimeType;
-import com.balsamic.sejongmalsami.object.constants.SystemType;
+import com.balsamic.sejongmalsami.constants.ContentType;
+import com.balsamic.sejongmalsami.constants.ImageQuality;
+import com.balsamic.sejongmalsami.constants.MimeType;
+import com.balsamic.sejongmalsami.constants.SystemType;
 import com.balsamic.sejongmalsami.util.exception.CustomException;
 import com.balsamic.sejongmalsami.util.exception.ErrorCode;
 import java.awt.Dimension;

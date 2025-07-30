@@ -1,6 +1,6 @@
 package com.balsamic.sejongmalsami.repository.postgres;
 
-import com.balsamic.sejongmalsami.object.postgres.PostEmbedding;
+import com.balsamic.sejongmalsami.postgres.PostEmbedding;
 import java.util.Optional;
 import java.util.UUID;
 import org.springframework.data.domain.Page;

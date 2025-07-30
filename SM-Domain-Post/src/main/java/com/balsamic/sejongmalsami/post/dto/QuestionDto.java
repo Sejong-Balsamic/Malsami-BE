@@ -1,7 +1,7 @@
 package com.balsamic.sejongmalsami.object;
 
-import com.balsamic.sejongmalsami.object.mongo.QuestionBoardLike;
-import com.balsamic.sejongmalsami.object.postgres.MediaFile;
+import com.balsamic.sejongmalsami.mongo.QuestionBoardLike;
+import com.balsamic.sejongmalsami.postgres.MediaFile;
 import com.balsamic.sejongmalsami.postgres.AnswerPost;
 import com.balsamic.sejongmalsami.postgres.QuestionPost;
 import java.util.List;

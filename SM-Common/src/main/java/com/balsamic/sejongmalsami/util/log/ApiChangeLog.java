@@ -1,6 +1,6 @@
 package com.balsamic.sejongmalsami.util.log;
 
-import com.balsamic.sejongmalsami.object.constants.Author;
+import com.balsamic.sejongmalsami.constants.Author;
 import java.lang.annotation.ElementType;
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;

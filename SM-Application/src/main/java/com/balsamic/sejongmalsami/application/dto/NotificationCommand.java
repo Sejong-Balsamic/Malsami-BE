@@ -1,7 +1,7 @@
 package com.balsamic.sejongmalsami.object;
 
-import com.balsamic.sejongmalsami.object.constants.NotificationCategory;
-import com.balsamic.sejongmalsami.object.postgres.Member;
+import com.balsamic.sejongmalsami.constants.NotificationCategory;
+import com.balsamic.sejongmalsami.postgres.Member;
 import java.util.Map;
 import java.util.UUID;
 import lombok.AllArgsConstructor;

@@ -1,8 +1,8 @@
 package com.balsamic.sejongmalsami.util.init;
 
-import com.balsamic.sejongmalsami.object.constants.HashType;
-import com.balsamic.sejongmalsami.object.postgres.Department;
-import com.balsamic.sejongmalsami.object.postgres.Faculty;
+import com.balsamic.sejongmalsami.constants.HashType;
+import com.balsamic.sejongmalsami.postgres.Department;
+import com.balsamic.sejongmalsami.postgres.Faculty;
 import com.balsamic.sejongmalsami.repository.postgres.DepartmentRepository;
 import com.balsamic.sejongmalsami.repository.postgres.FacultyRepository;
 import com.balsamic.sejongmalsami.service.HashRegistryService;

@@ -3,7 +3,7 @@ package com.balsamic.sejongmalsami.post.service;
 import static com.balsamic.sejongmalsami.util.CommonUtil.nullIfBlank;
 
 import com.balsamic.sejongmalsami.object.QueryCommand;
-import com.balsamic.sejongmalsami.object.mongo.SearchHistory;
+import com.balsamic.sejongmalsami.mongo.SearchHistory;
 import com.balsamic.sejongmalsami.post.dto.QueryDto;
 import com.balsamic.sejongmalsami.repository.mongo.SearchHistoryRepository;
 import com.balsamic.sejongmalsami.util.RedisLockManager;

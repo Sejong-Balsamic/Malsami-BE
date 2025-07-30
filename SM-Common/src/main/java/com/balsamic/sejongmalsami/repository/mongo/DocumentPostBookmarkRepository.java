@@ -1,7 +1,7 @@
 package com.balsamic.sejongmalsami.repository.mongo;
 
 
-import com.balsamic.sejongmalsami.object.mongo.DocumentPostBookmark;
+import com.balsamic.sejongmalsami.mongo.DocumentPostBookmark;
 import java.util.Optional;
 import java.util.UUID;
 import org.springframework.data.mongodb.repository.MongoRepository;

@@ -27,7 +27,7 @@ import lombok.experimental.SuperBuilder;
 @NoArgsConstructor
 @ToString(callSuper = true)
 @JsonIgnoreProperties({"hibernateLazyInitializer", "handler"})
-public class AnswerPost extends com.balsamic.sejongmalsami.object.postgres.BasePost {
+public class AnswerPost extends BasePost {
 
   @Id
   @GeneratedValue(strategy = GenerationType.AUTO)
@@ -35,7 +35,7 @@ public class AnswerPost extends com.balsamic.sejongmalsami.object.postgres.BaseP
   private UUID answerPostId;
 
   @ManyToOne(fetch = FetchType.LAZY)
-  private com.balsamic.sejongmalsami.object.postgres.Member member;
+  private Member member;
 
   @ManyToOne(fetch = FetchType.LAZY)
   private QuestionPost questionPost;
@@ -50,7 +50,7 @@ public class AnswerPost extends com.balsamic.sejongmalsami.object.postgres.BaseP
 
   // 답변 첨부파일
   @Transient
-  private List<com.balsamic.sejongmalsami.object.postgres.MediaFile> mediaFiles;
+  private List<MediaFile> mediaFiles;
 
   // 좋아요 누른 글 여부
   @Transient

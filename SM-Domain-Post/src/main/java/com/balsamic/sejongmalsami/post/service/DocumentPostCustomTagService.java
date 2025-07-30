@@ -1,7 +1,7 @@
 package com.balsamic.sejongmalsami.service;
 
-import com.balsamic.sejongmalsami.object.mongo.DocumentPostCustomTag;
-import com.balsamic.sejongmalsami.object.postgres.DocumentPost;
+import com.balsamic.sejongmalsami.mongo.DocumentPostCustomTag;
+import com.balsamic.sejongmalsami.postgres.DocumentPost;
 import com.balsamic.sejongmalsami.repository.mongo.DocumentPostCustomTagRepository;
 import com.balsamic.sejongmalsami.util.exception.CustomException;
 import com.balsamic.sejongmalsami.util.exception.ErrorCode;

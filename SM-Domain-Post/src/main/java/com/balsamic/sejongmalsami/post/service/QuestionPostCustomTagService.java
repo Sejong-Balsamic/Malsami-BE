@@ -1,6 +1,6 @@
 package com.balsamic.sejongmalsami.post.service;
 
-import com.balsamic.sejongmalsami.object.mongo.QuestionPostCustomTag;
+import com.balsamic.sejongmalsami.mongo.QuestionPostCustomTag;
 import com.balsamic.sejongmalsami.postgres.QuestionPost;
 import com.balsamic.sejongmalsami.repository.mongo.QuestionPostCustomTagRepository;
 import com.balsamic.sejongmalsami.util.exception.CustomException;

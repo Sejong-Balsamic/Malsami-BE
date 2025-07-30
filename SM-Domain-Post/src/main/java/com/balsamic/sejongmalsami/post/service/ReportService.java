@@ -2,9 +2,13 @@ package com.balsamic.sejongmalsami.post.service;
 
 import com.balsamic.sejongmalsami.object.ReportCommand;
 import com.balsamic.sejongmalsami.object.ReportDto;
-import com.balsamic.sejongmalsami.object.constants.ContentType;
-import com.balsamic.sejongmalsami.object.mongo.Report;
+import com.balsamic.sejongmalsami.constants.ContentType;
+import com.balsamic.sejongmalsami.mongo.Report;
 import com.balsamic.sejongmalsami.postgres.AnswerPost;
+import com.balsamic.sejongmalsami.postgres.Comment;
+import com.balsamic.sejongmalsami.postgres.DocumentPost;
+import com.balsamic.sejongmalsami.postgres.DocumentRequestPost;
+import com.balsamic.sejongmalsami.postgres.Member;
 import com.balsamic.sejongmalsami.postgres.QuestionPost;
 import com.balsamic.sejongmalsami.repository.mongo.ReportRepository;
 import com.balsamic.sejongmalsami.repository.postgres.AnswerPostRepository;
@@ -35,7 +39,7 @@ public class ReportService {
     log.debug("신고 저장 시작: {}", command);
 
     // 신고자 정보 추출
-    com.balsamic.sejongmalsami.object.postgres.Member reporter = command.getMember();
+    Member reporter = command.getMember();
     log.debug("신고자 정보 - memberId: {}, studentId: {}", reporter.getMemberId(), reporter.getStudentId());
 
     // 신고 대상의 ID와 타입 추출
@@ -48,7 +52,7 @@ public class ReportService {
     // 신고 대상에 따라 분기 처리
     if (contentType.equals(ContentType.COMMENT)) {
       // 댓글 신고 처리
-      com.balsamic.sejongmalsami.object.postgres.Comment comment = commentRepository.findById(reportedId)
+      Comment comment = commentRepository.findById(reportedId)
           .orElseThrow(() -> {
             log.error("해당 ID의 댓글을 찾을 수 없음: {}", reportedId);
             return new CustomException(ErrorCode.COMMENT_NOT_FOUND);
@@ -75,7 +79,7 @@ public class ReportService {
       log.debug("신고된 답변 게시글의 작성자 memberId: {}", reportedMemberId);
     } else if (contentType.equals(ContentType.DOCUMENT)) {
       // 자료 게시글 신고 처리
-      com.balsamic.sejongmalsami.object.postgres.DocumentPost documentPost = documentPostRepository.findById(reportedId)
+      DocumentPost documentPost = documentPostRepository.findById(reportedId)
           .orElseThrow(() -> {
             log.error("해당 ID의 자료 게시글을 찾을 수 없음: {}", reportedId);
             return new CustomException(ErrorCode.DOCUMENT_POST_NOT_FOUND);
@@ -84,7 +88,7 @@ public class ReportService {
       log.debug("신고된 자료 게시글의 작성자 memberId: {}", reportedMemberId);
     } else if (contentType.equals(ContentType.DOCUMENT_REQUEST)) {
       // 자료 요청 게시글 신고 처리
-      com.balsamic.sejongmalsami.object.postgres.DocumentRequestPost documentRequestPost = documentRequestPostRepository.findById(reportedId)
+      DocumentRequestPost documentRequestPost = documentRequestPostRepository.findById(reportedId)
           .orElseThrow(() -> {
             log.error("해당 ID의 자료 요청 게시글을 찾을 수 없음: {}", reportedId);
             return new CustomException(ErrorCode.DOCUMENT_REQUEST_POST_NOT_FOUND);

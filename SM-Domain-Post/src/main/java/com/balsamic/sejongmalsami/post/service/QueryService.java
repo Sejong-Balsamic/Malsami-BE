@@ -1,17 +1,17 @@
 package com.balsamic.sejongmalsami.post.service;
 
-import static com.balsamic.sejongmalsami.object.constants.SortType.COMMENT_COUNT;
-import static com.balsamic.sejongmalsami.object.constants.SortType.LATEST;
-import static com.balsamic.sejongmalsami.object.constants.SortType.MOST_LIKED;
-import static com.balsamic.sejongmalsami.object.constants.SortType.OLDEST;
-import static com.balsamic.sejongmalsami.object.constants.SortType.VIEW_COUNT;
-import static com.balsamic.sejongmalsami.object.constants.SortType.getNativeQuerySortOrder;
+import static com.balsamic.sejongmalsami.constants.SortType.COMMENT_COUNT;
+import static com.balsamic.sejongmalsami.constants.SortType.LATEST;
+import static com.balsamic.sejongmalsami.constants.SortType.MOST_LIKED;
+import static com.balsamic.sejongmalsami.constants.SortType.OLDEST;
+import static com.balsamic.sejongmalsami.constants.SortType.VIEW_COUNT;
+import static com.balsamic.sejongmalsami.constants.SortType.getNativeQuerySortOrder;
 
 import com.balsamic.sejongmalsami.object.QueryCommand;
-import com.balsamic.sejongmalsami.object.constants.SortType;
-import com.balsamic.sejongmalsami.object.postgres.DocumentPost;
-import com.balsamic.sejongmalsami.object.postgres.DocumentRequestPost;
-import com.balsamic.sejongmalsami.object.postgres.NoticePost;
+import com.balsamic.sejongmalsami.constants.SortType;
+import com.balsamic.sejongmalsami.postgres.DocumentPost;
+import com.balsamic.sejongmalsami.postgres.DocumentRequestPost;
+import com.balsamic.sejongmalsami.postgres.NoticePost;
 import com.balsamic.sejongmalsami.post.dto.QueryDto;
 import com.balsamic.sejongmalsami.postgres.QuestionPost;
 import com.balsamic.sejongmalsami.repository.postgres.DocumentPostRepository;

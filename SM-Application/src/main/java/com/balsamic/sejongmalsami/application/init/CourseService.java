@@ -1,7 +1,7 @@
 package com.balsamic.sejongmalsami.util.init;
 
-import com.balsamic.sejongmalsami.object.postgres.Course;
-import com.balsamic.sejongmalsami.object.postgres.Subject;
+import com.balsamic.sejongmalsami.postgres.Course;
+import com.balsamic.sejongmalsami.postgres.Subject;
 import com.balsamic.sejongmalsami.repository.postgres.CourseRepository;
 import com.balsamic.sejongmalsami.repository.postgres.DepartmentRepository;
 import com.balsamic.sejongmalsami.repository.postgres.FacultyRepository;

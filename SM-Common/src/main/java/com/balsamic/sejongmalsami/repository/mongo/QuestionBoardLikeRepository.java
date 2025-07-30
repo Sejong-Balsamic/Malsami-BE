@@ -1,7 +1,7 @@
 package com.balsamic.sejongmalsami.repository.mongo;
 
-import com.balsamic.sejongmalsami.object.constants.ContentType;
-import com.balsamic.sejongmalsami.object.mongo.QuestionBoardLike;
+import com.balsamic.sejongmalsami.constants.ContentType;
+import com.balsamic.sejongmalsami.mongo.QuestionBoardLike;
 import java.util.List;
 import java.util.Set;
 import java.util.UUID;

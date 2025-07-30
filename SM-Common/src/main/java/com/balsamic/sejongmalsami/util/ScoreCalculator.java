@@ -1,7 +1,7 @@
 package com.balsamic.sejongmalsami.util;
 
-import com.balsamic.sejongmalsami.object.postgres.DocumentFile;
-import com.balsamic.sejongmalsami.object.postgres.DocumentPost;
+import com.balsamic.sejongmalsami.postgres.DocumentFile;
+import com.balsamic.sejongmalsami.postgres.DocumentPost;
 import com.balsamic.sejongmalsami.postgres.QuestionPost;
 import com.balsamic.sejongmalsami.repository.postgres.DocumentFileRepository;
 import com.balsamic.sejongmalsami.util.config.ScoreConfig;
