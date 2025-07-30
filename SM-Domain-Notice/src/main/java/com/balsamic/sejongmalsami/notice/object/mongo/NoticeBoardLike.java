@@ -1,8 +1,7 @@
-package com.balsamic.sejongmalsami.object.mongo;
-
-import com.balsamic.sejongmalsami.object.mongo.BaseMongoEntity;
+package com.balsamic.sejongmalsami.notice.object.mongo;
 
 import com.balsamic.sejongmalsami.constants.ContentType;
+import com.balsamic.sejongmalsami.object.mongo.BaseMongoEntity;
 import jakarta.validation.constraints.NotNull;
 import java.util.UUID;
 import lombok.AllArgsConstructor;

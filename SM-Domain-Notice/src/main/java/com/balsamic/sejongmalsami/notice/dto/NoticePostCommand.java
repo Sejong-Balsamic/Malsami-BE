@@ -1,4 +1,4 @@
-package com.balsamic.sejongmalsami.object;
+package com.balsamic.sejongmalsami.notice.dto;
 
 import com.balsamic.sejongmalsami.constants.SortType;
 import com.balsamic.sejongmalsami.object.postgres.Member;

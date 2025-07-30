@@ -1,9 +1,9 @@
 package com.balsamic.sejongmalsami.web.controller.api;
 
 import com.balsamic.sejongmalsami.auth.dto.CustomUserDetails;
-import com.balsamic.sejongmalsami.object.NoticePostCommand;
-import com.balsamic.sejongmalsami.object.NoticePostDto;
-import com.balsamic.sejongmalsami.service.NoticePostService;
+import com.balsamic.sejongmalsami.notice.dto.NoticePostCommand;
+import com.balsamic.sejongmalsami.notice.dto.NoticePostDto;
+import com.balsamic.sejongmalsami.notice.service.NoticePostService;
 import com.balsamic.sejongmalsami.util.log.LogMonitoringInvocation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
