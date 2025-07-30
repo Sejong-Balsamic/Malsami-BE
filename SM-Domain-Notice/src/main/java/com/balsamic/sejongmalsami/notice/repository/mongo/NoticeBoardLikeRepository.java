@@ -1,6 +1,6 @@
-package com.balsamic.sejongmalsami.repository.mongo;
+package com.balsamic.sejongmalsami.notice.repository.mongo;
 
-import com.balsamic.sejongmalsami.object.mongo.NoticeBoardLike;
+import com.balsamic.sejongmalsami.notice.object.mongo.NoticeBoardLike;
 import org.springframework.data.mongodb.repository.MongoRepository;
 import org.springframework.stereotype.Repository;
 

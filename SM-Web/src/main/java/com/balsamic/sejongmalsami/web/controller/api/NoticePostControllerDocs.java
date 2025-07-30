@@ -2,8 +2,8 @@ package com.balsamic.sejongmalsami.web.controller.api;
 
 import com.balsamic.sejongmalsami.auth.dto.CustomUserDetails;
 import com.balsamic.sejongmalsami.constants.Author;
-import com.balsamic.sejongmalsami.object.NoticePostCommand;
-import com.balsamic.sejongmalsami.object.NoticePostDto;
+import com.balsamic.sejongmalsami.notice.dto.NoticePostCommand;
+import com.balsamic.sejongmalsami.notice.dto.NoticePostDto;
 import com.balsamic.sejongmalsami.util.log.ApiChangeLog;
 import com.balsamic.sejongmalsami.util.log.ApiChangeLogs;
 import io.swagger.v3.oas.annotations.Operation;
