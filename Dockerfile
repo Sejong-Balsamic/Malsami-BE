@@ -3,8 +3,8 @@ FROM openjdk:17-jdk-slim
 # 작업 디렉토리 설정
 WORKDIR /app
 
-# 빌드된 JAR 파일을 복사
-COPY build/libs/sejong-malsami-backend-0.0.1-SNAPSHOT.jar /app.jar
+# JAR 파일 복사 (SM-Web 모듈 JAR)
+COPY SM-Web/build/libs/SM-Web-0.0.1-SNAPSHOT.jar /app.jar
 
 # 애플리케이션 실행 (기본 Spring Boot 설정)
 ENTRYPOINT ["java", "-jar", "/app.jar"]
