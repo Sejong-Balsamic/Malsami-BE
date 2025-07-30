@@ -27,37 +27,37 @@ jobs:
         env:
           EMBEDDING_JSON: ${{ secrets.SEJONG_MALSAMI_EMBEDDING_JSON }}
         run: |
-          echo "$EMBEDDING_JSON" | sed 's/\n/\n/g' > ./src/main/resources/sejong-malsami-embedding.json
+          echo "$EMBEDDING_JSON" | sed 's/\n/\n/g' > ./SM-Web/src/main/resources/sejong-malsami-embedding.json
 
       - name: Create application-prod.yml from secret
         run: |
-          mkdir -p src/main/resources
-          echo "${{ secrets.APPLICATION_PROD_YML }}" > ./src/main/resources/application-prod.yml
+          mkdir -p SM-Web/src/main/resources
+          echo "${{ secrets.APPLICATION_PROD_YML }}" > ./SM-Web/src/main/resources/application-prod.yml
 
       - name: Create yeopjeon.yml from secret
         run: |
-          mkdir -p src/main/resources
-          echo "${{ secrets.YEOPJEON_YML }}" > ./src/main/resources/yeopjeon.yml
+          mkdir -p SM-Web/src/main/resources
+          echo "${{ secrets.YEOPJEON_YML }}" > ./SM-Web/src/main/resources/yeopjeon.yml
 
       - name: Create score.yml from secret
         run: |
-          mkdir -p src/main/resources
-          echo "${{ secrets.SCORE_YML }}" > ./src/main/resources/score.yml
+          mkdir -p SM-Web/src/main/resources
+          echo "${{ secrets.SCORE_YML }}" > ./SM-Web/src/main/resources/score.yml
 
       - name: Create exp.yml from secret
         run: |
-          mkdir -p src/main/resources
-          echo "${{ secrets.EXP_YML }}" > ./src/main/resources/exp.yml
+          mkdir -p SM-Web/src/main/resources
+          echo "${{ secrets.EXP_YML }}" > ./SM-Web/src/main/resources/exp.yml
 
       - name: Create admin.yml from secret
         run: |
-          mkdir -p src/main/resources
-          echo "${{ secrets.ADMIN_YML }}" > ./src/main/resources/admin.yml
+          mkdir -p SM-Web/src/main/resources
+          echo "${{ secrets.ADMIN_YML }}" > ./SM-Web/src/main/resources/admin.yml
 
       - name: Create post-tier.yml from secret
         run: |
-          mkdir -p src/main/resources
-          echo "${{ secrets.POSTTIER_YML }}" > ./src/main/resources/post-tier.yml
+          mkdir -p SM-Web/src/main/resources
+          echo "${{ secrets.POSTTIER_YML }}" > ./SM-Web/src/main/resources/post-tier.yml
 
       - name: Build with Gradle
         run: ./gradlew clean build -x test -Dspring.profiles.active=prod
