@@ -1,21 +1,23 @@
 package com.balsamic.sejongmalsami.post.service;
 
-import com.balsamic.sejongmalsami.object.QuestionCommand;
-import com.balsamic.sejongmalsami.object.QuestionDto;
 import com.balsamic.sejongmalsami.constants.ContentType;
 import com.balsamic.sejongmalsami.constants.ExpAction;
 import com.balsamic.sejongmalsami.constants.YeopjeonAction;
-import com.balsamic.sejongmalsami.mongo.ExpHistory;
-import com.balsamic.sejongmalsami.mongo.YeopjeonHistory;
-import com.balsamic.sejongmalsami.postgres.MediaFile;
-import com.balsamic.sejongmalsami.postgres.Member;
-import com.balsamic.sejongmalsami.postgres.Yeopjeon;
-import com.balsamic.sejongmalsami.postgres.AnswerPost;
-import com.balsamic.sejongmalsami.postgres.QuestionPost;
-import com.balsamic.sejongmalsami.repository.mongo.QuestionBoardLikeRepository;
-import com.balsamic.sejongmalsami.repository.postgres.AnswerPostRepository;
+import com.balsamic.sejongmalsami.object.QuestionCommand;
+import com.balsamic.sejongmalsami.object.mongo.ExpHistory;
+import com.balsamic.sejongmalsami.object.mongo.YeopjeonHistory;
+import com.balsamic.sejongmalsami.object.postgres.MediaFile;
+import com.balsamic.sejongmalsami.object.postgres.Member;
+import com.balsamic.sejongmalsami.object.postgres.Yeopjeon;
+import com.balsamic.sejongmalsami.post.dto.QuestionDto;
+import com.balsamic.sejongmalsami.post.object.postgres.AnswerPost;
+import com.balsamic.sejongmalsami.post.object.postgres.QuestionPost;
+import com.balsamic.sejongmalsami.post.repository.mongo.QuestionBoardLikeRepository;
+import com.balsamic.sejongmalsami.post.repository.postgres.AnswerPostRepository;
+import com.balsamic.sejongmalsami.post.repository.postgres.QuestionPostRepository;
 import com.balsamic.sejongmalsami.repository.postgres.MemberRepository;
-import com.balsamic.sejongmalsami.repository.postgres.QuestionPostRepository;
+import com.balsamic.sejongmalsami.service.ExpService;
+import com.balsamic.sejongmalsami.service.YeopjeonService;
 import com.balsamic.sejongmalsami.util.exception.CustomException;
 import com.balsamic.sejongmalsami.util.exception.ErrorCode;
 import java.util.List;
@@ -33,9 +35,9 @@ public class AnswerPostService {
   private final MemberRepository memberRepository;
   private final QuestionPostRepository questionPostRepository;
   private final QuestionBoardLikeRepository questionBoardLikeRepository;
-  private final MediaFileService mediaFileService;
-  private final com.balsamic.sejongmalsami.service.YeopjeonService yeopjeonService;
-  private final com.balsamic.sejongmalsami.service.ExpService expService;
+  private final PostMediaFileService postMediaFileService;
+  private final YeopjeonService yeopjeonService;
+  private final ExpService expService;
 
   /**
    * <h3>답변 작성 로직
@@ -70,7 +72,7 @@ public class AnswerPostService {
             .build());
 
     // 첨부파일 파일 업로드 및 썸네일 저장 -> 저장된 미디어파일 리스트 반환
-    List<MediaFile> savedMediaFiles = mediaFileService.handleMediaFiles(
+    List<MediaFile> savedMediaFiles = postMediaFileService.handleMediaFiles(
         ContentType.ANSWER,
         savedAnswerPost.getAnswerPostId(),
         command.getAttachmentFiles());
@@ -109,7 +111,7 @@ public class AnswerPostService {
     // 각 답변에 대해 첨부파일 반환 및 좋아요 여부 설정
     if (answerPosts != null) {
       answerPosts.forEach(answerPost -> {
-        List<MediaFile> mediaFiles = mediaFileService.getMediaFilesByPostId(answerPost.getAnswerPostId());
+        List<MediaFile> mediaFiles = postMediaFileService.getMediaFilesByPostId(answerPost.getAnswerPostId());
         answerPost.setMediaFiles(mediaFiles);
         Boolean isLiked = questionBoardLikeRepository
             .existsByQuestionBoardIdAndMemberId(answerPost.getAnswerPostId(), command.getMemberId());

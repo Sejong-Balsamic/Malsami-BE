@@ -1,6 +1,6 @@
 package com.balsamic.sejongmalsami.util.init;
 
-import com.balsamic.sejongmalsami.postgres.Subject;
+import com.balsamic.sejongmalsami.object.postgres.Subject;
 import com.balsamic.sejongmalsami.repository.postgres.SubjectRepository;
 import java.util.List;
 import lombok.RequiredArgsConstructor;

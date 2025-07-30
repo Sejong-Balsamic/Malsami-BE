@@ -2,8 +2,8 @@ package com.balsamic.sejongmalsami.auth.service;
 
 import com.balsamic.sejongmalsami.auth.dto.AuthCommand;
 import com.balsamic.sejongmalsami.auth.dto.AuthDto;
-import com.balsamic.sejongmalsami.mongo.FcmToken;
-import com.balsamic.sejongmalsami.repository.mongo.FcmTokenRepository;
+import com.balsamic.sejongmalsami.auth.object.mongo.FcmToken;
+import com.balsamic.sejongmalsami.auth.repository.mongo.FcmTokenRepository;
 import com.balsamic.sejongmalsami.util.exception.CustomException;
 import com.balsamic.sejongmalsami.util.exception.ErrorCode;
 import lombok.RequiredArgsConstructor;

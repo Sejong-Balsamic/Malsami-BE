@@ -1,13 +1,11 @@
-package com.balsamic.sejongmalsami.controller;
+package com.balsamic.sejongmalsami.web.controller;
 
+import com.balsamic.sejongmalsami.application.service.AuthApplicationService;
 import com.balsamic.sejongmalsami.auth.dto.AuthCommand;
 import com.balsamic.sejongmalsami.auth.dto.AuthDto;
 import com.balsamic.sejongmalsami.auth.dto.CustomUserDetails;
-import com.balsamic.sejongmalsami.member.dto.MemberCommand;
-import com.balsamic.sejongmalsami.member.dto.MemberDto;
-import com.balsamic.sejongmalsami.application.service.AuthApplicationService;
 import com.balsamic.sejongmalsami.auth.service.FcmTokenService;
-import com.balsamic.sejongmalsami.application.JwtUtil;
+import com.balsamic.sejongmalsami.member.dto.MemberDto;
 import com.balsamic.sejongmalsami.util.exception.CustomException;
 import com.balsamic.sejongmalsami.util.exception.ErrorCode;
 import com.balsamic.sejongmalsami.util.log.LogMonitoringInvocation;
@@ -34,14 +32,13 @@ import org.springframework.web.bind.annotation.RestController;
 public class AuthController implements AuthControllerDocs {
 
   private final AuthApplicationService authService;
-  private final JwtUtil jwtUtil;
   private final FcmTokenService fcmTokenService;
 
   @Override
   @LogMonitoringInvocation
   @PostMapping(value = "/signin", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
   public ResponseEntity<MemberDto> signIn(
-      @ModelAttribute MemberCommand command, HttpServletResponse response) {
+      @ModelAttribute AuthCommand command, HttpServletResponse response) {
     return ResponseEntity.ok(authService.signIn(command, response));
   }
 
@@ -49,7 +46,7 @@ public class AuthController implements AuthControllerDocs {
   @LogMonitoringInvocation
   @PostMapping(value = "/mobile/signin", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
   public ResponseEntity<MemberDto> signInForMobile(
-      @ModelAttribute MemberCommand command) {
+      @ModelAttribute AuthCommand command) {
     return ResponseEntity.ok(authService.signInForMobile(command));
   }
 

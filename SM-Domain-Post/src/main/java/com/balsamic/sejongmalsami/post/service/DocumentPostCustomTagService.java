@@ -1,8 +1,8 @@
-package com.balsamic.sejongmalsami.service;
+package com.balsamic.sejongmalsami.post.service;
 
-import com.balsamic.sejongmalsami.mongo.DocumentPostCustomTag;
-import com.balsamic.sejongmalsami.postgres.DocumentPost;
-import com.balsamic.sejongmalsami.repository.mongo.DocumentPostCustomTagRepository;
+import com.balsamic.sejongmalsami.post.object.mongo.DocumentPostCustomTag;
+import com.balsamic.sejongmalsami.post.object.postgres.DocumentPost;
+import com.balsamic.sejongmalsami.post.repository.mongo.DocumentPostCustomTagRepository;
 import com.balsamic.sejongmalsami.util.exception.CustomException;
 import com.balsamic.sejongmalsami.util.exception.ErrorCode;
 import java.util.List;

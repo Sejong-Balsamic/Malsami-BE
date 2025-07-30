@@ -1,7 +1,6 @@
 package com.balsamic.sejongmalsami.post.dto;
 
-import com.balsamic.sejongmalsami.object.MediaFileDto;
-import com.balsamic.sejongmalsami.postgres.AnswerPost;
+import com.balsamic.sejongmalsami.post.object.postgres.AnswerPost;
 import java.util.List;
 import lombok.Builder;
 import lombok.Getter;

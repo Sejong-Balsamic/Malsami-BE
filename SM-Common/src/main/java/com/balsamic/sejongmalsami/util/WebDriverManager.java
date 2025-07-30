@@ -1,6 +1,6 @@
 package com.balsamic.sejongmalsami.util;
 
-import com.balsamic.sejongmalsami.util.config.ServerConfig;
+import com.balsamic.sejongmalsami.config.ServerConfig;
 import com.balsamic.sejongmalsami.util.log.LogUtil;
 import java.net.MalformedURLException;
 import java.net.URL;

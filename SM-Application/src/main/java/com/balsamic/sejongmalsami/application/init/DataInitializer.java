@@ -8,7 +8,7 @@ import com.balsamic.sejongmalsami.service.HashRegistryService;
 import com.balsamic.sejongmalsami.academic.service.SejongAcademicService;
 import com.balsamic.sejongmalsami.util.CommonUtil;
 import com.balsamic.sejongmalsami.util.TimeUtil;
-import com.balsamic.sejongmalsami.util.config.ServerConfig;
+import com.balsamic.sejongmalsami.config.ServerConfig;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.time.Duration;

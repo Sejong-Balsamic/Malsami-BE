@@ -1,11 +1,10 @@
-package com.balsamic.sejongmalsami.controller;
+package com.balsamic.sejongmalsami.web.controller;
 
 import com.balsamic.sejongmalsami.auth.dto.AuthCommand;
 import com.balsamic.sejongmalsami.auth.dto.AuthDto;
 import com.balsamic.sejongmalsami.auth.dto.CustomUserDetails;
-import com.balsamic.sejongmalsami.member.dto.MemberCommand;
-import com.balsamic.sejongmalsami.member.dto.MemberDto;
 import com.balsamic.sejongmalsami.constants.Author;
+import com.balsamic.sejongmalsami.member.dto.MemberDto;
 import com.balsamic.sejongmalsami.util.log.ApiChangeLog;
 import com.balsamic.sejongmalsami.util.log.ApiChangeLogs;
 import io.swagger.v3.oas.annotations.Operation;
@@ -17,6 +16,11 @@ import org.springframework.web.bind.annotation.ModelAttribute;
 public interface AuthControllerDocs {
 
   @ApiChangeLogs({
+      @ApiChangeLog(
+          date = "2025.07.30",
+          author = Author.SUHSAECHAN,
+          description = "요청 파라미터 객체 변경: MemberCommand -> AuthCommand"
+      ),
       @ApiChangeLog(
           date = "2025.07.28",
           author = Author.BAEKJIHOON,
@@ -101,7 +105,7 @@ public interface AuthControllerDocs {
             """
   )
   ResponseEntity<MemberDto> signIn(
-      @ModelAttribute MemberCommand command,
+      @ModelAttribute AuthCommand command,
       HttpServletResponse response);
 
   @ApiChangeLogs({
@@ -129,7 +133,7 @@ public interface AuthControllerDocs {
             **입력 파라미터 값:**
             
             - **String sejongPortalId**: 세종대학교 포털 ID [필수]
-            - **String sejongPortalPw**: 세종대학교 포털 비밀번호 [필수]
+            - **String sejongPortalPassword**: 세종대학교 포털 비밀번호 [필수]
             
             **반환 파라미터 값:**
             
@@ -154,7 +158,7 @@ public interface AuthControllerDocs {
             - refreshToken은 만료 시 새로운 토큰 발급에 사용합니다.
             """
   )
-  ResponseEntity<MemberDto> signInForMobile(MemberCommand command);
+  ResponseEntity<MemberDto> signInForMobile(AuthCommand command);
 
   @ApiChangeLogs({
       @ApiChangeLog(

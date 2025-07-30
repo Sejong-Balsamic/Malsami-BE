@@ -1,4 +1,4 @@
-package com.balsamic.sejongmalsami.service;
+package com.balsamic.sejongmalsami.post.service;
 
 import static com.balsamic.sejongmalsami.constants.SortType.LATEST;
 import static com.balsamic.sejongmalsami.constants.SortType.MOST_LIKED;
@@ -12,28 +12,28 @@ import static com.balsamic.sejongmalsami.constants.YeopjeonAction.VIEW_DOCUMENT_
 import static com.balsamic.sejongmalsami.constants.YeopjeonAction.VIEW_DOCUMENT_YANGBAN_POST;
 
 import com.amazonaws.util.IOUtils;
-import com.balsamic.sejongmalsami.object.DocumentCommand;
-import com.balsamic.sejongmalsami.object.DocumentDto;
+import com.balsamic.sejongmalsami.config.YeopjeonConfig;
 import com.balsamic.sejongmalsami.constants.ContentType;
 import com.balsamic.sejongmalsami.constants.ExpAction;
 import com.balsamic.sejongmalsami.constants.PostTier;
 import com.balsamic.sejongmalsami.constants.SortType;
-import com.balsamic.sejongmalsami.mongo.PurchaseHistory;
-import com.balsamic.sejongmalsami.mongo.YeopjeonHistory;
-import com.balsamic.sejongmalsami.postgres.Course;
-import com.balsamic.sejongmalsami.postgres.DocumentFile;
-import com.balsamic.sejongmalsami.postgres.DocumentPost;
-import com.balsamic.sejongmalsami.postgres.Member;
-import com.balsamic.sejongmalsami.postgres.Yeopjeon;
-import com.balsamic.sejongmalsami.repository.mongo.DocumentBoardLikeRepository;
-import com.balsamic.sejongmalsami.repository.mongo.DocumentPostCustomTagRepository;
-import com.balsamic.sejongmalsami.repository.mongo.PurchaseHistoryRepository;
+import com.balsamic.sejongmalsami.object.DocumentCommand;
+import com.balsamic.sejongmalsami.object.mongo.YeopjeonHistory;
+import com.balsamic.sejongmalsami.object.postgres.Course;
+import com.balsamic.sejongmalsami.object.postgres.Member;
+import com.balsamic.sejongmalsami.object.postgres.Yeopjeon;
+import com.balsamic.sejongmalsami.post.dto.DocumentDto;
+import com.balsamic.sejongmalsami.post.object.mongo.PurchaseHistory;
+import com.balsamic.sejongmalsami.post.object.postgres.DocumentFile;
+import com.balsamic.sejongmalsami.post.object.postgres.DocumentPost;
+import com.balsamic.sejongmalsami.post.repository.mongo.DocumentBoardLikeRepository;
+import com.balsamic.sejongmalsami.post.repository.mongo.DocumentPostCustomTagRepository;
+import com.balsamic.sejongmalsami.post.repository.mongo.PurchaseHistoryRepository;
+import com.balsamic.sejongmalsami.post.repository.postgres.DocumentFileRepository;
+import com.balsamic.sejongmalsami.post.repository.postgres.DocumentPostRepository;
 import com.balsamic.sejongmalsami.repository.postgres.CourseRepository;
-import com.balsamic.sejongmalsami.repository.postgres.DocumentFileRepository;
-import com.balsamic.sejongmalsami.repository.postgres.DocumentPostRepository;
 import com.balsamic.sejongmalsami.repository.postgres.MemberRepository;
 import com.balsamic.sejongmalsami.util.RedisLockManager;
-import com.balsamic.sejongmalsami.util.config.YeopjeonConfig;
 import com.balsamic.sejongmalsami.util.exception.CustomException;
 import com.balsamic.sejongmalsami.util.exception.ErrorCode;
 import java.io.IOException;
@@ -76,7 +76,7 @@ public class DocumentPostService {
   private final PurchaseHistoryRepository purchaseHistoryRepository;
   private final GenericObjectPool<FTPClient> ftpClientPool;
   private final RedisLockManager redisLockManager;
-  private final com.balsamic.sejongmalsami.ai.service.PostEmbeddingService postEmbeddingService;
+  private final PostEmbeddingService postEmbeddingService;
   private final DocumentPostCustomTagRepository documentPostCustomTagRepository;
 
   /**

@@ -4,7 +4,7 @@ import com.balsamic.sejongmalsami.constants.AccountStatus;
 import com.balsamic.sejongmalsami.constants.ContentType;
 import com.balsamic.sejongmalsami.constants.Role;
 import com.balsamic.sejongmalsami.constants.SortType;
-import com.balsamic.sejongmalsami.postgres.Member;
+import com.balsamic.sejongmalsami.object.postgres.Member;
 import io.swagger.v3.oas.annotations.media.Schema;
 import java.util.UUID;
 import lombok.AllArgsConstructor;

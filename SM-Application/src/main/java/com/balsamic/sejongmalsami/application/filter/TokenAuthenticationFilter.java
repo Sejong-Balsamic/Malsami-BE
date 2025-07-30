@@ -3,7 +3,7 @@ package com.balsamic.sejongmalsami.application.filter;
 import com.balsamic.sejongmalsami.auth.dto.CustomUserDetails;
 import com.balsamic.sejongmalsami.auth.service.CustomUserDetailsService;
 import com.balsamic.sejongmalsami.application.JwtUtil;
-import com.balsamic.sejongmalsami.util.config.SecurityUrls;
+import com.balsamic.sejongmalsami.config.SecurityUrls;
 import com.balsamic.sejongmalsami.util.exception.ErrorCode;
 import com.balsamic.sejongmalsami.util.exception.ErrorResponse;
 import com.fasterxml.jackson.databind.ObjectMapper;

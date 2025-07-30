@@ -10,14 +10,30 @@ import org.springframework.data.mongodb.repository.config.EnableMongoRepositorie
 @Configuration
 @EnableJpaAuditing
 @EnableJpaRepositories(basePackages = {
-    "com.balsamic.sejongmalsami.repository.postgres"
+    "com.balsamic.sejongmalsami.repository.postgres",
+    "com.balsamic.sejongmalsami.post.repository.postgres",
+    "com.balsamic.sejongmalsami.notice.repository.postgres",
+    "com.balsamic.sejongmalsami.ai.repository.postgres",
+    "com.balsamic.sejongmalsami.academic.repository.postgres"
 })
 @EnableMongoRepositories(basePackages = {
-    "com.balsamic.sejongmalsami.repository.mongo"
+    "com.balsamic.sejongmalsami.repository.mongo",
+    "com.balsamic.sejongmalsami.post.repository.mongo",
+    "com.balsamic.sejongmalsami.notice.repository.mongo",
+    "com.balsamic.sejongmalsami.auth.repository.mongo",
+    "com.balsamic.sejongmalsami.ai.repository.mongo"
 })
 @EntityScan(basePackages = {
-    "com.balsamic.sejongmalsami.postgres",
-    "com.balsamic.sejongmalsami.mongo"
+    "com.balsamic.sejongmalsami.object.postgres",
+    "com.balsamic.sejongmalsami.object.mongo",
+    "com.balsamic.sejongmalsami.post.object.postgres",
+    "com.balsamic.sejongmalsami.post.object.mongo",
+    "com.balsamic.sejongmalsami.notice.object.postgres",
+    "com.balsamic.sejongmalsami.notice.object.mongo",
+    "com.balsamic.sejongmalsami.auth.object.mongo",
+    "com.balsamic.sejongmalsami.ai.object.postgres",
+    "com.balsamic.sejongmalsami.ai.object.mongo",
+    "com.balsamic.sejongmalsami.academic.object.postgres"
 })
 public class DatabaseConfig {
 } 

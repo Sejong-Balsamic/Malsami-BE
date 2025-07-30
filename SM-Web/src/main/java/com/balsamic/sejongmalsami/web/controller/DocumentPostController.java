@@ -2,10 +2,10 @@ package com.balsamic.sejongmalsami.web.controller;
 
 import com.balsamic.sejongmalsami.auth.dto.CustomUserDetails;
 import com.balsamic.sejongmalsami.object.DocumentCommand;
-import com.balsamic.sejongmalsami.object.DocumentDto;
+import com.balsamic.sejongmalsami.post.dto.DocumentDto;
+import com.balsamic.sejongmalsami.post.service.DocumentPostService;
+import com.balsamic.sejongmalsami.post.service.LikeService;
 import com.balsamic.sejongmalsami.post.service.PopularPostService;
-import com.balsamic.sejongmalsami.service.DocumentPostService;
-import com.balsamic.sejongmalsami.service.LikeService;
 import com.balsamic.sejongmalsami.util.log.LogMonitoringInvocation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import java.nio.charset.StandardCharsets;
@@ -27,7 +27,7 @@ import org.springframework.web.bind.annotation.RestController;
     name = "자료 게시판 API",
     description = "자료 게시글 관련 API 제공"
 )
-public class DocumentPostController implements com.balsamic.sejongmalsami.controller.DocumentPostControllerDocs {
+public class DocumentPostController implements DocumentPostControllerDocs {
 
   private final DocumentPostService documentPostService;
   private final PopularPostService popularPostService;

@@ -2,7 +2,7 @@ package com.balsamic.sejongmalsami.auth.dto;
 
 import com.balsamic.sejongmalsami.constants.AccountStatus;
 import com.balsamic.sejongmalsami.constants.Role;
-import com.balsamic.sejongmalsami.postgres.Member;
+import com.balsamic.sejongmalsami.object.postgres.Member;
 import java.util.Collection;
 import java.util.Map;
 import java.util.Set;

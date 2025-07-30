@@ -1,13 +1,12 @@
 package com.balsamic.sejongmalsami.web.controller;
 
 import com.balsamic.sejongmalsami.auth.dto.CustomUserDetails;
-import com.balsamic.sejongmalsami.controller.QuestionPostControllerDocs;
 import com.balsamic.sejongmalsami.object.QuestionCommand;
-import com.balsamic.sejongmalsami.object.QuestionDto;
+import com.balsamic.sejongmalsami.post.dto.QuestionDto;
 import com.balsamic.sejongmalsami.post.service.AnswerPostService;
+import com.balsamic.sejongmalsami.post.service.LikeService;
 import com.balsamic.sejongmalsami.post.service.PopularPostService;
-import com.balsamic.sejongmalsami.service.LikeService;
-import com.balsamic.sejongmalsami.service.QuestionPostService;
+import com.balsamic.sejongmalsami.post.service.QuestionPostService;
 import com.balsamic.sejongmalsami.util.log.LogMonitoringInvocation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;

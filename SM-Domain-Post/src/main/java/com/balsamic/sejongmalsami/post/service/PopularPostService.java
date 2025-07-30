@@ -3,14 +3,14 @@ package com.balsamic.sejongmalsami.post.service;
 import static com.balsamic.sejongmalsami.constants.ContentType.DOCUMENT;
 import static com.balsamic.sejongmalsami.constants.ContentType.QUESTION;
 
-import com.balsamic.sejongmalsami.object.DocumentDto;
-import com.balsamic.sejongmalsami.object.QuestionDto;
 import com.balsamic.sejongmalsami.constants.ContentType;
-import com.balsamic.sejongmalsami.postgres.DocumentPost;
-import com.balsamic.sejongmalsami.postgres.QuestionPost;
-import com.balsamic.sejongmalsami.repository.postgres.DocumentPostRepository;
-import com.balsamic.sejongmalsami.repository.postgres.QuestionPostRepository;
-import com.balsamic.sejongmalsami.util.ScoreCalculator;
+import com.balsamic.sejongmalsami.post.dto.DocumentDto;
+import com.balsamic.sejongmalsami.post.dto.QuestionDto;
+import com.balsamic.sejongmalsami.post.object.postgres.DocumentPost;
+import com.balsamic.sejongmalsami.post.object.postgres.QuestionPost;
+import com.balsamic.sejongmalsami.post.repository.postgres.DocumentPostRepository;
+import com.balsamic.sejongmalsami.post.repository.postgres.QuestionPostRepository;
+import com.balsamic.sejongmalsami.post.util.ScoreCalculator;
 import com.balsamic.sejongmalsami.util.exception.CustomException;
 import com.balsamic.sejongmalsami.util.exception.ErrorCode;
 import java.time.LocalDateTime;
@@ -50,7 +50,7 @@ public class PopularPostService {
   private static final String DOCUMENT_DAILY_KEY = "document:daily";
   private static final String DOCUMENT_WEEKLY_KEY = "document:weekly";
   private final QuestionPostCustomTagService questionPostCustomTagService;
-  private final com.balsamic.sejongmalsami.service.DocumentPostCustomTagService documentPostCustomTagService;
+  private final DocumentPostCustomTagService documentPostCustomTagService;
 
   /**
    * <h3>일간 인기 질문 글 조회 로직

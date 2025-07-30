@@ -3,9 +3,9 @@ package com.balsamic.sejongmalsami.service;
 import static com.balsamic.sejongmalsami.constants.YeopjeonAction.*;
 
 import com.balsamic.sejongmalsami.constants.YeopjeonAction;
-import com.balsamic.sejongmalsami.mongo.YeopjeonHistory;
-import com.balsamic.sejongmalsami.postgres.Member;
-import com.balsamic.sejongmalsami.postgres.Yeopjeon;
+import com.balsamic.sejongmalsami.object.mongo.YeopjeonHistory;
+import com.balsamic.sejongmalsami.object.postgres.Member;
+import com.balsamic.sejongmalsami.object.postgres.Yeopjeon;
 import com.balsamic.sejongmalsami.repository.postgres.YeopjeonRepository;
 import com.balsamic.sejongmalsami.util.YeopjeonCalculator;
 import com.balsamic.sejongmalsami.util.exception.CustomException;

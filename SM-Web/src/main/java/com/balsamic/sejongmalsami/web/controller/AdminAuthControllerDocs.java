@@ -1,6 +1,6 @@
-package com.balsamic.sejongmalsami.controller;
+package com.balsamic.sejongmalsami.web.controller;
 
-import com.balsamic.sejongmalsami.member.dto.MemberCommand;
+import com.balsamic.sejongmalsami.auth.dto.AuthCommand;
 import com.balsamic.sejongmalsami.auth.dto.WebLoginDto;
 import com.balsamic.sejongmalsami.constants.Author;
 import com.balsamic.sejongmalsami.util.log.ApiChangeLog;
@@ -24,5 +24,5 @@ public interface AdminAuthControllerDocs {
       description = """
           """
   )
-  public ResponseEntity<WebLoginDto> webLogin(@ModelAttribute MemberCommand command, HttpServletResponse response);
+  public ResponseEntity<WebLoginDto> webLogin(@ModelAttribute AuthCommand command, HttpServletResponse response);
 }

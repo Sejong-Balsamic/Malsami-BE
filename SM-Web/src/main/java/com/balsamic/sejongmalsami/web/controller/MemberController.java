@@ -1,4 +1,4 @@
-package com.balsamic.sejongmalsami.controller;
+package com.balsamic.sejongmalsami.web.controller;
 
 import com.balsamic.sejongmalsami.application.service.MemberService;
 import com.balsamic.sejongmalsami.auth.dto.CustomUserDetails;
@@ -57,14 +57,5 @@ public class MemberController implements MemberControllerDocs {
     return ResponseEntity.ok(memberService.getDocumentBoardAccessByTier(command));
   }
 
-  // 사용자가 작성한 글 반환
-  @Override
-  @LogMonitoringInvocation
-  @PostMapping(value = "/my-post", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
-  public ResponseEntity<MemberDto> getAllMemberPost(
-      @ModelAttribute MemberCommand command,
-      @AuthenticationPrincipal CustomUserDetails customUserDetails) {
-    command.setMember(customUserDetails.getMember());
-    return ResponseEntity.ok(memberService.getAllMemberPost(command));
-  }
+
 }

@@ -1,26 +1,27 @@
 package com.balsamic.sejongmalsami.application.test;
 
 import com.amazonaws.util.IOUtils;
+import com.balsamic.sejongmalsami.application.dto.AdminCommand;
+import com.balsamic.sejongmalsami.application.dto.TestCommand;
 import com.balsamic.sejongmalsami.constants.ContentType;
 import com.balsamic.sejongmalsami.constants.QuestionPresetTag;
 import com.balsamic.sejongmalsami.object.QuestionCommand;
-import com.balsamic.sejongmalsami.object.TestCommand;
 import com.balsamic.sejongmalsami.object.TestDto;
-import com.balsamic.sejongmalsami.postgres.AnswerPost;
-import com.balsamic.sejongmalsami.postgres.Comment;
-import com.balsamic.sejongmalsami.postgres.DocumentFile;
-import com.balsamic.sejongmalsami.postgres.DocumentPost;
-import com.balsamic.sejongmalsami.postgres.DocumentRequestPost;
-import com.balsamic.sejongmalsami.postgres.Member;
-import com.balsamic.sejongmalsami.postgres.QuestionPost;
-import com.balsamic.sejongmalsami.postgres.Subject;
-import com.balsamic.sejongmalsami.repository.postgres.AnswerPostRepository;
-import com.balsamic.sejongmalsami.repository.postgres.DocumentFileRepository;
-import com.balsamic.sejongmalsami.repository.postgres.DocumentPostRepository;
-import com.balsamic.sejongmalsami.repository.postgres.DocumentRequestPostRepository;
-import com.balsamic.sejongmalsami.repository.postgres.QuestionPostRepository;
+import com.balsamic.sejongmalsami.object.postgres.Member;
+import com.balsamic.sejongmalsami.object.postgres.Subject;
+import com.balsamic.sejongmalsami.post.object.postgres.AnswerPost;
+import com.balsamic.sejongmalsami.post.object.postgres.Comment;
+import com.balsamic.sejongmalsami.post.object.postgres.DocumentFile;
+import com.balsamic.sejongmalsami.post.object.postgres.DocumentPost;
+import com.balsamic.sejongmalsami.post.object.postgres.DocumentRequestPost;
+import com.balsamic.sejongmalsami.post.object.postgres.QuestionPost;
+import com.balsamic.sejongmalsami.post.repository.postgres.AnswerPostRepository;
+import com.balsamic.sejongmalsami.post.repository.postgres.DocumentFileRepository;
+import com.balsamic.sejongmalsami.post.repository.postgres.DocumentPostRepository;
+import com.balsamic.sejongmalsami.post.repository.postgres.DocumentRequestPostRepository;
+import com.balsamic.sejongmalsami.post.repository.postgres.QuestionPostRepository;
+import com.balsamic.sejongmalsami.post.service.QuestionPostService;
 import com.balsamic.sejongmalsami.repository.postgres.SubjectRepository;
-import com.balsamic.sejongmalsami.service.QuestionPostService;
 import com.balsamic.sejongmalsami.util.TimeUtil;
 import com.balsamic.sejongmalsami.util.WebDriverManager;
 import com.balsamic.sejongmalsami.util.exception.CustomException;
@@ -192,12 +193,18 @@ public class TestService {
     log.info("총 {} 명의 mock 유저가 {} 개의 mock 질문글을 생성했습니다.", userCount, questionTotalCreated);
   }
 
+  // 관리자 페이지 호환
+  @Transactional
+  public void createMockQuestionPostAndAnswerPost(AdminCommand command) {
+    createMockQuestionPostAndAnswerPost(TestCommand.builder().postCount(command.getPostCount()).build());
+  }
+
   /**
    * DocumentPost 및 관련 DocumentFile Mock 데이터 생성 지정된 개수만큼의 DocumentPost를 생성하고, 각 DocumentPost에 대해 0개에서 5개 사이의
    * DocumentFile을 생성합니다. 회원 풀을 미리 생성하여 게시물 작성 시 이들 중에서 랜덤으로 선택합니다.
    */
   @Transactional
-  public void createMockDocumentPostAndDocumentFiles(TestCommand command) {
+  public void createMockDocumentPostAndDocumentFiles(AdminCommand command) {
     Integer postCount = command.getPostCount();
     // 잘못된 값 입력 시 기본 30개 설정
     if (postCount == null || postCount <= 0) {
@@ -257,6 +264,11 @@ public class TestService {
         userCount, documentPostTotalCreated);
   }
 
+  @Transactional
+  public void createMockDocumentPostAndDocumentFiles(TestCommand command) {
+    createMockDocumentPostAndDocumentFiles(AdminCommand.builder().postCount(command.getPostCount()).build());
+  }
+
   /**
    * 자료 요청 글 Mock 데이터 생성 지정된 개수만큼의 자료 요청 글을 생성합니다. 생성된 자료요청글에 0~5개의 댓글을 작성합니다. 댓글 작성자는 회원 풀을 미리 생성하여 댓글 작성 시 랜덤으로 작성자를
    * 선택합니다.
@@ -311,6 +323,12 @@ public class TestService {
     log.info("총 {} 명의 mock 유저가 {} 개의 자료 요청 글을 생성했습니다.",
         userCount, totalCreated);
   }
+
+  @Transactional
+  public void createMockDocumentRequestPost(AdminCommand command) {
+    createMockDocumentRequestPost(TestCommand.builder().postCount(command.getPostCount()).build());
+  }
+
 
   // 회원 풀 생성
   private List<Member> createMemberPool(Integer postCount) {
@@ -539,6 +557,16 @@ public class TestService {
         .createdPostCount(collectedPosts)
         .timeTaken(readableTime)
         .build();
+  }
+
+  // 관리자 페이지 호환
+  @Transactional
+  public TestDto createMockQuestionPostFromKinNaver(AdminCommand command){
+    return createMockQuestionPostFromKinNaver(TestCommand.builder()
+        .postCount(command.getPostCount())
+        .useMockMember(command.isUseMockMember())
+        .member(command.getMember())
+        .build());
   }
 
   /**

@@ -2,9 +2,9 @@ package com.balsamic.sejongmalsami.web.controller;
 
 import com.balsamic.sejongmalsami.auth.dto.CustomUserDetails;
 import com.balsamic.sejongmalsami.object.CommentCommand;
-import com.balsamic.sejongmalsami.object.CommentDto;
+import com.balsamic.sejongmalsami.post.dto.CommentDto;
 import com.balsamic.sejongmalsami.post.service.CommentService;
-import com.balsamic.sejongmalsami.service.LikeService;
+import com.balsamic.sejongmalsami.post.service.LikeService;
 import com.balsamic.sejongmalsami.util.log.LogMonitoringInvocation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
@@ -23,7 +23,7 @@ import org.springframework.web.bind.annotation.RestController;
     name = "댓글 API",
     description = "댓글 관련 API 제공"
 )
-public class CommentController implements com.balsamic.sejongmalsami.controller.CommentControllerDocs {
+public class CommentController implements CommentControllerDocs {
 
   private final CommentService commentService;
   private final LikeService likeService;

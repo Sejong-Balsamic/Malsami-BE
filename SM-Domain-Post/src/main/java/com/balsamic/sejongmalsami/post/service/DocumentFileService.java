@@ -1,18 +1,18 @@
-package com.balsamic.sejongmalsami.service;
+package com.balsamic.sejongmalsami.post.service;
 
+import com.balsamic.sejongmalsami.config.FtpConfig;
 import com.balsamic.sejongmalsami.constants.ContentType;
 import com.balsamic.sejongmalsami.constants.MimeType;
 import com.balsamic.sejongmalsami.constants.UploadType;
-import com.balsamic.sejongmalsami.postgres.DocumentFile;
-import com.balsamic.sejongmalsami.postgres.DocumentPost;
-import com.balsamic.sejongmalsami.postgres.Member;
-import com.balsamic.sejongmalsami.repository.mongo.PurchaseHistoryRepository;
-import com.balsamic.sejongmalsami.repository.postgres.DocumentFileRepository;
-import com.balsamic.sejongmalsami.repository.postgres.DocumentPostRepository;
+import com.balsamic.sejongmalsami.object.postgres.Member;
+import com.balsamic.sejongmalsami.post.object.postgres.DocumentFile;
+import com.balsamic.sejongmalsami.post.object.postgres.DocumentPost;
+import com.balsamic.sejongmalsami.post.repository.mongo.PurchaseHistoryRepository;
+import com.balsamic.sejongmalsami.post.repository.postgres.DocumentFileRepository;
+import com.balsamic.sejongmalsami.post.repository.postgres.DocumentPostRepository;
 import com.balsamic.sejongmalsami.util.FileUtil;
 import com.balsamic.sejongmalsami.util.ImageThumbnailGenerator;
 import com.balsamic.sejongmalsami.util.MultipartFileAdapter;
-import com.balsamic.sejongmalsami.util.config.FtpConfig;
 import com.balsamic.sejongmalsami.util.exception.CustomException;
 import com.balsamic.sejongmalsami.util.exception.ErrorCode;
 import com.balsamic.sejongmalsami.util.storage.StorageService;

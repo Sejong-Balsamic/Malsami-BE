@@ -1,9 +1,9 @@
-package com.balsamic.sejongmalsami.controller;
+package com.balsamic.sejongmalsami.web.controller;
 
-import com.balsamic.sejongmalsami.auth.dto.CustomUserDetails;
 import com.balsamic.sejongmalsami.academic.dto.SejongAcademicCommand;
-import com.balsamic.sejongmalsami.object.SejongAcademicDto;
 import com.balsamic.sejongmalsami.academic.service.SejongAcademicService;
+import com.balsamic.sejongmalsami.auth.dto.CustomUserDetails;
+import com.balsamic.sejongmalsami.object.SejongAcademicDto;
 import com.balsamic.sejongmalsami.util.log.LogMonitoringInvocation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;

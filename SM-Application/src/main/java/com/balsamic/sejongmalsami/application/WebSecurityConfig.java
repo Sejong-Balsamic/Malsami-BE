@@ -1,8 +1,8 @@
 package com.balsamic.sejongmalsami.application;
 
 import com.balsamic.sejongmalsami.auth.service.CustomUserDetailsService;
-import com.balsamic.sejongmalsami.application.JwtUtil;
 import com.balsamic.sejongmalsami.application.filter.TokenAuthenticationFilter;
+import com.balsamic.sejongmalsami.config.SecurityUrls;
 import java.util.Arrays;
 import java.util.Collections;
 import lombok.RequiredArgsConstructor;
@@ -60,8 +60,8 @@ public class WebSecurityConfig {
         .httpBasic(AbstractHttpConfigurer::disable)
         .formLogin(AbstractHttpConfigurer::disable)
         .authorizeHttpRequests((authorize) -> authorize
-                                .requestMatchers(com.balsamic.sejongmalsami.util.config.SecurityUrls.AUTH_WHITELIST.toArray(new String[0])).permitAll()
-                    .requestMatchers(com.balsamic.sejongmalsami.util.config.SecurityUrls.ADMIN_PATHS.toArray(new String[0])).hasRole("ADMIN")
+                                .requestMatchers(SecurityUrls.AUTH_WHITELIST.toArray(new String[0])).permitAll()
+                    .requestMatchers(SecurityUrls.ADMIN_PATHS.toArray(new String[0])).hasRole("ADMIN")
             // 회원
             .requestMatchers(HttpMethod.POST, "/api/member/my-page").hasAnyRole("ADMIN", "USER")
             .requestMatchers(HttpMethod.POST, "/api/member/my-info").hasAnyRole("ADMIN", "USER")

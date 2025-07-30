@@ -1,7 +1,7 @@
 package com.balsamic.sejongmalsami.repository.postgres;
 
 import com.balsamic.sejongmalsami.dto.MemberYeopjeon;
-import com.balsamic.sejongmalsami.postgres.Member;
+import com.balsamic.sejongmalsami.object.postgres.Member;
 import java.util.Optional;
 import java.util.UUID;
 import org.springframework.data.domain.Page;

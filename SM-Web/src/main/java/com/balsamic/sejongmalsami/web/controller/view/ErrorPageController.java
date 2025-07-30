@@ -1,4 +1,4 @@
-package com.balsamic.sejongmalsami.controller.view;
+package com.balsamic.sejongmalsami.web.controller.view;
 
 import io.swagger.v3.oas.annotations.tags.Tag;
 import org.springframework.stereotype.Controller;

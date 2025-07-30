@@ -1,13 +1,13 @@
 package com.balsamic.sejongmalsami.util.init;
 
 import com.balsamic.sejongmalsami.constants.HashType;
-import com.balsamic.sejongmalsami.postgres.Department;
-import com.balsamic.sejongmalsami.postgres.Faculty;
+import com.balsamic.sejongmalsami.object.postgres.Department;
+import com.balsamic.sejongmalsami.object.postgres.Faculty;
 import com.balsamic.sejongmalsami.repository.postgres.DepartmentRepository;
 import com.balsamic.sejongmalsami.repository.postgres.FacultyRepository;
 import com.balsamic.sejongmalsami.service.HashRegistryService;
 import com.balsamic.sejongmalsami.util.CommonUtil;
-import com.balsamic.sejongmalsami.util.config.ServerConfig;
+import com.balsamic.sejongmalsami.config.ServerConfig;
 import com.balsamic.sejongmalsami.util.exception.CustomException;
 import com.balsamic.sejongmalsami.util.exception.ErrorCode;
 import com.fasterxml.jackson.databind.JsonNode;

@@ -1,51 +1,48 @@
 package com.balsamic.sejongmalsami.application.service;
 
+import com.balsamic.sejongmalsami.academic.object.postgres.CourseFile;
+import com.balsamic.sejongmalsami.academic.repository.postgres.CourseFileRepository;
+import com.balsamic.sejongmalsami.application.dto.AdminCommand;
 import com.balsamic.sejongmalsami.application.dto.AdminDto;
+import com.balsamic.sejongmalsami.auth.dto.AuthDto;
 import com.balsamic.sejongmalsami.auth.dto.FirebaseDto;
-import com.balsamic.sejongmalsami.member.dto.MemberCommand;
-import com.balsamic.sejongmalsami.member.dto.MemberDto;
-import com.balsamic.sejongmalsami.dto.MemberYeopjeon;
-import com.balsamic.sejongmalsami.object.AdminCommand;
-import com.balsamic.sejongmalsami.object.NoticePostCommand;
-import com.balsamic.sejongmalsami.object.NoticePostDto;
-import com.balsamic.sejongmalsami.object.NotificationCommand;
+import com.balsamic.sejongmalsami.config.FirebaseConfig;
 import com.balsamic.sejongmalsami.constants.ContentType;
 import com.balsamic.sejongmalsami.constants.NotificationCategory;
 import com.balsamic.sejongmalsami.constants.Role;
 import com.balsamic.sejongmalsami.constants.YeopjeonAction;
-import com.balsamic.sejongmalsami.mongo.QuestionPostCustomTag;
-import com.balsamic.sejongmalsami.mongo.YeopjeonHistory;
-import com.balsamic.sejongmalsami.postgres.Course;
-import com.balsamic.sejongmalsami.postgres.CourseFile;
-import com.balsamic.sejongmalsami.postgres.Faculty;
-import com.balsamic.sejongmalsami.postgres.Member;
-import com.balsamic.sejongmalsami.postgres.NoticePost;
-import com.balsamic.sejongmalsami.postgres.ServerErrorCode;
-import com.balsamic.sejongmalsami.postgres.Yeopjeon;
-import com.balsamic.sejongmalsami.postgres.QuestionPost;
-import com.balsamic.sejongmalsami.postgres.TestMember;
-import com.balsamic.sejongmalsami.repository.mongo.QuestionBoardLikeRepository;
-import com.balsamic.sejongmalsami.repository.mongo.QuestionPostCustomTagRepository;
+import com.balsamic.sejongmalsami.dto.MemberYeopjeon;
+import com.balsamic.sejongmalsami.member.dto.MemberDto;
+import com.balsamic.sejongmalsami.notice.object.postgres.NoticePost;
+import com.balsamic.sejongmalsami.notice.repository.postgres.NoticePostRepository;
+import com.balsamic.sejongmalsami.object.NoticePostCommand;
+import com.balsamic.sejongmalsami.object.NoticePostDto;
+import com.balsamic.sejongmalsami.object.NotificationCommand;
+import com.balsamic.sejongmalsami.object.mongo.YeopjeonHistory;
+import com.balsamic.sejongmalsami.object.postgres.Course;
+import com.balsamic.sejongmalsami.object.postgres.Faculty;
+import com.balsamic.sejongmalsami.object.postgres.Member;
+import com.balsamic.sejongmalsami.object.postgres.ServerErrorCode;
+import com.balsamic.sejongmalsami.object.postgres.TestMember;
+import com.balsamic.sejongmalsami.object.postgres.Yeopjeon;
+import com.balsamic.sejongmalsami.post.object.mongo.QuestionPostCustomTag;
+import com.balsamic.sejongmalsami.post.object.postgres.QuestionPost;
+import com.balsamic.sejongmalsami.post.repository.mongo.QuestionPostCustomTagRepository;
+import com.balsamic.sejongmalsami.post.repository.postgres.QuestionPostRepository;
+import com.balsamic.sejongmalsami.post.service.DocumentPostService;
 import com.balsamic.sejongmalsami.repository.mongo.YeopjeonHistoryRepository;
-import com.balsamic.sejongmalsami.repository.postgres.CourseFileRepository;
 import com.balsamic.sejongmalsami.repository.postgres.CourseRepository;
 import com.balsamic.sejongmalsami.repository.postgres.FacultyRepository;
 import com.balsamic.sejongmalsami.repository.postgres.MemberRepository;
-import com.balsamic.sejongmalsami.repository.postgres.NoticePostRepository;
-import com.balsamic.sejongmalsami.repository.postgres.QuestionPostRepository;
 import com.balsamic.sejongmalsami.repository.postgres.ServerErrorCodeRepository;
 import com.balsamic.sejongmalsami.repository.postgres.TestMemberRepository;
 import com.balsamic.sejongmalsami.repository.postgres.YeopjeonRepository;
-import com.balsamic.sejongmalsami.service.DocumentPostService;
 import com.balsamic.sejongmalsami.service.NotificationService;
 import com.balsamic.sejongmalsami.util.CommonUtil;
-import com.balsamic.sejongmalsami.util.config.FirebaseConfig;
 import com.balsamic.sejongmalsami.util.exception.CustomException;
 import com.balsamic.sejongmalsami.util.exception.ErrorCode;
 import com.balsamic.sejongmalsami.util.init.CourseFileGenerator;
-import com.balsamic.sejongmalsami.util.init.CourseService;
 import com.balsamic.sejongmalsami.util.log.LogUtil;
-import com.balsamic.sejongmalsami.util.storage.FtpStorageService;
 import com.balsamic.sejongmalsami.util.storage.StorageService;
 import java.nio.file.Paths;
 import java.util.Collections;
@@ -81,15 +78,12 @@ public class AdminApiService {
   private final FacultyRepository facultyRepository;
   private final CourseRepository courseRepository;
   private final CourseFileRepository courseFileRepository;
-  private final CourseService courseService;
   private final DocumentPostService documentPostService;
   private final CourseFileGenerator courseFileGenerator;
-  private final FtpStorageService ftpStorageService;
   private final StorageService storageService;
   private final ServerErrorCodeRepository serverErrorCodeRepository;
   private final QuestionPostRepository questionPostRepository;
   private final QuestionPostCustomTagRepository questionPostCustomTagRepository;
-  private final QuestionBoardLikeRepository questionBoardLikeRepository;
   private final FirebaseConfig firebaseConfig;
   private final NotificationService notificationService;
 
@@ -127,8 +121,8 @@ public class AdminApiService {
   }
 
   // 회원 관리 : 필터링 검색
-  public MemberDto getFilteredMembers(MemberCommand command) {
-    return MemberDto.builder()
+  public AdminDto getFilteredMembers(AdminCommand command) {
+    return AdminDto.builder()
         .membersPage(
             memberRepository.findAllDynamic(
                 command.getStudentId(),
@@ -156,14 +150,14 @@ public class AdminApiService {
         .build();
   }
 
-  public MemberDto getMemberByMemberIdStr(MemberCommand command) {
-    return MemberDto.builder()
+  public AdminDto getMemberByMemberIdStr(AdminCommand command) {
+    return AdminDto.builder()
         .member(memberRepository.findById(CommonUtil.toUUID(command.getMemberIdStr()))
             .orElseThrow(() -> new CustomException(ErrorCode.MEMBER_NOT_FOUND)))
         .build();
   }
 
-  public MemberDto createTestMember(MemberCommand command) {
+  public AdminDto createTestMember(AdminCommand command) {
     TestMember testMember =
         testMemberRepository.save(
             TestMember.builder()
@@ -177,12 +171,12 @@ public class AdminApiService {
                 .build());
     log.info("테스트 회원 생성: 테스트회원학번: {}, 생성자: {}", testMember.getTestStudentId(),
         testMember.getCreatedBy().getStudentName());
-    return MemberDto.builder()
+    return AdminDto.builder()
         .testMember(testMember)
         .build();
   }
 
-  public MemberDto getFilteredTestMembers(MemberCommand command) {
+  public AdminDto getFilteredTestMembers(AdminCommand command) {
     Pageable pageable = PageRequest.of(
         command.getPageNumber(),
         command.getPageSize(),
@@ -195,7 +189,7 @@ public class AdminApiService {
         pageable
     );
 
-    return MemberDto.builder()
+    return AdminDto.builder()
         .testMembersPage(testMembersPage)
         .build();
   }

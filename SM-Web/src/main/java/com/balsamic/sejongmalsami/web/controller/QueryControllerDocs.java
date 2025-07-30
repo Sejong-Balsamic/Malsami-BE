@@ -1,8 +1,8 @@
 package com.balsamic.sejongmalsami.web.controller;
 
-import com.balsamic.sejongmalsami.object.QueryCommand;
+import com.balsamic.sejongmalsami.application.dto.QueryCommand;
+import com.balsamic.sejongmalsami.application.dto.QueryDto;
 import com.balsamic.sejongmalsami.constants.Author;
-import com.balsamic.sejongmalsami.post.dto.QueryDto;
 import com.balsamic.sejongmalsami.util.log.ApiChangeLog;
 import com.balsamic.sejongmalsami.util.log.ApiChangeLogs;
 import io.swagger.v3.oas.annotations.Operation;

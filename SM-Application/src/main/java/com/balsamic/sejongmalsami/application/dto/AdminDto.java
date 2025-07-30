@@ -1,14 +1,15 @@
 package com.balsamic.sejongmalsami.application.dto;
 
+import com.balsamic.sejongmalsami.academic.object.postgres.CourseFile;
 import com.balsamic.sejongmalsami.dto.MemberYeopjeon;
-import com.balsamic.sejongmalsami.mongo.YeopjeonHistory;
-import com.balsamic.sejongmalsami.postgres.Course;
-import com.balsamic.sejongmalsami.postgres.CourseFile;
-import com.balsamic.sejongmalsami.postgres.Faculty;
-import com.balsamic.sejongmalsami.postgres.Member;
-import com.balsamic.sejongmalsami.postgres.ServerErrorCode;
-import com.balsamic.sejongmalsami.postgres.Yeopjeon;
-import com.balsamic.sejongmalsami.postgres.QuestionPost;
+import com.balsamic.sejongmalsami.object.mongo.YeopjeonHistory;
+import com.balsamic.sejongmalsami.object.postgres.Course;
+import com.balsamic.sejongmalsami.object.postgres.Faculty;
+import com.balsamic.sejongmalsami.object.postgres.Member;
+import com.balsamic.sejongmalsami.object.postgres.ServerErrorCode;
+import com.balsamic.sejongmalsami.object.postgres.TestMember;
+import com.balsamic.sejongmalsami.object.postgres.Yeopjeon;
+import com.balsamic.sejongmalsami.post.object.postgres.QuestionPost;
 import java.util.List;
 import lombok.Builder;
 import lombok.Getter;
@@ -23,6 +24,9 @@ import org.springframework.data.domain.Page;
 public class AdminDto {
 
   private Member member;
+  private Page<Member> membersPage;
+  private TestMember testMember;
+  private Page<TestMember> testMembersPage;
   private Page<MemberYeopjeon> memberYeopjeonPage;
   private Yeopjeon yeopjeon;
   private YeopjeonHistory yeopjeonHistory;
@@ -37,5 +41,5 @@ public class AdminDto {
   private Page<Course> coursePage;
   private Page<CourseFile> courseFilePage;
   private Page<ServerErrorCode> serverErrorCodesPage;
-   private Page<QuestionPost> questionPostPage;
+  private Page<QuestionPost> questionPostPage;
 }

@@ -1,6 +1,6 @@
 package com.balsamic.sejongmalsami.auth.dto;
 
-import com.balsamic.sejongmalsami.postgres.Member;
+import com.balsamic.sejongmalsami.object.postgres.Member;
 import java.util.UUID;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -17,4 +17,8 @@ public class AuthCommand {
   private UUID memberId;
   private Member member;
   private String fcmToken;
+  
+  // 세종포털 로그인 정보
+  private String sejongPortalId;
+  private String sejongPortalPassword;
 }

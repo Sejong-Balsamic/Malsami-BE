@@ -1,6 +1,6 @@
 package com.balsamic.sejongmalsami.object;
 
-import com.balsamic.sejongmalsami.postgres.NoticePost;
+import com.balsamic.sejongmalsami.notice.object.postgres.NoticePost;
 import java.util.List;
 import lombok.Builder;
 import lombok.Getter;

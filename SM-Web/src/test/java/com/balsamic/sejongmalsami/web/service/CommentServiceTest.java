@@ -1,8 +1,8 @@
 package com.balsamic.sejongmalsami.service;
 
 import com.balsamic.sejongmalsami.application.test.TestDataGenerator;
-import com.balsamic.sejongmalsami.postgres.Member;
-import com.balsamic.sejongmalsami.postgres.QuestionPost;
+import com.balsamic.sejongmalsami.object.postgres.Member;
+import com.balsamic.sejongmalsami.object.postgres.QuestionPost;
 import lombok.extern.slf4j.Slf4j;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;

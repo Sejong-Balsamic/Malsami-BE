@@ -1,6 +1,6 @@
 package com.balsamic.sejongmalsami.repository.postgres;
 
-import com.balsamic.sejongmalsami.postgres.Department;
+import com.balsamic.sejongmalsami.object.postgres.Department;
 import java.util.List;
 import java.util.Optional;
 import java.util.UUID;

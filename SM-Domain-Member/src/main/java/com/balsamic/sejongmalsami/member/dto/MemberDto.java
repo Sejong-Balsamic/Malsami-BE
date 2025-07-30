@@ -1,12 +1,9 @@
 package com.balsamic.sejongmalsami.member.dto;
 
-import com.balsamic.sejongmalsami.postgres.DocumentPost;
-import com.balsamic.sejongmalsami.postgres.DocumentRequestPost;
-import com.balsamic.sejongmalsami.postgres.Exp;
-import com.balsamic.sejongmalsami.postgres.Member;
-import com.balsamic.sejongmalsami.postgres.Yeopjeon;
-import com.balsamic.sejongmalsami.postgres.QuestionPost;
-import com.balsamic.sejongmalsami.postgres.TestMember;
+import com.balsamic.sejongmalsami.object.postgres.Exp;
+import com.balsamic.sejongmalsami.object.postgres.Member;
+import com.balsamic.sejongmalsami.object.postgres.TestMember;
+import com.balsamic.sejongmalsami.object.postgres.Yeopjeon;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.ToString;
@@ -69,9 +66,4 @@ public class MemberDto {
   private Long documentRequestPostCount;
 
   private Page<Member> membersPage;
-
-  // Post
-  private Page<QuestionPost> questionPostsPage;
-  private Page<DocumentPost> documentPostsPage;
-  private Page<DocumentRequestPost> documentRequestPostsPage;
 }

@@ -1,4 +1,4 @@
-package com.balsamic.sejongmalsami.controller;
+package com.balsamic.sejongmalsami.web.controller;
 
 import com.balsamic.sejongmalsami.auth.dto.CustomUserDetails;
 import com.balsamic.sejongmalsami.object.NotificationCommand;

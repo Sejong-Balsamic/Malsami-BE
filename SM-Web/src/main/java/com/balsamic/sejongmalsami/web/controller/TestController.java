@@ -1,9 +1,8 @@
-package com.balsamic.sejongmalsami.controller;
+package com.balsamic.sejongmalsami.web.controller;
 
+import com.balsamic.sejongmalsami.application.dto.TestCommand;
 import com.balsamic.sejongmalsami.application.test.TestService;
 import com.balsamic.sejongmalsami.auth.dto.CustomUserDetails;
-import com.balsamic.sejongmalsami.auth.service.CustomUserDetailsService;
-import com.balsamic.sejongmalsami.object.TestCommand;
 import com.balsamic.sejongmalsami.object.TestDto;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
@@ -28,7 +27,6 @@ import org.springframework.web.bind.annotation.RestController;
 public class TestController {
 
   private final TestService testService;
-  private final CustomUserDetailsService customUserDetailsService;
 
   @Operation(summary = "질문 글 Mock 데이터 생성",
   description = """

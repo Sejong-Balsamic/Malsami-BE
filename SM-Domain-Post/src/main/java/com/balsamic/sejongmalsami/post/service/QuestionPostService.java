@@ -1,4 +1,4 @@
-package com.balsamic.sejongmalsami.service;
+package com.balsamic.sejongmalsami.post.service;
 
 import static com.balsamic.sejongmalsami.constants.SortType.LATEST;
 import static com.balsamic.sejongmalsami.constants.SortType.MOST_LIKED;
@@ -7,29 +7,28 @@ import static com.balsamic.sejongmalsami.constants.SortType.REWARD_YEOPJEON_LATE
 import static com.balsamic.sejongmalsami.constants.SortType.VIEW_COUNT;
 import static com.balsamic.sejongmalsami.constants.SortType.getJpqlSortOrder;
 
-import com.balsamic.sejongmalsami.ai.service.PostEmbeddingService;
-import com.balsamic.sejongmalsami.object.QuestionCommand;
-import com.balsamic.sejongmalsami.object.QuestionDto;
 import com.balsamic.sejongmalsami.constants.ChaetaekStatus;
 import com.balsamic.sejongmalsami.constants.ContentType;
 import com.balsamic.sejongmalsami.constants.ExpAction;
 import com.balsamic.sejongmalsami.constants.QuestionPresetTag;
 import com.balsamic.sejongmalsami.constants.SortType;
 import com.balsamic.sejongmalsami.constants.YeopjeonAction;
-import com.balsamic.sejongmalsami.mongo.QuestionPostCustomTag;
-import com.balsamic.sejongmalsami.postgres.Course;
-import com.balsamic.sejongmalsami.postgres.MediaFile;
-import com.balsamic.sejongmalsami.postgres.Member;
-import com.balsamic.sejongmalsami.post.service.MediaFileService;
-import com.balsamic.sejongmalsami.post.service.QuestionPostCustomTagService;
-import com.balsamic.sejongmalsami.postgres.AnswerPost;
-import com.balsamic.sejongmalsami.postgres.QuestionPost;
-import com.balsamic.sejongmalsami.repository.mongo.QuestionBoardLikeRepository;
-import com.balsamic.sejongmalsami.repository.mongo.QuestionPostCustomTagRepository;
-import com.balsamic.sejongmalsami.repository.postgres.AnswerPostRepository;
+import com.balsamic.sejongmalsami.object.QuestionCommand;
+import com.balsamic.sejongmalsami.object.postgres.Course;
+import com.balsamic.sejongmalsami.object.postgres.MediaFile;
+import com.balsamic.sejongmalsami.object.postgres.Member;
+import com.balsamic.sejongmalsami.post.dto.QuestionDto;
+import com.balsamic.sejongmalsami.post.object.mongo.QuestionPostCustomTag;
+import com.balsamic.sejongmalsami.post.object.postgres.AnswerPost;
+import com.balsamic.sejongmalsami.post.object.postgres.QuestionPost;
+import com.balsamic.sejongmalsami.post.repository.mongo.QuestionBoardLikeRepository;
+import com.balsamic.sejongmalsami.post.repository.mongo.QuestionPostCustomTagRepository;
+import com.balsamic.sejongmalsami.post.repository.postgres.AnswerPostRepository;
+import com.balsamic.sejongmalsami.post.repository.postgres.QuestionPostRepository;
 import com.balsamic.sejongmalsami.repository.postgres.CourseRepository;
 import com.balsamic.sejongmalsami.repository.postgres.MemberRepository;
-import com.balsamic.sejongmalsami.repository.postgres.QuestionPostRepository;
+import com.balsamic.sejongmalsami.service.ExpService;
+import com.balsamic.sejongmalsami.service.YeopjeonService;
 import com.balsamic.sejongmalsami.util.RedisLockManager;
 import com.balsamic.sejongmalsami.util.exception.CustomException;
 import com.balsamic.sejongmalsami.util.exception.ErrorCode;
@@ -56,7 +55,7 @@ public class QuestionPostService {
   private final QuestionPostRepository questionPostRepository;
   private final MemberRepository memberRepository;
   private final QuestionPostCustomTagService questionPostCustomTagService;
-  private final MediaFileService mediaFileService;
+  private final PostMediaFileService postMediaFileService;
   private final CourseRepository courseRepository;
   private final QuestionBoardLikeRepository questionBoardLikeRepository;
   private final YeopjeonService yeopjeonService;
@@ -142,7 +141,7 @@ public class QuestionPostService {
     savedQuestionPost.setCustomTags(customTags);
 
     // 첨부파일 파일 업로드 및 썸네일 저장 -> 저장된 미디어파일 리스트 반환
-    List<MediaFile> savedMediaFiles = mediaFileService.handleMediaFiles(
+    List<MediaFile> savedMediaFiles = postMediaFileService.handleMediaFiles(
         ContentType.QUESTION,
         savedQuestionPost.getQuestionPostId(),
         command.getAttachmentFiles());
@@ -234,7 +233,7 @@ public class QuestionPostService {
     questionPost.setCustomTags(customTags);
 
     // 첨부파일 mediaFiles 가져오기
-    List<MediaFile> mediaFiles = mediaFileService.getMediaFilesByPostId(questionPost.getQuestionPostId());
+    List<MediaFile> mediaFiles = postMediaFileService.getMediaFilesByPostId(questionPost.getQuestionPostId());
 
     return QuestionDto.builder()
         .questionPost(questionPost)

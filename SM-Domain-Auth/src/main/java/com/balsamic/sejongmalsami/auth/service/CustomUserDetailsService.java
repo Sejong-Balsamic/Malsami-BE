@@ -1,7 +1,7 @@
 package com.balsamic.sejongmalsami.auth.service;
 
 import com.balsamic.sejongmalsami.auth.dto.CustomUserDetails;
-import com.balsamic.sejongmalsami.postgres.Member;
+import com.balsamic.sejongmalsami.object.postgres.Member;
 import com.balsamic.sejongmalsami.repository.postgres.MemberRepository;
 import com.balsamic.sejongmalsami.util.exception.CustomException;
 import com.balsamic.sejongmalsami.util.exception.ErrorCode;

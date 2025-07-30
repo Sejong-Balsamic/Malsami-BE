@@ -1,9 +1,9 @@
-package com.balsamic.sejongmalsami.controller;
+package com.balsamic.sejongmalsami.web.controller;
 
-import com.balsamic.sejongmalsami.auth.dto.CustomUserDetails;
 import com.balsamic.sejongmalsami.ai.dto.EmbeddingCommand;
-import com.balsamic.sejongmalsami.ai.dto.EmbeddingDto;
-import com.balsamic.sejongmalsami.ai.service.PostEmbeddingService;
+import com.balsamic.sejongmalsami.auth.dto.CustomUserDetails;
+import com.balsamic.sejongmalsami.post.dto.EmbeddingDto;
+import com.balsamic.sejongmalsami.post.service.PostEmbeddingService;
 import com.balsamic.sejongmalsami.util.log.LogMonitoringInvocation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;

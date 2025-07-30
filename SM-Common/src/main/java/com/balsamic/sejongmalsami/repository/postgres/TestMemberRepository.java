@@ -1,6 +1,6 @@
 package com.balsamic.sejongmalsami.repository.postgres;
 
-import com.balsamic.sejongmalsami.postgres.TestMember;
+import com.balsamic.sejongmalsami.object.postgres.TestMember;
 import java.util.Optional;
 import java.util.UUID;
 import org.springframework.data.domain.Page;

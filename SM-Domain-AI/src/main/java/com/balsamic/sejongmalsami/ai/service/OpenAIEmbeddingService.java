@@ -1,6 +1,6 @@
 package com.balsamic.sejongmalsami.ai.service;
 
-import com.balsamic.sejongmalsami.util.config.EmbeddingConfig;
+import com.balsamic.sejongmalsami.config.EmbeddingConfig;
 import com.balsamic.sejongmalsami.util.exception.CustomException;
 import com.balsamic.sejongmalsami.util.exception.ErrorCode;
 import com.google.genai.Client;

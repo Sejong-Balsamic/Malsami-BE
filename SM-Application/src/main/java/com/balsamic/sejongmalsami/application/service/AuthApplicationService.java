@@ -1,29 +1,28 @@
 package com.balsamic.sejongmalsami.application.service;
 
 import com.balsamic.sejongmalsami.application.JwtUtil;
-import com.balsamic.sejongmalsami.application.SejongPortalAuthenticator;
 import com.balsamic.sejongmalsami.auth.dto.AuthCommand;
 import com.balsamic.sejongmalsami.auth.dto.AuthDto;
 import com.balsamic.sejongmalsami.auth.dto.CustomUserDetails;
 import com.balsamic.sejongmalsami.auth.dto.WebLoginDto;
-import com.balsamic.sejongmalsami.member.dto.MemberCommand;
-import com.balsamic.sejongmalsami.member.dto.MemberDto;
+import com.balsamic.sejongmalsami.auth.object.mongo.RefreshToken;
+import com.balsamic.sejongmalsami.auth.repository.mongo.RefreshTokenRepository;
+import com.balsamic.sejongmalsami.auth.service.SejongPortalAuthenticator;
+import com.balsamic.sejongmalsami.config.AdminConfig;
+import com.balsamic.sejongmalsami.config.YeopjeonConfig;
 import com.balsamic.sejongmalsami.constants.AccountStatus;
 import com.balsamic.sejongmalsami.constants.ExpTier;
 import com.balsamic.sejongmalsami.constants.FileStatus;
 import com.balsamic.sejongmalsami.constants.Role;
-import com.balsamic.sejongmalsami.mongo.RefreshToken;
-import com.balsamic.sejongmalsami.postgres.Department;
-import com.balsamic.sejongmalsami.postgres.Exp;
-import com.balsamic.sejongmalsami.postgres.Member;
-import com.balsamic.sejongmalsami.postgres.Yeopjeon;
-import com.balsamic.sejongmalsami.repository.mongo.RefreshTokenRepository;
+import com.balsamic.sejongmalsami.member.dto.MemberDto;
+import com.balsamic.sejongmalsami.object.postgres.Department;
+import com.balsamic.sejongmalsami.object.postgres.Exp;
+import com.balsamic.sejongmalsami.object.postgres.Member;
+import com.balsamic.sejongmalsami.object.postgres.Yeopjeon;
 import com.balsamic.sejongmalsami.repository.postgres.DepartmentRepository;
 import com.balsamic.sejongmalsami.repository.postgres.ExpRepository;
 import com.balsamic.sejongmalsami.repository.postgres.MemberRepository;
 import com.balsamic.sejongmalsami.repository.postgres.YeopjeonRepository;
-import com.balsamic.sejongmalsami.util.config.AdminConfig;
-import com.balsamic.sejongmalsami.util.config.YeopjeonConfig;
 import com.balsamic.sejongmalsami.util.exception.CustomException;
 import com.balsamic.sejongmalsami.util.exception.ErrorCode;
 import io.jsonwebtoken.Claims;
@@ -65,14 +64,14 @@ public class AuthApplicationService {
    * 회원 로그인 처리
    */
   @Transactional
-  public MemberDto signIn(MemberCommand command, HttpServletResponse response) {
+  public MemberDto signIn(AuthCommand command, HttpServletResponse response) {
 
     boolean isFirstLogin = false;
     boolean isAdmin = false;
     Yeopjeon yeopjeon = null;
 
     // 인증 정보 조회
-    MemberDto dto = sejongPortalAuthenticator.getMemberAuthInfos(command);
+    AuthDto dto = sejongPortalAuthenticator.getMemberAuthInfos(command);
     String studentIdString = dto.getStudentIdString();
     Long studentId = Long.parseLong(studentIdString);
 
@@ -231,14 +230,14 @@ public class AuthApplicationService {
    * 모바일 전용 회원 로그인 처리 (쿠키 사용 안함)
    */
   @Transactional
-  public MemberDto signInForMobile(MemberCommand command) {
+  public MemberDto signInForMobile(AuthCommand command) {
 
     boolean isFirstLogin = false;
     boolean isAdmin = false;
     Yeopjeon yeopjeon = null;
 
     // 인증 정보 조회
-    MemberDto dto = sejongPortalAuthenticator.getMemberAuthInfos(command);
+    AuthDto dto = sejongPortalAuthenticator.getMemberAuthInfos(command);
     String studentIdString = dto.getStudentIdString();
     Long studentId = Long.parseLong(studentIdString);
 
@@ -468,7 +467,7 @@ public class AuthApplicationService {
   /**
    * 관리자 페이지 로그인
    */
-  public WebLoginDto webLogin(MemberCommand command, HttpServletResponse response) {
+  public WebLoginDto webLogin(AuthCommand command, HttpServletResponse response) {
     log.info("관리자 로그인 시도: {}", command.getSejongPortalId());
     try {
       // 회원 로그인 사용

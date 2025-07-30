@@ -1,9 +1,9 @@
-package com.balsamic.sejongmalsami.controller;
+package com.balsamic.sejongmalsami.web.controller;
 
 import com.balsamic.sejongmalsami.auth.dto.CustomUserDetails;
 import com.balsamic.sejongmalsami.object.DocumentCommand;
-import com.balsamic.sejongmalsami.object.DocumentDto;
-import com.balsamic.sejongmalsami.service.DocumentRequestPostService;
+import com.balsamic.sejongmalsami.post.dto.DocumentDto;
+import com.balsamic.sejongmalsami.post.service.DocumentRequestPostService;
 import com.balsamic.sejongmalsami.util.log.LogMonitoringInvocation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
@@ -22,7 +22,7 @@ import org.springframework.web.bind.annotation.RestController;
     name = "자료요청 게시판 API",
     description = "자료요청 게시판 관련 API 제공"
 )
-public class DocumentRequestPostController implements DocumentRequestPostControllerDocs{
+public class DocumentRequestPostController implements DocumentRequestPostControllerDocs {
 
   private final DocumentRequestPostService documentRequestPostService;
 

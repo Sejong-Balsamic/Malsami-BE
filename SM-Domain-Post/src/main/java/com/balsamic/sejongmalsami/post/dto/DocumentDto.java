@@ -1,9 +1,9 @@
-package com.balsamic.sejongmalsami.object;
+package com.balsamic.sejongmalsami.post.dto;
 
-import com.balsamic.sejongmalsami.mongo.DocumentBoardLike;
-import com.balsamic.sejongmalsami.postgres.DocumentFile;
-import com.balsamic.sejongmalsami.postgres.DocumentPost;
-import com.balsamic.sejongmalsami.postgres.DocumentRequestPost;
+import com.balsamic.sejongmalsami.post.object.mongo.DocumentBoardLike;
+import com.balsamic.sejongmalsami.post.object.postgres.DocumentFile;
+import com.balsamic.sejongmalsami.post.object.postgres.DocumentPost;
+import com.balsamic.sejongmalsami.post.object.postgres.DocumentRequestPost;
 import java.util.List;
 import lombok.Builder;
 import lombok.Getter;

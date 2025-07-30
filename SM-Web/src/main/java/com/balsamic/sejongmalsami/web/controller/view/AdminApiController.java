@@ -1,13 +1,11 @@
-package com.balsamic.sejongmalsami.controller.view;
+package com.balsamic.sejongmalsami.web.controller.view;
 
+import com.balsamic.sejongmalsami.application.dto.AdminCommand;
 import com.balsamic.sejongmalsami.application.dto.AdminDto;
 import com.balsamic.sejongmalsami.application.service.AdminApiService;
 import com.balsamic.sejongmalsami.application.service.MemberService;
 import com.balsamic.sejongmalsami.auth.dto.CustomUserDetails;
 import com.balsamic.sejongmalsami.auth.dto.FirebaseDto;
-import com.balsamic.sejongmalsami.member.dto.MemberCommand;
-import com.balsamic.sejongmalsami.member.dto.MemberDto;
-import com.balsamic.sejongmalsami.object.AdminCommand;
 import com.balsamic.sejongmalsami.object.NoticePostCommand;
 import com.balsamic.sejongmalsami.object.NoticePostDto;
 import com.balsamic.sejongmalsami.service.NoticePostService;
@@ -46,25 +44,25 @@ public class AdminApiController {
 
   @PostMapping(value = "/member/all", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
   @LogMonitoringInvocation
-  public ResponseEntity<MemberDto> getAllMembers(
+  public ResponseEntity<AdminDto> getAllMembers(
       @AuthenticationPrincipal CustomUserDetails customUserDetails,
-      @ModelAttribute MemberCommand command) {
+      @ModelAttribute AdminCommand command) {
     return ResponseEntity.ok(memberService.getAllMembers(command));
   }
 
   @PostMapping(value = "/member/filter", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
   @LogMonitoringInvocation
-  public ResponseEntity<MemberDto> getFilteredMembers(
+  public ResponseEntity<AdminDto> getFilteredMembers(
       @AuthenticationPrincipal CustomUserDetails customUserDetails,
-      @ModelAttribute MemberCommand command) {
+      @ModelAttribute AdminCommand command) {
     return ResponseEntity.ok(adminApiService.getFilteredMembers(command));
   }
 
   @PostMapping(value = "/member/info", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
   @LogMonitoringInvocation
-  public ResponseEntity<MemberDto> getMemberByMemberIdStr(
+  public ResponseEntity<AdminDto> getMemberByMemberIdStr(
       @AuthenticationPrincipal CustomUserDetails customUserDetails,
-      @ModelAttribute MemberCommand command) {
+      @ModelAttribute AdminCommand command) {
     return ResponseEntity.ok(adminApiService.getMemberByMemberIdStr(command));
   }
 
@@ -74,18 +72,18 @@ public class AdminApiController {
 
   @PostMapping(value = "/test/account/post", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
   @LogMonitoringInvocation
-  public ResponseEntity<MemberDto> createTestMember(
+  public ResponseEntity<AdminDto> createTestMember(
       @AuthenticationPrincipal CustomUserDetails customUserDetails,
-      @ModelAttribute MemberCommand command) {
+      @ModelAttribute AdminCommand command) {
     command.setMember(customUserDetails.getMember());
     return ResponseEntity.ok(adminApiService.createTestMember(command));
   }
 
   @PostMapping(value = "/test/account/get-all", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
   @LogMonitoringInvocation
-  public ResponseEntity<MemberDto> getFilteredTestMembers(
+  public ResponseEntity<AdminDto> getFilteredTestMembers(
       @AuthenticationPrincipal CustomUserDetails customUserDetails,
-      @ModelAttribute MemberCommand command) {
+      @ModelAttribute AdminCommand command) {
     return ResponseEntity.ok(adminApiService.getFilteredTestMembers(command));
   }
 

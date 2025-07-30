@@ -1,7 +1,7 @@
 package com.balsamic.sejongmalsami.service;
 
 import com.balsamic.sejongmalsami.constants.HashType;
-import com.balsamic.sejongmalsami.postgres.HashRegistry;
+import com.balsamic.sejongmalsami.object.postgres.HashRegistry;
 import com.balsamic.sejongmalsami.repository.postgres.HashRegistryRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;

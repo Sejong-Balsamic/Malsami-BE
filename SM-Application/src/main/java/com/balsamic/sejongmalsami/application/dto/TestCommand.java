@@ -1,7 +1,9 @@
-package com.balsamic.sejongmalsami.object;
+package com.balsamic.sejongmalsami.application.dto;
 
-import com.balsamic.sejongmalsami.postgres.Member;
+import com.balsamic.sejongmalsami.object.postgres.Member;
 import io.swagger.v3.oas.annotations.media.Schema;
+import lombok.AllArgsConstructor;
+import lombok.Builder;
 import lombok.Getter;
 import lombok.Setter;
 import lombok.ToString;
@@ -9,6 +11,8 @@ import lombok.ToString;
 @Getter
 @Setter
 @ToString
+@Builder
+@AllArgsConstructor
 public class TestCommand {
   public TestCommand() {
     postCount = 30;

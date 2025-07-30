@@ -8,8 +8,8 @@ import static com.balsamic.sejongmalsami.constants.SortType.getJpqlSortOrder;
 
 import com.balsamic.sejongmalsami.object.NoticePostCommand;
 import com.balsamic.sejongmalsami.object.NoticePostDto;
-import com.balsamic.sejongmalsami.postgres.NoticePost;
-import com.balsamic.sejongmalsami.repository.postgres.NoticePostRepository;
+import com.balsamic.sejongmalsami.notice.object.postgres.NoticePost;
+import com.balsamic.sejongmalsami.notice.repository.postgres.NoticePostRepository;
 import com.balsamic.sejongmalsami.util.exception.CustomException;
 import com.balsamic.sejongmalsami.util.exception.ErrorCode;
 import java.util.List;

@@ -3,13 +3,13 @@ package com.balsamic.sejongmalsami.util.init;
 import static com.balsamic.sejongmalsami.util.log.LogUtil.lineLog;
 
 import com.balsamic.sejongmalsami.constants.FileStatus;
-import com.balsamic.sejongmalsami.postgres.CourseFile;
-import com.balsamic.sejongmalsami.postgres.Subject;
-import com.balsamic.sejongmalsami.repository.postgres.CourseFileRepository;
+import com.balsamic.sejongmalsami.academic.object.postgres.CourseFile;
+import com.balsamic.sejongmalsami.object.postgres.Subject;
+import com.balsamic.sejongmalsami.academic.repository.postgres.CourseFileRepository;
 import com.balsamic.sejongmalsami.repository.postgres.SubjectRepository;
 import com.balsamic.sejongmalsami.util.CommonUtil;
 import com.balsamic.sejongmalsami.util.TimeUtil;
-import com.balsamic.sejongmalsami.util.config.ServerConfig;
+import com.balsamic.sejongmalsami.config.ServerConfig;
 import com.balsamic.sejongmalsami.util.exception.CustomException;
 import com.balsamic.sejongmalsami.util.exception.ErrorCode;
 import java.io.File;

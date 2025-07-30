@@ -1,9 +1,9 @@
 package com.balsamic.sejongmalsami.web.controller;
 
-import com.balsamic.sejongmalsami.object.QueryCommand;
-import com.balsamic.sejongmalsami.post.dto.QueryDto;
-import com.balsamic.sejongmalsami.post.service.QueryService;
-import com.balsamic.sejongmalsami.post.service.SearchHistoryService;
+import com.balsamic.sejongmalsami.application.dto.QueryCommand;
+import com.balsamic.sejongmalsami.application.dto.QueryDto;
+import com.balsamic.sejongmalsami.application.service.QueryService;
+import com.balsamic.sejongmalsami.application.service.SearchHistoryService;
 import com.balsamic.sejongmalsami.util.log.LogMonitoringInvocation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
