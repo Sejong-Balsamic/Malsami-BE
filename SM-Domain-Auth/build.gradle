@@ -14,4 +14,7 @@ jar {
 dependencies {
     // 공통 모듈 의존성
     implementation project(':SM-Common')
+
+    // 테스트
+    testImplementation project(':SM-Web')
 } 

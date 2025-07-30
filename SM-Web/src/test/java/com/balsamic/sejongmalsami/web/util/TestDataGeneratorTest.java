@@ -1,10 +1,11 @@
-package com.balsamic.sejongmalsami.util;
+package com.balsamic.sejongmalsami.web.util;
 
-import static com.balsamic.sejongmalsami.util.log.LogUtil.*;
+import static com.balsamic.sejongmalsami.util.log.LogUtil.superLog;
 
-import com.balsamic.sejongmalsami.object.postgres.DocumentFile;
-import com.balsamic.sejongmalsami.object.postgres.DocumentPost;
+import com.balsamic.sejongmalsami.application.test.TestDataGenerator;
 import com.balsamic.sejongmalsami.object.postgres.Member;
+import com.balsamic.sejongmalsami.post.object.postgres.DocumentFile;
+import com.balsamic.sejongmalsami.post.object.postgres.DocumentPost;
 import lombok.extern.slf4j.Slf4j;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;

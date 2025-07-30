@@ -104,4 +104,6 @@ dependencies {
     testImplementation 'org.junit.jupiter:junit-jupiter:5.10.0'
     testImplementation 'org.springframework:spring-test'
     testImplementation 'org.mockito:mockito-core:4.0.0'
-} 
+
+    // 테스트
+    testImplementation project(':SM-Web')}

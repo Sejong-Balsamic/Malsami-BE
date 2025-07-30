@@ -1,9 +1,10 @@
-package com.balsamic.sejongmalsami.service;
+package com.balsamic.sejongmalsami.web.service;
 
 import com.balsamic.sejongmalsami.application.test.TestDataGenerator;
 import com.balsamic.sejongmalsami.object.QuestionCommand;
-import com.balsamic.sejongmalsami.object.QuestionDto;
 import com.balsamic.sejongmalsami.object.postgres.Member;
+import com.balsamic.sejongmalsami.post.dto.QuestionDto;
+import com.balsamic.sejongmalsami.post.service.QuestionPostService;
 import com.balsamic.sejongmalsami.repository.postgres.SubjectRepository;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import java.io.IOException;

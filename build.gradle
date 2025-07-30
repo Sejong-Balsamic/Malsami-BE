@@ -9,11 +9,17 @@ allprojects {
 
     repositories {
         mavenCentral()
+        // Suh-Nexus 추가
+        maven {
+            url "http://suh-project.synology.me:9999/repository/maven-releases/"
+            allowInsecureProtocol = true
+        }
     }
 }
 
 subprojects {
     apply plugin: 'java'
+    apply plugin: 'java-library'
     apply plugin: 'org.springframework.boot'
     apply plugin: 'io.spring.dependency-management'
 
@@ -30,9 +36,14 @@ subprojects {
     }
 
     dependencies {
-        // Lombok 의존성 - 모든 서브프로젝트에 적용
+        // 공통 의존성
         compileOnly 'org.projectlombok:lombok'
         annotationProcessor 'org.projectlombok:lombok'
+        testCompileOnly 'org.projectlombok:lombok'
+        testAnnotationProcessor 'org.projectlombok:lombok'
+
+        testImplementation 'org.springframework.boot:spring-boot-starter-test'
+        testRuntimeOnly 'org.junit.platform:junit-platform-launcher'
     }
 }
 

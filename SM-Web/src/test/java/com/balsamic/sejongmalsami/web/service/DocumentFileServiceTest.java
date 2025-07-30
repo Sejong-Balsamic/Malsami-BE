@@ -1,13 +1,14 @@
-package com.balsamic.sejongmalsami.service;
+package com.balsamic.sejongmalsami.web.service;
 
 import static com.balsamic.sejongmalsami.util.log.LogUtil.lineLog;
 import static com.balsamic.sejongmalsami.util.log.LogUtil.timeLog;
 
 import com.balsamic.sejongmalsami.application.test.TestDataGenerator;
-import com.balsamic.sejongmalsami.object.postgres.DocumentFile;
-import com.balsamic.sejongmalsami.object.postgres.DocumentPost;
 import com.balsamic.sejongmalsami.object.postgres.Member;
-import com.balsamic.sejongmalsami.repository.postgres.DocumentFileRepository;
+import com.balsamic.sejongmalsami.post.object.postgres.DocumentFile;
+import com.balsamic.sejongmalsami.post.object.postgres.DocumentPost;
+import com.balsamic.sejongmalsami.post.repository.postgres.DocumentFileRepository;
+import com.balsamic.sejongmalsami.post.service.DocumentFileService;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.CompletableFuture;

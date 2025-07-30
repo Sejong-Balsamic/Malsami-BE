@@ -22,4 +22,7 @@ dependencies {
     implementation project(':SM-Domain-Auth')
     implementation project(':SM-Domain-Academic')
     implementation project(':SM-Domain-AI')
+
+    // 테스트
+    testImplementation project(':SM-Web')
 } 

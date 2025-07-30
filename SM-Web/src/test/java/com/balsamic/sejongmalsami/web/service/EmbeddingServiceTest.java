@@ -1,7 +1,8 @@
-package com.balsamic.sejongmalsami.service;
+package com.balsamic.sejongmalsami.web.service;
 
 import com.balsamic.sejongmalsami.constants.ContentType;
 import com.balsamic.sejongmalsami.object.postgres.PostEmbedding;
+import com.balsamic.sejongmalsami.post.service.PostEmbeddingService;
 import com.balsamic.sejongmalsami.repository.postgres.PostEmbeddingRepository;
 import com.balsamic.sejongmalsami.util.exception.CustomException;
 import com.balsamic.sejongmalsami.util.exception.ErrorCode;
