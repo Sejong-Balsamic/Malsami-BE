@@ -1,0 +1,20 @@
+plugins {
+    id 'java-library'
+}
+
+bootJar {
+    enabled = false
+}
+
+jar {
+    enabled = true
+    archiveClassifier = ''
+}
+
+dependencies {
+    // 공통 모듈 의존성 (YeopjeonService, ExpService 포함)
+    implementation project(':SM-Common')
+    
+    // AI 도메인 의존성 (OpenAIEmbeddingService, PostEmbeddingService)
+    implementation project(':SM-Domain-AI')
+} 

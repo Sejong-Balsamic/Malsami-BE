@@ -1,0 +1,52 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<configuration scan="true" scanPeriod="60 second">
+
+  <!-- 색상 설정 -->
+  <conversionRule conversionWord="clr" converterClass="org.springframework.boot.logging.logback.ColorConverter"/>
+
+  <!-- 로그 패턴 변수 설정 -->
+  <property name="CONSOLE_LOG_PATTERN"
+    value="%d{yyyy-MM-dd HH-mm-ss.SSS} [%thread] %clr(%5level) %cyan(%logger) - %msg%n"/>
+  <property name="FILE_LOG_PATTERN"
+    value="%d{yyyy-MM-dd HH-mm-ss.SSS} [%thread] %clr(%5level) %cyan(%logger) - %msg%n"/>
+  <property name="FILE_PATH" value="${LOG_PATH:-./logs}"/>
+
+  <!-- 콘솔 Logger 설정 -->
+  <appender name="CONSOLE" class="ch.qos.logback.core.ConsoleAppender">
+    <!-- 패턴 설정: 날짜, 로그 레벨, 메시지 -->
+    <encoder>
+      <pattern>${CONSOLE_LOG_PATTERN}</pattern>
+    </encoder>
+  </appender>
+
+  <!-- 파일 Logger 설정 (Linux 환경에서만 활성화) -->
+  <appender name="FILE" class="ch.qos.logback.core.rolling.RollingFileAppender">
+    <!-- 로그파일 경로 및 이름 설정 -->
+    <file>${FILE_PATH}/sejong-malsami.log</file>
+    <rollingPolicy class="ch.qos.logback.core.rolling.TimeBasedRollingPolicy">
+      <!-- 날짜별 파일 생성 -->
+      <fileNamePattern>${FILE_PATH}/sejong-malsami.%d{yyyy-MM-dd}.log</fileNamePattern>
+      <!-- 로그 보관 기간 설정 (ex.30일) -->
+      <maxHistory>30</maxHistory>
+    </rollingPolicy>
+    <encoder>
+      <!-- 패턴 설정 -->
+      <pattern>${FILE_LOG_PATTERN}</pattern>
+    </encoder>
+  </appender>
+
+  <!-- 환경별 로그 설정 -->
+  <springProfile name="prod">
+    <root level="INFO">
+      <appender-ref ref="CONSOLE"/>
+      <appender-ref ref="FILE"/>
+    </root>
+  </springProfile>
+
+  <springProfile name="!prod">
+    <root level="INFO">
+      <appender-ref ref="CONSOLE"/>
+    </root>
+  </springProfile>
+
+</configuration>

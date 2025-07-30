@@ -63,21 +63,32 @@ target/
 Thumbs.db
 
 ### Develop Application Yml ###
-/src/main/resources/application-dev.yml
-/src/main/resources/application-prod.yml
-/src/main/resources/application-prod.yml.base64
-/src/main/resources/yeopjeon.yml
-/src/main/resources/score.yml
-/src/main/resources/exp.yml
-/src/main/resources/admin.yml
-/src/main/resources/post-tier.yml
+/**/src/main/resources/application-dev.yml
+/**/src/main/resources/application-prod.yml
+/**/src/main/resources/application-prod.yml.base64
+/**/src/main/resources/yeopjeon.yml
+/**/src/main/resources/score.yml
+/**/src/main/resources/exp.yml
+/**/src/main/resources/admin.yml
+/**/src/main/resources/post-tier.yml
 
 ### Firebase Admin SDK
-/src/main/resources/firebase-admin-sdk.json
-/src/main/resources/static/firebase-messaging-sw.js
+/**/src/main/resources/firebase-admin-sdk.json
+/**/src/main/resources/static/firebase-messaging-sw.js
 
 ### cicd
 /.github/workflows
 
 ### vertex AI
-/src/main/resources/sejong-malsami-embedding.json
+/**/src/main/resources/sejong-malsami-embedding.json
+
+### 멀티모듈 특정 설정 ###
+# 각 모듈의 민감한 설정 파일들
+SM-*/src/main/resources/application-*.yml
+SM-*/src/main/resources/*.json
+!SM-*/src/main/resources/application.yml
+
+### 빌드 캐시 ###
+.gradle/
+**/build/
+**/.gradle/

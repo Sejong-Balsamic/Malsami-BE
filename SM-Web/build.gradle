@@ -1,0 +1,21 @@
+plugins {
+    id 'java'
+    id 'org.springframework.boot'
+    id 'io.spring.dependency-management'
+}
+
+dependencies {
+    // 공통 모듈 의존성
+    implementation project(':SM-Common')
+    
+    // 도메인 모듈들
+    implementation project(':SM-Domain-Member')
+    implementation project(':SM-Domain-Post')
+    implementation project(':SM-Domain-Notice')
+    implementation project(':SM-Domain-Auth')
+    implementation project(':SM-Domain-Academic')
+    implementation project(':SM-Domain-AI')
+    
+    // Application 모듈
+    implementation project(':SM-Application')
+} 

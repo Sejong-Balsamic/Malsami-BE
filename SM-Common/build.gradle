@@ -1,0 +1,109 @@
+plugins {
+    id 'java-library'
+}
+
+bootJar {
+    enabled = false
+}
+
+jar {
+    enabled = true
+    archiveClassifier = ''
+}
+
+dependencies {
+    // Spring Boot - API로 노출하여 다른 모듈에서 사용 가능하게 함
+    api 'org.springframework.boot:spring-boot-starter-web'
+    api 'org.springframework.boot:spring-boot-starter-data-jpa'
+    api 'org.springframework.boot:spring-boot-starter-security'
+    api 'org.springframework.boot:spring-boot-starter-cache'
+    api 'org.springframework.boot:spring-boot-starter-thymeleaf'
+    api 'org.springframework.boot:spring-boot-starter-data-mongodb'
+    api 'org.springframework.boot:spring-boot-starter-data-redis'
+    api 'org.springframework.boot:spring-boot-starter-mail'
+    api 'org.springframework.boot:spring-boot-starter-validation'
+
+    // Database
+    api 'org.postgresql:postgresql'
+    api 'com.h2database:h2'
+
+    // JWT
+    api 'io.jsonwebtoken:jjwt-api:0.12.3'
+    api 'io.jsonwebtoken:jjwt-impl:0.12.3'
+    api 'io.jsonwebtoken:jjwt-jackson:0.12.3'
+
+    // Documentation
+    api 'org.springdoc:springdoc-openapi-starter-webmvc-ui:2.8.4'
+
+    // Lombok
+    compileOnly 'org.projectlombok:lombok'
+    annotationProcessor 'org.projectlombok:lombok'
+    testCompileOnly 'org.projectlombok:lombok'
+    testAnnotationProcessor 'org.projectlombok:lombok'
+
+    // Redis
+    api 'org.redisson:redisson-spring-boot-starter:3.20.0'
+
+    // HTTP & Web Scraping
+    api 'com.squareup.okhttp3:okhttp:4.9.3'
+    api 'com.squareup.okhttp3:okhttp-urlconnection:4.9.3'
+    api 'com.squareup.okhttp3:logging-interceptor:4.9.3'
+    api 'org.jsoup:jsoup:1.15.3'
+
+    // Selenium & WebDriver
+    api 'org.seleniumhq.selenium:selenium-java:4.9.0'
+    api 'io.github.bonigarcia:webdrivermanager:5.5.0'
+
+    // Commons & Utilities
+    api 'commons-net:commons-net:3.8.0'
+    api 'org.apache.commons:commons-pool2:2.11.1'
+    api group: 'com.fasterxml', name: 'classmate', version: '1.7.0'
+
+    // Data Faker
+    api 'net.datafaker:datafaker:2.4.1'
+
+    // AWS S3
+    api 'org.springframework.cloud:spring-cloud-starter-aws:2.2.6.RELEASE'
+
+    // Apache POI for Excel
+    api('org.apache.poi:poi:5.2.3') {
+        exclude group: 'commons-logging', module: 'commons-logging'
+    }
+    api('org.apache.poi:poi-ooxml:5.2.3') {
+        exclude group: 'commons-logging', module: 'commons-logging'
+    }
+    api('org.apache.poi:poi-scratchpad:5.2.3') {
+        exclude group: 'commons-logging', module: 'commons-logging'
+    }
+
+    // Image & Video Processing
+    api 'org.sejda.imageio:webp-imageio:0.1.6'
+    api('net.coobird:thumbnailator:0.4.14')
+    api('org.apache.pdfbox:pdfbox:2.0.29') {
+        exclude group: 'commons-logging', module: 'commons-logging'
+    }
+    api 'org.bytedeco:javacv-platform:1.5.9'
+    api 'org.bytedeco:ffmpeg-platform:6.0-1.5.9'
+
+    // Firebase
+    api 'com.google.firebase:firebase-admin:9.2.0'
+
+    // AI & ML
+    api 'com.google.genai:google-genai:1.6.0'
+    api 'com.google.auth:google-auth-library-oauth2-http:1.19.0'
+
+    // Jackson
+    api 'com.fasterxml.jackson.core:jackson-databind'
+
+    // Development Tools
+    developmentOnly 'org.springframework.boot:spring-boot-devtools'
+
+    // Test dependencies
+    testImplementation 'org.springframework.boot:spring-boot-starter-test'
+    testImplementation 'org.springframework.security:spring-security-test'
+    testImplementation 'org.junit.jupiter:junit-jupiter:5.10.0'
+    testImplementation 'org.springframework:spring-test'
+    testImplementation 'org.mockito:mockito-core:4.0.0'
+
+    // 테스트
+    testImplementation project(':SM-Web')}
