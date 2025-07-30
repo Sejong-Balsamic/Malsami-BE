@@ -19,7 +19,6 @@ import static com.balsamic.sejongmalsami.constants.QuestionPresetTag.OUT_OF_CLAS
 import static com.balsamic.sejongmalsami.constants.QuestionPresetTag.STUDY_TIPS;
 import static com.balsamic.sejongmalsami.constants.QuestionPresetTag.UNKNOWN_CONCEPT;
 
-import com.balsamic.sejongmalsami.config.PostTierConfig;
 import com.balsamic.sejongmalsami.constants.AccountStatus;
 import com.balsamic.sejongmalsami.constants.ContentType;
 import com.balsamic.sejongmalsami.constants.Role;
@@ -44,6 +43,7 @@ import com.balsamic.sejongmalsami.repository.postgres.CourseRepository;
 import com.balsamic.sejongmalsami.repository.postgres.ExpRepository;
 import com.balsamic.sejongmalsami.repository.postgres.MemberRepository;
 import com.balsamic.sejongmalsami.repository.postgres.YeopjeonRepository;
+import com.balsamic.sejongmalsami.util.properties.PostTierProperties;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import java.io.IOException;
@@ -80,7 +80,7 @@ public class TestDataGenerator {
   private final CourseRepository courseRepository;
   private final YeopjeonRepository yeopjeonRepository;
   private final ExpRepository expRepository;
-  private final PostTierConfig postTierConfig;
+  private final PostTierProperties postTierProperties;
 
   private final Faker faker = new Faker(new Locale("ko"));
   private final Random random = new Random();
@@ -336,11 +336,11 @@ public class TestDataGenerator {
         .build();
 
     int score = post.getLikeCount() - post.getDislikeCount();
-    if (score < postTierConfig.getLikeRequirementCheonmin()) {
+    if (score < postTierProperties.getLikeRequirementCheonmin()) {
       post.setPostTier(CHEONMIN);
-    } else if (score < postTierConfig.getLikeRequirementJungin()) {
+    } else if (score < postTierProperties.getLikeRequirementJungin()) {
       post.setPostTier(JUNGIN);
-    } else if (score < postTierConfig.getLikeRequirementKing()) {
+    } else if (score < postTierProperties.getLikeRequirementKing()) {
       post.setPostTier(YANGBAN);
     } else {
       post.setPostTier(KING);

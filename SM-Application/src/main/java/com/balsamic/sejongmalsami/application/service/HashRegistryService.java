@@ -1,4 +1,4 @@
-package com.balsamic.sejongmalsami.service;
+package com.balsamic.sejongmalsami.application.service;
 
 import com.balsamic.sejongmalsami.constants.HashType;
 import com.balsamic.sejongmalsami.object.postgres.HashRegistry;

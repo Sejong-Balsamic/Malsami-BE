@@ -2,9 +2,9 @@ package com.balsamic.sejongmalsami.util.storage;
 
 import com.balsamic.sejongmalsami.constants.ContentType;
 import com.balsamic.sejongmalsami.util.FileUtil;
-import com.balsamic.sejongmalsami.config.FtpConfig;
 import com.balsamic.sejongmalsami.util.exception.CustomException;
 import com.balsamic.sejongmalsami.util.exception.ErrorCode;
+import com.balsamic.sejongmalsami.util.properties.FtpProperties;
 import java.io.File;
 import java.io.IOException;
 import lombok.RequiredArgsConstructor;
@@ -14,7 +14,7 @@ import org.springframework.web.multipart.MultipartFile;
 @Slf4j
 @RequiredArgsConstructor
 public class DirectStorageService implements StorageService {
-  private final FtpConfig ftpConfig;
+  private final FtpProperties ftpProperties;
 
   @Override
   public String uploadFile(ContentType contentType, MultipartFile file) {
@@ -36,7 +36,7 @@ public class DirectStorageService implements StorageService {
   @Override
   public String uploadThumbnail(ContentType contentType, MultipartFile file) {
     String fileName = FileUtil.generateFileName(contentType, file.getOriginalFilename());
-    String path = ftpConfig.getThumbnailPath();
+    String path = ftpProperties.getThumbnailPath();
     File destFile = new File(path, fileName);
 
     try {
@@ -44,7 +44,7 @@ public class DirectStorageService implements StorageService {
       file.transferTo(destFile);
       log.info("썸네일 업로드 성공: {}", destFile.getAbsolutePath());
       //FIXME: 임시 반환
-      return ftpConfig.getBaseUrl() + fileName;
+      return ftpProperties.getBaseUrl() + fileName;
     } catch (IOException e) {
       log.error("썸네일 업로드 실패: {}", e.getMessage());
       throw new CustomException(ErrorCode.DIRECT_FILE_UPLOAD_ERROR);
@@ -72,14 +72,14 @@ public class DirectStorageService implements StorageService {
 
   private String getPath(ContentType contentType) {
     return switch (contentType) {
-      case DOCUMENT -> ftpConfig.getDocumentPath();
-      case QUESTION -> ftpConfig.getQuestionPath();
-      case ANSWER -> ftpConfig.getAnswerPath();
-      case NOTICE -> ftpConfig.getNoticePath();
-      case COMMENT -> ftpConfig.getCommentPath();
-      case DOCUMENT_REQUEST -> ftpConfig.getDocumentRequestPath();
-      case COURSES -> ftpConfig.getCoursesPath();
-      case THUMBNAIL -> ftpConfig.getThumbnailPath();
+      case DOCUMENT -> ftpProperties.getDocumentPath();
+      case QUESTION -> ftpProperties.getQuestionPath();
+      case ANSWER -> ftpProperties.getAnswerPath();
+      case NOTICE -> ftpProperties.getNoticePath();
+      case COMMENT -> ftpProperties.getCommentPath();
+      case DOCUMENT_REQUEST -> ftpProperties.getDocumentRequestPath();
+      case COURSES -> ftpProperties.getCoursesPath();
+      case THUMBNAIL -> ftpProperties.getThumbnailPath();
       default -> throw new CustomException(ErrorCode.INVALID_CONTENT_TYPE);
     };
   }

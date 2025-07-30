@@ -4,10 +4,10 @@ import com.balsamic.sejongmalsami.constants.ContentType;
 import com.balsamic.sejongmalsami.constants.ImageQuality;
 import com.balsamic.sejongmalsami.util.FileUtil;
 import com.balsamic.sejongmalsami.util.ImageThumbnailGenerator;
-import com.balsamic.sejongmalsami.config.FtpConfig;
 import com.balsamic.sejongmalsami.util.exception.CustomException;
 import com.balsamic.sejongmalsami.util.exception.ErrorCode;
 import com.balsamic.sejongmalsami.util.log.LogMonitoringInvocation;
+import com.balsamic.sejongmalsami.util.properties.FtpProperties;
 import java.io.ByteArrayInputStream;
 import java.io.InputStream;
 import lombok.RequiredArgsConstructor;
@@ -28,7 +28,7 @@ import org.springframework.web.multipart.MultipartFile;
 public class FtpStorageService implements StorageService {
 
   private final GenericObjectPool<FTPClient> ftpClientPool;
-  private final FtpConfig ftpConfig;
+  private final FtpProperties ftpProperties;
   private final ImageThumbnailGenerator imageThumbnailGenerator;
 
   private static final int MAX_RETRY_ATTEMPTS = 3; // 최대 재시도 횟수
@@ -96,10 +96,10 @@ public class FtpStorageService implements StorageService {
     String uploadFileName = FileUtil.generateFileName(contentType, multipartFile.getOriginalFilename());
 
     // 파일 접근 URL
-    String uploadFileUrl = ftpConfig.getBaseUrl() + contentType.name().toLowerCase() + "/" + uploadFileName;
+    String uploadFileUrl = ftpProperties.getBaseUrl() + contentType.name().toLowerCase() + "/" + uploadFileName;
 
     // contentType에 대한 업로드할 경로 지정 ->  contentType.THUMBNAIL
-    String remoteFilePath = ftpConfig.getThumbnailPath() + "/" + uploadFileName;
+    String remoteFilePath = ftpProperties.getThumbnailPath() + "/" + uploadFileName;
 
     log.info("FTP 썸네일 업로드 시작: {} -> {}", multipartFile.getOriginalFilename(), remoteFilePath);
 
@@ -139,7 +139,7 @@ public class FtpStorageService implements StorageService {
     String uploadFileName = FileUtil.generateFileName(contentType, multipartFile.getOriginalFilename());
 
     // 파일 접근 URL
-    String uploadFileUrl = ftpConfig.getBaseUrl() + contentType.name().toLowerCase() + "/" + uploadFileName;
+    String uploadFileUrl = ftpProperties.getBaseUrl() + contentType.name().toLowerCase() + "/" + uploadFileName;
 
     // contentType 에 대한 업로드할 경로 지정
     String remoteFilePath = getWebSavePath(contentType) + "/" + uploadFileName;
@@ -180,12 +180,12 @@ public class FtpStorageService implements StorageService {
   @LogMonitoringInvocation
   public void deleteFile(ContentType contentType, String fileName) {
     String remoteFilePath = switch (contentType) {
-      case THUMBNAIL -> ftpConfig.getThumbnailPath() + "/" + fileName;
-      case DOCUMENT -> ftpConfig.getDocumentPath() + "/" + fileName;
-      case QUESTION, ANSWER -> ftpConfig.getQuestionPath() + "/" + fileName;
-      case NOTICE -> ftpConfig.getNoticePath() + "/" + fileName;
-      case COMMENT -> ftpConfig.getCommentPath() + "/" + fileName;
-      case DOCUMENT_REQUEST -> ftpConfig.getDocumentRequestPath() + "/" + fileName;
+      case THUMBNAIL -> ftpProperties.getThumbnailPath() + "/" + fileName;
+      case DOCUMENT -> ftpProperties.getDocumentPath() + "/" + fileName;
+      case QUESTION, ANSWER -> ftpProperties.getQuestionPath() + "/" + fileName;
+      case NOTICE -> ftpProperties.getNoticePath() + "/" + fileName;
+      case COMMENT -> ftpProperties.getCommentPath() + "/" + fileName;
+      case DOCUMENT_REQUEST -> ftpProperties.getDocumentRequestPath() + "/" + fileName;
       default -> throw new CustomException(ErrorCode.INVALID_CONTENT_TYPE);
     };
 
@@ -222,14 +222,14 @@ public class FtpStorageService implements StorageService {
   // URL 접근 불가능
   private String getFileSavePath(ContentType contentType) {
     return switch (contentType) {
-      case DOCUMENT -> ftpConfig.getDocumentFileDevPath();
-      case QUESTION -> ftpConfig.getQuestionFileDevPath();
-      case ANSWER -> ftpConfig.getAnswerFileDevPath();
-      case NOTICE -> ftpConfig.getNoticeFileDevPath();
-      case COMMENT -> ftpConfig.getCommentFileDevPath();
-      case DOCUMENT_REQUEST -> ftpConfig.getDocumentRequestFileDevPath();
-      case COURSES -> ftpConfig.getCoursesFileDevPath();
-      case THUMBNAIL -> ftpConfig.getThumbnailFileDevPath();
+      case DOCUMENT -> ftpProperties.getDocumentFileDevPath();
+      case QUESTION -> ftpProperties.getQuestionFileDevPath();
+      case ANSWER -> ftpProperties.getAnswerFileDevPath();
+      case NOTICE -> ftpProperties.getNoticeFileDevPath();
+      case COMMENT -> ftpProperties.getCommentFileDevPath();
+      case DOCUMENT_REQUEST -> ftpProperties.getDocumentRequestFileDevPath();
+      case COURSES -> ftpProperties.getCoursesFileDevPath();
+      case THUMBNAIL -> ftpProperties.getThumbnailFileDevPath();
       default -> throw new CustomException(ErrorCode.INVALID_CONTENT_TYPE);
     };
   }
@@ -237,14 +237,14 @@ public class FtpStorageService implements StorageService {
   // URL 접근 가능한 파일들
   private String getWebSavePath(ContentType contentType) {
     return switch (contentType) {
-      case DOCUMENT -> ftpConfig.getDocumentWebDevPath();
-      case QUESTION -> ftpConfig.getQuestionWebDevPath();
-      case ANSWER -> ftpConfig.getAnswerWebDevPath();
-      case NOTICE -> ftpConfig.getNoticeWebDevPath();
-      case COMMENT -> ftpConfig.getCommentWebDevPath();
-      case DOCUMENT_REQUEST -> ftpConfig.getDocumentRequestWebDevPath();
-      case COURSES -> ftpConfig.getCoursesWebDevPath();
-      case THUMBNAIL -> ftpConfig.getThumbnailWebDevPath();
+      case DOCUMENT -> ftpProperties.getDocumentWebDevPath();
+      case QUESTION -> ftpProperties.getQuestionWebDevPath();
+      case ANSWER -> ftpProperties.getAnswerWebDevPath();
+      case NOTICE -> ftpProperties.getNoticeWebDevPath();
+      case COMMENT -> ftpProperties.getCommentWebDevPath();
+      case DOCUMENT_REQUEST -> ftpProperties.getDocumentRequestWebDevPath();
+      case COURSES -> ftpProperties.getCoursesWebDevPath();
+      case THUMBNAIL -> ftpProperties.getThumbnailWebDevPath();
       default -> throw new CustomException(ErrorCode.INVALID_CONTENT_TYPE);
     };
   }

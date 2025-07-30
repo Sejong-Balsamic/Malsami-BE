@@ -1,6 +1,5 @@
 package com.balsamic.sejongmalsami.application.service;
 
-import com.balsamic.sejongmalsami.application.JwtUtil;
 import com.balsamic.sejongmalsami.auth.dto.AuthCommand;
 import com.balsamic.sejongmalsami.auth.dto.AuthDto;
 import com.balsamic.sejongmalsami.auth.dto.CustomUserDetails;
@@ -8,8 +7,7 @@ import com.balsamic.sejongmalsami.auth.dto.WebLoginDto;
 import com.balsamic.sejongmalsami.auth.object.mongo.RefreshToken;
 import com.balsamic.sejongmalsami.auth.repository.mongo.RefreshTokenRepository;
 import com.balsamic.sejongmalsami.auth.service.SejongPortalAuthenticator;
-import com.balsamic.sejongmalsami.config.AdminConfig;
-import com.balsamic.sejongmalsami.config.YeopjeonConfig;
+import com.balsamic.sejongmalsami.auth.util.JwtUtil;
 import com.balsamic.sejongmalsami.constants.AccountStatus;
 import com.balsamic.sejongmalsami.constants.ExpTier;
 import com.balsamic.sejongmalsami.constants.FileStatus;
@@ -25,6 +23,8 @@ import com.balsamic.sejongmalsami.repository.postgres.MemberRepository;
 import com.balsamic.sejongmalsami.repository.postgres.YeopjeonRepository;
 import com.balsamic.sejongmalsami.util.exception.CustomException;
 import com.balsamic.sejongmalsami.util.exception.ErrorCode;
+import com.balsamic.sejongmalsami.util.properties.AdminProperties;
+import com.balsamic.sejongmalsami.util.properties.YeopjeonProperties;
 import io.jsonwebtoken.Claims;
 import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletRequest;
@@ -47,8 +47,8 @@ import org.springframework.transaction.annotation.Transactional;
 @Slf4j
 public class AuthApplicationService {
 
-  private final AdminConfig adminConfig;
-  private final YeopjeonConfig yeopjeonConfig;
+  private final AdminProperties adminProperties;
+  private final YeopjeonProperties yeopjeonProperties;
   // private final com.balsamic.sejongmalsami.web.service.MemberService memberService; // 순환의존성 방지를 위해 제거
   private final com.balsamic.sejongmalsami.auth.service.CustomUserDetailsService customUserDetailsService;
   private final com.balsamic.sejongmalsami.auth.service.FcmTokenService fcmTokenService;
@@ -81,7 +81,7 @@ public class AuthApplicationService {
 
           // 관리자 계정 확인
           HashSet<Role> roles = new HashSet<>(Set.of(Role.ROLE_USER));
-          if (adminConfig.isAdmin(studentIdString)) {
+          if (adminProperties.isAdmin(studentIdString)) {
             roles = new HashSet<>(Set.of(Role.ROLE_USER, Role.ROLE_ADMIN));
             log.info("관리자 계정 등록 완료: {}", studentIdString);
           }
@@ -146,7 +146,7 @@ public class AuthApplicationService {
       //TODO: 엽전 이력 관리 로직을 포함한 메소드 정의
       yeopjeon = yeopjeonRepository.save(Yeopjeon.builder()
           .member(member)
-          .yeopjeon(yeopjeonConfig.getCreateAccount()) // 첫 로그인 보상
+          .yeopjeon(yeopjeonProperties.getCreateAccount()) // 첫 로그인 보상
           .build());
       log.info("첫 로그인 엽전 보상 지급: Yeopjeon ID = {}", yeopjeon.getYeopjeonId());
 
@@ -247,7 +247,7 @@ public class AuthApplicationService {
 
           // 관리자 계정 확인
           HashSet<Role> roles = new HashSet<>(Set.of(Role.ROLE_USER));
-          if (adminConfig.isAdmin(studentIdString)) {
+          if (adminProperties.isAdmin(studentIdString)) {
             roles = new HashSet<>(Set.of(Role.ROLE_USER, Role.ROLE_ADMIN));
             log.info("모바일: 관리자 계정 등록 완료: {}", studentIdString);
           }
@@ -311,7 +311,7 @@ public class AuthApplicationService {
       // 엽전 보상 지급
       yeopjeon = yeopjeonRepository.save(Yeopjeon.builder()
           .member(member)
-          .yeopjeon(yeopjeonConfig.getCreateAccount()) // 첫 로그인 보상
+          .yeopjeon(yeopjeonProperties.getCreateAccount()) // 첫 로그인 보상
           .build());
       log.info("모바일: 첫 로그인 엽전 보상 지급: Yeopjeon ID = {}", yeopjeon.getYeopjeonId());
 

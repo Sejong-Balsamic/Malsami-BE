@@ -2,8 +2,8 @@ package com.balsamic.sejongmalsami.post.service;
 
 import com.balsamic.sejongmalsami.constants.ContentType;
 import com.balsamic.sejongmalsami.constants.ExpAction;
-import com.balsamic.sejongmalsami.object.CommentCommand;
 import com.balsamic.sejongmalsami.object.postgres.Member;
+import com.balsamic.sejongmalsami.post.dto.CommentCommand;
 import com.balsamic.sejongmalsami.post.dto.CommentDto;
 import com.balsamic.sejongmalsami.post.object.mongo.CommentLike;
 import com.balsamic.sejongmalsami.post.object.postgres.AnswerPost;

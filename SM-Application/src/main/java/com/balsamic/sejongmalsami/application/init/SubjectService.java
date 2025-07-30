@@ -1,4 +1,4 @@
-package com.balsamic.sejongmalsami.util.init;
+package com.balsamic.sejongmalsami.application.init;
 
 import com.balsamic.sejongmalsami.object.postgres.Subject;
 import com.balsamic.sejongmalsami.repository.postgres.SubjectRepository;

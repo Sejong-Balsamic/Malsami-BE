@@ -1,4 +1,4 @@
-package com.balsamic.sejongmalsami.object;
+package com.balsamic.sejongmalsami.application.dto;
 
 import com.google.firebase.messaging.Notification;
 import lombok.Builder;

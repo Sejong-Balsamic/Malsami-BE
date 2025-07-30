@@ -1,4 +1,4 @@
-package com.balsamic.sejongmalsami.object;
+package com.balsamic.sejongmalsami.post.dto;
 
 import com.balsamic.sejongmalsami.object.mongo.Report;
 import lombok.Builder;

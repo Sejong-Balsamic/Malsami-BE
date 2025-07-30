@@ -2,7 +2,6 @@ package com.balsamic.sejongmalsami.application.service;
 
 import com.balsamic.sejongmalsami.application.dto.AdminCommand;
 import com.balsamic.sejongmalsami.application.dto.AdminDto;
-import com.balsamic.sejongmalsami.config.YeopjeonConfig;
 import com.balsamic.sejongmalsami.member.dto.MemberCommand;
 import com.balsamic.sejongmalsami.member.dto.MemberDto;
 import com.balsamic.sejongmalsami.object.postgres.Exp;
@@ -29,6 +28,7 @@ import com.balsamic.sejongmalsami.service.YeopjeonService;
 import com.balsamic.sejongmalsami.util.FileUtil;
 import com.balsamic.sejongmalsami.util.exception.CustomException;
 import com.balsamic.sejongmalsami.util.exception.ErrorCode;
+import com.balsamic.sejongmalsami.util.properties.YeopjeonProperties;
 import java.util.List;
 import java.util.UUID;
 import java.util.stream.Collectors;
@@ -45,7 +45,7 @@ import org.springframework.transaction.annotation.Transactional;
 @Slf4j
 public class MemberService {
 
-  private final YeopjeonConfig yeopjeonConfig;
+  private final YeopjeonProperties yeopjeonProperties;
 
   private final ExpService expService;
   private final YeopjeonService yeopjeonService;
@@ -81,9 +81,9 @@ public class MemberService {
 
     // 게시판 접근 권한 정보
     boolean canAccessCheonmin = true;
-    boolean canAccessJungin = yeopjeon.getYeopjeon() >= yeopjeonConfig.getJunginRequirement();
-    boolean canAccessYangban = yeopjeon.getYeopjeon() >= yeopjeonConfig.getYangbanRequirement();
-    boolean canAccessKing = yeopjeon.getYeopjeon() >= yeopjeonConfig.getKingRequirement();
+    boolean canAccessJungin = yeopjeon.getYeopjeon() >= yeopjeonProperties.getJunginRequirement();
+    boolean canAccessYangban = yeopjeon.getYeopjeon() >= yeopjeonProperties.getYangbanRequirement();
+    boolean canAccessKing = yeopjeon.getYeopjeon() >= yeopjeonProperties.getKingRequirement();
 
     // 경험치
     Exp exp = expRepository.findByMember(member)
@@ -174,10 +174,10 @@ public class MemberService {
         .totalCommentCount(totalCommentCount)               // 총 댓글 수
         .totalPopularPostCount(totalPopularPostCount)       // 총 인기자료 수
         .totalLikeCount(totalLikeCount)                     // 총 좋아요 수
-        .cheonminRequirement(yeopjeonConfig.getCheonminRequirement())
-        .junginRequirement(yeopjeonConfig.getJunginRequirement())
-        .yangbanRequirement(yeopjeonConfig.getYangbanRequirement())
-        .kingRequirement(yeopjeonConfig.getKingRequirement())
+        .cheonminRequirement(yeopjeonProperties.getCheonminRequirement())
+        .junginRequirement(yeopjeonProperties.getJunginRequirement())
+        .yangbanRequirement(yeopjeonProperties.getYangbanRequirement())
+        .kingRequirement(yeopjeonProperties.getKingRequirement())
         .canAccessCheonmin(canAccessCheonmin)
         .canAccessJungin(canAccessJungin)
         .canAccessYangban(canAccessYangban)
@@ -196,15 +196,15 @@ public class MemberService {
 
     // 게시판 정보
     boolean canAccessCheonmin = true; // 천민 게시판은 모든 회원이 접근 가능
-    boolean canAccessJungin = yeopjeon.getYeopjeon() >= yeopjeonConfig.getJunginRequirement();
-    boolean canAccessYangban = yeopjeon.getYeopjeon() >= yeopjeonConfig.getYangbanRequirement();
-    boolean canAccessKing = yeopjeon.getYeopjeon() >= yeopjeonConfig.getKingRequirement();
+    boolean canAccessJungin = yeopjeon.getYeopjeon() >= yeopjeonProperties.getJunginRequirement();
+    boolean canAccessYangban = yeopjeon.getYeopjeon() >= yeopjeonProperties.getYangbanRequirement();
+    boolean canAccessKing = yeopjeon.getYeopjeon() >= yeopjeonProperties.getKingRequirement();
 
     return MemberDto.builder()
-        .cheonminRequirement(yeopjeonConfig.getCheonminRequirement())
-        .junginRequirement(yeopjeonConfig.getJunginRequirement())
-        .yangbanRequirement(yeopjeonConfig.getYangbanRequirement())
-        .kingRequirement(yeopjeonConfig.getKingRequirement())
+        .cheonminRequirement(yeopjeonProperties.getCheonminRequirement())
+        .junginRequirement(yeopjeonProperties.getJunginRequirement())
+        .yangbanRequirement(yeopjeonProperties.getYangbanRequirement())
+        .kingRequirement(yeopjeonProperties.getKingRequirement())
         .canAccessCheonmin(canAccessCheonmin)
         .canAccessJungin(canAccessJungin)
         .canAccessYangban(canAccessYangban)

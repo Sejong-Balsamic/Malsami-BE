@@ -1,14 +1,14 @@
-package com.balsamic.sejongmalsami.util.init;
+package com.balsamic.sejongmalsami.application.init;
 
 import static com.balsamic.sejongmalsami.util.log.LogUtil.lineLog;
 import static com.balsamic.sejongmalsami.util.log.LogUtil.lineLogError;
 
-import com.balsamic.sejongmalsami.constants.HashType;
-import com.balsamic.sejongmalsami.service.HashRegistryService;
 import com.balsamic.sejongmalsami.academic.service.SejongAcademicService;
+import com.balsamic.sejongmalsami.application.service.HashRegistryService;
+import com.balsamic.sejongmalsami.constants.HashType;
+import com.balsamic.sejongmalsami.dto.ServerInfo;
 import com.balsamic.sejongmalsami.util.CommonUtil;
 import com.balsamic.sejongmalsami.util.TimeUtil;
-import com.balsamic.sejongmalsami.config.ServerConfig;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.time.Duration;
@@ -47,14 +47,14 @@ public class DataInitializer implements ApplicationRunner {
     LocalDateTime overallStartTime = LocalDateTime.now();
 
     // ServerConfig 초기화 및 정의
-    initServerConfig();
+    initServerInfo();
 
     // Department 파싱 동기적 실행
     String departmentHash;
     try {
       departmentService.initDepartments();
       // Department 해시값 계산
-      departmentHash = CommonUtil.calculateFileHash(ServerConfig.departmentPath);
+      departmentHash = CommonUtil.calculateFileHash(ServerInfo.departmentPath);
     } catch (Exception e) {
       lineLogError("서버 시작 DB 세팅 중 오류 발생");
       log.error("서버 시작 DB 세팅 중 오류 발생", e);
@@ -132,9 +132,9 @@ public class DataInitializer implements ApplicationRunner {
     lineLog(null);
   }
 
-  private void initServerConfig() {
-    ServerConfig.coursePath = determineCoursePath();
-    ServerConfig.departmentPath = determineDepartmentFilePath();
+  private void initServerInfo() {
+    ServerInfo.coursePath = determineCoursePath();
+    ServerInfo.departmentPath = determineDepartmentFilePath();
   }
 
   private void manageDataActiveStatus() {
@@ -159,7 +159,7 @@ public class DataInitializer implements ApplicationRunner {
    * SystemType 에 따라 departments.json 파일 Path 반환
    */
   private Path determineDepartmentFilePath() {
-    if (ServerConfig.isLinuxServer) {
+    if (ServerInfo.isLinuxServer) {
       // 서버 환경
       log.info("서버 환경: departments.json 경로 설정됨 = {}", departmentsPath);
     } else {
@@ -181,7 +181,7 @@ public class DataInitializer implements ApplicationRunner {
    * SystemType 에 따라 CourseFile Path 반환
    */
   private Path determineCoursePath() {
-    if (ServerConfig.isLinuxServer) {
+    if (ServerInfo.isLinuxServer) {
       // 서버 환경
     } else {
       // 로컬 환경: src/main/resources/courses/

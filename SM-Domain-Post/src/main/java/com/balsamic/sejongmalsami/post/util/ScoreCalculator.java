@@ -4,7 +4,7 @@ import com.balsamic.sejongmalsami.post.object.postgres.DocumentFile;
 import com.balsamic.sejongmalsami.post.object.postgres.DocumentPost;
 import com.balsamic.sejongmalsami.post.object.postgres.QuestionPost;
 import com.balsamic.sejongmalsami.post.repository.postgres.DocumentFileRepository;
-import com.balsamic.sejongmalsami.config.ScoreConfig;
+import com.balsamic.sejongmalsami.util.properties.ScoreProperties;
 import java.util.List;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
@@ -13,21 +13,21 @@ import org.springframework.stereotype.Component;
 @RequiredArgsConstructor
 public class ScoreCalculator {
 
-  private final ScoreConfig scoreConfig;
+  private final ScoreProperties scoreProperties;
   private final DocumentFileRepository documentFileRepository;
 
   // 질문 글 일간 점수 로직
   public long calculateQuestionPostDailyScore(QuestionPost post) {
-    return (long) post.getViewCount() * scoreConfig.getQuestionDailyViewCountWeight()
-        + (long) post.getLikeCount() * scoreConfig.getQuestionDailyLikeCountWeight()
-        + (long) post.getAnswerCount() * scoreConfig.getQuestionDailyAnswerCountWeight();
+    return (long) post.getViewCount() * scoreProperties.getQuestionDailyViewCountWeight()
+        + (long) post.getLikeCount() * scoreProperties.getQuestionDailyLikeCountWeight()
+        + (long) post.getAnswerCount() * scoreProperties.getQuestionDailyAnswerCountWeight();
   }
 
   // 질문 글 주간 점수 로직
   public long calculateQuestionPostWeeklyScore(QuestionPost post) {
-    return (long) post.getViewCount() * scoreConfig.getQuestionWeeklyViewCountWeight()
-        + (long) post.getLikeCount() * scoreConfig.getQuestionWeeklyLikeCountWeight()
-        + (long) post.getAnswerCount() * scoreConfig.getQuestionWeeklyAnswerCountWeight();
+    return (long) post.getViewCount() * scoreProperties.getQuestionWeeklyViewCountWeight()
+        + (long) post.getLikeCount() * scoreProperties.getQuestionWeeklyLikeCountWeight()
+        + (long) post.getAnswerCount() * scoreProperties.getQuestionWeeklyAnswerCountWeight();
   }
 
   // 자료 글 일간 점수 로직
@@ -36,7 +36,7 @@ public class ScoreCalculator {
     List<DocumentFile> documentFiles =
         documentFileRepository.findByDocumentPost_DocumentPostId(post.getDocumentPostId());
     // 인기글 최소 좋아요
-    if (post.getLikeCount() < scoreConfig.getDocumentMinimumLikeCount()) {
+    if (post.getLikeCount() < scoreProperties.getDocumentMinimumLikeCount()) {
       return 0;
     }
 
@@ -46,10 +46,10 @@ public class ScoreCalculator {
     }
 
     // 점수 총합 계산
-    return (long) post.getViewCount() * scoreConfig.getDocumentDailyViewCountWeight()
-        + (long) post.getLikeCount() * scoreConfig.getDocumentDailyLikeCountWeight()
-        + (long) post.getDislikeCount() * scoreConfig.getDocumentDailyDislikeCountWeight()
-        + totalDailyDownloadCount * scoreConfig.getDocumentDailyDownloadCountWeight();
+    return (long) post.getViewCount() * scoreProperties.getDocumentDailyViewCountWeight()
+        + (long) post.getLikeCount() * scoreProperties.getDocumentDailyLikeCountWeight()
+        + (long) post.getDislikeCount() * scoreProperties.getDocumentDailyDislikeCountWeight()
+        + totalDailyDownloadCount * scoreProperties.getDocumentDailyDownloadCountWeight();
   }
 
   // 자료 글 주간 점수 로직
@@ -58,7 +58,7 @@ public class ScoreCalculator {
     List<DocumentFile> documentFiles =
         documentFileRepository.findByDocumentPost_DocumentPostId(post.getDocumentPostId());
     // 인기글 최소 좋아요 수
-    if (post.getLikeCount() < scoreConfig.getDocumentMinimumLikeCount()) {
+    if (post.getLikeCount() < scoreProperties.getDocumentMinimumLikeCount()) {
       return 0;
     }
 
@@ -67,9 +67,9 @@ public class ScoreCalculator {
       totalWeeklyDownloadCount += file.getWeeklyDownloadCount() != null ? file.getWeeklyDownloadCount() : 0;
     }
 
-    return (long) post.getViewCount() * scoreConfig.getDocumentWeeklyViewCountWeight()
-        + (long) post.getLikeCount() * scoreConfig.getDocumentWeeklyLikeCountWeight()
-        + (long) post.getDislikeCount() * scoreConfig.getDocumentWeeklyDislikeCountWeight()
-        + totalWeeklyDownloadCount * scoreConfig.getDocumentWeeklyDownloadCountWeight();
+    return (long) post.getViewCount() * scoreProperties.getDocumentWeeklyViewCountWeight()
+        + (long) post.getLikeCount() * scoreProperties.getDocumentWeeklyLikeCountWeight()
+        + (long) post.getDislikeCount() * scoreProperties.getDocumentWeeklyDislikeCountWeight()
+        + totalWeeklyDownloadCount * scoreProperties.getDocumentWeeklyDownloadCountWeight();
   }
 }

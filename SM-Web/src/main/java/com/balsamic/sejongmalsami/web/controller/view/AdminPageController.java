@@ -1,8 +1,8 @@
 package com.balsamic.sejongmalsami.web.controller.view;
 
-import com.balsamic.sejongmalsami.application.JwtUtil;
 import com.balsamic.sejongmalsami.application.dto.AdminDto;
 import com.balsamic.sejongmalsami.application.service.AdminApiService;
+import com.balsamic.sejongmalsami.auth.util.JwtUtil;
 import com.balsamic.sejongmalsami.constants.NotificationCategory;
 import com.balsamic.sejongmalsami.object.postgres.Faculty;
 import io.swagger.v3.oas.annotations.tags.Tag;

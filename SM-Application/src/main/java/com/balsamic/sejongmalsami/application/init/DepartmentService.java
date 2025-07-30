@@ -1,13 +1,13 @@
-package com.balsamic.sejongmalsami.util.init;
+package com.balsamic.sejongmalsami.application.init;
 
+import com.balsamic.sejongmalsami.application.service.HashRegistryService;
 import com.balsamic.sejongmalsami.constants.HashType;
+import com.balsamic.sejongmalsami.dto.ServerInfo;
 import com.balsamic.sejongmalsami.object.postgres.Department;
 import com.balsamic.sejongmalsami.object.postgres.Faculty;
 import com.balsamic.sejongmalsami.repository.postgres.DepartmentRepository;
 import com.balsamic.sejongmalsami.repository.postgres.FacultyRepository;
-import com.balsamic.sejongmalsami.service.HashRegistryService;
 import com.balsamic.sejongmalsami.util.CommonUtil;
-import com.balsamic.sejongmalsami.config.ServerConfig;
 import com.balsamic.sejongmalsami.util.exception.CustomException;
 import com.balsamic.sejongmalsami.util.exception.ErrorCode;
 import com.fasterxml.jackson.databind.JsonNode;
@@ -46,7 +46,7 @@ public class DepartmentService {
    */
   @Transactional
   public String initDepartments() {
-    Path filePath = ServerConfig.departmentPath;
+    Path filePath = ServerInfo.departmentPath;
     String fileName = filePath.getFileName().toString();
     String fileHash = CommonUtil.calculateFileHash(filePath);
 

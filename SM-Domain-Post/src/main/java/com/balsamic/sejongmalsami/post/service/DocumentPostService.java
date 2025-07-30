@@ -12,16 +12,15 @@ import static com.balsamic.sejongmalsami.constants.YeopjeonAction.VIEW_DOCUMENT_
 import static com.balsamic.sejongmalsami.constants.YeopjeonAction.VIEW_DOCUMENT_YANGBAN_POST;
 
 import com.amazonaws.util.IOUtils;
-import com.balsamic.sejongmalsami.config.YeopjeonConfig;
 import com.balsamic.sejongmalsami.constants.ContentType;
 import com.balsamic.sejongmalsami.constants.ExpAction;
 import com.balsamic.sejongmalsami.constants.PostTier;
 import com.balsamic.sejongmalsami.constants.SortType;
-import com.balsamic.sejongmalsami.object.DocumentCommand;
 import com.balsamic.sejongmalsami.object.mongo.YeopjeonHistory;
 import com.balsamic.sejongmalsami.object.postgres.Course;
 import com.balsamic.sejongmalsami.object.postgres.Member;
 import com.balsamic.sejongmalsami.object.postgres.Yeopjeon;
+import com.balsamic.sejongmalsami.post.dto.DocumentCommand;
 import com.balsamic.sejongmalsami.post.dto.DocumentDto;
 import com.balsamic.sejongmalsami.post.object.mongo.PurchaseHistory;
 import com.balsamic.sejongmalsami.post.object.postgres.DocumentFile;
@@ -36,6 +35,7 @@ import com.balsamic.sejongmalsami.repository.postgres.MemberRepository;
 import com.balsamic.sejongmalsami.util.RedisLockManager;
 import com.balsamic.sejongmalsami.util.exception.CustomException;
 import com.balsamic.sejongmalsami.util.exception.ErrorCode;
+import com.balsamic.sejongmalsami.util.properties.YeopjeonProperties;
 import java.io.IOException;
 import java.io.InputStream;
 import java.nio.file.Files;
@@ -72,7 +72,7 @@ public class DocumentPostService {
   private final DocumentBoardLikeRepository documentBoardLikeRepository;
   private final CourseRepository courseRepository;
   private final com.balsamic.sejongmalsami.service.YeopjeonService yeopjeonService;
-  private final YeopjeonConfig yeopjeonConfig;
+  private final YeopjeonProperties yeopjeonProperties;
   private final PurchaseHistoryRepository purchaseHistoryRepository;
   private final GenericObjectPool<FTPClient> ftpClientPool;
   private final RedisLockManager redisLockManager;
@@ -352,21 +352,21 @@ public class DocumentPostService {
     if (postTier.equals(PostTier.CHEONMIN)) { // 천민 게시판 접근 시
       log.info("천민 게시판 접근, 현재 사용자 {}의 엽전개수: {}", member.getStudentId(), yeopjeon.getYeopjeon());
     } else if (postTier.equals(PostTier.JUNGIN)) { // 중인 게시판 접근 시
-      if (yeopjeon.getYeopjeon() < yeopjeonConfig.getJunginRequirement()) {
+      if (yeopjeon.getYeopjeon() < yeopjeonProperties.getJunginRequirement()) {
         log.error("현재 사용자 {}의 엽전이 부족하여 중인게시판에 접근할 수 없습니다.", member.getStudentId());
-        log.error("중인 게시판 엽전 기준: {}냥, 현재 사용자 엽전개수: {}", yeopjeonConfig.getJunginRequirement(), yeopjeon.getYeopjeon());
+        log.error("중인 게시판 엽전 기준: {}냥, 현재 사용자 엽전개수: {}", yeopjeonProperties.getJunginRequirement(), yeopjeon.getYeopjeon());
         throw new CustomException(ErrorCode.INSUFFICIENT_YEOPJEON);
       }
     } else if (postTier.equals(PostTier.YANGBAN)) { // 양반 게시판 접근 시
-      if (yeopjeon.getYeopjeon() < yeopjeonConfig.getYangbanRequirement()) {
+      if (yeopjeon.getYeopjeon() < yeopjeonProperties.getYangbanRequirement()) {
         log.error("현재 사용자 {}의 엽전이 부족하여 양반게시판에 접근할 수 없습니다.", member.getStudentId());
-        log.error("양반 게시판 엽전 기준: {}냥, 현재 사용자 엽전개수: {}", yeopjeonConfig.getYangbanRequirement(), yeopjeon.getYeopjeon());
+        log.error("양반 게시판 엽전 기준: {}냥, 현재 사용자 엽전개수: {}", yeopjeonProperties.getYangbanRequirement(), yeopjeon.getYeopjeon());
         throw new CustomException(ErrorCode.INSUFFICIENT_YEOPJEON);
       }
     } else if (postTier.equals(PostTier.KING)) { // 왕 게시판 접근 시
-      if (yeopjeon.getYeopjeon() < yeopjeonConfig.getKingRequirement()) {
+      if (yeopjeon.getYeopjeon() < yeopjeonProperties.getKingRequirement()) {
         log.error("현재 사용자 {}의 엽전이 부족하여 왕 게시판에 접근할 수 없습니다.", member.getStudentId());
-        log.error("왕 게시판 엽전 기준: {}냥, 현재 사용자 엽전개수: {}", yeopjeonConfig.getKingRequirement(), yeopjeon.getYeopjeon());
+        log.error("왕 게시판 엽전 기준: {}냥, 현재 사용자 엽전개수: {}", yeopjeonProperties.getKingRequirement(), yeopjeon.getYeopjeon());
         throw new CustomException(ErrorCode.INSUFFICIENT_YEOPJEON);
       }
     } else {

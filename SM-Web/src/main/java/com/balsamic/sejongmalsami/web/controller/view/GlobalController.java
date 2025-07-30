@@ -1,6 +1,6 @@
 package com.balsamic.sejongmalsami.web.controller.view;
 
-import com.balsamic.sejongmalsami.config.ServerConfig;
+import com.balsamic.sejongmalsami.dto.ServerInfo;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.bind.annotation.ModelAttribute;
@@ -14,6 +14,6 @@ public class GlobalController {
   @ModelAttribute
   public void addServerConfig(Model model) {
 
-    model.addAttribute("isLinuxServer", ServerConfig.isLinuxServer);
+    model.addAttribute("isLinuxServer", ServerInfo.isLinuxServer);
   }
 }

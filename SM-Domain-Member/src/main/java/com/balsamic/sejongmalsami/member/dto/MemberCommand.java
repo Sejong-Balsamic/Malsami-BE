@@ -5,6 +5,7 @@ import com.balsamic.sejongmalsami.constants.ContentType;
 import com.balsamic.sejongmalsami.constants.Role;
 import com.balsamic.sejongmalsami.constants.SortType;
 import com.balsamic.sejongmalsami.object.postgres.Member;
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import io.swagger.v3.oas.annotations.media.Schema;
 import java.util.UUID;
 import lombok.AllArgsConstructor;
@@ -35,7 +36,8 @@ public class MemberCommand {
   private String academicYear;
   private String enrollmentStatus;
   private String faculty;
-
+  @Schema(hidden = true, description = "회원")
+  @JsonIgnore
   private Member member;
 
   // auth

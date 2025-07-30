@@ -1,9 +1,9 @@
-package com.balsamic.sejongmalsami.util.init;
+package com.balsamic.sejongmalsami.application.init;
 
+import com.balsamic.sejongmalsami.application.service.HashRegistryService;
 import com.balsamic.sejongmalsami.constants.HashType;
 import com.balsamic.sejongmalsami.object.postgres.ServerErrorCode;
 import com.balsamic.sejongmalsami.repository.postgres.ServerErrorCodeRepository;
-import com.balsamic.sejongmalsami.service.HashRegistryService;
 import com.balsamic.sejongmalsami.util.CommonUtil;
 import com.balsamic.sejongmalsami.util.exception.ErrorCode;
 import java.util.Arrays;

@@ -2,6 +2,7 @@ package com.balsamic.sejongmalsami.object;
 
 import com.balsamic.sejongmalsami.constants.SortType;
 import com.balsamic.sejongmalsami.object.postgres.Member;
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import io.swagger.v3.oas.annotations.media.Schema;
 import java.util.UUID;
 import lombok.AllArgsConstructor;
@@ -19,7 +20,8 @@ public class NoticePostCommand {
     this.pageNumber = 0;
     this.pageSize = 30;
   }
-
+  @Schema(hidden = true, description = "회원")
+  @JsonIgnore
   private Member member;
   private String title;
   private String content;

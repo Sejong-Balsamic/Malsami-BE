@@ -1,6 +1,5 @@
 package com.balsamic.sejongmalsami.post.service;
 
-import com.balsamic.sejongmalsami.config.FtpConfig;
 import com.balsamic.sejongmalsami.constants.ContentType;
 import com.balsamic.sejongmalsami.constants.MimeType;
 import com.balsamic.sejongmalsami.object.postgres.MediaFile;
@@ -18,6 +17,7 @@ import com.balsamic.sejongmalsami.util.ImageThumbnailGenerator;
 import com.balsamic.sejongmalsami.util.MultipartFileAdapter;
 import com.balsamic.sejongmalsami.util.exception.CustomException;
 import com.balsamic.sejongmalsami.util.exception.ErrorCode;
+import com.balsamic.sejongmalsami.util.properties.FtpProperties;
 import com.balsamic.sejongmalsami.util.storage.StorageService;
 import java.io.IOException;
 import java.util.ArrayList;
@@ -43,7 +43,7 @@ public class PostMediaFileService {
   private final AnswerPostRepository answerPostRepository;
   private final CommentRepository commentRepository;
   private final DocumentRequestPostRepository documentRequestPostRepository;
-  private final FtpConfig ftpConfig;
+  private final FtpProperties ftpProperties;
   private final ImageThumbnailGenerator imageThumbnailGenerator;
 
   // 최대 업로드 개수
@@ -238,7 +238,7 @@ public class PostMediaFileService {
     } catch (Exception e) {
       log.error("썸네일 생성 실패: {}", e.getMessage(), e);
       // 업로드 타입에 따른 기본 썸네일 URL 사용
-      return ftpConfig.getDefaultImageThumbnailUrl();
+      return ftpProperties.getDefaultImageThumbnailUrl();
     }
   }
 

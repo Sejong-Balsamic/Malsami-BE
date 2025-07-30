@@ -5,6 +5,8 @@ import com.balsamic.sejongmalsami.constants.ChaetaekStatus;
 import com.balsamic.sejongmalsami.constants.QuestionPresetTag;
 import com.balsamic.sejongmalsami.constants.Role;
 import com.balsamic.sejongmalsami.object.postgres.Member;
+import com.fasterxml.jackson.annotation.JsonIgnore;
+import io.swagger.v3.oas.annotations.media.Schema;
 import java.util.List;
 import java.util.UUID;
 import lombok.AllArgsConstructor;
@@ -25,7 +27,8 @@ public class AdminCommand {
     this.pageNumber = 0;
     this.pageSize = 30;
   }
-
+  @Schema(hidden = true, description = "회원")
+  @JsonIgnore
   private Member member;
   private Integer amount;
   private UUID targetMemberId;

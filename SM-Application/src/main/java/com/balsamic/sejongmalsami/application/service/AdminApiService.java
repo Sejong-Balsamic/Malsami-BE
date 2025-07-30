@@ -4,20 +4,18 @@ import com.balsamic.sejongmalsami.academic.object.postgres.CourseFile;
 import com.balsamic.sejongmalsami.academic.repository.postgres.CourseFileRepository;
 import com.balsamic.sejongmalsami.application.dto.AdminCommand;
 import com.balsamic.sejongmalsami.application.dto.AdminDto;
-import com.balsamic.sejongmalsami.auth.dto.AuthDto;
+import com.balsamic.sejongmalsami.application.dto.NotificationCommand;
+import com.balsamic.sejongmalsami.application.init.CourseFileGenerator;
 import com.balsamic.sejongmalsami.auth.dto.FirebaseDto;
-import com.balsamic.sejongmalsami.config.FirebaseConfig;
 import com.balsamic.sejongmalsami.constants.ContentType;
 import com.balsamic.sejongmalsami.constants.NotificationCategory;
 import com.balsamic.sejongmalsami.constants.Role;
 import com.balsamic.sejongmalsami.constants.YeopjeonAction;
 import com.balsamic.sejongmalsami.dto.MemberYeopjeon;
-import com.balsamic.sejongmalsami.member.dto.MemberDto;
 import com.balsamic.sejongmalsami.notice.object.postgres.NoticePost;
 import com.balsamic.sejongmalsami.notice.repository.postgres.NoticePostRepository;
 import com.balsamic.sejongmalsami.object.NoticePostCommand;
 import com.balsamic.sejongmalsami.object.NoticePostDto;
-import com.balsamic.sejongmalsami.object.NotificationCommand;
 import com.balsamic.sejongmalsami.object.mongo.YeopjeonHistory;
 import com.balsamic.sejongmalsami.object.postgres.Course;
 import com.balsamic.sejongmalsami.object.postgres.Faculty;
@@ -37,12 +35,11 @@ import com.balsamic.sejongmalsami.repository.postgres.MemberRepository;
 import com.balsamic.sejongmalsami.repository.postgres.ServerErrorCodeRepository;
 import com.balsamic.sejongmalsami.repository.postgres.TestMemberRepository;
 import com.balsamic.sejongmalsami.repository.postgres.YeopjeonRepository;
-import com.balsamic.sejongmalsami.service.NotificationService;
 import com.balsamic.sejongmalsami.util.CommonUtil;
 import com.balsamic.sejongmalsami.util.exception.CustomException;
 import com.balsamic.sejongmalsami.util.exception.ErrorCode;
-import com.balsamic.sejongmalsami.util.init.CourseFileGenerator;
 import com.balsamic.sejongmalsami.util.log.LogUtil;
+import com.balsamic.sejongmalsami.util.properties.FirebaseProperties;
 import com.balsamic.sejongmalsami.util.storage.StorageService;
 import java.nio.file.Paths;
 import java.util.Collections;
@@ -84,7 +81,7 @@ public class AdminApiService {
   private final ServerErrorCodeRepository serverErrorCodeRepository;
   private final QuestionPostRepository questionPostRepository;
   private final QuestionPostCustomTagRepository questionPostCustomTagRepository;
-  private final FirebaseConfig firebaseConfig;
+  private final FirebaseProperties firebaseProperties;
   private final NotificationService notificationService;
 
   /**
@@ -625,17 +622,17 @@ public class AdminApiService {
    * =========================================== 알림 관리 로직 ===========================================
    */
   @Transactional
-  public FirebaseDto getFirebaseConfig() {
+  public FirebaseDto getFirebaseProperties() {
 
     return FirebaseDto.builder()
-        .firebaseApiKey(firebaseConfig.getFirebaseApiKey())
-        .firebaseAuthDomain(firebaseConfig.getFirebaseAuthDomain())
-        .firebaseProjectId(firebaseConfig.getFirebaseProjectId())
-        .firebaseStorageBucket(firebaseConfig.getFirebaseStorageBucket())
-        .firebaseMessagingSenderId(firebaseConfig.getFirebaseMessagingSenderId())
-        .firebaseAppId(firebaseConfig.getFirebaseAppId())
-        .firebaseMeasurementId(firebaseConfig.getFirebaseMeasurementID())
-        .firebaseVapidKey(firebaseConfig.getFirebaseVapidKey())
+        .firebaseApiKey(firebaseProperties.getApiKey())
+        .firebaseAuthDomain(firebaseProperties.getAuthDomain())
+        .firebaseProjectId(firebaseProperties.getProjectId())
+        .firebaseStorageBucket(firebaseProperties.getStorageBucket())
+        .firebaseMessagingSenderId(firebaseProperties.getMessagingSenderId())
+        .firebaseAppId(firebaseProperties.getAppId())
+        .firebaseMeasurementId(firebaseProperties.getMeasurementId())
+        .firebaseVapidKey(firebaseProperties.getVapidKey())
         .build();
   }
 

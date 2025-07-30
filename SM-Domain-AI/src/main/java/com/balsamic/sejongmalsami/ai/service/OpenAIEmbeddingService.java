@@ -1,8 +1,8 @@
 package com.balsamic.sejongmalsami.ai.service;
 
-import com.balsamic.sejongmalsami.config.EmbeddingConfig;
 import com.balsamic.sejongmalsami.util.exception.CustomException;
 import com.balsamic.sejongmalsami.util.exception.ErrorCode;
+import com.balsamic.sejongmalsami.util.properties.GoogleGenAiProperties;
 import com.google.genai.Client;
 import com.google.genai.errors.ClientException;
 import com.google.genai.types.ContentEmbedding;
@@ -20,7 +20,7 @@ import org.springframework.transaction.annotation.Transactional;
 public class OpenAIEmbeddingService {
 
   private final Client genAiClient;
-  private final EmbeddingConfig embeddingConfig;
+  private final GoogleGenAiProperties googleGenAiProperties;
 
   @Transactional
   public float[] generateEmbedding(String text) {
@@ -36,7 +36,7 @@ public class OpenAIEmbeddingService {
   private EmbedContentResponse fetchVertexAI(String text) {
     try {
       return genAiClient.models.embedContent(
-          embeddingConfig.getModel(),
+          googleGenAiProperties.getModel(),
           text,
           EmbedContentConfig.builder().build()
       );

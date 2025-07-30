@@ -1,6 +1,7 @@
 package com.balsamic.sejongmalsami.application.dto;
 
 import com.balsamic.sejongmalsami.object.postgres.Member;
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -17,7 +18,8 @@ public class TestCommand {
   public TestCommand() {
     postCount = 30;
   }
-
+  @Schema(hidden = true, description = "회원")
+  @JsonIgnore
   private Member member;
 
   @Schema(defaultValue = "30")

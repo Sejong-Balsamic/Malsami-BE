@@ -1,6 +1,6 @@
 package com.balsamic.sejongmalsami.util;
 
-import com.balsamic.sejongmalsami.config.ServerConfig;
+import com.balsamic.sejongmalsami.dto.ServerInfo;
 import com.balsamic.sejongmalsami.util.log.LogUtil;
 import java.net.MalformedURLException;
 import java.net.URL;
@@ -27,7 +27,7 @@ public class WebDriverManager {
   public WebDriverManager(@Value("${selenium.grid-url}") String seleniumGridUrl) {
     this.seleniumGridUrl = seleniumGridUrl;
     this.options = new ChromeOptions();
-    this.isLinuxServer = ServerConfig.isLinuxServer;
+    this.isLinuxServer = ServerInfo.isLinuxServer;
     this.options.addArguments("--headless", "--disable-gpu", "--no-sandbox", "--disable-dev-shm-usage");
   }
 

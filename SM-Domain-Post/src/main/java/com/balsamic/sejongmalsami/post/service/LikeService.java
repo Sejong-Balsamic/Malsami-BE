@@ -13,22 +13,20 @@ import static com.balsamic.sejongmalsami.constants.PostTier.KING;
 import static com.balsamic.sejongmalsami.constants.PostTier.YANGBAN;
 import static com.balsamic.sejongmalsami.constants.YeopjeonAction.RECEIVE_DISLIKE;
 
-import com.balsamic.sejongmalsami.config.PostTierConfig;
-import com.balsamic.sejongmalsami.config.YeopjeonConfig;
 import com.balsamic.sejongmalsami.constants.ContentType;
 import com.balsamic.sejongmalsami.constants.ExpAction;
 import com.balsamic.sejongmalsami.constants.LikeType;
 import com.balsamic.sejongmalsami.constants.PostTier;
 import com.balsamic.sejongmalsami.constants.YeopjeonAction;
-import com.balsamic.sejongmalsami.object.CommentCommand;
-import com.balsamic.sejongmalsami.object.DocumentCommand;
-import com.balsamic.sejongmalsami.object.QuestionCommand;
 import com.balsamic.sejongmalsami.object.mongo.ExpHistory;
 import com.balsamic.sejongmalsami.object.mongo.YeopjeonHistory;
 import com.balsamic.sejongmalsami.object.postgres.Member;
 import com.balsamic.sejongmalsami.object.postgres.Yeopjeon;
+import com.balsamic.sejongmalsami.post.dto.CommentCommand;
 import com.balsamic.sejongmalsami.post.dto.CommentDto;
+import com.balsamic.sejongmalsami.post.dto.DocumentCommand;
 import com.balsamic.sejongmalsami.post.dto.DocumentDto;
+import com.balsamic.sejongmalsami.post.dto.QuestionCommand;
 import com.balsamic.sejongmalsami.post.dto.QuestionDto;
 import com.balsamic.sejongmalsami.post.object.mongo.CommentLike;
 import com.balsamic.sejongmalsami.post.object.mongo.DocumentBoardLike;
@@ -47,9 +45,13 @@ import com.balsamic.sejongmalsami.post.repository.postgres.DocumentPostRepositor
 import com.balsamic.sejongmalsami.post.repository.postgres.DocumentRequestPostRepository;
 import com.balsamic.sejongmalsami.post.repository.postgres.QuestionPostRepository;
 import com.balsamic.sejongmalsami.repository.postgres.MemberRepository;
+import com.balsamic.sejongmalsami.service.ExpService;
+import com.balsamic.sejongmalsami.service.YeopjeonService;
 import com.balsamic.sejongmalsami.util.RedisLockManager;
 import com.balsamic.sejongmalsami.util.exception.CustomException;
 import com.balsamic.sejongmalsami.util.exception.ErrorCode;
+import com.balsamic.sejongmalsami.util.properties.PostTierProperties;
+import com.balsamic.sejongmalsami.util.properties.YeopjeonProperties;
 import java.util.UUID;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -72,13 +74,14 @@ public class LikeService {
   private final DocumentPostRepository documentPostRepository;
   private final DocumentRequestPostRepository documentRequestPostRepository;
   private final DocumentBoardLikeRepository documentBoardLikeRepository;
-  private final com.balsamic.sejongmalsami.service.YeopjeonService yeopjeonService;
-  private final YeopjeonConfig yeopjeonConfig;
-  private final com.balsamic.sejongmalsami.service.ExpService expService;
-  private final PostTierConfig postTierConfig;
+  private final YeopjeonService yeopjeonService;
+  private final ExpService expService;
   private final CommentLikeRepository commentLikeRepository;
   private final CommentRepository commentRepository;
   private final RedisLockManager redisLockManager;
+
+  private final YeopjeonProperties yeopjeonProperties;
+  private final PostTierProperties postTierProperties;
 
 
   /**
@@ -445,23 +448,23 @@ public class LikeService {
     if (postTier.equals(CHEONMIN)) { // 천민 게시판 접근 시
       log.info("천민 게시판 접근, 현재 사용자 {}의 엽전개수: {}", curMember.getStudentId(), yeopjeon.getYeopjeon());
     } else if (postTier.equals(JUNGIN)) { // 중인 게시판 접근 시
-      if (yeopjeon.getYeopjeon() < yeopjeonConfig.getJunginRequirement()) {
+      if (yeopjeon.getYeopjeon() < yeopjeonProperties.getJunginRequirement()) {
         log.error("현재 사용자 {}의 엽전이 부족하여 중인게시판에 접근할 수 없습니다.", curMember.getStudentId());
-        log.error("중인 게시판 엽전 기준: {}냥, 현재 사용자 엽전개수: {}", yeopjeonConfig.getJunginRequirement(),
+        log.error("중인 게시판 엽전 기준: {}냥, 현재 사용자 엽전개수: {}", yeopjeonProperties.getJunginRequirement(),
             yeopjeon.getYeopjeon());
         throw new CustomException(ErrorCode.INSUFFICIENT_YEOPJEON);
       }
     } else if (postTier.equals(YANGBAN)) { // 양반 게시판 접근 시
-      if (yeopjeon.getYeopjeon() < yeopjeonConfig.getYangbanRequirement()) {
+      if (yeopjeon.getYeopjeon() < yeopjeonProperties.getYangbanRequirement()) {
         log.error("현재 사용자 {}의 엽전이 부족하여 양반게시판에 접근할 수 없습니다.", curMember.getStudentId());
-        log.error("양반 게시판 엽전 기준: {}냥, 현재 사용자 엽전개수: {}", yeopjeonConfig.getYangbanRequirement(),
+        log.error("양반 게시판 엽전 기준: {}냥, 현재 사용자 엽전개수: {}", yeopjeonProperties.getYangbanRequirement(),
             yeopjeon.getYeopjeon());
         throw new CustomException(ErrorCode.INSUFFICIENT_YEOPJEON);
       }
     } else if (postTier.equals(KING)) { // 왕 게시판 접근 시
-      if (yeopjeon.getYeopjeon() < yeopjeonConfig.getKingRequirement()) {
+      if (yeopjeon.getYeopjeon() < yeopjeonProperties.getKingRequirement()) {
         log.error("현재 사용자 {}의 엽전이 부족하여 왕 게시판에 접근할 수 없습니다.", curMember.getStudentId());
-        log.error("왕 게시판 엽전 기준: {}냥, 현재 사용자 엽전개수: {}", yeopjeonConfig.getKingRequirement(), yeopjeon.getYeopjeon());
+        log.error("왕 게시판 엽전 기준: {}냥, 현재 사용자 엽전개수: {}", yeopjeonProperties.getKingRequirement(), yeopjeon.getYeopjeon());
         throw new CustomException(ErrorCode.INSUFFICIENT_YEOPJEON);
       }
     } else {
@@ -487,28 +490,28 @@ public class LikeService {
 
     // 좋아요가 요청된 경우 (승급여부만 확인)
     if (likeType.equals(LikeType.LIKE)) {
-      if (score >= postTierConfig.getLikeRequirementKing() && curTier.equals(YANGBAN)) {
-        log.info("해당 글의 점수가 {} 에 도달하여 왕 등급으로 승급합니다. 현재 점수: {}", postTierConfig.getLikeRequirementKing(), score);
+      if (score >= postTierProperties.getLikeRequirementKing() && curTier.equals(YANGBAN)) {
+        log.info("해당 글의 점수가 {} 에 도달하여 왕 등급으로 승급합니다. 현재 점수: {}", postTierProperties.getLikeRequirementKing(), score);
         post.setPostTier(KING);
-      } else if (score >= postTierConfig.getLikeRequirementYangban() && curTier.equals(JUNGIN)) {
-        log.info("해당 글의 점수가 {} 에 도달하여 양반 등급으로 승급합니다. 현재 점수: {}", postTierConfig.getLikeRequirementYangban(), score);
+      } else if (score >= postTierProperties.getLikeRequirementYangban() && curTier.equals(JUNGIN)) {
+        log.info("해당 글의 점수가 {} 에 도달하여 양반 등급으로 승급합니다. 현재 점수: {}", postTierProperties.getLikeRequirementYangban(), score);
         post.setPostTier(YANGBAN);
-      } else if (score >= postTierConfig.getLikeRequirementJungin() && curTier.equals(CHEONMIN)) {
-        log.info("해당 글의 점수가 {} 에 도달하여 중인 등급으로 승급합니다. 현재 점수: {}", postTierConfig.getLikeRequirementJungin(), score);
+      } else if (score >= postTierProperties.getLikeRequirementJungin() && curTier.equals(CHEONMIN)) {
+        log.info("해당 글의 점수가 {} 에 도달하여 중인 등급으로 승급합니다. 현재 점수: {}", postTierProperties.getLikeRequirementJungin(), score);
         post.setPostTier(JUNGIN);
       }
     } else if (likeType.equals(LikeType.DISLIKE)) { // 싫어요가 요청된 경우 (강등여부만 확인)
       if (post.getDislikeCount() < DEMOTION_DISLIKE_LIMIT) { // 싫어요 개수가 20개 미만인 경우 강등여부 확인 X
         return;
       }
-      if (score < postTierConfig.getLikeRequirementJungin() && curTier.equals(JUNGIN)) {
-        log.info("해당 글의 점수가 {} 보다 낮아 천민 등급으로 강등됩니다. 현재 점수: {}", postTierConfig.getLikeRequirementJungin(), score);
+      if (score < postTierProperties.getLikeRequirementJungin() && curTier.equals(JUNGIN)) {
+        log.info("해당 글의 점수가 {} 보다 낮아 천민 등급으로 강등됩니다. 현재 점수: {}", postTierProperties.getLikeRequirementJungin(), score);
         post.setPostTier(CHEONMIN);
-      } else if (score < postTierConfig.getLikeRequirementYangban() && curTier.equals(YANGBAN)) {
-        log.info("해당 글의 점수가 {} 보다 낮아 중인 등급으로 강등됩니다. 현재 점수: {}", postTierConfig.getLikeRequirementYangban(), score);
+      } else if (score < postTierProperties.getLikeRequirementYangban() && curTier.equals(YANGBAN)) {
+        log.info("해당 글의 점수가 {} 보다 낮아 중인 등급으로 강등됩니다. 현재 점수: {}", postTierProperties.getLikeRequirementYangban(), score);
         post.setPostTier(JUNGIN);
-      } else if (score < postTierConfig.getLikeRequirementKing() && curTier.equals(KING)) {
-        log.info("해당 글의 점수가 {} 보다 낮아 양반 등급으로 강등됩니다. 현재 점수: {}", postTierConfig.getLikeRequirementKing(), score);
+      } else if (score < postTierProperties.getLikeRequirementKing() && curTier.equals(KING)) {
+        log.info("해당 글의 점수가 {} 보다 낮아 양반 등급으로 강등됩니다. 현재 점수: {}", postTierProperties.getLikeRequirementKing(), score);
         post.setPostTier(YANGBAN);
       }
     }

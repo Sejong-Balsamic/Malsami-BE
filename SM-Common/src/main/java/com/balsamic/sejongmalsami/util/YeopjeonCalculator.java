@@ -1,9 +1,9 @@
 package com.balsamic.sejongmalsami.util;
 
 import com.balsamic.sejongmalsami.constants.YeopjeonAction;
-import com.balsamic.sejongmalsami.config.YeopjeonConfig;
 import com.balsamic.sejongmalsami.util.exception.CustomException;
 import com.balsamic.sejongmalsami.util.exception.ErrorCode;
+import com.balsamic.sejongmalsami.util.properties.YeopjeonProperties;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
 
@@ -11,28 +11,28 @@ import org.springframework.stereotype.Component;
 @RequiredArgsConstructor
 public class YeopjeonCalculator {
 
-  private final YeopjeonConfig yeopjeonConfig;
+  private final YeopjeonProperties yeopjeonProperties;
 
   // YeopjeonAction 따른 엽전 변동량 계산
   public int calculateYeopjeon(YeopjeonAction action) {
     return switch (action) {
-      case VIEW_DOCUMENT_CHEONMIN_POST -> yeopjeonConfig.getViewCheonminCost();
-      case VIEW_DOCUMENT_JUNGIN_POST -> yeopjeonConfig.getViewJunginCost();
-      case VIEW_DOCUMENT_YANGBAN_POST -> yeopjeonConfig.getViewYangbanCost();
-      case VIEW_DOCUMENT_KING_POST -> yeopjeonConfig.getViewKingCost();
-      case PURCHASE_DOCUMENT -> yeopjeonConfig.getPurchaseDocument();
-      case DOCUMENT_UPLOADER_REWARD -> yeopjeonConfig.getDocumentFileUploaderReward();
-      case RECEIVE_LIKE -> yeopjeonConfig.getLikeReward();
-      case RECEIVE_DISLIKE -> yeopjeonConfig.getDislikePenalty();
-      case ATTENDANCE_BONUS -> yeopjeonConfig.getAttendanceBonus();
-      case RECEIVE_REPORT_PENALTY -> yeopjeonConfig.getReportPenalty();
-      case CREATE_QUESTION_POST -> yeopjeonConfig.getCreateQuestionPost();
+      case VIEW_DOCUMENT_CHEONMIN_POST -> yeopjeonProperties.getViewCheonminCost();
+      case VIEW_DOCUMENT_JUNGIN_POST -> yeopjeonProperties.getViewJunginCost();
+      case VIEW_DOCUMENT_YANGBAN_POST -> yeopjeonProperties.getViewYangbanCost();
+      case VIEW_DOCUMENT_KING_POST -> yeopjeonProperties.getViewKingCost();
+      case PURCHASE_DOCUMENT -> yeopjeonProperties.getPurchaseDocument();
+      case DOCUMENT_UPLOADER_REWARD -> yeopjeonProperties.getDocumentFileUploaderReward();
+      case RECEIVE_LIKE -> yeopjeonProperties.getLikeReward();
+      case RECEIVE_DISLIKE -> yeopjeonProperties.getDislikePenalty();
+      case ATTENDANCE_BONUS -> yeopjeonProperties.getAttendanceBonus();
+      case RECEIVE_REPORT_PENALTY -> yeopjeonProperties.getReportPenalty();
+      case CREATE_QUESTION_POST -> yeopjeonProperties.getCreateQuestionPost();
       case DELETE_POST -> 0;
-      case CHAETAEK_CHOSEN -> yeopjeonConfig.getChaetaekChosen();
-      case CHAETAEK_ACCEPT -> yeopjeonConfig.getChaetaekAccept();
-      case COPYRIGHT_VIOLATION -> yeopjeonConfig.getCopyrightViolation();
-      case REPORT_REWARD -> yeopjeonConfig.getReportReward();
-      case CREATE_ACCOUNT -> yeopjeonConfig.getCreateAccount();
+      case CHAETAEK_CHOSEN -> yeopjeonProperties.getChaetaekChosen();
+      case CHAETAEK_ACCEPT -> yeopjeonProperties.getChaetaekAccept();
+      case COPYRIGHT_VIOLATION -> yeopjeonProperties.getCopyrightViolation();
+      case REPORT_REWARD -> yeopjeonProperties.getReportReward();
+      case CREATE_ACCOUNT -> yeopjeonProperties.getCreateAccount();
       case REWARD_YEOPJEON -> 0;
       default -> throw new CustomException(ErrorCode.YEOPJEON_ACTION_NOT_FOUND);
     };

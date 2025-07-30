@@ -1,4 +1,4 @@
-package com.balsamic.sejongmalsami.object;
+package com.balsamic.sejongmalsami.post.dto;
 
 import com.balsamic.sejongmalsami.constants.ChaetaekStatus;
 import com.balsamic.sejongmalsami.constants.ContentType;

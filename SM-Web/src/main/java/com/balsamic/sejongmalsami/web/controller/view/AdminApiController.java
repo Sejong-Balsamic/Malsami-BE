@@ -251,6 +251,6 @@ public class AdminApiController {
   @PostMapping(value = "/firebase")
   @LogMonitoringInvocation
   public ResponseEntity<FirebaseDto> getFirebaseConfig() {
-    return ResponseEntity.ok(adminApiService.getFirebaseConfig());
+    return ResponseEntity.ok(adminApiService.getFirebaseProperties());
   }
 }

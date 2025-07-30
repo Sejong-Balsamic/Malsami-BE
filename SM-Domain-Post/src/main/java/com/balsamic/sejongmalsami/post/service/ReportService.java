@@ -1,10 +1,10 @@
 package com.balsamic.sejongmalsami.post.service;
 
 import com.balsamic.sejongmalsami.constants.ContentType;
-import com.balsamic.sejongmalsami.object.ReportCommand;
-import com.balsamic.sejongmalsami.object.ReportDto;
 import com.balsamic.sejongmalsami.object.mongo.Report;
 import com.balsamic.sejongmalsami.object.postgres.Member;
+import com.balsamic.sejongmalsami.post.dto.ReportCommand;
+import com.balsamic.sejongmalsami.post.dto.ReportDto;
 import com.balsamic.sejongmalsami.post.object.postgres.AnswerPost;
 import com.balsamic.sejongmalsami.post.object.postgres.Comment;
 import com.balsamic.sejongmalsami.post.object.postgres.DocumentPost;

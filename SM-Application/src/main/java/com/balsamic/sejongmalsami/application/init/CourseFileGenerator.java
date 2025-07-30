@@ -1,15 +1,15 @@
-package com.balsamic.sejongmalsami.util.init;
+package com.balsamic.sejongmalsami.application.init;
 
 import static com.balsamic.sejongmalsami.util.log.LogUtil.lineLog;
 
-import com.balsamic.sejongmalsami.constants.FileStatus;
 import com.balsamic.sejongmalsami.academic.object.postgres.CourseFile;
-import com.balsamic.sejongmalsami.object.postgres.Subject;
 import com.balsamic.sejongmalsami.academic.repository.postgres.CourseFileRepository;
+import com.balsamic.sejongmalsami.constants.FileStatus;
+import com.balsamic.sejongmalsami.dto.ServerInfo;
+import com.balsamic.sejongmalsami.object.postgres.Subject;
 import com.balsamic.sejongmalsami.repository.postgres.SubjectRepository;
 import com.balsamic.sejongmalsami.util.CommonUtil;
 import com.balsamic.sejongmalsami.util.TimeUtil;
-import com.balsamic.sejongmalsami.config.ServerConfig;
 import com.balsamic.sejongmalsami.util.exception.CustomException;
 import com.balsamic.sejongmalsami.util.exception.ErrorCode;
 import java.io.File;
@@ -39,7 +39,6 @@ public class CourseFileGenerator {
   private final CourseService courseService;
   private final CourseFileRepository courseFileRepository;
   private final SubjectRepository subjectRepository;
-  private final SubjectService subjectService;
 
   /**
    * 교과목 파일을 초기화합니다.
@@ -49,7 +48,7 @@ public class CourseFileGenerator {
     log.info("Course 교과목 XLSX 파일 처리 시작 = {}", TimeUtil.readableCurrentLocalDateTime());
 
     // coursePath 불러오기
-    Path coursesPath = ServerConfig.coursePath;
+    Path coursesPath = ServerInfo.coursePath;
     log.info("ServerCoursePath: {}", coursesPath);
 
     // XLSX 파일 목록 수집
@@ -305,7 +304,7 @@ public class CourseFileGenerator {
           .sorted(Comparator.comparing(CourseFile::getFileName))
           .map(cf -> {
             try {
-              Path path = ServerConfig.coursePath.resolve((cf.getFileName()));
+              Path path = ServerInfo.coursePath.resolve((cf.getFileName()));
               if (Files.exists(path)) {
                 return CommonUtil.calculateFileHash(path);
               } else {

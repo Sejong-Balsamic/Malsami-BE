@@ -1,11 +1,12 @@
-package com.balsamic.sejongmalsami.object;
+package com.balsamic.sejongmalsami.post.dto;
 
 import com.balsamic.sejongmalsami.constants.ContentType;
 import com.balsamic.sejongmalsami.constants.DocumentType;
-import com.balsamic.sejongmalsami.constants.PostTier;
 import com.balsamic.sejongmalsami.constants.LikeType;
+import com.balsamic.sejongmalsami.constants.PostTier;
 import com.balsamic.sejongmalsami.constants.SortType;
 import com.balsamic.sejongmalsami.object.postgres.Member;
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import io.swagger.v3.oas.annotations.media.Schema;
 import java.util.ArrayList;
 import java.util.List;
@@ -43,6 +44,8 @@ public class DocumentCommand {
   private List<String> customTags; // 커스텀 태그
 
   private UUID documentPostId;
+  @Schema(hidden = true, description = "회원")
+  @JsonIgnore
   private Member member;
 
   @Schema(defaultValue = "0")

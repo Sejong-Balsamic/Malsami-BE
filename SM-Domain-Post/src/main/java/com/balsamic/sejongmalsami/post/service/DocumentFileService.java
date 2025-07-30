@@ -1,6 +1,5 @@
 package com.balsamic.sejongmalsami.post.service;
 
-import com.balsamic.sejongmalsami.config.FtpConfig;
 import com.balsamic.sejongmalsami.constants.ContentType;
 import com.balsamic.sejongmalsami.constants.MimeType;
 import com.balsamic.sejongmalsami.constants.UploadType;
@@ -15,6 +14,7 @@ import com.balsamic.sejongmalsami.util.ImageThumbnailGenerator;
 import com.balsamic.sejongmalsami.util.MultipartFileAdapter;
 import com.balsamic.sejongmalsami.util.exception.CustomException;
 import com.balsamic.sejongmalsami.util.exception.ErrorCode;
+import com.balsamic.sejongmalsami.util.properties.FtpProperties;
 import com.balsamic.sejongmalsami.util.storage.StorageService;
 import java.io.IOException;
 import java.util.ArrayList;
@@ -40,7 +40,7 @@ public class DocumentFileService {
 
   private final StorageService storageService;
   private final ImageThumbnailGenerator imageThumbnailGenerator;
-  private final FtpConfig ftpConfig;
+  private final FtpProperties ftpProperties;
   @Qualifier("applicationTaskExecutor")
   private final TaskExecutor taskExecutor;
 
@@ -192,7 +192,7 @@ public class DocumentFileService {
 
     if (uploadType == UploadType.MUSIC) {
       log.info("MUSIC 타입의 파일은 기본 썸네일 URL을 사용합니다.");
-      return ftpConfig.getDefaultMusicThumbnailUrl(); // 기본 썸네일 URL 반환
+      return ftpProperties.getDefaultMusicThumbnailUrl(); // 기본 썸네일 URL 반환
     }
 
     try {
@@ -264,13 +264,13 @@ public class DocumentFileService {
   private String getDefaultThumbnailUrl(UploadType uploadType) {
     switch (uploadType) {
       case DOCUMENT:
-        return ftpConfig.getDefaultDocumentThumbnailUrl();
+        return ftpProperties.getDefaultDocumentThumbnailUrl();
       case IMAGE:
-        return ftpConfig.getDefaultImageThumbnailUrl();
+        return ftpProperties.getDefaultImageThumbnailUrl();
       case VIDEO:
-        return ftpConfig.getDefaultVideoThumbnailUrl();
+        return ftpProperties.getDefaultVideoThumbnailUrl();
       case MUSIC:
-        return ftpConfig.getDefaultMusicThumbnailUrl();
+        return ftpProperties.getDefaultMusicThumbnailUrl();
       default:
         return ""; // 빈 URL 설정 (프론트가 해주시겠지)
     }
