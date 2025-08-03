@@ -251,6 +251,16 @@ public class LikeService {
           return (T) QuestionDto.builder()
               .questionBoardLike(questionBoardLike)
               .build();
+        } else if (contentType.equals(ANSWER)) { // 답변글 좋아요
+          QuestionBoardLike questionBoardLike = QuestionBoardLike.builder()
+              .memberId(memberId)
+              .questionBoardId(postId)
+              .contentType(contentType)
+              .build();
+          questionBoardLikeRepository.save(questionBoardLike);
+          return (T) QuestionDto.builder()
+              .questionBoardLike(questionBoardLike)
+              .build();
         } else if (contentType.equals(DOCUMENT)) { // 자료글인 경우 등급 변동 계산
           calculateNewTier(postId, likeType);
           DocumentBoardLike documentBoardLike = DocumentBoardLike.builder()
