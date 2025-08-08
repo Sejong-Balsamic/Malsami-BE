@@ -12,7 +12,6 @@ import com.balsamic.sejongmalsami.constants.AccountStatus;
 import com.balsamic.sejongmalsami.constants.ExpTier;
 import com.balsamic.sejongmalsami.constants.FileStatus;
 import com.balsamic.sejongmalsami.constants.Role;
-import com.balsamic.sejongmalsami.member.dto.MemberDto;
 import com.balsamic.sejongmalsami.object.postgres.Department;
 import com.balsamic.sejongmalsami.object.postgres.Exp;
 import com.balsamic.sejongmalsami.object.postgres.Member;
@@ -64,7 +63,7 @@ public class AuthApplicationService {
    * 회원 로그인 처리
    */
   @Transactional
-  public MemberDto signIn(AuthCommand command, HttpServletResponse response) {
+  public AuthDto signIn(AuthCommand command, HttpServletResponse response) {
 
     boolean isFirstLogin = false;
     boolean isAdmin = false;
@@ -215,14 +214,12 @@ public class AuthApplicationService {
     log.info("리프레시 토큰 쿠키 설정 완료: 회원 = {}", member.getStudentId());
 
     // 액세스 토큰 반환
-    return MemberDto.builder()
-        .member(member)
+    return AuthDto.builder()
         .accessToken(accessToken)
+        .studentName(member.getStudentName())
+        .memberId(member.getMemberId())
         .isFirstLogin(isFirstLogin)
         .isAdmin(isAdmin)
-        .yeopjeon(yeopjeon)
-        .exp(expRepository.findByMember(member)
-            .orElseThrow(() -> new CustomException(ErrorCode.EXP_NOT_FOUND)))
         .build();
   }
 
@@ -230,7 +227,7 @@ public class AuthApplicationService {
    * 모바일 전용 회원 로그인 처리 (쿠키 사용 안함)
    */
   @Transactional
-  public MemberDto signInForMobile(AuthCommand command) {
+  public AuthDto signInForMobile(AuthCommand command) {
 
     boolean isFirstLogin = false;
     boolean isAdmin = false;
@@ -345,15 +342,13 @@ public class AuthApplicationService {
     log.info("모바일: 리프레시 토큰 저장 완료: 회원 = {}", member.getStudentId());
 
     // 액세스 토큰 및 리프레시 토큰 반환
-    return MemberDto.builder()
-        .member(member)
+    return AuthDto.builder()
         .accessToken(accessToken)
         .refreshToken(refreshToken)
+        .studentName(member.getStudentName())
+        .memberId(member.getMemberId())
         .isFirstLogin(isFirstLogin)
         .isAdmin(isAdmin)
-        .yeopjeon(yeopjeon)
-        .exp(expRepository.findByMember(member)
-            .orElseThrow(() -> new CustomException(ErrorCode.EXP_NOT_FOUND)))
         .build();
   }
 
@@ -471,23 +466,23 @@ public class AuthApplicationService {
     log.info("관리자 로그인 시도: {}", command.getSejongPortalId());
     try {
       // 회원 로그인 사용
-      MemberDto memberDto = this.signIn(command, response);
-      log.info("로그인 결과: isAdmin={}, studentID={}", memberDto.getIsAdmin(), memberDto.getMember().getStudentId());
+      AuthDto authDto = this.signIn(command, response);
+      log.info("로그인 결과: isAdmin={}, studentID={}", authDto.getIsAdmin(), command.getSejongPortalId());
 
       // 관리자가 아닐시
-      if(!memberDto.getIsAdmin()){
+      if(!authDto.getIsAdmin()){
         log.warn("관리자 권한 없음: {}", command.getSejongPortalId());
         return WebLoginDto.builder()
             .success(false)
             .message("로그인에 실패했습니다. 관리자가 아닙니다")
             .build();
       }
-
+      
       // 관리자인 경우
       log.info("관리자 로그인 성공: {}", command.getSejongPortalId());
       return WebLoginDto.builder()
           .success(true)
-          .accessToken(memberDto.getAccessToken())
+          .accessToken(authDto.getAccessToken())
           .build();
 
     } catch (Exception e) {
