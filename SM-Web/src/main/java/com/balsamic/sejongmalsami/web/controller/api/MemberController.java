@@ -41,7 +41,6 @@ public class MemberController implements MemberControllerDocs {
   @LogMonitoringInvocation
   @PostMapping(value = "/my-info", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
   public ResponseEntity<MemberDto> myInfo(
-      @ModelAttribute MemberCommand command,
       @AuthenticationPrincipal CustomUserDetails customUserDetails) {
     return ResponseEntity.ok(MemberDto.builder().member(customUserDetails.getMember()).build());
   }
