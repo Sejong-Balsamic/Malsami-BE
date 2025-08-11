@@ -1,5 +1,6 @@
 package com.balsamic.sejongmalsami.post.object.mongo;
 
+import com.balsamic.sejongmalsami.constants.LikeType;
 import com.balsamic.sejongmalsami.object.mongo.BaseMongoEntity;
 
 import com.balsamic.sejongmalsami.constants.ContentType;
@@ -34,4 +35,7 @@ public class CommentLike extends BaseMongoEntity {
 
   @NotNull
   private ContentType contentType;
+
+  @NotNull
+  private LikeType likeType;
 }
