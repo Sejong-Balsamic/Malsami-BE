@@ -37,7 +37,7 @@ public class AuthController implements AuthControllerDocs {
   @Override
   @LogMonitoringInvocation
   @PostMapping(value = "/signin", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
-  public ResponseEntity<MemberDto> signIn(
+  public ResponseEntity<AuthDto> signIn(
       @ModelAttribute AuthCommand command, HttpServletResponse response) {
     return ResponseEntity.ok(authService.signIn(command, response));
   }
@@ -45,7 +45,7 @@ public class AuthController implements AuthControllerDocs {
   @Override
   @LogMonitoringInvocation
   @PostMapping(value = "/mobile/signin", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
-  public ResponseEntity<MemberDto> signInForMobile(
+  public ResponseEntity<AuthDto> signInForMobile(
       @ModelAttribute AuthCommand command) {
     return ResponseEntity.ok(authService.signInForMobile(command));
   }

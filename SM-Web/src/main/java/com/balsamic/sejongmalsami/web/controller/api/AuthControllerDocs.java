@@ -17,6 +17,11 @@ public interface AuthControllerDocs {
 
   @ApiChangeLogs({
       @ApiChangeLog(
+          date = "2025.08.08",
+          author = Author.SUHSAECHAN,
+          description = "반환 타입 변경: MemberDto -> AuthDto, 불필요한 엽전/경험치 정보 제외, 필요한 isFirstLogin과 isAdmin 정보 유지"
+      ),
+      @ApiChangeLog(
           date = "2025.07.30",
           author = Author.SUHSAECHAN,
           description = "요청 파라미터 객체 변경: MemberCommand -> AuthCommand"
@@ -73,12 +78,13 @@ public interface AuthControllerDocs {
             
             **반환 파라미터 값:**
             
-            - **MemberDto**: 로그인 및 인증이 완료된 회원의 정보와 토큰
-              - **Member member**: 회원 정보
+            - **AuthDto**: 인증이 완료된 토큰 정보
               - **String accessToken**: JWT 액세스 토큰 (인증된 회원을 위한 토큰)
+              - **String refreshToken**: JWT 리프레시 토큰 (모바일에서만 반환)
+              - **String studentName**: 학생 이름
+              - **UUID memberId**: 회원 ID
               - **Boolean isFirstLogin**: 첫 로그인 여부
-              - **Yeopjeon yeopjeon**: 엽전 정보 (첫 로그인 시 지급된 엽전)
-              - **Exp exp**: 경험치 정보
+              - **Boolean isAdmin**: 관리자 권한 여부
             
             **추가로, 리프레시 토큰은 HTTP-Only 쿠키로 설정되어 반환됩니다:**
             
@@ -104,11 +110,16 @@ public interface AuthControllerDocs {
             - 리프레시 토큰을 사용하여 새로운 액세스 토큰을 발급받는 API는 `/api/auth/refresh` 엔드포인트를 사용합니다.
             """
   )
-  ResponseEntity<MemberDto> signIn(
+  ResponseEntity<AuthDto> signIn(
       @ModelAttribute AuthCommand command,
       HttpServletResponse response);
 
   @ApiChangeLogs({
+      @ApiChangeLog(
+          date = "2025.08.08",
+          author = Author.SUHSAECHAN,
+          description = "반환 타입 변경: MemberDto -> AuthDto, 불필요한 엽전/경험치 정보 제외, 필요한 isFirstLogin과 isAdmin 정보 유지"
+      ),
       @ApiChangeLog(
           date = "2025.07.28",
           author = Author.BAEKJIHOON,
@@ -137,13 +148,12 @@ public interface AuthControllerDocs {
             
             **반환 파라미터 값:**
             
-            - **Member member**: 회원 정보
             - **String accessToken**: JWT 액세스 토큰 (API 인증용)
             - **String refreshToken**: JWT 리프레시 토큰 (토큰 갱신용)
+            - **String studentName**: 학생 이름
+            - **UUID memberId**: 회원 ID
             - **Boolean isFirstLogin**: 첫 로그인 여부
             - **Boolean isAdmin**: 관리자 권한 여부
-            - **Yeopjeon yeopjeon**: 엽전 정보 (첫 로그인 시에만)
-            - **Exp exp**: 경험치 정보
             
             **응답 코드:**
             
@@ -158,7 +168,7 @@ public interface AuthControllerDocs {
             - refreshToken은 만료 시 새로운 토큰 발급에 사용합니다.
             """
   )
-  ResponseEntity<MemberDto> signInForMobile(AuthCommand command);
+  ResponseEntity<AuthDto> signInForMobile(AuthCommand command);
 
   @ApiChangeLogs({
       @ApiChangeLog(

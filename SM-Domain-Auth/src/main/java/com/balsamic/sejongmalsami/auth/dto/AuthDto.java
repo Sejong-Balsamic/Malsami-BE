@@ -15,6 +15,10 @@ public class AuthDto {
   private UUID memberId;
   private FcmToken fcmToken;
   
+  // 회원 상태 정보
+  private Boolean isFirstLogin;
+  private Boolean isAdmin;
+  
   // 세종포털 인증 정보
   private String major;
   private String studentIdString;
