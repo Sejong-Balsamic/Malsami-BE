@@ -50,6 +50,10 @@ public class Comment extends BaseEntity{
   @Builder.Default
   private Integer likeCount = 0;
 
+  // 싫어요
+  @Builder.Default
+  private Integer dislikeCount = 0;
+
   // 댓글이 속한 게시글의 유형
   @Enumerated(EnumType.STRING)
   private ContentType contentType;
@@ -71,5 +75,15 @@ public class Comment extends BaseEntity{
   // 좋아요 감소
   public void rollbackLikeCount() {
     likeCount--;
+  }
+
+  // 싫어요 증가
+  public void increaseDislikeCount() {
+    dislikeCount++;
+  }
+
+  // 싫어요 감소
+  public void rollbackDislikeCount() {
+    dislikeCount--;
   }
 }
