@@ -1,6 +1,7 @@
 package com.balsamic.sejongmalsami.post.dto;
 
 import com.balsamic.sejongmalsami.constants.ContentType;
+import com.balsamic.sejongmalsami.constants.LikeType;
 import io.swagger.v3.oas.annotations.media.Schema;
 import java.util.UUID;
 import lombok.AllArgsConstructor;
@@ -22,6 +23,7 @@ public class CommentCommand {
   private UUID postId;
   private String content;
   private ContentType contentType;
+  private LikeType likeType;
   private Boolean isPrivate;
   @Schema(defaultValue = "0")
   private Integer pageNumber = 0; // n번째 페이지 조회

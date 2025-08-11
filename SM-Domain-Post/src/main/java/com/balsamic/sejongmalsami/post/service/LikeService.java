@@ -151,7 +151,7 @@ public class LikeService {
         command.getMemberId(),
         command.getPostId(),
         command.getContentType(),
-        LIKE
+        command.getLikeType()
     );
   }
 
@@ -226,7 +226,7 @@ public class LikeService {
         if (likeType.equals(LIKE)) { // 좋아요를 눌렀을 경우
           yeopjeonHistory = yeopjeonService.processYeopjeon(writer, YeopjeonAction.RECEIVE_LIKE);
           expHistory = expService.processExp(writer, ExpAction.RECEIVE_LIKE);
-        } else if (likeType.equals(DISLIKE) && contentType.equals(DOCUMENT)) { // 싫어요를 눌렀을 경우 (자료글만 가능)
+        } else if (likeType.equals(DISLIKE) && (contentType.equals(DOCUMENT) || contentType.equals(COMMENT))) { // 싫어요를 눌렀을 경우 (자료글 & 댓글만 가능)
           yeopjeonHistory = yeopjeonService.processYeopjeon(writer, RECEIVE_DISLIKE);
         } else {
           log.error("ContentType, ReactionType 요청이 잘못되었습니다. ContentType: {}, ReactionType: {}",
@@ -289,6 +289,7 @@ public class LikeService {
               .memberId(memberId)
               .commentId(postId)
               .contentType(contentType)
+              .likeType(likeType)
               .build();
           commentLikeRepository.save(commentLike);
           return (T) CommentDto.builder()
@@ -307,7 +308,7 @@ public class LikeService {
         if (likeType.equals(LIKE)) {
           yeopjeonService.rollbackYeopjeonTransaction(writer, YeopjeonAction.RECEIVE_LIKE, yeopjeonHistory);
           expService.rollbackExpTransaction(writer, ExpAction.RECEIVE_LIKE, expHistory);
-        } else if (likeType.equals(DISLIKE) && contentType.equals(DOCUMENT)) {
+        } else if (likeType.equals(DISLIKE) && (contentType.equals(DOCUMENT) || contentType.equals(COMMENT))) {
           yeopjeonService.rollbackYeopjeonTransaction(writer, RECEIVE_DISLIKE, yeopjeonHistory);
         } else {
           log.error("ContentType, ReactionType 요청이 잘못되었습니다. ContentType: {}, ReactionType: {}",
@@ -339,10 +340,8 @@ public class LikeService {
     boolean exists = false;
 
     switch (contentType) {
-      case QUESTION, ANSWER ->
-          exists = questionBoardLikeRepository.existsByQuestionBoardIdAndMemberId(postId, memberId);
-      case DOCUMENT, DOCUMENT_REQUEST ->
-          exists = documentBoardLikeRepository.existsByDocumentBoardIdAndMemberId(postId, memberId);
+      case QUESTION, ANSWER -> exists = questionBoardLikeRepository.existsByQuestionBoardIdAndMemberId(postId, memberId);
+      case DOCUMENT, DOCUMENT_REQUEST -> exists = documentBoardLikeRepository.existsByDocumentBoardIdAndMemberId(postId, memberId);
       case COMMENT -> exists = commentLikeRepository.existsByCommentIdAndMemberId(postId, memberId);
       default -> throw new CustomException(ErrorCode.INVALID_CONTENT_TYPE);
     }
@@ -394,11 +393,19 @@ public class LikeService {
           .orElseThrow(() -> new CustomException(ErrorCode.DOCUMENT_REQUEST_POST_NOT_FOUND));
       documentRequestPost.increaseLikeCount();
       documentRequestPostRepository.save(documentRequestPost);
-    } else if (contentType.equals(COMMENT)) { // 댓글 좋아요 증가
+    } else if (contentType.equals(COMMENT)) { // 댓글 좋아요/싫어요 증가
       Comment comment = commentRepository.findById(postId)
           .orElseThrow(() -> new CustomException(ErrorCode.COMMENT_NOT_FOUND));
-      comment.increaseLikeCount();
-      commentRepository.save(comment);
+      if (likeType.equals(LIKE)) {
+        comment.increaseLikeCount();
+        commentRepository.save(comment);
+      } else if (likeType.equals(DISLIKE)) {
+        comment.increaseDislikeCount();
+        commentRepository.save(comment);
+      } else {
+        log.error("잘못된 ReactionType 입니다. 요청 ReactionType: {}", likeType);
+        throw new CustomException(ErrorCode.INVALID_REACTION_TYPE);
+      }
     } else {
       log.error("잘못된 ContentType입니다. 요청 ContentType: {}", contentType);
       throw new CustomException(ErrorCode.INVALID_CONTENT_TYPE);
@@ -442,6 +449,19 @@ public class LikeService {
           .orElseThrow(() -> new CustomException(ErrorCode.DOCUMENT_REQUEST_POST_NOT_FOUND));
       documentRequestPost.decreaseLikeCount();
       documentRequestPostRepository.save(documentRequestPost);
+    } else if (contentType.equals(COMMENT)) { // 댓글 좋아요 / 싫어요 롤백
+      Comment comment = commentRepository.findById(postId)
+          .orElseThrow(() -> new CustomException(ErrorCode.COMMENT_NOT_FOUND));
+      if (likeType.equals(LIKE)) { // 댓글 좋아요 롤백
+        comment.rollbackLikeCount();
+        commentRepository.save(comment);
+      } else if (likeType.equals(DISLIKE)) {
+        comment.rollbackDislikeCount();
+        commentRepository.save(comment);
+      } else {
+        log.error("잘못된 ReactionType 입니다. 요청 ReactionType: {}", likeType);
+        throw new CustomException(ErrorCode.INVALID_REACTION_TYPE);
+      }
     }
   }
 
