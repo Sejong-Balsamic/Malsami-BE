@@ -128,6 +128,7 @@ public interface CommentControllerDocs {
           **입력 파라미터 값:**
 
           - **UUID postId**: 특정 댓글 PK [필수]
+          - **ContentType contentType**: 글 Type [필수]
           - **LikeType likeType**: 좋아요 / 싫어요 타입 [필수]
           
           **LikeType**
