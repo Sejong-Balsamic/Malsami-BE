@@ -44,7 +44,7 @@ public class AnswerPost extends BasePost {
   private QuestionPost questionPost;
 
   // 답변 내용
-  @Column(nullable = false)
+  @Column(nullable = false, length = 2048)
   private String content;
 
   // 답변 채택 여부

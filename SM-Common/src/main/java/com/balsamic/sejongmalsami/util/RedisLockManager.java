@@ -1,5 +1,6 @@
 package com.balsamic.sejongmalsami.util;
 
+import com.balsamic.sejongmalsami.util.exception.CustomException;
 import java.util.concurrent.TimeUnit;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -24,23 +25,26 @@ public class RedisLockManager {
    */
   public <T> T executeLock(String lockKey, Long waitTime, Long leaseTime, LockTask<T> task) {
     RLock lock = redissonClient.getLock(lockKey);
+    boolean locked = false;
+
     // 락 획득 시도
     try {
       // 최대 waitTime초간 대기, 락 획득 후 leaseTime 뒤 자동 만료 설정
-      if (!lock.tryLock(waitTime, leaseTime, TimeUnit.SECONDS)) { // 락 획득 실패시
+      locked = lock.tryLock(waitTime, leaseTime, TimeUnit.SECONDS);
+      if (!locked) { // 락 획득 실패시
         log.error("락 획득 실패 - 다른 요청 처리 중. lockKey: {}", lockKey);
         throw new IllegalStateException("락 획득 실패");
       }
-
+      log.info("redis lock 확득 성공 lockKey: {}", lockKey);
       try {
         // 락 획득 성공 시 작업 진행
-        log.info("redis lock 확득 성공 lockKey: {}", lockKey);
         return task.run();
+      } catch (CustomException e) {
+        throw e;
       } catch (Exception e) {
         log.error("작업 실행 중 예외 발생", e);
         throw new RuntimeException("작업 실행 중 예외 발생", e);
       }
-
     } catch (InterruptedException e) {
       Thread.currentThread().interrupt();
       log.error("락 획득 대기 중 인터럽트 발생", e);
