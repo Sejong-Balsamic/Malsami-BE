@@ -71,6 +71,11 @@ public interface MemberControllerDocs {
       @ApiChangeLog(
           date = "2025.08.10",
           author = Author.SUHSAECHAN,
+          description = "MemberCommand 롤백"
+      ),
+      @ApiChangeLog(
+          date = "2025.08.10",
+          author = Author.SUHSAECHAN,
           description = "MemberCommand 제거, 요청 파라미터를 받지않음"
       ),
       @ApiChangeLog(
@@ -96,6 +101,7 @@ public interface MemberControllerDocs {
         """
   )
   ResponseEntity<MemberDto> myInfo(
+      @ModelAttribute MemberCommand command,
       @AuthenticationPrincipal CustomUserDetails customUserDetails);
 
   @ApiChangeLogs({

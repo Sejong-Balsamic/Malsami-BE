@@ -77,7 +77,6 @@ Thumbs.db
 /**/src/main/resources/static/firebase-messaging-sw.js
 
 ### cicd
-/.github/workflows
 
 ### vertex AI
 /**/src/main/resources/sejong-malsami-embedding.json
