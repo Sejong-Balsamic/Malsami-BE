@@ -41,4 +41,13 @@ public class NoticePostController implements NoticePostControllerDocs {
   public ResponseEntity<NoticePostDto> getPinnedNoticePost() {
     return ResponseEntity.ok(noticePostService.getPinnedPost());
   }
+
+  @Override
+  @PostMapping(value = "/get", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
+  @LogMonitoringInvocation
+  public ResponseEntity<NoticePostDto> getNoticePost(
+      @AuthenticationPrincipal CustomUserDetails customUserDetails,
+      @ModelAttribute NoticePostCommand command) {
+    return ResponseEntity.ok(noticePostService.getNoticePost(command));
+  }
 }
