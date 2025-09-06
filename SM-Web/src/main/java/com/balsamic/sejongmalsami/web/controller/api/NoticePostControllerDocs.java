@@ -62,4 +62,33 @@ public interface NoticePostControllerDocs {
       """
   )
   ResponseEntity<NoticePostDto> getPinnedNoticePost();
+
+  @ApiChangeLogs({
+      @ApiChangeLog(
+          date = "2025.9.6",
+          author = Author.SUHSAECHAN,
+          description = "공지사항 단일 글 조회 #926"
+      )
+  })
+  @Operation(
+      summary = "공지사항 단일 글 조회",
+      description = """
+      이 API는 인증이 필요하며, JWT 토큰이 필요합니다.
+
+      #### 요청 파라미터
+      - **`UUID noticePostId`**: 조회할 공지사항 글 ID
+
+      #### 반환 파라미터
+      - **`NoticePostDto`**: 공지사항 글 정보 반환
+        - **`NoticePost noticePost`**: 조회된 공지사항 글 정보
+      
+      #### 참고사항
+      - 조회 시 조회수가 자동으로 1 증가합니다.
+      - 존재하지 않는 공지사항 ID로 조회 시 NOTICE_POST_NOT_FOUND 에러가 발생합니다.
+      """
+  )
+  ResponseEntity<NoticePostDto> getNoticePost(
+      CustomUserDetails customUserDetails,
+      NoticePostCommand command
+  );
 }
