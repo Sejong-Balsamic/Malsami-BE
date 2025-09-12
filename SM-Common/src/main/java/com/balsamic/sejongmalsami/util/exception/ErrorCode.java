@@ -271,6 +271,8 @@ public enum ErrorCode {
 
   ALREADY_ACTION(HttpStatus.BAD_REQUEST, "이미 좋아요 또는 싫어요를 누른 글입니다."),
 
+  LIKE_HISTORY_NOT_FOUND(HttpStatus.BAD_REQUEST, "좋아요/싫어요 내역을 찾을 수 없습니다."),
+
   LIKE_COUNT_CANNOT_BE_NEGATIVE(HttpStatus.BAD_REQUEST, "좋아요 개수의 최소값은 0입니다."),
 
   // Report

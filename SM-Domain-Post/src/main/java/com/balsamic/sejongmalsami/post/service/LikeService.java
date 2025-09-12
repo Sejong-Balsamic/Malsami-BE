@@ -570,4 +570,211 @@ public class LikeService {
     documentPostRepository.save(post);
     log.info("{} 글의 등급이 {} 로 롤백되었습니다.", post.getDocumentPostId(), preTier);
   }
+
+  /**
+   * <h3>답변글 좋아요 취소 로직</h3>
+   * <p>이미 좋아요를 누른 답변글에 대해서만 취소 가능</p>
+   * <p>증가된 엽전 및 경험치 롤백</p>
+   *
+   * @param command memberId, postId, contentType
+   */
+  @Transactional
+  public void cancelAnswerLike(QuestionCommand command) {
+    processCancelLikeRequest(
+        command.getMemberId(),
+        command.getPostId(),
+        ANSWER,
+        LIKE
+    );
+  }
+
+  /**
+   * <h3>댓글 좋아요/싫어요 취소 로직</h3>
+   * <p>이미 좋아요/싫어요를 누른 댓글에 대해서만 취소 가능</p>
+   * <p>증가/감소된 엽전 및 경험치 롤백</p>
+   *
+   * @param command memberId, postId, contentType, likeType
+   * @return 댓글 좋아요/싫어요 취소 결과
+   */
+  @Transactional
+  public void cancelCommentLike(CommentCommand command) {
+    processCancelLikeRequest(
+        command.getMemberId(),
+        command.getPostId(),
+        COMMENT,
+        command.getLikeType()
+    );
+  }
+
+  /**
+   * <h3>공통 좋아요/싫어요 취소 처리 로직</h3>
+   * <p>엽전 및 경험치 변동량 롤백</p>
+   *
+   * @param memberId    로그인 회원
+   * @param postId      게시글
+   * @param contentType 유형
+   * @param likeType    좋아요/싫어요 유형
+   * @return 취소 처리 결과 DTO
+   */
+  private <T> T processCancelLikeRequest(UUID memberId, UUID postId, ContentType contentType, LikeType likeType) {
+    // 락 획득 시도 (락 키는 게시글 PK)
+    String lockKey = "lock:like:" + postId;
+
+    return redisLockManager.executeLock(lockKey, WAIT_TIME, LEASE_TIME, () -> {
+
+      // 회원 조회
+      Member curMember = memberRepository.findById(memberId)
+          .orElseThrow(() -> new CustomException(ErrorCode.MEMBER_NOT_FOUND));
+
+      // 글 작성자 조회
+      Member writer = getWriter(postId, contentType);
+
+      // 좋아요/싫어요 히스토리가 존재하는지 검증
+      checkCancelLikeHistoryExists(memberId, postId, contentType, likeType);
+
+      try {
+        // 엽전 및 경험치 롤백 - 반대 액션으로 처리하여 롤백 효과
+        if (likeType.equals(LIKE)) { // 좋아요 취소
+          // 좋아요로 엽전 롤백
+          yeopjeonService.processYeopjeon(writer, YeopjeonAction.CANCEL_LIKE);
+          // 경험치 롤백
+          expService.processExp(writer, ExpAction.CANCEL_LIKE);
+        } else if (likeType.equals(DISLIKE) && contentType.equals(COMMENT)) { // 싫어요 취소 (댓글만 가능)
+          // 싫어요 엽전 롤백
+          yeopjeonService.processYeopjeon(writer, YeopjeonAction.CANCEL_DISLIKE);
+        } else {
+          log.error("ContentType, LikeType 요청이 잘못되었습니다. ContentType: {}, LikeType: {}",
+              contentType, likeType);
+          throw new CustomException(ErrorCode.INVALID_REACTION_TYPE);
+        }
+
+        // 좋아요/싫어요 개수 감소
+        cancelAction(postId, contentType, likeType);
+
+        // 좋아요/싫어요 히스토리 삭제
+        deleteLikeHistory(memberId, postId, contentType);
+
+        // 응답 반환
+        if (contentType.equals(ANSWER)) {
+          return (T) QuestionDto.builder()
+              .build();
+        } else if (contentType.equals(COMMENT)) {
+          return (T) CommentDto.builder()
+              .build();
+        } else {
+          log.error("취소가 지원되지 않는 ContentType입니다. 요청 ContentType: {}", contentType);
+          throw new CustomException(ErrorCode.INVALID_CONTENT_TYPE);
+        }
+      } catch (Exception e) {
+        log.error("좋아요/싫어요 취소 중 오류가 발생했습니다.", e);
+        throw new CustomException(ErrorCode.INTERNAL_SERVER_ERROR);
+      }
+    });
+  }
+
+  /**
+   * <h3>글 작성자 조회</h3>
+   *
+   * @param postId      게시물 ID
+   * @param contentType 게시물 유형
+   * @return 글 작성자
+   */
+  private Member getWriter(UUID postId, ContentType contentType) {
+    if (contentType.equals(ANSWER)) {
+      AnswerPost answerPost = answerPostRepository.findById(postId)
+          .orElseThrow(() -> new CustomException(ErrorCode.ANSWER_POST_NOT_FOUND));
+      return answerPost.getMember();
+    } else if (contentType.equals(COMMENT)) {
+      Comment comment = commentRepository.findById(postId)
+          .orElseThrow(() -> new CustomException(ErrorCode.COMMENT_NOT_FOUND));
+      return comment.getMember();
+    } else {
+      log.error("지원되지 않는 ContentType입니다. 요청 ContentType: {}", contentType);
+      throw new CustomException(ErrorCode.INVALID_CONTENT_TYPE);
+    }
+  }
+
+  /**
+   * <h3>좋아요/싫어요 히스토리 존재 여부 검증 (취소용)</h3>
+   *
+   * @param memberId    로그인 회원
+   * @param postId      게시물
+   * @param contentType 게시물 유형
+   * @param likeType    좋아요/싫어요 유형
+   */
+  private void checkCancelLikeHistoryExists(UUID memberId, UUID postId, ContentType contentType, LikeType likeType) {
+    boolean exists;
+
+    switch (contentType) {
+      case ANSWER -> {
+        // 답변글은 좋아요만 가능
+        if (!likeType.equals(LIKE)) {
+          throw new CustomException(ErrorCode.INVALID_REACTION_TYPE);
+        }
+        exists = questionBoardLikeRepository.existsByQuestionBoardIdAndMemberId(postId, memberId);
+      }
+      case COMMENT -> {
+        // 댓글은 좋아요/싫어요 모두 가능 - 일반적인 존재 여부만 확인
+        exists = commentLikeRepository.existsByCommentIdAndMemberId(postId, memberId);
+      }
+      default -> throw new CustomException(ErrorCode.INVALID_CONTENT_TYPE);
+    }
+
+    if (!exists) {
+      Member curMember = memberRepository.findById(memberId)
+          .orElseThrow(() -> new CustomException(ErrorCode.MEMBER_NOT_FOUND));
+      log.error("취소할 좋아요/싫어요가 없습니다. postId: {}, 로그인한 사용자: {}, likeType: {}",
+          postId, curMember.getStudentId(), likeType);
+      throw new CustomException(ErrorCode.LIKE_HISTORY_NOT_FOUND);
+    }
+  }
+
+  /**
+   * <h3>좋아요/싫어요 개수 감소 메서드 (취소용)</h3>
+   *
+   * @param postId      게시물
+   * @param contentType 게시물 유형
+   * @param likeType    좋아요/싫어요 유형
+   */
+  private void cancelAction(UUID postId, ContentType contentType, LikeType likeType) {
+    if (contentType.equals(ANSWER)) { // 답변 좋아요 감소
+      AnswerPost answerPost = answerPostRepository.findById(postId)
+          .orElseThrow(() -> new CustomException(ErrorCode.ANSWER_POST_NOT_FOUND));
+      answerPost.decreaseLikeCount();
+      answerPostRepository.save(answerPost);
+    } else if (contentType.equals(COMMENT)) { // 댓글 좋아요/싫어요 감소
+      Comment comment = commentRepository.findById(postId)
+          .orElseThrow(() -> new CustomException(ErrorCode.COMMENT_NOT_FOUND));
+      if (likeType.equals(LIKE)) {
+        comment.rollbackLikeCount();
+      } else if (likeType.equals(DISLIKE)) {
+        comment.rollbackDislikeCount();
+      } else {
+        log.error("잘못된 LikeType 입니다. 요청 LikeType: {}", likeType);
+        throw new CustomException(ErrorCode.INVALID_REACTION_TYPE);
+      }
+      commentRepository.save(comment);
+    } else {
+      log.error("취소가 지원되지 않는 ContentType입니다. 요청 ContentType: {}", contentType);
+      throw new CustomException(ErrorCode.INVALID_CONTENT_TYPE);
+    }
+  }
+
+  /**
+   * <h3>좋아요/싫어요 히스토리 삭제 메서드</h3>
+   *
+   * @param memberId    로그인 회원
+   * @param postId      게시물
+   * @param contentType 게시물 유형
+   */
+  private void deleteLikeHistory(UUID memberId, UUID postId, ContentType contentType) {
+    if (contentType.equals(ANSWER)) { // 답변 좋아요 히스토리 삭제
+      questionBoardLikeRepository.deleteByQuestionBoardIdAndMemberId(postId, memberId);
+    } else if (contentType.equals(COMMENT)) { // 댓글 좋아요/싫어요 히스토리 삭제
+      commentLikeRepository.deleteByCommentIdAndMemberId(postId, memberId);
+    } else {
+      log.error("취소가 지원되지 않는 ContentType입니다. 요청 ContentType: {}", contentType);
+      throw new CustomException(ErrorCode.INVALID_CONTENT_TYPE);
+    }
+  }
 }
