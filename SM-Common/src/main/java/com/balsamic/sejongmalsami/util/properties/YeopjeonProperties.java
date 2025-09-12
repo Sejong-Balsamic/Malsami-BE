@@ -12,8 +12,14 @@ public class YeopjeonProperties {
   @Value("${yeopjeon.receive-like-reward}")
   private Integer likeReward;
 
+  @Value("${yeopjeon.cancel-like-reward}")
+  private Integer cancelLike;
+
   @Value("${yeopjeon.receive-dislike-penalty}")
   private Integer dislikePenalty;
+
+  @Value("${yeopjeon.cancel-dislike-penalty}")
+  private Integer cancelDislike;
 
   @Value("${yeopjeon.attendance-bonus}")
   private Integer attendanceBonus;

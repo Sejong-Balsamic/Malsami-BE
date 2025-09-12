@@ -14,7 +14,9 @@ public enum YeopjeonAction {
   PURCHASE_DOCUMENT("자료 구매"), // 자료 구매 시 엽전 소모
   DOCUMENT_UPLOADER_REWARD("파일 다운로드시 업로더 보상"), // 자료 구매 시 엽전 소모
   RECEIVE_LIKE("좋아요 받음"), // 좋아요 수신 시 엽전 획득
+  CANCEL_LIKE("좋아요 취소"), // 좋아요 취소 시 엽전 롤백
   RECEIVE_DISLIKE("싫어요 받음"), // 싫어요 수신 시 엽전 회수
+  CANCEL_DISLIKE("싫어요 취소"), // 싫어요 취소 시 엽전 롤백
   ATTENDANCE_BONUS("출석 보너스"), // 출석 보너스 시 엽전 획득
   RECEIVE_REPORT_PENALTY("신고 누적"), // 게시글 신고 누적으로 인한 엽전 깎임
   CREATE_QUESTION_POST("질문 글 작성"), // 질문 게시글 작성 시 엽전 소모
