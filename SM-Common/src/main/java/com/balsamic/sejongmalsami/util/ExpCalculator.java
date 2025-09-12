@@ -33,6 +33,8 @@ public class ExpCalculator {
       return expProperties.getPurchaseDocument();
     } else if (expAction.equals(ExpAction.RECEIVE_LIKE)) {
       return expProperties.getReceiveLike();
+    } else if (expAction.equals(ExpAction.CANCEL_LIKE)) {
+      return expProperties.getCancelLike();
     } else {
       log.error("잘못된 ExpAction 입니다. 요청한 action: {}", expAction);
       throw new CustomException(ErrorCode.INVALID_EXP_ACTION);

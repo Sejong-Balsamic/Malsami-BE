@@ -39,4 +39,7 @@ public class ExpProperties {
   // 좋아요 받음
   @Value("${exp.receive-like}")
   private int receiveLike;
+
+  @Value("${exp.cancel-like}")
+  private int cancelLike;
 }
