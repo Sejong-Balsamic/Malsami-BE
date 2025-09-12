@@ -93,6 +93,18 @@ public class QuestionPostController implements QuestionPostControllerDocs {
   }
 
   @Override
+  @PostMapping(value = "/like/cancel", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
+  @LogMonitoringInvocation
+  public ResponseEntity<Void> questionBoardCancelLike(
+      @AuthenticationPrincipal CustomUserDetails customUserDetails,
+      @ModelAttribute QuestionCommand command
+  ) {
+    command.setMemberId(customUserDetails.getMemberId());
+    likeService.cancelAnswerLike(command);
+    return ResponseEntity.ok().build();
+  }
+
+  @Override
   @PostMapping(value = "/answer/post", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
   @LogMonitoringInvocation
   public ResponseEntity<QuestionDto> saveAnswerPost(

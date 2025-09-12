@@ -151,4 +151,43 @@ public interface CommentControllerDocs {
   ResponseEntity<CommentDto> commentLike(
       CustomUserDetails customUserDetails,
       CommentCommand command);
+
+  @ApiChangeLogs({
+      @ApiChangeLog(
+          date = "2025.09.12",
+          author = Author.BAEKJIHOON,
+          description = "댓글 좋아요/싫어요 취소"
+      )
+  })
+  @Operation(
+      summary = "댓글 좋아요 / 싫어요 취소",
+      description = """
+          **특정 댓글 좋아요 / 싫어요 취소**
+
+          **이 API는 인증이 필요하며, JWT 토큰이 존재해야합니다.**
+
+          **입력 파라미터 값:**
+
+          - **UUID postId**: 특정 댓글 PK [필수]
+          - **ContentType contentType**: 글 Type [필수]
+          - **LikeType likeType**: 좋아요 / 싫어요 타입 [필수]
+          
+          **LikeType**
+          - **LIKE**
+          - **DISLIKE**
+
+          **반환 파라미터 값:**
+          `없음`
+
+          **참고 사항:**
+
+          - 이 API를 통해 사용자는 특정 댓글에 누른 좋아요/싫어요를 취소할 수 있습니다
+          - 본인이 작성한 댓글에는 요청할 수 없습니다.
+          - Swagger에서 테스트 시 mediaFiles에 있는 "Send empty value" 체크박스 해제해야합니다.
+          """
+  )
+  ResponseEntity<Void> cancelCommentList(
+      CustomUserDetails customUserDetails,
+      CommentCommand command
+  );
 }

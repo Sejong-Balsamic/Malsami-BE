@@ -14,7 +14,9 @@ public enum ExpAction {
   PURCHASE_DOCUMENT("자료 구매"),
   CHAETAEK_CHOSEN("답변 채택됨"),
   CHAETAEK_ACCEPT("답변 채택함"),
-  RECEIVE_LIKE("좋아요 받음");
+  RECEIVE_LIKE("좋아요 받음"),
+  CANCEL_LIKE("좋아요 취소"),
+  ;
 
 
   private final String description;

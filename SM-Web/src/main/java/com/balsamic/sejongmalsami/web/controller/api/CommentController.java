@@ -57,4 +57,15 @@ public class CommentController implements CommentControllerDocs {
     command.setMemberId(customUserDetails.getMemberId());
     return ResponseEntity.ok(likeService.commentLike(command));
   }
+
+  @Override
+  @PostMapping(value = "/like/cancel", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
+  @LogMonitoringInvocation
+  public ResponseEntity<Void> cancelCommentList(
+      @AuthenticationPrincipal CustomUserDetails customUserDetails,
+      @ModelAttribute CommentCommand command) {
+    command.setMemberId(customUserDetails.getMemberId());
+    likeService.cancelCommentLike(command);
+    return ResponseEntity.ok().build();
+  }
 }
