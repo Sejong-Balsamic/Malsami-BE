@@ -12,4 +12,6 @@ public interface CommentLikeRepository extends MongoRepository<CommentLike, Stri
   List<CommentLike> findAllByCommentIdInAndMemberId(List<UUID> commentIds, UUID memberId);
 
   long countByCommentIdIn(List<UUID> commentIds);
+
+  void deleteByCommentIdAndMemberId(UUID commendId, UUID memberId);
 }

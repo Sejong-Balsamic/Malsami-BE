@@ -96,4 +96,33 @@ public class NoticePostService {
         .noticePosts(noticePosts)
         .build();
   }
+
+  /**
+   * 단일 공지사항 글 조회
+   * 조회 시 조회수를 증가시킵니다
+   * 
+   * @param command noticePostId
+   * @return NoticePostDto
+   */
+  @Transactional
+  public NoticePostDto getNoticePost(NoticePostCommand command) {
+    if (command.getNoticePostId() == null) {
+      log.error("공지사항 ID가 없습니다.");
+      throw new CustomException(ErrorCode.INVALID_REQUEST);
+    }
+
+    NoticePost noticePost = noticePostRepository.findById(command.getNoticePostId())
+        .orElseThrow(() -> {
+          log.error("공지사항을 찾을 수 없습니다. ID: {}", command.getNoticePostId());
+          return new CustomException(ErrorCode.NOTICE_POST_NOT_FOUND);
+        });
+
+    // 조회수 증가
+    noticePost.increaseViewCount();
+    noticePostRepository.save(noticePost);
+
+    return NoticePostDto.builder()
+        .noticePost(noticePost)
+        .build();
+  }
 }

@@ -16,4 +16,6 @@ public interface QuestionBoardLikeRepository extends MongoRepository<QuestionBoa
   long countByQuestionBoardIdIn(List<UUID> questionBoardIds);
 
   List<QuestionBoardLike> findAllByQuestionBoardIdInAndContentType(Set<UUID> boardIds, ContentType contentType);
+
+  void deleteByQuestionBoardIdAndMemberId(UUID postId, UUID memberId);
 }

@@ -429,6 +429,41 @@ public interface QuestionPostControllerDocs {
 
   @ApiChangeLogs({
       @ApiChangeLog(
+          date = "2025.09.12",
+          author = Author.BAEKJIHOON,
+          description = "질문 게시판 좋아요 취소"
+      )
+  })
+  @Operation(
+      summary = "질문게시판 좋아요 취소",
+      description = """
+          **답변 좋아요 취소**
+          
+          **이 API는 인증이 필요하며, JWT 토큰이 존재해야합니다.**
+          
+          **입력 파라미터 값:**
+          
+          - **UUID postId**: 답변 PK [필수]
+          
+          - **ContentType contentType**: 답변 [필수]
+            _예: ContentType.ANSWER_
+          
+          **반환 파라미터 값:**
+          `없음`
+          
+          **참고 사항:**
+          
+          - 이 API를 통해 사용자는 답변 좋아요 취소가 가능합니다.
+          - Swagger에서 테스트 시 mediaFiles에 있는 "Send empty value" 체크박스 해제해야합니다.
+          """
+  )
+  ResponseEntity<Void> questionBoardCancelLike(
+      CustomUserDetails customUserDetails,
+      QuestionCommand command
+  );
+
+  @ApiChangeLogs({
+      @ApiChangeLog(
           date = "2025.03.21",
           author = Author.BAEKJIHOON,
           description = "AnswerController -> QuestionController API 이관"
