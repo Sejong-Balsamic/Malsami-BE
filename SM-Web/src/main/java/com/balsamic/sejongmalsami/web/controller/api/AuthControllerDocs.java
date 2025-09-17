@@ -53,62 +53,36 @@ public interface AuthControllerDocs {
       )
   })
   @Operation(
-      summary = "로그인 요청",
+      summary = "세종대학교 포털 로그인",
       description = """
-            **로그인 요청**
-            
-            세종대학교 대양휴머니티 칼리지 로그인 기능을 제공합니다.
-            
-            **이 API는 인증이 필요하지 않으며, JWT 토큰 없이 접근 가능합니다**
-            
-            **입력 파라미터 값:**
-            
-            - **String sejongPortalId**: 세종대학교 포털 ID
-              _예: "18010561"_
-            
-            - **String sejongPortalPassword**: 세종대학교 포털 비밀번호
-              _예: "your_password"_
-            
-            **DB에 저장되는 학사 정보:**
-            - **String studentName**: 학생 이름
-            - **Long studentId**: 학번
-            - **String major**: 전공
-            - **String academicYear**: 학년
-            - **String enrollmentStatus**: 현재 재학 여부
-            
-            **반환 파라미터 값:**
-            
-            - **AuthDto**: 인증이 완료된 토큰 정보
-              - **String accessToken**: JWT 액세스 토큰 (인증된 회원을 위한 토큰)
-              - **String refreshToken**: JWT 리프레시 토큰 (모바일에서만 반환)
-              - **String studentName**: 학생 이름
-              - **UUID memberId**: 회원 ID
-              - **Boolean isFirstLogin**: 첫 로그인 여부
-              - **Boolean isAdmin**: 관리자 권한 여부
-            
-            **추가로, 리프레시 토큰은 HTTP-Only 쿠키로 설정되어 반환됩니다:**
-            
-            - **Set-Cookie**: `refreshToken` 쿠키가 HTTP-Only 속성으로 설정되어 전송됩니다.
-              - **Name:** `refreshToken`
-              - **Value:** JWT 리프레시 토큰
-              - **Path:** `/api/auth/refresh`
-              - **HttpOnly:** `true`
-              - **Secure:** `false` (개발 환경), `true` (배포 환경)
-              - **Max-Age:** 7일
-            
-            **토큰 만료 시간:**
-            
-            - **Access Token (accessToken):** 1시간
-            - **Refresh Token (refreshToken):** 7일
-            
-            **참고 사항:**
-            
-            - 이 API를 통해 회원은 세종대학교 포털 인증 정보를 이용하여 로그인할 수 있습니다.
-            - 성공적인 인증 후, 시스템은 액세스 토큰과 리프레시 토큰을 발급하여 반환합니다.
-            - 액세스 토큰은 클라이언트에서 인증이 필요한 API 요청 시 사용되며, 리프레시 토큰은 새로운 액세스 토큰을 발급받기 위해 서버에 저장됩니다.
-            - 리프레시 토큰은 클라이언트에서 직접 접근할 수 없도록 HTTP-Only 쿠키로 설정되어 보안이 강화됩니다.
-            - 리프레시 토큰을 사용하여 새로운 액세스 토큰을 발급받는 API는 `/api/auth/refresh` 엔드포인트를 사용합니다.
-            """
+      세종대학교 포털 인증 정보를 통한 로그인 기능입니다.
+      
+      **인증 요구사항**
+      - 인증 필요: 없음
+      - 권한: 공개 API
+      
+      **요청 파라미터**
+      - sejongPortalId (필수): 세종대학교 포털 ID
+      - sejongPortalPassword (필수): 세종대학교 포털 비밀번호
+      
+      **응답 데이터**
+      - AuthDto: 인증 완료된 사용자 정보
+        * accessToken: JWT 액세스 토큰 (유효기간: 1시간)
+        * refreshToken: JWT 리프레시 토큰 (모바일에서만 반환)
+        * studentName: 학생 이름
+        * memberId: 회원 고유 ID
+        * isFirstLogin: 첫 로그인 여부
+        * isAdmin: 관리자 권한 여부
+      
+      **예외 상황**
+      - AUTHENTICATION_FAILED (401): 세종포털 인증 실패
+      - INTERNAL_SERVER_ERROR (500): 서버 내부 오류
+      
+      **참고사항**
+      - 리프레시 토큰은 HTTP-Only 쿠키로 자동 설정됩니다
+      - 쿠키 경로: /api/auth/refresh, 유효기간: 7일
+      - 로그인 시 학생 정보가 DB에 저장됩니다
+      """
   )
   ResponseEntity<AuthDto> signIn(
       @ModelAttribute AuthCommand command,
@@ -132,41 +106,36 @@ public interface AuthControllerDocs {
       )
   })
   @Operation(
-      summary = "모바일 전용 로그인 요청",
+      summary = "모바일 전용 세종대학교 포털 로그인",
       description = """
-            **모바일 전용 로그인 요청**
-            
-            모바일 클라이언트를 위한 전용 로그인 API입니다.
-            웹과 달리 쿠키를 사용하지 않고 토큰을 직접 반환합니다.
-            
-            **이 API는 인증이 필요하지 않으며, JWT 토큰 없이 접근 가능합니다**
-            
-            **입력 파라미터 값:**
-            
-            - **String sejongPortalId**: 세종대학교 포털 ID [필수]
-            - **String sejongPortalPassword**: 세종대학교 포털 비밀번호 [필수]
-            
-            **반환 파라미터 값:**
-            
-            - **String accessToken**: JWT 액세스 토큰 (API 인증용)
-            - **String refreshToken**: JWT 리프레시 토큰 (토큰 갱신용)
-            - **String studentName**: 학생 이름
-            - **UUID memberId**: 회원 ID
-            - **Boolean isFirstLogin**: 첫 로그인 여부
-            - **Boolean isAdmin**: 관리자 권한 여부
-            
-            **응답 코드:**
-            
-            - **200 OK**: 로그인 성공
-            - **401 Unauthorized**: 세종포털 인증 실패
-            - **500 Internal Server Error**: 서버 내부 오류
-            
-            **주의사항:**
-            
-            - 모바일에서는 쿠키를 사용하지 않으므로 refreshToken을 안전하게 저장해야 합니다.
-            - accessToken은 Authorization 헤더에 'Bearer {token}' 형식으로 사용합니다.
-            - refreshToken은 만료 시 새로운 토큰 발급에 사용합니다.
-            """
+      모바일 클라이언트를 위한 로그인 API로, 쿠키 대신 토큰을 직접 반환합니다.
+      
+      **인증 요구사항**
+      - 인증 필요: 없음
+      - 권한: 공개 API
+      
+      **요청 파라미터**
+      - sejongPortalId (필수): 세종대학교 포털 ID
+      - sejongPortalPassword (필수): 세종대학교 포털 비밀번호
+      
+      **응답 데이터**
+      - AuthDto: 인증 완료된 사용자 정보
+        * accessToken: JWT 액세스 토큰 (API 인증용)
+        * refreshToken: JWT 리프레시 토큰 (토큰 갱신용)
+        * studentName: 학생 이름
+        * memberId: 회원 고유 ID
+        * isFirstLogin: 첫 로그인 여부
+        * isAdmin: 관리자 권한 여부
+      
+      **예외 상황**
+      - AUTHENTICATION_FAILED (401): 세종포털 인증 실패
+      - INTERNAL_SERVER_ERROR (500): 서버 내부 오류
+      
+      **참고사항**
+      - 모바일 환경에서는 쿠키를 사용하지 않습니다
+      - refreshToken은 클라이언트에서 안전하게 저장해야 합니다
+      - accessToken은 Authorization 헤더에 'Bearer {token}' 형식으로 사용합니다
+      """
   )
   ResponseEntity<AuthDto> signInForMobile(AuthCommand command);
 
@@ -193,45 +162,34 @@ public interface AuthControllerDocs {
       )
   })
   @Operation(
-      summary = "액세스 토큰 재발급 요청",
+      summary = "액세스 토큰 재발급",
       description = """
-          **액세스 토큰 재발급 요청**
-
-          클라이언트는 HTTP-Only 쿠키로 저장된 리프레시 토큰을 이용하여 새로운 액세스 토큰을 발급받을 수 있습니다.
-
-          **이 API는 인증이 필요하지 않으며, refreshToken만으로 접근 가능합니다.**
-
-          **입력 파라미터 값:**
-
-          - **Cookie**: 리프레시 토큰이 포함된 HTTP-Only 쿠키
-            - **Name:** `refreshToken`
-            - **Value:** 저장된 리프레시 토큰 값
-
-          **반환 파라미터 값:**
-
-          - **String accessToken**: 새로운 JWT 액세스 토큰 (인증이 필요한 요청에 사용)
-          - **String studentName**: 학생 이름 반환
-
-          **예시:**
-
-          **참고 사항:**
-
-          - 이 API는 리프레시 토큰의 유효성을 검증한 후 새로운 액세스 토큰을 발급합니다.
-          - 리프레시 토큰은 쿠키로 저장되며, 클라이언트에서 직접 접근할 수 없으므로, 쿠키는 자동으로 서버로 전송됩니다.
-          - 새로운 액세스 토큰은 반환된 후, 클라이언트는 이를 사용하여 인증이 필요한 API 요청에 사용할 수 있습니다.
-          - 리프레시 토큰이 만료되었거나 유효하지 않을 경우, 서버에서 401 Unauthorized 상태 코드가 반환되며, 클라이언트는 사용자를 다시 로그인시켜야 합니다.
-
-          **응답 코드:**
-
-          - **200 OK**: 새로운 액세스 토큰 발급 성공
-          - **401 Unauthorized**: 리프레시 토큰이 유효하지 않거나 만료됨
-          - **400 Bad Request**: 쿠키에서 리프레시 토큰을 찾을 수 없음
-
-          **추가 설명:**
-
-          - 리프레시 토큰을 이용한 액세스 토큰 재발급은 보안을 강화하는 방법으로, 클라이언트가 리프레시 토큰을 저장할 필요가 없습니다.
-          - 리프레시 토큰은 자동으로 쿠키로 전송되며, 쿠키는 HTTP-Only 속성으로 설정되어 있기 때문에 클라이언트에서 접근할 수 없습니다.
-          """
+      HTTP-Only 쿠키의 리프레시 토큰을 이용하여 새로운 액세스 토큰을 발급받습니다.
+      
+      **인증 요구사항**
+      - 인증 필요: 없음 (리프레시 토큰 쿠키만 필요)
+      - 권한: 공개 API
+      
+      **요청 파라미터**
+      - Cookie (필수): HTTP-Only 쿠키의 refreshToken
+        * Name: refreshToken
+        * Value: 유효한 리프레시 토큰
+      
+      **응답 데이터**
+      - AuthDto: 새로 발급된 토큰 정보
+        * accessToken: 새로운 JWT 액세스 토큰
+        * studentName: 학생 이름
+      
+      **예외 상황**
+      - TOKEN_NOT_FOUND (400): 쿠키에서 리프레시 토큰을 찾을 수 없음
+      - TOKEN_EXPIRED (401): 리프레시 토큰이 만료됨
+      - TOKEN_INVALID (401): 리프레시 토큰이 유효하지 않음
+      
+      **참고사항**
+      - 리프레시 토큰 쿠키는 자동으로 서버에 전송됩니다
+      - 토큰 만료 시 재로그인이 필요합니다
+      - HTTP-Only 쿠키로 인해 클라이언트에서 직접 접근할 수 없습니다
+      """
   )
   ResponseEntity<AuthDto> refreshAccessToken(HttpServletRequest request);
 
@@ -258,32 +216,32 @@ public interface AuthControllerDocs {
       )
   })
   @Operation(
-      summary = "로그아웃 API",
+      summary = "사용자 로그아웃",
       description = """
-        **로그아웃 API**
-
-        클라이언트는 이 API를 호출하여 사용자 세션을 종료할 수 있습니다.
-        로그아웃 시, 서버는 `refreshToken` 쿠키를 삭제하고, 서버 측에서도 리프레시 토큰을 제거합니다.
-        또한 formData로 입력된 fcmToken을 데이터베이스에서 삭제합니다.
-
-        **입력 파라미터 값:**
-        
-        - **String fcmToken**: 사용자의 fcmToken
-
-        - **Cookie**: 리프레시 토큰이 포함된 HTTP-Only 쿠키
-          - **Name:** `refreshToken`
-          - **Value:** 저장된 리프레시 토큰 값
-
-        **반환 파라미터 값:**
-
-        - **없음**: 성공 시 200 OK 응답
-
-        **응답 코드:**
-
-        - **200 OK**: 로그아웃 성공
-        - **401 Unauthorized**: 리프레시 토큰이 유효하지 않거나 만료됨
-        - **403 Forbidden**: 쿠키에서 리프레시 토큰을 찾을 수 없음
-        """
+      사용자 세션을 종료하고 토큰 및 FCM 토큰을 삭제합니다.
+      
+      **인증 요구사항**
+      - 인증 필요: 있음
+      - 권한: USER
+      
+      **요청 파라미터**
+      - fcmToken (선택): Firebase Cloud Messaging 토큰
+      - Cookie: HTTP-Only 쿠키의 refreshToken
+        * Name: refreshToken
+        * Value: 저장된 리프레시 토큰
+      
+      **응답 데이터**
+      - 없음 (성공 시 200 OK)
+      
+      **예외 상황**
+      - TOKEN_INVALID (401): 리프레시 토큰이 유효하지 않거나 만료됨
+      - TOKEN_NOT_FOUND (403): 쿠키에서 리프레시 토큰을 찾을 수 없음
+      
+      **참고사항**
+      - 서버에서 리프레시 토큰 쿠키를 삭제합니다
+      - 서버 측 리프레시 토큰도 함께 제거됩니다
+      - FCM 토큰이 제공되면 데이터베이스에서 삭제합니다
+      """
   )
   ResponseEntity<Void> logout(
       CustomUserDetails customUserDetails,
@@ -306,19 +264,27 @@ public interface AuthControllerDocs {
   @Operation(
       summary = "FCM 토큰 저장",
       description = """
-          **FCM 토큰 저장**
-
-          **이 API는 인증이 필요하며, JWT 토큰이 존재해야합니다.**
-
-          **입력 파라미터 값:**
-
-          - **String fcmToken**: Firebase에서 발급받은 토큰 [필수]
-
-          **반환 파라미터 값:**
-
-          - **FcmDto**: FCM 정보
-            - **FcmToken fcmToken**: FCM 토큰 정보
-          """
+      Firebase Cloud Messaging 토큰을 사용자 계정에 저장합니다.
+      
+      **인증 요구사항**
+      - 인증 필요: 있음
+      - 권한: USER
+      
+      **요청 파라미터**
+      - fcmToken (필수): Firebase에서 발급받은 FCM 토큰
+      
+      **응답 데이터**
+      - AuthDto: FCM 토큰 저장 정보
+        * fcmToken: 저장된 FCM 토큰 정보
+      
+      **예외 상황**
+      - UNAUTHORIZED (401): JWT 토큰이 없거나 유효하지 않음
+      - BAD_REQUEST (400): FCM 토큰이 누락되거나 형식이 잘못됨
+      
+      **참고사항**
+      - 푸시 알림 수신을 위해 필요한 토큰입니다
+      - 기존 FCM 토큰이 있을 경우 새 토큰으로 대체됩니다
+      """
   )
   ResponseEntity<AuthDto> saveFcmToken(
       CustomUserDetails customUserDetails,
@@ -332,37 +298,34 @@ public interface AuthControllerDocs {
       )
   })
   @Operation(
-      summary = "모바일 전용 토큰 갱신 (Access + Refresh 둘 다 재발급)",
+      summary = "모바일 전용 토큰 갱신",
       description = """
-          **모바일 전용 토큰 갱신 API**
-
-          모바일 클라이언트에서 사용하는 전용 토큰 갱신 API입니다.
-          기존 리프레시 토큰을 전달하면 새로운 액세스 토큰과 리프레시 토큰을 모두 재발급합니다.
-
-          **이 API는 인증이 필요하지 않으며, refreshToken만으로 접근 가능합니다.**
-
-          **입력 파라미터 값:**
-
-          - **String refreshToken**: 기존 리프레시 토큰 [필수]
-
-          **반환 파라미터 값:**
-
-          - **String accessToken**: 새로운 JWT 액세스 토큰
-          - **String refreshToken**: 새로운 JWT 리프레시 토큰
-          - **String studentName**: 학생 이름
-          - **UUID memberId**: 회원 ID
-
-          **응답 코드:**
-
-          - **200 OK**: 토큰 갱신 성공
-          - **401 Unauthorized**: 리프레시 토큰이 유효하지 않거나 만료됨
-          - **400 Bad Request**: 리프레시 토큰 누락
-
-          **주의사항:**
-
-          - 모바일 환경에서는 쿠키를 사용하지 않으므로 리프레시 토큰을 직접 전달받습니다.
-          - 기존 리프레시 토큰은 무효화되고 새로운 리프레시 토큰이 발급됩니다.
-          """
+      모바일 클라이언트를 위한 액세스 토큰과 리프레시 토큰 동시 재발급 API입니다.
+      
+      **인증 요구사항**
+      - 인증 필요: 없음 (리프레시 토큰만 필요)
+      - 권한: 공개 API
+      
+      **요청 파라미터**
+      - refreshToken (필수): 기존 리프레시 토큰
+      
+      **응답 데이터**
+      - AuthDto: 새로 발급된 토큰 정보
+        * accessToken: 새로운 JWT 액세스 토큰
+        * refreshToken: 새로운 JWT 리프레시 토큰
+        * studentName: 학생 이름
+        * memberId: 회원 고유 ID
+      
+      **예외 상황**
+      - TOKEN_MISSING (400): 리프레시 토큰이 누락됨
+      - TOKEN_EXPIRED (401): 리프레시 토큰이 만료됨
+      - TOKEN_INVALID (401): 리프레시 토큰이 유효하지 않음
+      
+      **참고사항**
+      - 모바일 환경에서는 쿠키를 사용하지 않습니다
+      - 기존 리프레시 토큰은 무효화되고 새 토큰이 발급됩니다
+      - 토큰 로테이션을 통해 보안성을 향상시킵니다
+      """
   )
   ResponseEntity<AuthDto> refreshTokensForMobile(AuthCommand command);
 }

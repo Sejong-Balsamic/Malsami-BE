@@ -18,31 +18,42 @@ public interface QueryControllerDocs {
       )
   })
   @Operation(
-      summary = "검색 페이지 init",
+      summary = "통합 검색",
       description = """
-          **검색 페이지**
-                                                                           
-          **이 API는 인증이 필요하며, JWT 토큰이 존재해야합니다.**
-           
-          #### 요청 파라미터
-          - **`query`** (`String`, 선택): 검색어
-          - **`subject`** (`String`, 선택): 교과목 명
-          - **`sortType`** (`SortType`, 선택): 정렬기준 (기본값 = 최신순)
-          - **`pageNumber`** (`Integer`, 선택): 조회할 페이지 (기본값 = 0)
-          - **`pageSize`** (`Integer`, 선택): 페이지 당 조회할 개수 (기본값 = 30)
-          
-          #### 반환 파라미터
-          - **`Page<QuestionPost> questionPostsPage`**: 질문 글 리스트
-          - **`Page<DocumentPost> documentPostsPage`**: 자료 글 리스트
-          - **`Page<DocumentRequestPost> documentRequestPostsPage`**: 자료 요청 글 리스트
-          - **`Page<NoticePost> noticePostsPage`**: 공지사항 글 리스트
-          
-          **참고 사항:**
-          - 정렬기준은 `최신순`, `좋아요순`, `댓글순`, `조회순`, `과거순` 선택 가능합니다.
-          - 검색어 입력 시 질문, 자료, 자료 요청, 공지사항 글 제목+본문에 해당 검색어가 포함된 글을 조회합니다.
-          - 질문, 자료, 자료 요청, 공지사항 글은 각각 pageSize 개수만큼 조회됩니다.
-            _예: pageSize = 30, 질문글 - 30개, 자료글 - 30개, 자료요청글 - 30개, 공지사항글 - 30개
-          """
+      질문, 자료, 자료요청, 공지사항 게시글을 통합하여 검색합니다.
+      
+      **인증 요구사항**
+      - 인증 필요: 있음
+      - 권한: USER
+      
+      **요청 파라미터**
+      - query (선택): 검색어 (제목 및 본문 검색)
+      - subject (선택): 교과목명 필터링
+      - sortType (선택): 정렬 기준 (기본값: LATEST)
+        * LATEST: 최신순
+        * MOST_LIKED: 좋아요순
+        * COMMENT_COUNT: 댓글순
+        * VIEW_COUNT: 조회순
+        * OLDEST: 과거순
+      - pageNumber (선택): 페이지 번호 (기본값: 0)
+      - pageSize (선택): 페이지당 아이템 수 (기본값: 30)
+      
+      **응답 데이터**
+      - QueryDto: 통합 검색 결과
+        * questionPostsPage: 질문 게시글 결과
+        * documentPostsPage: 자료 게시글 결과
+        * documentRequestPostsPage: 자료요청 게시글 결과
+        * noticePostsPage: 공지사항 게시글 결과
+      
+      **예외 상황**
+      - UNAUTHORIZED (401): 인증 토큰이 유효하지 않음
+      - BAD_REQUEST (400): 잘못된 요청 파라미터
+      
+      **참고사항**
+      - 각 게시판별로 pageSize 만큼의 결과 반환 (최대 4 x pageSize 개 결과)
+      - 검색어 미입력 시 전체 게시글 조회
+      - 제목과 본문을 대상으로 검색 수행
+      """
   )
   ResponseEntity<QueryDto> getPostsByQuery(
       QueryCommand command);
@@ -55,23 +66,36 @@ public interface QueryControllerDocs {
       )
   })
   @Operation(
-      summary = "인기 검색어 init",
+      summary = "인기 검색어 조회",
       description = """
-          **TOP10 인기 검색어**
-                                                                           
-          **이 API는 인증이 필요하며, JWT 토큰이 존재해야합니다.**
-           
-          #### 요청 파라미터
-          Integer topN: 조회하고싶은 상위 N개 인기 검색어
-          
-          #### 반환 파라미터
-          - **`List<SearchHistory> searchHistoryList`**: 인기 검색어 리스트
-          
-          **참고 사항:**
-          - 30분마다 검색어 순위를 계산하여 상위 10개의 인기 검색어를 반환합니다.
-          - 변동폭이 양수인경우 순위 상승, 음수인경우 순위 하락에 해당합니다.
-          - isNew = true 로 설정되어 반환된 검색어들은 순위권에 진입한 검색어입니다
-          """
+      사용자들이 가장 많이 검색한 인기 검색어 순위를 조회합니다.
+      
+      **인증 요구사항**
+      - 인증 필요: 있음
+      - 권한: USER
+      
+      **요청 파라미터**
+      - topN (선택): 조회할 상위 N개 인기 검색어 (기본값: 10)
+      
+      **응답 데이터**
+      - QueryDto: 인기 검색어 정보
+        * searchHistoryList: 인기 검색어 리스트
+        * keyword: 검색어
+        * searchCount: 검색 횟수
+        * rank: 현재 순위
+        * rankChange: 순위 변동
+        * isNew: 신규 진입 여부
+      
+      **예외 상황**
+      - UNAUTHORIZED (401): 인증 토큰이 유효하지 않음
+      - BAD_REQUEST (400): 잘못된 topN 값
+      
+      **참고사항**
+      - 30분마다 순위 업데이트됨
+      - rankChange 양수: 순위 상승, 음수: 순위 하락
+      - isNew=true: 순위권 신규 진입 검색어
+      - 실시간 트렌드 파악을 위한 데이터 제공
+      """
   )
   ResponseEntity<QueryDto> getTopKeywords(QueryCommand command);
 }

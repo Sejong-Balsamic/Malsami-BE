@@ -21,21 +21,31 @@ public interface SejongAcademicControllerDocs {
       )
   })
   @Operation(
-      summary = "단과대 목록 반환",
+      summary = "단과대 목록 조회",
       description = """
-          **단과대 목록 반환 메소드 API**
-
-          **인증 : JWT 토큰 필요**
-
-          #### 요청 파라미터
-          - **`없음`**
-
-          #### 반환 파라미터
-            - **`List<Faculty> faculties`**: 단과대 목록
-
-          #### 참고 사항
-          - 나무위키에서 가져온 정보들과 옛날부터 쌓아진 세종대가 제공해준 모든 단과대 정보를 교집합한 결과입니다
-          """
+      세종대학교의 모든 단과대 목록을 조회합니다.
+      
+      **인증 요구사항**
+      - 인증 필요: 있음
+      - 권한: USER
+      
+      **요청 파라미터**
+      - 없음
+      
+      **응답 데이터**
+      - SejongAcademicDto: 단과대 정보
+        * faculties: 전체 단과대 목록
+        * facultyName: 단과대명
+        * facultyCode: 단과대 코드
+      
+      **예외 상황**
+      - UNAUTHORIZED (401): 인증 토큰이 유효하지 않음
+      - INTERNAL_SERVER_ERROR (500): 단과대 데이터 조회 실패
+      
+      **참고사항**
+      - 나무위키 및 세종대 공식 데이터를 기반으로 구성된 신뢰성 있는 데이터
+      - 게시글 작성 시 단과대 선택을 위해 사용
+      """
   )
   ResponseEntity<SejongAcademicDto> getAllFaculties(
       @AuthenticationPrincipal CustomUserDetails customUserDetails,
@@ -49,18 +59,31 @@ public interface SejongAcademicControllerDocs {
       )
   })
   @Operation(
-      summary = "교과목명 목록 반환",
+      summary = "교과목명 목록 조회",
       description = """
-          **단과대 목록 반환 메소드 API**
-
-          **인증 : 필요없음**
-
-          #### 요청 파라미터
-          - **`없음`**
-
-          #### 반환 파라미터
-            - **`List<String> subjects`**: 교과목명 목록
-          """
+      세종대학교의 모든 교과목명 목록을 조회합니다.
+      
+      **인증 요구사항**
+      - 인증 필요: 없음
+      - 권한: 공개 API
+      
+      **요청 파라미터**
+      - 없음
+      
+      **응답 데이터**
+      - SejongAcademicDto: 교과목 정보
+        * subjects: 전체 교과목명 목록
+        * subjectName: 교과목명
+        * subjectCode: 교과목 코드
+      
+      **예외 상황**
+      - INTERNAL_SERVER_ERROR (500): 교과목 데이터 조회 실패
+      
+      **참고사항**
+      - 인증 없이 접근 가능한 공개 API
+      - 게시글 작성 시 교과목 선택을 위해 사용
+      - 세종대 공식 데이터를 기반으로 구성
+      """
   )
   ResponseEntity<SejongAcademicDto> getAllSubjects();
 }
