@@ -28,55 +28,50 @@ public interface ReportControllerDocs {
   @Operation(
       summary = "게시글 신고",
       description = """
-            **게시글 신고 기능**
-            
-            사용자가 특정 게시글을 신고할 수 있는 기능을 제공합니다.
-            
-            **이 API는 인증이 필요하며, JWT 토큰이 존재해야 합니다**
-            
-            ### **요청 파라미터**
-            - **`ReportCommand`**: 신고에 필요한 정보
-              - **`UUID reportedEntityId`**: 신고 대상 게시글 ID
-              - **`ContentType contentType`**: 신고 대상 콘텐츠 타입 (예: QUESTION, ANSWER 등)
-              - **`ReportReason reportReason`**: 신고 사유 (예: SPAM, HARASSMENT 등)
-              
-            ### **ContentType**
-            - **`COMMENT`**: 댓글
-            - **`QUESTION`**: 질문글
-            - **`ANSWER`**: 답변글
-            - **`DOCUMENT`**: 자료글
-            - **`DOCUMENT_REQUEST`**: 자료요청글            
-            
-            ### **ReportReason 설명**
-            - **`INAPPROPRIATE_BOARD`**: 게시판 성격에 부적절해요
-            - **`PROFANITY`**: 욕설이나 비하가 있어요
-            - **`OBSCENE_INTERACTION`**: 음란물이나 불건전한 만남 및 대화를 유도해요
-            - **`ADVERTISEMENT`**: 광고, 판매글이에요
-            - **`FRAUD_IMPERSONATION`**: 유출, 사칭, 사기가 의심돼요
-            - **`SPAM`**: 낚시, 놀람, 도배가 있어요
-            - **`INFO_REQUEST`**: 개인정보, SNS 등의 정보를 요구해요
-            - **`OFF_TOPIC`**: 풀이와 상관없는 대화를 시도해요
-            - **`CASH_REQUEST`**: 금전적인 보상, 현금을 요구해요
-            - **`INAPPROPRIATE_PHOTOS`**: 부적절한 내용과 사진이 포함됐어요
-            - **`COPYRIGHT_VIOLATION`**: 저작권 침해 또는 무단 도용이에요
-            - **`OTHER`**: 기타
-            
-            ### **반환 파라미터 값**
-            - **`ReportDto`**: 저장된 신고 정보
-              - **`Report report`**: 저장된 신고 객체
-              
-            ### **오류 코드**
-            - **`ALREADY_REPORTED`**: 이미 해당 게시글을 신고한 경우
-            - **`CANNOT_REPORT_OWN_CONTENT`**: 자신의 게시물을 신고하려는 경우
-            - **`COMMENT_NOT_FOUND`**: 신고하려는 댓글을 찾을 수 없는 경우
-            - **`QUESTION_POST_NOT_FOUND`**: 신고하려는 질문 게시글을 찾을 수 없는 경우
-            - **`ANSWER_POST_NOT_FOUND`**: 신고하려는 답변 게시글을 찾을 수 없는 경우
-            - **`DOCUMENT_POST_NOT_FOUND`**: 신고하려는 자료 게시글을 찾을 수 없는 경우
-            - **`DOCUMENT_REQUEST_POST_NOT_FOUND`**: 신고하려는 자료요청 게시글을 찾을 수 없는 경우
-            - **`MEMBER_NOT_FOUND`**: 신고자 또는 신고 대상자 정보를 찾을 수 없는 경우
-            - **`INVALID_CONTENT_TYPE`**: 잘못된 콘텐츠 타입이 지정된 경우
-            - **`INTERNAL_SERVER_ERROR`**: 서버 내부 오류 발생 시
-            """
+      부적절한 게시글, 댓글 등을 신고하여 커뮤니티 건전성을 유지합니다.
+      
+      **인증 요구사항**
+      - 인증 필요: 있음
+      - 권한: USER
+      
+      **요청 파라미터**
+      - reportedEntityId (필수): 신고 대상 게시글/댓글 ID
+      - contentType (필수): 신고 대상 콘텐츠 타입
+        * COMMENT: 댓글
+        * QUESTION: 질문글
+        * ANSWER: 답변글
+        * DOCUMENT: 자료글
+        * DOCUMENT_REQUEST: 자료요청글
+      - reportReason (필수): 신고 사유
+        * INAPPROPRIATE_BOARD: 게시판 성격에 부적절
+        * PROFANITY: 욕설이나 비하 표현
+        * OBSCENE_INTERACTION: 음란물이나 불건전한 만남 유도
+        * ADVERTISEMENT: 광고, 판매글
+        * FRAUD_IMPERSONATION: 유출, 사칭, 사기 의심
+        * SPAM: 낚시, 놀람, 도배
+        * INFO_REQUEST: 개인정보 요구
+        * OFF_TOPIC: 풀이와 상관없는 대화
+        * CASH_REQUEST: 금전적 보상 요구
+        * INAPPROPRIATE_PHOTOS: 부적절한 사진 포함
+        * COPYRIGHT_VIOLATION: 저작권 침해
+        * OTHER: 기타
+      
+      **응답 데이터**
+      - ReportDto: 신고 접수 정보
+        * report: 저장된 신고 객체
+        * reportId: 신고 접수 번호
+      
+      **예외 상황**
+      - ALREADY_REPORTED (409): 이미 신고한 게시글
+      - CANNOT_REPORT_OWN_CONTENT (403): 본인 게시물 신고 불가
+      - CONTENT_NOT_FOUND (404): 신고 대상 콘텐츠가 존재하지 않음
+      - MEMBER_NOT_FOUND (404): 신고자 정보를 찾을 수 없음
+      - INVALID_CONTENT_TYPE (400): 잘못된 콘텐츠 타입
+      
+      **참고사항**
+      - 중복 신고는 불가능하며, 본인이 작성한 콘텐츠는 신고할 수 없음
+      - 신고는 관리자 검토 후 조치되며, 허위 신고 시 제재 가능
+      """
   )
   ResponseEntity<ReportDto> saveReportPost(
       @AuthenticationPrincipal CustomUserDetails customUserDetails,
