@@ -139,28 +139,31 @@ public interface NoticePostControllerDocs {
   @Operation(
       summary = "공지사항 좋아요",
       description = """
-          **특정 공지사항 글 좋아요 증가**
+      공지사항에 좋아요를 추가합니다.
 
-          **이 API는 인증이 필요하며, JWT 토큰이 존재해야합니다.**
+      **인증 요구사항**
+      - 인증 필요: 있음
+      - 권한: USER
 
-          **입력 파라미터 값:**
+      **요청 파라미터**
+      - postId (필수): 좋아요할 공지사항 ID (UUID)
+      - contentType (필수): 컨텐츠 타입
+        * NOTICE: 공지사항
 
-          - **UUID postId**: 좋아요를 누른 공지사항 글 PK [필수]
+      **응답 데이터**
+      - NoticePostDto: 좋아요 처리 결과
+        * noticeBoardLike: 좋아요 정보
 
-          - **ContentType contentType**: 공지사항 [필수]
-            _예: ContentType.NOTICE_
+      **예외 상황**
+      - UNAUTHORIZED (401): 인증 토큰 없음 또는 만료
+      - FORBIDDEN (403): 본인 작성 글에 좋아요 시도
+      - CONFLICT (409): 이미 좋아요한 게시글에 중복 요청
+      - NOT_FOUND (404): 존재하지 않는 공지사항 ID
 
-          **반환 파라미터 값:**
-
-          - **NoticePostDto**: 공지사항 게시판 정보 반환
-            - **NoticeBoardLike noticeBoardLike**: 좋아요 내역
-
-          **참고 사항:**
-
-          - 이 API를 통해 사용자는 특정 공지사항에 좋아요를 누를 수 있습니다.
-          - 본인이 작성한 글에는 좋아요를 누를 수 없습니다.
-          - 이미 좋아요를 누른 글에는 중복으로 요청할 수 없습니다.
-          """
+      **참고사항**
+      - 본인이 작성한 글에는 좋아요 불가
+      - 중복 좋아요 방지 로직 적용
+      """
   )
   ResponseEntity<NoticePostDto> noticePostLike(
       CustomUserDetails customUserDetails,
@@ -176,25 +179,29 @@ public interface NoticePostControllerDocs {
   @Operation(
       summary = "공지사항 좋아요 취소",
       description = """
-          **공지사항 좋아요 취소**
+      공지사항의 좋아요를 취소합니다.
 
-          **이 API는 인증이 필요하며, JWT 토큰이 존재해야합니다.**
+      **인증 요구사항**
+      - 인증 필요: 있음
+      - 권한: USER
 
-          **입력 파라미터 값:**
+      **요청 파라미터**
+      - postId (필수): 좋아요 취소할 공지사항 ID (UUID)
+      - contentType (필수): 컨텐츠 타입
+        * NOTICE: 공지사항
 
-          - **UUID postId**: 공지사항 글 PK [필수]
+      **응답 데이터**
+      - 없음 (Void)
 
-          - **ContentType contentType**: 공지사항 [필수]
-            _예: ContentType.NOTICE_
+      **예외 상황**
+      - UNAUTHORIZED (401): 인증 토큰 없음 또는 만료
+      - NOT_FOUND (404): 존재하지 않는 공지사항 ID 또는 좋아요 기록 없음
+      - FORBIDDEN (403): 다른 사용자의 좋아요 취소 시도
 
-          **반환 파라미터 값:**
-          `없음`
-
-          **참고 사항:**
-
-          - 이 API를 통해 사용자는 공지사항 좋아요 취소가 가능합니다.
-          - 좋아요를 누른 적이 없는 글에는 취소 요청을 할 수 없습니다.
-          """
+      **참고사항**
+      - 본인이 좋아요한 게시글만 취소 가능
+      - 취소된 좋아요는 재추가 가능
+      """
   )
   ResponseEntity<Void> noticePostCancelLike(
       CustomUserDetails customUserDetails,

@@ -91,3 +91,6 @@ SM-*/src/main/resources/*.json
 .gradle/
 **/build/
 **/.gradle/
+
+### Claude Code ###
+.claude/settings.local.json
