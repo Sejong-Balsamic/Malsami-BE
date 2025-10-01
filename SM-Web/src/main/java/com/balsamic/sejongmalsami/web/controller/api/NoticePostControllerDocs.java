@@ -128,4 +128,75 @@ public interface NoticePostControllerDocs {
       CustomUserDetails customUserDetails,
       NoticePostCommand command
   );
+
+  @ApiChangeLogs({
+      @ApiChangeLog(
+          date = "2025.10.01",
+          author = Author.SUHSAECHAN,
+          description = "공지사항 좋아요 init"
+      )
+  })
+  @Operation(
+      summary = "공지사항 좋아요",
+      description = """
+          **특정 공지사항 글 좋아요 증가**
+
+          **이 API는 인증이 필요하며, JWT 토큰이 존재해야합니다.**
+
+          **입력 파라미터 값:**
+
+          - **UUID postId**: 좋아요를 누른 공지사항 글 PK [필수]
+
+          - **ContentType contentType**: 공지사항 [필수]
+            _예: ContentType.NOTICE_
+
+          **반환 파라미터 값:**
+
+          - **NoticePostDto**: 공지사항 게시판 정보 반환
+            - **NoticeBoardLike noticeBoardLike**: 좋아요 내역
+
+          **참고 사항:**
+
+          - 이 API를 통해 사용자는 특정 공지사항에 좋아요를 누를 수 있습니다.
+          - 본인이 작성한 글에는 좋아요를 누를 수 없습니다.
+          - 이미 좋아요를 누른 글에는 중복으로 요청할 수 없습니다.
+          """
+  )
+  ResponseEntity<NoticePostDto> noticePostLike(
+      CustomUserDetails customUserDetails,
+      NoticePostCommand command);
+
+  @ApiChangeLogs({
+      @ApiChangeLog(
+          date = "2025.10.01",
+          author = Author.BAEKJIHOON,
+          description = "공지사항 좋아요 취소 init"
+      )
+  })
+  @Operation(
+      summary = "공지사항 좋아요 취소",
+      description = """
+          **공지사항 좋아요 취소**
+
+          **이 API는 인증이 필요하며, JWT 토큰이 존재해야합니다.**
+
+          **입력 파라미터 값:**
+
+          - **UUID postId**: 공지사항 글 PK [필수]
+
+          - **ContentType contentType**: 공지사항 [필수]
+            _예: ContentType.NOTICE_
+
+          **반환 파라미터 값:**
+          `없음`
+
+          **참고 사항:**
+
+          - 이 API를 통해 사용자는 공지사항 좋아요 취소가 가능합니다.
+          - 좋아요를 누른 적이 없는 글에는 취소 요청을 할 수 없습니다.
+          """
+  )
+  ResponseEntity<Void> noticePostCancelLike(
+      CustomUserDetails customUserDetails,
+      NoticePostCommand command);
 }

@@ -1,5 +1,6 @@
 package com.balsamic.sejongmalsami.notice.dto;
 
+import com.balsamic.sejongmalsami.constants.ContentType;
 import com.balsamic.sejongmalsami.constants.SortType;
 import com.balsamic.sejongmalsami.object.postgres.Member;
 import com.fasterxml.jackson.annotation.JsonIgnore;
@@ -23,9 +24,18 @@ public class NoticePostCommand {
   @Schema(hidden = true, description = "회원")
   @JsonIgnore
   private Member member;
+
+  @Schema(hidden = true, description = "회원 ID")
+  @JsonIgnore
+  private UUID memberId;
+
   private String title;
   private String content;
   private UUID noticePostId;
+
+  // 좋아요 관련
+  private UUID postId;
+  private ContentType contentType;
 
   // 필터링
   private String query;

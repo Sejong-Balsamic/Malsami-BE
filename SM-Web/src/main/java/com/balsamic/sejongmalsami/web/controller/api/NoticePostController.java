@@ -50,4 +50,25 @@ public class NoticePostController implements NoticePostControllerDocs {
       @ModelAttribute NoticePostCommand command) {
     return ResponseEntity.ok(noticePostService.getNoticePost(command));
   }
+
+  @Override
+  @PostMapping(value = "/like", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
+  @LogMonitoringInvocation
+  public ResponseEntity<NoticePostDto> noticePostLike(
+      @AuthenticationPrincipal CustomUserDetails customUserDetails,
+      @ModelAttribute NoticePostCommand command) {
+    command.setMemberId(customUserDetails.getMemberId());
+    return ResponseEntity.ok(noticePostService.noticePostLike(command));
+  }
+
+  @Override
+  @PostMapping(value = "/like/cancel", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
+  @LogMonitoringInvocation
+  public ResponseEntity<Void> noticePostCancelLike(
+      @AuthenticationPrincipal CustomUserDetails customUserDetails,
+      @ModelAttribute NoticePostCommand command) {
+    command.setMemberId(customUserDetails.getMemberId());
+    noticePostService.cancelNoticePostLike(command);
+    return ResponseEntity.ok().build();
+  }
 }
