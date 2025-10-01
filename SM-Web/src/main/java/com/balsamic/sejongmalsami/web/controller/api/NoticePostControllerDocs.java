@@ -172,7 +172,7 @@ public interface NoticePostControllerDocs {
   @ApiChangeLogs({
       @ApiChangeLog(
           date = "2025.10.01",
-          author = Author.BAEKJIHOON,
+          author = Author.SUHSAECHAN,
           description = "공지사항 좋아요 취소 init"
       )
   })
