@@ -1,0 +1,98 @@
+<!doctype html>
+<html lang="ko" xmlns:th="http://www.thymeleaf.org" xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+      data-theme="light">
+<head>
+    <meta charset="utf-8"/>
+    <title>세종말싸미 Admin | <th:block layout:fragment="title">Dashboard</th:block></title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+    <link href="https://cdn.jsdelivr.net/npm/daisyui@5" rel="stylesheet" type="text/css"/>
+    <script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"></script>
+    <script src="https://unpkg.com/lucide@latest"></script>
+    <script th:src="@{/js/auth.js}"></script>
+    <script th:src="@{/js/admin-common.js}"></script>
+    <th:block layout:fragment="css"></th:block>
+</head>
+<body class="min-h-screen bg-base-200">
+<div class="drawer lg:drawer-open">
+    <input id="drawer-toggle" type="checkbox" class="drawer-toggle"/>
+    <div class="drawer-content flex flex-col">
+        <div class="navbar bg-base-100 shadow-sm sticky top-0 z-30">
+            <div class="flex-none lg:hidden">
+                <label for="drawer-toggle" class="btn btn-square btn-ghost">
+                    <i data-lucide="menu" class="size-5"></i>
+                </label>
+            </div>
+            <div class="flex-1">
+                <h1 class="text-lg font-bold px-2" th:text="${pageTitle}">대시보드</h1>
+            </div>
+            <div class="flex-none flex items-center gap-2">
+                <label class="swap swap-rotate btn btn-ghost btn-circle">
+                    <input type="checkbox" id="themeToggle"/>
+                    <i data-lucide="sun" class="swap-off size-5"></i>
+                    <i data-lucide="moon" class="swap-on size-5"></i>
+                </label>
+                <button type="button" class="btn btn-ghost btn-sm gap-1" onclick="Auth.logout()">
+                    <i data-lucide="log-out" class="size-4"></i>
+                    <span class="hidden sm:inline">로그아웃</span>
+                </button>
+            </div>
+        </div>
+        <main class="p-4 lg:p-6 flex-1">
+            <th:block layout:fragment="content"></th:block>
+        </main>
+        <footer class="footer footer-center p-4 bg-base-100 text-base-content border-t border-base-300">
+            <aside><p>&copy; 2026 Sejong Malsami. All rights reserved.</p></aside>
+        </footer>
+    </div>
+    <div class="drawer-side z-40">
+        <label for="drawer-toggle" aria-label="close sidebar" class="drawer-overlay"></label>
+        <aside class="bg-base-100 min-h-full w-64 border-r border-base-300">
+            <div class="flex items-center gap-3 px-4 py-4 border-b border-base-300">
+                <span class="text-lg font-bold">세종말싸미</span>
+                <span class="badge badge-primary badge-sm">Admin</span>
+            </div>
+            <ul class="menu p-4 gap-1 [&_.active]:bg-base-300 [&_.active]:font-semibold">
+                <li><a href="#" onclick="Auth.navigate('/admin/dashboard')" th:classappend="${currentMenu=='dashboard'}?'active'">
+                    <i data-lucide="layout-dashboard" class="size-5"></i>대시보드</a></li>
+                <li class="menu-title">사용자 관리</li>
+                <li><a href="#" onclick="Auth.navigate('/admin/member')" th:classappend="${currentMenu=='member'}?'active'">
+                    <i data-lucide="users" class="size-5"></i>회원 관리</a></li>
+                <li><a href="#" onclick="Auth.navigate('/admin/yeopjeon')" th:classappend="${currentMenu=='yeopjeon'}?'active'">
+                    <i data-lucide="coins" class="size-5"></i>엽전 관리</a></li>
+                <li><a href="#" onclick="Auth.navigate('/admin/notification')" th:classappend="${currentMenu=='notification'}?'active'">
+                    <i data-lucide="bell" class="size-5"></i>알림 발송</a></li>
+                <li class="menu-title">콘텐츠 관리</li>
+                <li><a href="#" onclick="Auth.navigate('/admin/question')" th:classappend="${currentMenu=='question'}?'active'">
+                    <i data-lucide="message-circle-question" class="size-5"></i>질문 게시글</a></li>
+                <li><a href="#" onclick="Auth.navigate('/admin/notice')" th:classappend="${currentMenu=='notice'}?'active'">
+                    <i data-lucide="megaphone" class="size-5"></i>공지사항</a></li>
+                <li><a href="#" onclick="Auth.navigate('/admin/subject')" th:classappend="${currentMenu=='subject'}?'active'">
+                    <i data-lucide="book" class="size-5"></i>교과목/파일</a></li>
+                <li class="menu-title">시스템</li>
+                <li><a href="#" onclick="Auth.navigate('/admin/error-code')" th:classappend="${currentMenu=='error-code'}?'active'">
+                    <i data-lucide="bug" class="size-5"></i>에러코드</a></li>
+                <li><a href="#" onclick="Auth.navigate('/admin/test')" th:classappend="${currentMenu=='test'}?'active'">
+                    <i data-lucide="flask-conical" class="size-5"></i>테스트 계정</a></li>
+                <li><a href="#" onclick="Auth.navigate('/admin/play-ground')" th:classappend="${currentMenu=='play-ground'}?'active'">
+                    <i data-lucide="dices" class="size-5"></i>개발자 놀이터</a></li>
+            </ul>
+        </aside>
+    </div>
+</div>
+<div id="toast-container" class="toast toast-end z-50"></div>
+<script>
+    lucide.createIcons();
+    const themeToggle = document.getElementById('themeToggle');
+    const html = document.documentElement;
+    const savedTheme = localStorage.getItem('theme') || 'light';
+    html.setAttribute('data-theme', savedTheme);
+    themeToggle.checked = savedTheme === 'dark';
+    themeToggle.addEventListener('change', () => {
+        const theme = themeToggle.checked ? 'dark' : 'light';
+        html.setAttribute('data-theme', theme);
+        localStorage.setItem('theme', theme);
+    });
+</script>
+<th:block layout:fragment="js"></th:block>
+</body>
+</html>
