@@ -67,7 +67,7 @@ class AdminTable {
         this.cfg.columns.map(c => {
           let v = c.field ? this._resolve(row, c.field) : null;
           const cell = c.render ? c.render(v, row, this.page * this.cfg.pageSize + ri) : (v ?? '');
-          return `<td class="${c.width ? '' : ''} text-sm">${cell}</td>`;
+          return `<td class="text-sm"${c.width ? ` style="width:${c.width}"` : ''}>${cell}</td>`;
         }).join('') + '</tr>').join('');
       if (this.cfg.onRowClick) {
         tbody.querySelectorAll('tr[data-ri]').forEach(tr => {
