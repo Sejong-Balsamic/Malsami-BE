@@ -115,7 +115,7 @@ env:
   # 이 앱은 기동 완료까지 20초 이상 소요되며, prod 프로파일에서 actuator/health
   # 엔드포인트를 노출하지 않습니다. 따라서 HTTP 체크는 비활성화하고
   # Spring Boot 기동 완료 로그("Started ...Application") 패턴 매칭으로 검증합니다.
-  HEALTHCHECK_WAIT_SECONDS: "40"  # 컨테이너 초기화 대기 시간 (초)
+  HEALTHCHECK_WAIT_SECONDS: "20"  # 컨테이너 초기화 초기 대기 시간 (초) - 이후 기동 로그를 폴링
   HEALTHCHECK_PATH: ""  # 비워두면 HTTP 체크를 건너뛰고 로그 패턴만 사용
   HEALTHCHECK_MAX_RETRIES: "5"  # HTTP 재시도 횟수 (HEALTHCHECK_PATH 설정 시에만 사용)
   HEALTHCHECK_RETRY_INTERVAL: "3"  # 재시도 간격 (초)
@@ -391,61 +391,52 @@ jobs:
             # ============================================================
             # 컨테이너 헬스체크
             # ============================================================
+            # 이 앱은 다중 모듈·Hibernate DDL 로 기동 완료까지 60초 이상 걸린다.
+            # 따라서 고정 sleep 후 1회 체크가 아니라, 기동 완료 로그 패턴이
+            # 나타날 때까지 폴링하는 방식으로 검증한다. 폴링 중 컨테이너가
+            # 비정상 종료(exited)되면 즉시 실패 처리한다.
             echo "⏳ 컨테이너 초기화 대기 중... (${{ env.HEALTHCHECK_WAIT_SECONDS }}초)"
             sleep ${{ env.HEALTHCHECK_WAIT_SECONDS }}
 
-            # 1단계: 컨테이너 프로세스 확인
-            echo "🏥 컨테이너 헬스체크 중..."
-            if ! SUDO docker ps --format '{{.Names}}' | grep -Eq "^${CONTAINER_NAME}\$"; then
-              echo "❌ 컨테이너 $CONTAINER_NAME 프로세스가 실행되지 않았습니다"
-              SUDO docker logs --tail 50 $CONTAINER_NAME || true
-              exit 1
-            fi
-            echo "✅ 컨테이너 프로세스 실행 확인 완료"
-
-            # 2단계: HTTP 엔드포인트 체크 (설정된 경우)
+            echo "🏥 컨테이너 헬스체크 시작 (기동 완료 로그 폴링)"
             HEALTHCHECK_SUCCESS=false
-            if [ -n "${{ env.HEALTHCHECK_PATH }}" ]; then
-              echo "🌐 HTTP 헬스체크 시작: http://localhost:${PORT}${{ env.HEALTHCHECK_PATH }}"
-              for i in $(seq 1 ${{ env.HEALTHCHECK_MAX_RETRIES }}); do
-                echo "  시도 $i/${{ env.HEALTHCHECK_MAX_RETRIES }}..."
-                HTTP_CODE=$(curl -s -o /dev/null -w "%{http_code}" http://localhost:${PORT}${{ env.HEALTHCHECK_PATH }} || echo "000")
-                if [ "$HTTP_CODE" = "200" ]; then
-                  echo "✅ HTTP 헬스체크 성공 (응답 코드: $HTTP_CODE)"
-                  HEALTHCHECK_SUCCESS=true
-                  break
-                else
-                  echo "⚠️ HTTP 헬스체크 실패 (응답 코드: $HTTP_CODE)"
-                  if [ $i -lt ${{ env.HEALTHCHECK_MAX_RETRIES }} ]; then
-                    echo "  ${{ env.HEALTHCHECK_RETRY_INTERVAL }}초 후 재시도..."
-                    sleep ${{ env.HEALTHCHECK_RETRY_INTERVAL }}
-                  fi
-                fi
-              done
-              if [ "$HEALTHCHECK_SUCCESS" = "false" ]; then
-                echo "⚠️ HTTP 헬스체크 최종 실패, 로그 패턴 매칭으로 fallback..."
-              fi
-            else
-              echo "ℹ️ HEALTHCHECK_PATH가 설정되지 않아 로그 패턴 매칭만 사용합니다"
-            fi
+            MAX_POLL=24          # 최대 24회
+            POLL_INTERVAL=5      # 5초 간격 (최대 약 120초 추가 대기)
 
-            # 3단계: 로그 패턴 매칭 (HTTP 실패 시 또는 HTTP 체크 비활성화 시)
-            if [ "$HEALTHCHECK_SUCCESS" = "false" ]; then
-              echo "📋 로그 패턴 매칭 시작: '${{ env.HEALTHCHECK_LOG_PATTERN }}'"
-              if SUDO docker logs $CONTAINER_NAME 2>&1 | grep -q "${{ env.HEALTHCHECK_LOG_PATTERN }}"; then
-                echo "✅ 로그 패턴 매칭 성공: 애플리케이션이 정상적으로 시작되었습니다"
-                HEALTHCHECK_SUCCESS=true
-              else
-                echo "❌ 로그 패턴 매칭 실패: 애플리케이션 시작 로그를 찾을 수 없습니다"
-                echo "📋 컨테이너 로그 (최근 50줄):"
-                SUDO docker logs --tail 50 $CONTAINER_NAME || true
+            for i in $(seq 1 $MAX_POLL); do
+              # 컨테이너가 비정상 종료되었는지 확인 (떴다 죽은 경우 즉시 실패)
+              STATE=$(SUDO docker inspect -f '{{.State.Status}}' $CONTAINER_NAME 2>/dev/null || echo "missing")
+              if [ "$STATE" = "exited" ] || [ "$STATE" = "dead" ] || [ "$STATE" = "missing" ]; then
+                echo "❌ 컨테이너 $CONTAINER_NAME 가 비정상 종료되었습니다 (상태: $STATE)"
+                SUDO docker logs --tail 60 $CONTAINER_NAME || true
                 exit 1
               fi
+
+              # 기동 완료 로그 패턴 확인
+              if SUDO docker logs $CONTAINER_NAME 2>&1 | grep -q "${{ env.HEALTHCHECK_LOG_PATTERN }}"; then
+                echo "✅ 기동 완료 로그 확인: 애플리케이션이 정상적으로 시작되었습니다 (시도 $i/$MAX_POLL)"
+                HEALTHCHECK_SUCCESS=true
+                break
+              fi
+
+              echo "  ⏳ 기동 대기 중... ($i/$MAX_POLL, 상태: $STATE)"
+              sleep $POLL_INTERVAL
+            done
+
+            # HTTP 엔드포인트 체크 (HEALTHCHECK_PATH 설정 시 보조 검증)
+            if [ "$HEALTHCHECK_SUCCESS" = "true" ] && [ -n "${{ env.HEALTHCHECK_PATH }}" ]; then
+              HTTP_CODE=$(curl -s -o /dev/null -w "%{http_code}" http://localhost:${PORT}${{ env.HEALTHCHECK_PATH }} || echo "000")
+              echo "🌐 HTTP 헬스체크 응답 코드: $HTTP_CODE (${{ env.HEALTHCHECK_PATH }})"
             fi
 
-            if [ "$HEALTHCHECK_SUCCESS" = "true" ]; then
-              echo "✅ 헬스체크 완료: 컨테이너 $CONTAINER_NAME 이(가) 정상적으로 실행 중입니다"
+            if [ "$HEALTHCHECK_SUCCESS" = "false" ]; then
+              echo "❌ 헬스체크 실패: 제한 시간 내 기동 완료 로그를 찾지 못했습니다"
+              echo "📋 컨테이너 로그 (최근 60줄):"
+              SUDO docker logs --tail 60 $CONTAINER_NAME || true
+              exit 1
             fi
+
+            echo "✅ 헬스체크 완료: 컨테이너 $CONTAINER_NAME 이(가) 정상적으로 실행 중입니다"
 
             # ============================================================
             # 배포 완료 확인
