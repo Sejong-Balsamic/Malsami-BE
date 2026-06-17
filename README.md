@@ -133,6 +133,6 @@
 ---
 
 <!-- AUTO-VERSION-SECTION: DO NOT EDIT MANUALLY -->
-## 최신 버전 : v1.0.5 (2026-06-17)
+## 최신 버전 : v1.0.7 (2026-06-17)
 
 [전체 버전 기록 보기](CHANGELOG.md)
