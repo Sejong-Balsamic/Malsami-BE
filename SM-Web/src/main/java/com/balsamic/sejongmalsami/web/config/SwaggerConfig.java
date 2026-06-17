@@ -27,7 +27,9 @@ import org.springframework.context.annotation.Configuration;
     servers = {
         @Server(url = "https://api.sejong-malsami.co.kr", description = "메인 서버"),
         @Server(url = "https://api.test.sejong-malsami.co.kr", description = "테스트 서버"),
-        @Server(url = "http://localhost:8080", description = "로컬 서버")
+        @Server(url = "https://api.sejong-malsami.suhsaechan.kr", description = "시놀로지 API 서버"),
+        @Server(url = "http://localhost:8080", description = "로컬 서버 (8080)"),
+        @Server(url = "http://localhost:8087", description = "로컬 서버 (8087)")
     }
 )
 @Configuration
@@ -51,13 +53,19 @@ public class SwaggerConfig {
         .servers(List.of(
                 new io.swagger.v3.oas.models.servers.Server()
                     .url("http://localhost:8080")
-                    .description("로컬 서버"),
+                    .description("로컬 서버 (8080)"),
+                new io.swagger.v3.oas.models.servers.Server()
+                    .url("http://localhost:8087")
+                    .description("로컬 서버 (8087)"),
                 new io.swagger.v3.oas.models.servers.Server()
                     .url("https://api.test.sejong-malsami.co.kr")
                     .description("테스트 서버"),
                 new io.swagger.v3.oas.models.servers.Server()
                     .url("https://api.sejong-malsami.co.kr")
-                    .description("메인 서버")
+                    .description("메인 서버"),
+                new io.swagger.v3.oas.models.servers.Server()
+                    .url("https://api.sejong-malsami.suhsaechan.kr")
+                    .description("시놀로지 API 서버")
             )
         );
   }

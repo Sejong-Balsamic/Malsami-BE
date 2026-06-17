@@ -40,14 +40,12 @@ public class WebSecurityConfig {
    * 허용된 CORS Origin 목록
    */
   private static final String[] ALLOWED_ORIGINS = {
-      "https://api.sejong-malsami.co.kr",      // 운영 API 서버
-      "https://api.test.sejong-malsami.co.kr", // 테스트 API 서버
-      "https://www.sejong-malsami.co.kr",      // 운영 웹 서버
-      "https://test.sejong-malsami.co.kr",     // 테스트 웹 서버
-      "http://220.85.169.165:8086",            // 개발 API 서버
-      "http://220.85.169.165:3002",            // 개발 웹 서버
-      "http://localhost:8080",                 // 로컬 API 서버
-      "http://localhost:3000"                  // 로컬 웹 서버
+      "https://sejong-malsami.suhsaechan.kr",     // 시놀로지 외부 노출 웹 서버
+      "https://api.sejong-malsami.suhsaechan.kr", // 시놀로지 외부 노출 API 서버
+      "http://localhost:8080",                    // 로컬 API 서버
+      "http://localhost:8087",                    // 시놀로지/로컬 API 서버 (8087)
+      "http://localhost:3000",                    // 로컬 웹 서버
+      "http://localhost:3004"                     // 시놀로지/로컬 웹 서버 (3004)
   };
 
   /**
