@@ -30,10 +30,13 @@
 name: PROJECT-SPRING-GITHUB-PACKAGES-PUBLISH
 
 on:
-  push:
-    branches: ["deploy"]
-    tags:
-      - 'v*.*.*'
+  # ⚠️ 자동 트리거 비활성화 — 이 프로젝트는 라이브러리가 아닌 실행형 애플리케이션이라
+  #   build.gradle 에 maven-publish 설정이 없어 publish 태스크가 존재하지 않습니다.
+  #   라이브러리 publish 가 필요해지면 maven-publish 설정 추가 후 아래 트리거를 해제하세요.
+  # push:
+  #   branches: ["deploy"]
+  #   tags:
+  #     - 'v*.*.*'
   workflow_dispatch:
 
 concurrency:

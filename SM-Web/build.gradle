@@ -18,4 +18,15 @@ dependencies {
     
     // Application 모듈
     implementation project(':SM-Application')
-} 
+}
+
+// 실행 가능한 부트 JAR 산출물명을 버전과 무관하게 고정합니다.
+// (version.yml/build.gradle 버전이 자동 증가해도 Dockerfile COPY 경로가 깨지지 않도록)
+bootJar {
+    archiveFileName = 'SM-Web.jar'
+}
+
+// 라이브러리용 plain jar 는 사용하지 않으므로 비활성화합니다.
+jar {
+    enabled = false
+}
