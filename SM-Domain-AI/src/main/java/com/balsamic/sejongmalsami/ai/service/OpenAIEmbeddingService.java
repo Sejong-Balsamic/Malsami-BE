@@ -9,18 +9,26 @@ import com.google.genai.types.ContentEmbedding;
 import com.google.genai.types.EmbedContentConfig;
 import com.google.genai.types.EmbedContentResponse;
 import java.util.List;
-import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.context.annotation.Lazy;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 @Service
 @Slf4j
-@RequiredArgsConstructor
 public class OpenAIEmbeddingService {
 
   private final Client genAiClient;
   private final GoogleGenAiProperties googleGenAiProperties;
+
+  // genAiClient 는 @Lazy 로 주입해 실제 임베딩 호출 시점에만 초기화되도록 한다.
+  // (google.genai.* 설정이 없어도 앱 기동은 영향을 받지 않는다)
+  // 필드 @Lazy 는 Lombok 생성자로 전파되지 않으므로 명시적 생성자에서 직접 지정한다.
+  public OpenAIEmbeddingService(@Lazy Client genAiClient,
+                                GoogleGenAiProperties googleGenAiProperties) {
+    this.genAiClient = genAiClient;
+    this.googleGenAiProperties = googleGenAiProperties;
+  }
 
   @Transactional
   public float[] generateEmbedding(String text) {
