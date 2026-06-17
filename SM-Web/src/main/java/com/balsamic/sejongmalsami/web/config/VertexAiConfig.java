@@ -10,15 +10,14 @@ import java.util.List;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.context.annotation.Lazy;
 import org.springframework.core.io.ClassPathResource;
 
 /**
  * Vertex AI 임베딩 클라이언트 설정 (fallback 용)
  *
- * <p>임베딩 메인 엔진은 SUH-AIder 이고, Vertex AI 는 fallback 이므로
- * {@code @Lazy} 로 지연 생성한다. credentials 설정이 없어도 앱 기동에는 영향을 주지 않으며,
- * 실제 fallback 호출 시점에만 초기화된다.
+ * <p>임베딩 메인 엔진은 SUH-AIder 이고, Vertex AI 는 fallback 이다.
+ * credentials JSON 은 배포 시 VERTEX_CREDENTIALS_JSON secret 으로 생성되므로
+ * 빈을 즉시 생성한다. (com.google.genai.Client 는 final 클래스라 @Lazy 프록시가 불가능하다)
  */
 @Configuration
 @RequiredArgsConstructor
@@ -27,7 +26,6 @@ public class VertexAiConfig {
   private final VertexAiProperties vertexAiProperties;
 
   @Bean
-  @Lazy
   public Client embeddingClient() throws IOException {
     try (InputStream inputStream =
              new ClassPathResource(vertexAiProperties.getCredentialsFile()).getInputStream()) {

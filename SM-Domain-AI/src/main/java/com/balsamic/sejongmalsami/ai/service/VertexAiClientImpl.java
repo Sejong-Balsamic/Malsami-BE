@@ -7,8 +7,8 @@ import com.google.genai.Client;
 import com.google.genai.errors.ClientException;
 import com.google.genai.types.EmbedContentConfig;
 import com.google.genai.types.EmbedContentResponse;
+import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.context.annotation.Lazy;
 import org.springframework.stereotype.Service;
 
 /**
@@ -16,17 +16,11 @@ import org.springframework.stereotype.Service;
  */
 @Service
 @Slf4j
+@RequiredArgsConstructor
 public class VertexAiClientImpl implements VertexAiClient {
 
   private final Client embeddingClient;
   private final VertexAiProperties vertexAiProperties;
-
-  // embeddingClient 는 @Lazy 로 주입해 실제 fallback 호출 시점에만 초기화한다.
-  public VertexAiClientImpl(@Lazy Client embeddingClient,
-                            VertexAiProperties vertexAiProperties) {
-    this.embeddingClient = embeddingClient;
-    this.vertexAiProperties = vertexAiProperties;
-  }
 
   @Override
   public EmbedContentResponse generateEmbedding(String text) {
