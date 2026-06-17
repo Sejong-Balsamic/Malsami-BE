@@ -112,11 +112,14 @@ env:
   SSH_CONNECTION_TIMEOUT: "60s"  # SSH 연결 타임아웃
 
   # ⏱️ 헬스체크 설정
-  HEALTHCHECK_WAIT_SECONDS: "10"  # 컨테이너 초기화 대기 시간 (초)
-  HEALTHCHECK_PATH: "/actuator/health"  # HTTP 엔드포인트 경로 (비어있으면 로그 패턴만 사용)
-  HEALTHCHECK_MAX_RETRIES: "5"  # HTTP 재시도 횟수
+  # 이 앱은 기동 완료까지 20초 이상 소요되며, prod 프로파일에서 actuator/health
+  # 엔드포인트를 노출하지 않습니다. 따라서 HTTP 체크는 비활성화하고
+  # Spring Boot 기동 완료 로그("Started ...Application") 패턴 매칭으로 검증합니다.
+  HEALTHCHECK_WAIT_SECONDS: "40"  # 컨테이너 초기화 대기 시간 (초)
+  HEALTHCHECK_PATH: ""  # 비워두면 HTTP 체크를 건너뛰고 로그 패턴만 사용
+  HEALTHCHECK_MAX_RETRIES: "5"  # HTTP 재시도 횟수 (HEALTHCHECK_PATH 설정 시에만 사용)
   HEALTHCHECK_RETRY_INTERVAL: "3"  # 재시도 간격 (초)
-  HEALTHCHECK_LOG_PATTERN: "Tomcat started on port"  # Fallback 로그 검색 패턴
+  HEALTHCHECK_LOG_PATTERN: "Started SejongMalsamiBackendApplication"  # 기동 완료 로그 패턴
 
 jobs:
   # ===================================================================
