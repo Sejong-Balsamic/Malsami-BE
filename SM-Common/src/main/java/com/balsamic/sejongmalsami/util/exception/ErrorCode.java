@@ -70,6 +70,10 @@ public enum ErrorCode {
 
   EMBEDDING_SEARCH_FAILED(HttpStatus.INTERNAL_SERVER_ERROR, "Embedding 검색에 실패했습니다."),
 
+  EMBEDDING_NOT_FOUND(HttpStatus.INTERNAL_SERVER_ERROR, "Embedding 응답에서 벡터를 찾을 수 없습니다."),
+
+  VERTEX_API_CALL_FAILED(HttpStatus.SERVICE_UNAVAILABLE, "Vertex AI API 호출에 실패했습니다."),
+
   // File
 
   S3_FILE_UPLOAD_ERROR(HttpStatus.BAD_REQUEST, "파일 업로드 시 오류가 발생했습니다."),

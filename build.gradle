@@ -14,6 +14,10 @@ allprojects {
             url "http://suh-project.synology.me:9999/repository/maven-releases/"
             allowInsecureProtocol = true
         }
+        // SUH-Nexus (kr.suhsaechan:* 라이브러리 - suh-aider 등)
+        maven {
+            url "https://nexus.suhsaechan.kr/repository/maven-releases/"
+        }
     }
 }
 

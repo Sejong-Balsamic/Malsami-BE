@@ -15,7 +15,7 @@ import org.springframework.transaction.annotation.Transactional;
 public class SearchQueryCacheService {
 
   private final SearchQueryCacheRepository searchQueryCacheRepository;
-  private final com.balsamic.sejongmalsami.ai.service.OpenAIEmbeddingService openAIEmbeddingService;
+  private final com.balsamic.sejongmalsami.ai.service.EmbeddingService embeddingService;
   private final RedisLockManager redisLockManager;
 
   /**
@@ -35,7 +35,7 @@ public class SearchQueryCacheService {
       return searchQueryCacheRepository.findByQueryText(normalizedQuery)
           .map(this::returnEmbedding)
           .orElseGet(() -> {
-            float[] newEmbedding = openAIEmbeddingService.generateEmbedding(normalizedQuery);
+            float[] newEmbedding = embeddingService.generateEmbedding(normalizedQuery);
             saveEmbeddingAsync(normalizedQuery, newEmbedding);
             return newEmbedding;
           });

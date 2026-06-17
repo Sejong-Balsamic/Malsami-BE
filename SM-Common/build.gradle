@@ -89,8 +89,11 @@ dependencies {
     api 'com.google.firebase:firebase-admin:9.2.0'
 
     // AI & ML
-    api 'com.google.genai:google-genai:1.6.0'
-    api 'com.google.auth:google-auth-library-oauth2-http:1.19.0'
+    api 'com.google.genai:google-genai:1.9.0'
+    api 'com.google.auth:google-auth-library-oauth2-http:1.35.0'
+
+    // SUH-AIder (자체 AI 서버 클라이언트 - 임베딩 메인 엔진)
+    api 'kr.suhsaechan:suh-aider:1.1.2'
 
     // Jackson
     api 'com.fasterxml.jackson.core:jackson-databind'

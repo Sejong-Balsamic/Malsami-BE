@@ -1,7 +1,7 @@
 package com.balsamic.sejongmalsami.post.service;
 
 import com.balsamic.sejongmalsami.ai.dto.EmbeddingCommand;
-import com.balsamic.sejongmalsami.ai.service.OpenAIEmbeddingService;
+import com.balsamic.sejongmalsami.ai.service.EmbeddingService;
 import com.balsamic.sejongmalsami.constants.ContentType;
 import com.balsamic.sejongmalsami.constants.FileStatus;
 import com.balsamic.sejongmalsami.object.postgres.PostEmbedding;
@@ -37,7 +37,7 @@ import org.springframework.stereotype.Service;
 @RequiredArgsConstructor
 public class PostEmbeddingService {
 
-  private final OpenAIEmbeddingService embeddingService;
+  private final EmbeddingService embeddingService;
   // private final SearchQueryCacheService searchQueryCacheService; // Post 도메인 서비스 제거
   private final PostEmbeddingRepository postEmbeddingRepository;
   private final QuestionPostRepository questionPostRepository;

@@ -94,3 +94,4 @@ SM-*/src/main/resources/*.json
 
 ### Claude Code ###
 .claude/settings.local.json
+/temp_malsami_secret/

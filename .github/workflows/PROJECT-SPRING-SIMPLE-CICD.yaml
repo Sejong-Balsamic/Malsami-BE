@@ -215,6 +215,21 @@ jobs:
           ${{ secrets.FIREBASE_MESSAGING_SW_JS }}
           EOF
 
+      # Vertex AI credentials JSON 생성 (임베딩 fallback용)
+      # VERTEX_CREDENTIALS_JSON secret 이 설정된 경우에만 생성한다.
+      # 파일명은 application-prod.yml 의 vertex.ai.credentials-file 과 일치해야 한다.
+      - name: vertex credentials json 생성
+        env:
+          VERTEX_CREDENTIALS_JSON: ${{ secrets.VERTEX_CREDENTIALS_JSON }}
+        run: |
+          mkdir -p ${{ env.APPLICATION_YML_DIR }}
+          if [ -n "$VERTEX_CREDENTIALS_JSON" ]; then
+            echo "$VERTEX_CREDENTIALS_JSON" > ./${{ env.APPLICATION_YML_DIR }}/gen-lang-client-0511951522-e0dc1d68cbcb.json
+            echo "✅ vertex credentials json 생성 완료"
+          else
+            echo "ℹ️ VERTEX_CREDENTIALS_JSON secret 미설정 - SUH-AIder 임베딩만 사용(Vertex fallback 비활성)"
+          fi
+
       # 5. Gradle 빌드 실행 (테스트 제외, 운영 프로파일)
       - name: Build with Gradle
         run: ./gradlew clean build -x test ${{ env.GRADLE_OPTS }}

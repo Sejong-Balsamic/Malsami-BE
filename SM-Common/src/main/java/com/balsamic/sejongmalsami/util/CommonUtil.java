@@ -149,5 +149,31 @@ public class CommonUtil {
     }
     return parts;
   }
+
+  /**
+   * 연속된 공백을 하나로 정규화하고 앞뒤 공백을 제거
+   * 임베딩 입력 텍스트 정규화에 사용
+   */
+  public static String normalizeSpaces(String input) {
+    if (input == null) {
+      return "";
+    }
+    return input.trim().replaceAll("\\s+", " ");
+  }
+
+  /**
+   * List&lt;Double&gt;을 float[]로 변환
+   * SUH-AIder 임베딩 응답 변환용
+   */
+  public static float[] convertDoubleListToFloatArray(List<Double> doubleList) {
+    if (doubleList == null || doubleList.isEmpty()) {
+      return new float[0];
+    }
+    float[] result = new float[doubleList.size()];
+    for (int i = 0; i < doubleList.size(); i++) {
+      result[i] = doubleList.get(i).floatValue();
+    }
+    return result;
+  }
 }
 
