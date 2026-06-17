@@ -31,46 +31,46 @@ jobs:
           echo "$EMBEDDING_JSON" | sed 's/\n/\n/g' > ./SM-Web/src/main/resources/sejong-malsami-embedding.json
 
       - name: Create application-prod.yml from secret
-        env:
-          APPLICATION_PROD_YML: ${{ secrets.APPLICATION_PROD_YML }}
         run: |
           mkdir -p SM-Web/src/main/resources
-          echo "$APPLICATION_PROD_YML" > ./SM-Web/src/main/resources/application-prod.yml
+          cat << 'EOF' > ./SM-Web/src/main/resources/application-prod.yml
+          ${{ secrets.APPLICATION_PROD_YML }}
+          EOF
 
       - name: Create yeopjeon.yml from secret
-        env:
-          YEOPJEON_YML: ${{ secrets.YEOPJEON_YML }}
         run: |
           mkdir -p SM-Web/src/main/resources
-          echo "$YEOPJEON_YML" > ./SM-Web/src/main/resources/yeopjeon.yml
+          cat << 'EOF' > ./SM-Web/src/main/resources/yeopjeon.yml
+          ${{ secrets.YEOPJEON_YML }}
+          EOF
 
       - name: Create score.yml from secret
-        env:
-          SCORE_YML: ${{ secrets.SCORE_YML }}
         run: |
           mkdir -p SM-Web/src/main/resources
-          echo "$SCORE_YML" > ./SM-Web/src/main/resources/score.yml
+          cat << 'EOF' > ./SM-Web/src/main/resources/score.yml
+          ${{ secrets.SCORE_YML }}
+          EOF
 
       - name: Create exp.yml from secret
-        env:
-          EXP_YML: ${{ secrets.EXP_YML }}
         run: |
           mkdir -p SM-Web/src/main/resources
-          echo "$EXP_YML" > ./SM-Web/src/main/resources/exp.yml
+          cat << 'EOF' > ./SM-Web/src/main/resources/exp.yml
+          ${{ secrets.EXP_YML }}
+          EOF
 
       - name: Create admin.yml from secret
-        env:
-          ADMIN_YML: ${{ secrets.ADMIN_YML }}
         run: |
           mkdir -p SM-Web/src/main/resources
-          echo "$ADMIN_YML" > ./SM-Web/src/main/resources/admin.yml
+          cat << 'EOF' > ./SM-Web/src/main/resources/admin.yml
+          ${{ secrets.ADMIN_YML }}
+          EOF
 
       - name: Create post-tier.yml from secret
-        env:
-          POSTTIER_YML: ${{ secrets.POSTTIER_YML }}
         run: |
           mkdir -p SM-Web/src/main/resources
-          echo "$POSTTIER_YML" > ./SM-Web/src/main/resources/post-tier.yml
+          cat << 'EOF' > ./SM-Web/src/main/resources/post-tier.yml
+          ${{ secrets.POSTTIER_YML }}
+          EOF
 
       - name: Create Firebase Config File
         env:
@@ -80,11 +80,11 @@ jobs:
           echo "$FIREBASE_CONFIG_JSON" | sed 's/\\n/\n/g' > ./SM-Web/src/main/resources/firebase-admin-sdk.json
 
       - name: Create firebase-messaging-sw.js from secret
-        env:
-          FIREBASE_MESSAGING_SW_JS: ${{ secrets.FIREBASE_MESSAGING_SW_JS }}
         run: |
           mkdir -p SM-Web/src/main/resources/static
-          echo "$FIREBASE_MESSAGING_SW_JS" > ./SM-Web/src/main/resources/static/firebase-messaging-sw.js
+          cat << 'EOF' > ./SM-Web/src/main/resources/static/firebase-messaging-sw.js
+          ${{ secrets.FIREBASE_MESSAGING_SW_JS }}
+          EOF
 
       - name: Build with Gradle
         run: ./gradlew clean build -x test -Dspring.profiles.active=prod
