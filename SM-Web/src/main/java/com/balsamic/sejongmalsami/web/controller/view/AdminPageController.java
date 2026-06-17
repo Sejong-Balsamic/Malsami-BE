@@ -97,6 +97,8 @@ public class AdminPageController {
     if (!jwtUtil.validateToken(accessToken)) {
       return "redirect:/error/403";
     }
+    model.addAttribute("currentMenu", "member");
+    model.addAttribute("pageTitle", "회원 관리");
     return "admin/member";
   }
 
